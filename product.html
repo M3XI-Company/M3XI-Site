@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>M3XI Product</title>
+    <meta name="description" content="Detailed product page for the M3XI portfolio." />
+    <link
+      rel="icon"
+      type="image/png"
+      href="/favicon.png"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+    <header class="site-header">
+      <a class="brand" href="/">M3XI</a>
+      <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/portfolio.html">Portfolio</a>
+      </nav>
+      <a class="btn btn-outline" href="/auth/linkedin">Sign up with LinkedIn</a>
+    </header>
+
+    <main>
+      <section class="page-hero">
+        <a class="back-link" href="/portfolio.html">← Back to Portfolio</a>
+        <h1 id="product-name">Product</h1>
+        <p id="product-tagline">Product description loading...</p>
+      </section>
+
+      <section class="section">
+        <article class="panel">
+          <p class="eyebrow">Overview</p>
+          <p id="product-description"></p>
+        </article>
+      </section>
+
+      <section class="section">
+        <article class="panel">
+          <p class="eyebrow">Impact</p>
+          <p id="product-impact"></p>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        © <span id="year"></span> M3XI. Innovation through execution. ·
+        <a href="/privacy.html">Privacy Policy</a>
+      </p>
+    </footer>
+
+    <script type="module" src="/product.js"></script>
+    <script type="module" src="/cookie-consent.js"></script>
+  </body>
+</html>
