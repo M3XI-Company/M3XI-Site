@@ -29,11 +29,12 @@ if (revealSections.length > 0) {
 }
 
 if (subscribeForm && subscribeMessage) {
-  subscribeForm.addEventListener("submit", (event) => {
+  subscribeForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const formData = new FormData(subscribeForm);
     const email = String(formData.get("email") || "").trim();
+    const submitButton = subscribeForm.querySelector("button[type=\"submit\"]");
     const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     if (!isValidEmail) {
@@ -41,28 +42,84 @@ if (subscribeForm && subscribeMessage) {
       return;
     }
 
-    // Placeholder success flow. Replace with backend/API call for real subscriptions.
-    subscribeMessage.textContent = "Thanks for subscribing to M3XI.StartUp updates.";
-    subscribeForm.reset();
+    if (submitButton) {
+      submitButton.disabled = true;
+    }
+    subscribeMessage.textContent = "Subscribing...";
+
+    try {
+      const response = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email })
+      });
+
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        subscribeMessage.textContent =
+          payload?.message || "Unable to subscribe right now. Please try again.";
+        return;
+      }
+
+      subscribeMessage.textContent = "Thank you for subscribing to StartUp.";
+      subscribeForm.reset();
+    } catch (error) {
+      subscribeMessage.textContent =
+        "Network error. Please try again in a moment.";
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+      }
+    }
   });
 }
 
 if (feedbackForm && feedbackMessage) {
-  feedbackForm.addEventListener("submit", (event) => {
+  feedbackForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const formData = new FormData(feedbackForm);
     const feedback = String(formData.get("feedback") || "").trim();
+    const submitButton = feedbackForm.querySelector("button[type=\"submit\"]");
 
     if (feedback.length < 8) {
       feedbackMessage.textContent = "Please add a bit more detail before sending.";
       return;
     }
 
-    const subject = encodeURIComponent("StartUp User Feedback");
-    const body = encodeURIComponent(feedback);
-    window.location.href = `mailto:StartUp.support@m3xi.com?subject=${subject}&body=${body}`;
-    feedbackMessage.textContent = "Opening your email app to send feedback.";
-    feedbackForm.reset();
+    if (submitButton) {
+      submitButton.disabled = true;
+    }
+    feedbackMessage.textContent = "Sending feedback...";
+
+    try {
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ feedback })
+      });
+
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        feedbackMessage.textContent =
+          payload?.message || "Unable to send feedback right now. Please try again.";
+        return;
+      }
+
+      feedbackMessage.textContent = "Thanks. Your feedback has been sent.";
+      feedbackForm.reset();
+    } catch (error) {
+      feedbackMessage.textContent = "Network error. Please try again in a moment.";
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+      }
+    }
   });
 }

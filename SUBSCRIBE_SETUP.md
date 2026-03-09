@@ -35,11 +35,12 @@ Use these values for your current setup:
 2. Verify your domain in Resend (recommended: `m3xi.com`).
 3. Create an API key in Resend.
 4. Put the variables in local `.env` for local testing.
-5. Put the same variables in your hosting provider (Render or Vercel) environment settings.
+5. Put the same variables in your hosting provider environment settings.
 6. Redeploy.
 
 ## Hosting notes
 
+- Render (Web Service): use `npm install && npm run build` as Build Command and `npm run start` as Start Command.
 - Render: open your service > Environment > add the 3 variables > Save > redeploy.
 - Vercel: open project settings > Environment Variables > add the 3 variables > redeploy.
 - Do not commit real keys; keep real values only in `.env` and hosting env settings.
