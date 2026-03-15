@@ -287,7 +287,7 @@ p {
 .carousel-track {
   display: flex;
   height: 100%;
-  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .carousel-slide {
@@ -355,7 +355,7 @@ p {
   right: 0;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .feature-panel.active {
@@ -670,7 +670,7 @@ p {
   background-image: radial-gradient(circle, rgba(17, 17, 17, 0.34) 1.7px, transparent 1.7px);
   background-size: 22px 22px;
   opacity: 0;
-  transition: opacity 500ms ease;
+  transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .scroll-section.is-visible::before {
@@ -763,8 +763,17 @@ p {
 }
 
 .why-block {
-  padding: 1.5rem 0;
-  border-top: 2px solid var(--noir);
+  padding: 1.5rem 1.25rem;
+  background: var(--surface);
+  border: 2px solid var(--noir);
+  border-radius: 12px;
+  box-shadow: 6px 6px 0 var(--noir);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.why-block:hover {
+  transform: translateY(-2px);
+  box-shadow: 8px 8px 0 var(--noir);
 }
 
 .why-block h3 {
@@ -938,20 +947,24 @@ p {
 
 .reveal {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 520ms ease, transform 520ms ease;
+  transform: translateY(24px);
+  transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: opacity, transform;
 }
 
 .reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
+  will-change: auto;
 }
 
 .pop-text {
   display: inline-block;
-  transform: scale(0.96);
+  transform: scale(0.98);
   opacity: 0;
-  transition: transform 360ms ease, opacity 360ms ease;
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .is-visible .pop-text {
@@ -973,6 +986,14 @@ p {
   margin: 2rem auto;
   display: grid;
   gap: 1rem;
+}
+
+.legal-footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(17, 17, 17, 0.2);
+  font-size: 0.9rem;
+  color: var(--muted);
 }
 
 .legal-section {
@@ -1003,8 +1024,9 @@ p {
   justify-content: space-between;
   z-index: 100;
   opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 220ms ease, transform 220ms ease;
+  transform: translateY(12px);
+  transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .cookie-banner.is-visible {
