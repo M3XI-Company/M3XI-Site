@@ -32,6 +32,10 @@ app.get("/", (req, res) => {
   res.sendFile(join(staticDir, "index.html"));
 });
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ ok: true, status: "up" });
+});
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

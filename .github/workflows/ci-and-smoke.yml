@@ -1,0 +1,53 @@
+name: CI and Live Smoke Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+  smoke-live:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # Set vars.LIVE_URL in repo Settings > Secrets and variables > Actions if using a custom domain
+      - name: Set LIVE_URL
+        run: |
+          LIVE="${{ vars.LIVE_URL }}"
+          echo "LIVE_URL=${LIVE:-https://companywebsite.onrender.com}" >> $GITHUB_ENV
+
+      - name: Wait for deploy
+        run: sleep 90
+
+      - name: Check homepage
+        run: |
+          resp=$(curl -sS -o /dev/null -w "%{http_code}" "$LIVE_URL/")
+          if [ "$resp" != "200" ]; then
+            echo "Homepage returned $resp, expected 200"
+            exit 1
+          fi
+          echo "Homepage OK (200)"
+
+      - name: Check health endpoint
+        run: |
+          resp=$(curl -sS -o /dev/null -w "%{http_code}" "$LIVE_URL/health")
+          if [ "$resp" != "200" ]; then
+            echo "Health returned $resp, expected 200"
+            exit 1
+          fi
+          echo "Health OK (200)"

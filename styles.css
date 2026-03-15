@@ -136,14 +136,40 @@ p {
   color: var(--noir);
 }
 
-.app-preview-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(180px, 1fr));
-  gap: 0.9rem;
+.app-preview-panel {
   margin-top: 0.9rem;
+  border: 2px solid var(--noir);
+  background: var(--surface);
+  border-radius: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--noir) var(--bg);
+}
+
+.app-preview-panel::-webkit-scrollbar {
+  height: 8px;
+}
+
+.app-preview-panel::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+.app-preview-panel::-webkit-scrollbar-thumb {
+  background: var(--noir);
+  border-radius: 4px;
+}
+
+.app-preview-track {
+  display: flex;
+  gap: 0.9rem;
+  padding: 0.9rem;
+  min-width: min-content;
 }
 
 .app-preview-card {
+  flex: 0 0 min(220px, 45vw);
   border: 2px solid var(--noir);
   background: repeating-linear-gradient(
     -45deg,
@@ -499,6 +525,46 @@ p {
   max-width: 42ch;
 }
 
+.vision-pillars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.vision-pillar {
+  border: 2px solid var(--noir);
+  background: var(--surface);
+  padding: 1.1rem 1rem;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.vision-pillar:hover {
+  transform: translateY(-3px);
+  box-shadow: 6px 6px 0 var(--noir);
+}
+
+.vision-icon {
+  display: block;
+  font-size: 1.4rem;
+  color: var(--noir);
+  margin-bottom: 0.5rem;
+}
+
+.vision-pillar h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.vision-pillar p {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  max-width: none;
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(20px);
@@ -615,8 +681,12 @@ p {
     grid-template-columns: 1fr;
   }
 
-  .app-preview-grid {
-    grid-template-columns: 1fr;
+  .app-preview-card {
+    flex: 0 0 min(180px, 75vw);
+  }
+
+  .vision-pillars {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .feedback-description-grid {
@@ -624,6 +694,12 @@ p {
   }
 
   .reviews-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .vision-pillars {
     grid-template-columns: 1fr;
   }
 }
