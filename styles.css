@@ -513,9 +513,15 @@ p {
   border-radius: 0;
 }
 
-#vision h2 {
+#vision h2,
+#vision h3 {
   font-size: clamp(1.7rem, 3vw, 2.4rem);
   font-weight: 800;
+}
+
+#vision h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 #vision p {
@@ -527,7 +533,7 @@ p {
 
 .vision-pillars {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1rem;
   margin-top: 2rem;
 }
