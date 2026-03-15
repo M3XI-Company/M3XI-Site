@@ -123,3 +123,49 @@ if (feedbackForm && feedbackMessage) {
     }
   });
 }
+
+/* App Showcase Carousel */
+(function initCarousel() {
+  const showcase = document.querySelector(".app-showcase");
+  if (!showcase) return;
+
+  const track = showcase.querySelector(".carousel-track");
+  const slides = showcase.querySelectorAll(".carousel-slide");
+  const dots = showcase.querySelectorAll(".carousel-dot");
+  const panels = showcase.querySelectorAll(".feature-panel");
+  const prevBtn = showcase.querySelector(".carousel-prev");
+  const nextBtn = showcase.querySelector(".carousel-next");
+
+  const total = slides.length;
+  if (total === 0) return;
+
+  let current = 0;
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  function goTo(index) {
+    current = ((index % total) + total) % total;
+    track.style.transform = `translateX(-${current * 100}%)`;
+    dots.forEach((d, i) => d.classList.toggle("active", i === current));
+    panels.forEach((p, i) => p.classList.toggle("active", i === current));
+  }
+
+  dots.forEach((dot, i) => {
+    dot.addEventListener("click", () => goTo(i));
+  });
+
+  if (prevBtn) prevBtn.addEventListener("click", () => goTo(current - 1));
+  if (nextBtn) nextBtn.addEventListener("click", () => goTo(current + 1));
+
+  showcase.addEventListener("touchstart", (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  showcase.addEventListener("touchend", (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    const diff = touchStartX - touchEndX;
+    if (Math.abs(diff) > 50) {
+      goTo(diff > 0 ? current + 1 : current - 1);
+    }
+  }, { passive: true });
+})();
