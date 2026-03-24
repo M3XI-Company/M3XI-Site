@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M3XI — Business Intelligence, Redefined</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&family=Noto+Serif+JP:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+
+  <!-- Three.js cherry blossom canvas -->
+  <canvas id="bg"></canvas>
+
+  <!-- Overlay gradient -->
+  <div class="bg-overlay"></div>
+
+  <!-- ── Navigation ── -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#home" class="logo">
+        <span class="logo-main">M3XI</span>
+        <span class="logo-jp">三X一</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#philosophy">Philosophy</a></li>
+      </ul>
+      <a href="#waitlist" class="btn btn-nav">Get Early Access</a>
+    </div>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <section class="hero" id="home">
+    <div class="hero-content">
+
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Business Intelligence Platform · Early Access
+      </div>
+
+      <h1 class="hero-title">
+        Understand Every<br>
+        <em>Business.</em> Instantly.
+      </h1>
+
+      <p class="hero-sub">
+        M3XI analyzes businesses, estimates their true value, and delivers
+        clear summaries — so you move faster with confidence.
+      </p>
+
+      <div class="hero-cta">
+        <a href="#waitlist" class="btn btn-primary">Get Early Access</a>
+        <a href="#how-it-works" class="btn btn-ghost">See How It Works →</a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-num">10x</span>
+          <span class="stat-label">Faster Analysis</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-num">3 min</span>
+          <span class="stat-label">Full Business Report</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-num">∞</span>
+          <span class="stat-label">Businesses Profiled</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="hero-scroll">
+      <span class="scroll-label">Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ── Marquee / Social Proof Strip ── -->
+  <div class="marquee-strip">
+    <div class="marquee-track">
+      <span>Business Valuation</span>
+      <span class="marquee-sep">・</span>
+      <span>Intelligent Summaries</span>
+      <span class="marquee-sep">・</span>
+      <span>Time Intelligence</span>
+      <span class="marquee-sep">・</span>
+      <span>Art × Technology</span>
+      <span class="marquee-sep">・</span>
+      <span>Creative Analysis</span>
+      <span class="marquee-sep">・</span>
+      <span>Startup Focused</span>
+      <span class="marquee-sep">・</span>
+      <span>Business Valuation</span>
+      <span class="marquee-sep">・</span>
+      <span>Intelligent Summaries</span>
+      <span class="marquee-sep">・</span>
+      <span>Time Intelligence</span>
+      <span class="marquee-sep">・</span>
+      <span>Art × Technology</span>
+      <span class="marquee-sep">・</span>
+      <span>Creative Analysis</span>
+      <span class="marquee-sep">・</span>
+      <span>Startup Focused</span>
+      <span class="marquee-sep">・</span>
+    </div>
+  </div>
+
+  <!-- ── Features ── -->
+  <section class="features" id="features">
+    <div class="container">
+
+      <div class="section-header">
+        <span class="section-tag">Core Features</span>
+        <h2>Everything you need to understand a business.</h2>
+        <p>M3XI distills complex business data into clear, actionable intelligence.</p>
+      </div>
+
+      <div class="features-grid">
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 3v18h18"/>
+              <path d="M18 9l-5 5-2-2-5 5"/>
+            </svg>
+          </div>
+          <div class="feature-tag">Core</div>
+          <h3>Valuation Engine</h3>
+          <p>Instant business value estimates using proprietary models calibrated across industries and stages.</p>
+          <div class="feature-footer">
+            <span>Revenue multiples · EBITDA · Market comps</span>
+          </div>
+        </div>
+
+        <div class="feature-card feature-card--accent">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+            </svg>
+          </div>
+          <div class="feature-tag feature-tag--pink">AI-Powered</div>
+          <h3>Intelligent Summaries</h3>
+          <p>AI-powered business summaries that surface what matters — revenue model, strengths, risks, and growth levers.</p>
+          <div class="feature-footer">
+            <span>Concise · Structured · Actionable</span>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <div class="feature-tag">Efficiency</div>
+          <h3>Time Intelligence</h3>
+          <p>What once took days of due diligence now takes minutes. Reclaim your time. Focus on decisions, not research.</p>
+          <div class="feature-footer">
+            <span>Minutes not days · Designed for speed</span>
+          </div>
+        </div>
+
+        <div class="feature-card feature-card--wide">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <div class="feature-tag feature-tag--gold">Creative</div>
+          <h3>Art × Technology Analysis</h3>
+          <p>M3XI is built at the intersection of creative industries and technical ventures. We see value where others see complexity — from studios to software companies, from agencies to apps.</p>
+          <div class="feature-footer">
+            <span>Cross-industry · Creative ventures · Tech startups</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── How It Works ── -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+
+      <div class="section-header">
+        <span class="section-tag">Process</span>
+        <h2>Three steps to clarity.</h2>
+        <p>Simple in experience. Powerful in output.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-number">01</div>
+          <div class="step-content">
+            <h3>Input a Business</h3>
+            <p>Enter a company name, website, or a brief description. M3XI handles the rest — no lengthy forms, no setup.</p>
+          </div>
+        </div>
+
+        <div class="step-connector">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </div>
+
+        <div class="step">
+          <div class="step-number">02</div>
+          <div class="step-content">
+            <h3>Deep Analysis</h3>
+            <p>M3XI processes data across financials, market position, competitive landscape, and growth signals simultaneously.</p>
+          </div>
+        </div>
+
+        <div class="step-connector">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </div>
+
+        <div class="step">
+          <div class="step-number">03</div>
+          <div class="step-content">
+            <h3>Clear Intelligence</h3>
+            <p>Receive a concise report with value estimate, key insights, opportunity flags, and a business summary you can act on.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Demo card -->
+      <div class="demo-card">
+        <div class="demo-card-header">
+          <div class="demo-dot red"></div>
+          <div class="demo-dot yellow"></div>
+          <div class="demo-dot green"></div>
+          <span class="demo-label">M3XI Analysis Report</span>
+        </div>
+        <div class="demo-card-body">
+          <div class="demo-row">
+            <span class="demo-key">Business</span>
+            <span class="demo-val">TechStartup Corp</span>
+          </div>
+          <div class="demo-row">
+            <span class="demo-key">Valuation Est.</span>
+            <span class="demo-val demo-val--highlight">$2.4M – $3.1M</span>
+          </div>
+          <div class="demo-row">
+            <span class="demo-key">Revenue Model</span>
+            <span class="demo-val">SaaS · Subscription</span>
+          </div>
+          <div class="demo-row">
+            <span class="demo-key">Key Strength</span>
+            <span class="demo-val">Strong retention, low churn</span>
+          </div>
+          <div class="demo-row">
+            <span class="demo-key">Risk Flag</span>
+            <span class="demo-val demo-val--warning">Single customer concentration</span>
+          </div>
+          <div class="demo-row">
+            <span class="demo-key">Time to Report</span>
+            <span class="demo-val demo-val--green">2 min 47 sec</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Philosophy / Business Card Section ── -->
+  <section class="philosophy" id="philosophy">
+    <div class="container">
+      <div class="phil-layout">
+
+        <div class="phil-text">
+          <span class="section-tag">The M3XI Way</span>
+          <h2>Precision meets<br><em>artistry.</em></h2>
+          <p>We believe business intelligence should be as refined as a business card — concise, clear, and impossible to ignore.</p>
+          <p>M3XI sits at the intersection of rigorous analysis and creative clarity. We are built for founders, investors, and collaborators who move with intention.</p>
+          <p class="jp-text">技術と芸術の融合</p>
+          <p class="jp-en">The fusion of technology and art</p>
+        </div>
+
+        <div class="phil-card-area">
+          <!-- Business Card Visual -->
+          <div class="bcard-scene">
+            <div class="bcard">
+              <div class="bcard-front">
+                <div class="bcard-sakura-corner">
+                  <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                    <circle cx="30" cy="10" r="8" fill="rgba(255,183,197,0.3)"/>
+                    <circle cx="50" cy="30" r="8" fill="rgba(255,183,197,0.2)"/>
+                    <circle cx="30" cy="50" r="8" fill="rgba(255,183,197,0.15)"/>
+                    <circle cx="10" cy="30" r="8" fill="rgba(255,183,197,0.2)"/>
+                    <circle cx="30" cy="30" r="6" fill="rgba(255,183,197,0.4)"/>
+                  </svg>
+                </div>
+                <div class="bcard-logo-area">
+                  <span class="bcard-name">M3XI</span>
+                  <span class="bcard-jp-small">三X一</span>
+                </div>
+                <div class="bcard-rule"></div>
+                <div class="bcard-title-area">
+                  <span class="bcard-role">Business Intelligence</span>
+                  <span class="bcard-tagline">Analyze · Value · Summarize</span>
+                </div>
+                <div class="bcard-contact">
+                  <span>m3xi.co</span>
+                </div>
+              </div>
+            </div>
+            <!-- Second card, offset -->
+            <div class="bcard bcard--back">
+              <div class="bcard-back-inner">
+                <div class="bcard-back-pattern"></div>
+                <span class="bcard-back-logo">三X一</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA / Waitlist ── -->
+  <section class="cta-section" id="waitlist">
+    <div class="container">
+      <div class="cta-inner">
+        <div class="cta-sakura">✿</div>
+        <span class="section-tag">Early Access</span>
+        <h2>Be first to see the world differently.</h2>
+        <p>M3XI is in development. Join the waitlist and help shape the future of business intelligence — built intentionally, for those who value clarity.</p>
+        <form class="waitlist-form" onsubmit="handleWaitlist(event)">
+          <input type="email" placeholder="your@email.com" class="email-input" required>
+          <button type="submit" class="btn btn-primary">Join Waitlist</button>
+        </form>
+        <p class="cta-note">No spam. No noise. Just signal when it matters.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="logo-main">M3XI</span>
+          <span class="logo-jp footer-jp-small">三X一</span>
+          <span class="footer-tagline">Business Intelligence, Redefined.</span>
+        </div>
+        <div class="footer-links">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Contact</a>
+        </div>
+        <div class="footer-copy">
+          <span>三X一 · M3XI © 2025</span>
+          <span class="footer-made">Made with intention.</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function handleWaitlist(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('button');
+      const input = e.target.querySelector('input');
+      btn.textContent = 'You\'re on the list ✿';
+      btn.style.background = 'linear-gradient(135deg, #4caf82, #2d8a5e)';
+      input.value = '';
+      input.disabled = true;
+      btn.disabled = true;
+    }
+
+    // Nav scroll effect
+    window.addEventListener('scroll', () => {
+      const nav = document.getElementById('nav');
+      nav.classList.toggle('nav--scrolled', window.scrollY > 60);
+    });
+  </script>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
