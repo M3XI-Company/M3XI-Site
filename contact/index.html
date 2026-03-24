@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact — M3XI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--bg:#08080f;--pink:#ffb7c5;--pink-mid:#ff85a1;--pink-deep:#e8607a;--gold:#c9a96e;--text:#f0e6ea;--muted:#8a7a80;--dim:#4a3a40;--card:rgba(255,183,197,.05);--border:rgba(255,183,197,.12);}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;}
+    canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+    .page{position:relative;z-index:10;}
+    h1,h2,h3{font-family:'Playfair Display',serif;letter-spacing:-.02em;}
+    em{color:var(--pink);font-style:italic;}
+    .nav{background:rgba(8,8,15,.85);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);padding:.9rem 2rem;}
+    .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:2rem;}
+    .logo-app{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--pink);text-decoration:none;display:flex;align-items:center;gap:.5rem;}
+    .logo-img{height:36px;width:auto;object-fit:contain;display:block;}
+    .logo-by{font-size:.6rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;display:block;}
+    .nav-links{display:flex;list-style:none;gap:1.75rem;margin-left:auto;}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:.85rem;transition:color .2s;}
+    .nav-links a:hover{color:var(--pink);}
+    .container{max-width:900px;margin:0 auto;padding:0 2rem;}
+    .section-tag{display:inline-block;font-size:.7rem;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--pink-deep);border:1px solid rgba(232,96,122,.25);padding:.28rem .75rem;border-radius:100px;}
+
+    .hero{padding:8rem 2rem 4rem;text-align:center;}
+    .hero h1{font-size:clamp(2.2rem,5vw,3.5rem);margin:1rem 0;}
+    .hero p{color:var(--muted);max-width:420px;margin:0 auto;font-weight:300;line-height:1.75;}
+
+    .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;padding:3rem 2rem 6rem;max-width:900px;margin:0 auto;}
+
+    /* Email cards */
+    .email-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;position:relative;overflow:hidden;transition:transform .2s,border-color .2s;}
+    .email-card:hover{transform:translateY(-4px);border-color:rgba(255,183,197,.25);}
+    .email-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(232,96,122,.06) 0%,transparent 70%);pointer-events:none;}
+    .email-icon{width:44px;height:44px;background:rgba(255,183,197,.08);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--pink);margin-bottom:1.25rem;}
+    .email-label{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:.4rem;}
+    .email-title{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:.6rem;}
+    .email-desc{color:var(--muted);font-size:.85rem;line-height:1.7;font-weight:300;margin-bottom:1.25rem;}
+    .email-link{display:inline-flex;align-items:center;gap:.4rem;color:var(--pink);text-decoration:none;font-size:.875rem;font-weight:500;border:1px solid rgba(255,183,197,.2);padding:.5rem 1rem;border-radius:100px;transition:all .2s;}
+    .email-link:hover{background:rgba(255,183,197,.08);border-color:rgba(255,183,197,.35);}
+
+    /* Form */
+    .form-section{grid-column:1/-1;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2.5rem;}
+    .form-section h2{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:.5rem;}
+    .form-section p{color:var(--muted);font-size:.875rem;margin-bottom:1.75rem;font-weight:300;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+    .form-group{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;}
+    .form-group label{font-size:.78rem;color:var(--muted);letter-spacing:.04em;}
+    .form-group input,.form-group textarea,.form-group select{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:.65rem 1rem;color:var(--text);font-size:.875rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;width:100%;}
+    .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:rgba(232,96,122,.4);}
+    .form-group textarea{resize:vertical;min-height:120px;}
+    .form-group select option{background:#1a1225;color:var(--text);}
+    .btn-submit{background:linear-gradient(135deg,var(--pink-deep),var(--pink-mid));color:#fff;border:none;padding:.75rem 2rem;border-radius:100px;font-size:.875rem;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all .25s;box-shadow:0 4px 20px rgba(232,96,122,.25);}
+    .btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(232,96,122,.4);}
+    .form-note{font-size:.75rem;color:var(--dim);margin-top:1rem;}
+
+    .footer{border-top:1px solid var(--border);padding:1.75rem 2rem;background:rgba(8,8,15,.5);}
+    .footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+    .footer-links{display:flex;gap:1.25rem;}
+    .footer-links a{font-size:.8rem;color:var(--muted);text-decoration:none;transition:color .2s;}
+    .footer-links a:hover{color:var(--pink);}
+    .footer-copy{font-size:.75rem;color:var(--dim);}
+    @media(max-width:640px){.contact-grid{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}.nav-links{display:none;}}
+  </style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="page">
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="logo-app"><img src="/M.png" alt="M3XI" class="logo-img"><span class="logo-by">三X一</span></a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/startup/">StartUp</a></li>
+        <li><a href="/team/">Team</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <span class="section-tag">Get in Touch</span>
+    <h1>We'd love to<br><em>hear from you.</em></h1>
+    <p>Whether it's about StartUp, M3XI, or just an idea — reach us at the right place.</p>
+  </div>
+
+  <div class="contact-grid">
+
+    <!-- StartUp enquiries -->
+    <div class="email-card">
+      <div class="email-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+      </div>
+      <div class="email-label">StartUp App</div>
+      <div class="email-title">StartUp Enquiries</div>
+      <p class="email-desc">Questions about the StartUp app, your account, investor connections, or the business analysis feature? Reach the StartUp team directly.</p>
+      <a href="mailto:startup@m3xi.com" class="email-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+        startup@m3xi.com
+      </a>
+    </div>
+
+    <!-- M3XI enquiries -->
+    <div class="email-card">
+      <div class="email-icon" style="color:var(--gold);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="email-label">M3XI Company</div>
+      <div class="email-title">M3XI Support & General</div>
+      <p class="email-desc">Partnership enquiries, press, investment interest, or general questions about M3XI and our technology vision. We read everything.</p>
+      <a href="mailto:support@m3xi.com" class="email-link" style="color:var(--gold);border-color:rgba(201,169,110,.25);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+        support@m3xi.com
+      </a>
+    </div>
+
+    <!-- Form -->
+    <div class="form-section">
+      <h2>Send a message.</h2>
+      <p>Fill in the form and we'll get back to you as soon as possible.</p>
+      <form onsubmit="handleForm(event)">
+        <div class="form-row">
+          <div class="form-group"><label>Name</label><input type="text" placeholder="Your name" required></div>
+          <div class="form-group"><label>Email</label><input type="email" placeholder="your@email.com" required></div>
+        </div>
+        <div class="form-group">
+          <label>Enquiry Type</label>
+          <select>
+            <option value="startup">StartUp App — startup@m3xi.com</option>
+            <option value="m3xi">M3XI General — support@m3xi.com</option>
+            <option value="partnership">Partnership / Press</option>
+            <option value="investment">Investment Interest</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Message</label><textarea placeholder="Tell us what's on your mind..."></textarea></div>
+        <button type="submit" class="btn-submit">Send Message →</button>
+        <p class="form-note" id="form-note">Your message will be routed to the right team based on your enquiry type.</p>
+      </form>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <a href="/" style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--pink);text-decoration:none;letter-spacing:.04em;">M3XI</a>
+      <div class="footer-links">
+        <a href="/startup/">StartUp</a><a href="/team/">Team</a>
+        <a href="/privacy/">Privacy</a><a href="/terms/">Terms</a>
+      </div>
+      <span class="footer-copy">M3XI © 2025 · England & Wales</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+function handleForm(e){
+  e.preventDefault();
+  const note=document.getElementById('form-note');
+  note.textContent="Message sent. We'll be in touch soon. ✿";
+  note.style.color='var(--pink)';
+  e.target.querySelector('button').disabled=true;
+}
+</script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+const c=document.querySelector('#bg'),scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1000),ren=new THREE.WebGLRenderer({canvas:c,alpha:true});
+ren.setPixelRatio(Math.min(devicePixelRatio,2));ren.setSize(innerWidth,innerHeight);cam.position.z=30;
+const N=160,geo=new THREE.BufferGeometry(),pos=new Float32Array(N*3),spd=new Float32Array(N),sw=new Float32Array(N),ph=new Float32Array(N);
+for(let i=0;i<N;i++){pos[i*3]=(Math.random()-.5)*110;pos[i*3+1]=Math.random()*80-10;pos[i*3+2]=(Math.random()-.5)*60-5;spd[i]=.02+Math.random()*.04;sw[i]=.2+Math.random()*.4;ph[i]=Math.random()*Math.PI*2;}
+geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+const cv=document.createElement('canvas');cv.width=64;cv.height=80;const ctx=cv.getContext('2d');ctx.save();ctx.translate(32,40);ctx.beginPath();ctx.moveTo(0,-26);ctx.bezierCurveTo(13,-16,17,8,0,26);ctx.bezierCurveTo(-17,8,-13,-16,0,-26);ctx.closePath();const g=ctx.createRadialGradient(0,-4,0,0,0,26);g.addColorStop(0,'rgba(255,200,212,1)');g.addColorStop(.5,'rgba(255,183,197,.7)');g.addColorStop(1,'rgba(232,96,122,0)');ctx.fillStyle=g;ctx.fill();ctx.restore();
+const mat=new THREE.PointsMaterial({size:2,map:new THREE.CanvasTexture(cv),transparent:true,opacity:.85,depthWrite:false,blending:THREE.AdditiveBlending});
+const pts=new THREE.Points(geo,mat);scene.add(pts);
+let t=0;(function a(){requestAnimationFrame(a);t+=.011;const p=pts.geometry.attributes.position.array;for(let i=0;i<N;i++){p[i*3+1]-=spd[i];p[i*3]+=Math.sin(t*sw[i]+ph[i])*.015;if(p[i*3+1]<-42){p[i*3+1]=42;p[i*3]=(Math.random()-.5)*110;}}pts.geometry.attributes.position.needsUpdate=true;ren.render(scene,cam);})();
+window.addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight);});
+</script>
+</body>
+</html>

@@ -151,6 +151,13 @@ em { font-style: italic; color: var(--pink-light); }
   flex-shrink: 0;
 }
 
+.logo-img {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
 .logo-main {
   font-family: 'Playfair Display', serif;
   font-size: 1.5rem;

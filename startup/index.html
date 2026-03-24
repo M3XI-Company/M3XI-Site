@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StartUp — by M3XI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&family=Noto+Serif+JP:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#08080f; --bg2:#0e0e1c;
+      --pink:#ffb7c5; --pink-mid:#ff85a1; --pink-deep:#e8607a;
+      --gold:#c9a96e; --gold-light:#e8c98a;
+      --text:#f0e6ea; --muted:#8a7a80; --dim:#4a3a40;
+      --card:rgba(255,183,197,0.05); --border:rgba(255,183,197,0.12);
+      --r:14px;
+    }
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6;}
+    #bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+    .overlay{position:fixed;inset:0;z-index:1;pointer-events:none;
+      background:radial-gradient(ellipse 80% 50% at 50% -5%,rgba(232,96,122,.1) 0%,transparent 60%),
+                radial-gradient(ellipse 50% 40% at 90% 80%,rgba(201,169,110,.06) 0%,transparent 50%);}
+    nav,section,footer,.strip{position:relative;z-index:10;}
+
+    /* ── Nav ── */
+    .nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;transition:all .3s;}
+    .nav.scrolled{background:rgba(8,8,15,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);}
+    .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:2rem;}
+    .logo{text-decoration:none;display:flex;flex-direction:column;line-height:1;}
+    .logo-app{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--pink);letter-spacing:.04em;}
+    .logo-by{font-size:.62rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:.3rem;}
+    .logo-img-inline{height:14px;width:auto;object-fit:contain;display:inline-block;vertical-align:middle;opacity:.8;}
+    .nav-links{display:flex;list-style:none;gap:1.75rem;margin-left:auto;}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:.85rem;transition:color .2s;}
+    .nav-links a:hover{color:var(--pink);}
+    .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.4rem;border-radius:100px;font-size:.875rem;font-weight:500;text-decoration:none;cursor:pointer;border:none;transition:all .25s;font-family:'Inter',sans-serif;}
+    .btn-primary{background:linear-gradient(135deg,var(--pink-deep),var(--pink-mid));color:#fff;box-shadow:0 4px 20px rgba(232,96,122,.3);}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(232,96,122,.45);}
+    .btn-ghost{background:transparent;color:var(--pink);border:1px solid var(--border);}
+    .btn-ghost:hover{background:var(--card);}
+    .btn-store{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);padding:.6rem 1.2rem;border-radius:10px;display:inline-flex;align-items:center;gap:.55rem;font-size:.82rem;transition:all .2s;}
+    .btn-store:hover{background:rgba(255,183,197,.1);border-color:rgba(255,183,197,.3);}
+    .container{max-width:1100px;margin:0 auto;padding:0 2rem;}
+    h1,h2,h3{font-family:'Playfair Display',serif;line-height:1.15;letter-spacing:-.02em;}
+    em{font-style:italic;color:var(--pink);}
+
+    /* ── Hero ── */
+    .hero{min-height:100vh;display:grid;grid-template-columns:1fr 420px;align-items:center;gap:4rem;padding:8rem 2rem 4rem;max-width:1100px;margin:0 auto;}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(232,96,122,.08);border:1px solid rgba(232,96,122,.2);color:var(--pink);font-size:.78rem;padding:.35rem .9rem;border-radius:100px;margin-bottom:1.5rem;letter-spacing:.03em;}
+    .dot{width:6px;height:6px;border-radius:50%;background:var(--pink-mid);animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.4);}}
+    .hero h1{font-size:clamp(2.6rem,5.5vw,4rem);margin-bottom:1.25rem;}
+    .hero-sub{font-size:1rem;color:var(--muted);max-width:480px;margin-bottom:2rem;font-weight:300;line-height:1.75;}
+    .hero-actions{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.5rem;}
+    .hero-stores{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:2.5rem;}
+    .hero-stats{display:flex;gap:2rem;padding-top:1.5rem;border-top:1px solid var(--border);}
+    .stat-n{display:block;font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--pink);line-height:1;}
+    .stat-l{font-size:.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;}
+
+    /* ── Phone Mockup ── */
+    .phone-wrap{display:flex;justify-content:center;align-items:center;animation:floatPhone 4s ease-in-out infinite;}
+    @keyframes floatPhone{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+    .phone{width:240px;height:480px;background:linear-gradient(160deg,#1a1225,#0d0918);border:2.5px solid rgba(255,183,197,.25);border-radius:36px;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,183,197,.06),inset 0 1px 0 rgba(255,255,255,.05);overflow:hidden;}
+    .phone-notch{width:80px;height:20px;background:#0d0918;border-radius:0 0 12px 12px;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:5;}
+    .phone-screen{position:absolute;inset:0;padding:32px 14px 14px;display:flex;flex-direction:column;gap:8px;}
+    /* App UI preview inside screen */
+    .app-bar{height:28px;background:rgba(255,183,197,.06);border-radius:8px;display:flex;align-items:center;padding:0 10px;gap:6px;}
+    .app-bar-dot{width:14px;height:14px;border-radius:50%;background:var(--pink-deep);opacity:.7;}
+    .app-bar-title{font-size:8px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
+    .app-card{background:rgba(255,183,197,.05);border:1px solid rgba(255,183,197,.1);border-radius:10px;padding:10px;}
+    .app-card-title{font-size:7px;color:var(--pink);font-weight:600;margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase;}
+    .app-card-row{display:flex;justify-content:space-between;margin-bottom:3px;}
+    .app-card-key{font-size:6px;color:var(--muted);}
+    .app-card-val{font-size:6px;color:var(--text);}
+    .app-card-val.hi{color:var(--gold-light);}
+    .app-chart{height:36px;background:rgba(255,183,197,.04);border-radius:6px;margin-top:6px;position:relative;overflow:hidden;}
+    .app-chart-line{position:absolute;bottom:4px;left:4px;right:4px;height:1px;background:linear-gradient(90deg,transparent,var(--pink-deep),transparent);opacity:.4;}
+    .app-chart-bars{position:absolute;bottom:4px;left:4px;right:4px;display:flex;align-items:flex-end;gap:3px;height:28px;}
+    .bar{flex:1;background:linear-gradient(to top,var(--pink-deep),transparent);border-radius:2px 2px 0 0;opacity:.5;}
+    .app-pill{display:inline-block;background:rgba(232,96,122,.15);border:1px solid rgba(232,96,122,.25);color:var(--pink);font-size:6px;padding:2px 6px;border-radius:100px;margin-top:4px;}
+    .phone-glow{position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 20%,rgba(232,96,122,.08) 0%,transparent 70%);pointer-events:none;}
+
+    /* ── Sword ── */
+    .sword-section{padding:5rem 0;display:flex;flex-direction:column;align-items:center;text-align:center;border-top:1px solid var(--border);}
+    .sword-svg{width:80px;margin-bottom:2rem;filter:drop-shadow(0 0 20px rgba(232,96,122,.3));}
+    .sword-section h2{font-size:clamp(1.8rem,3.5vw,2.8rem);margin-bottom:1rem;}
+    .sword-section p{color:var(--muted);max-width:480px;font-weight:300;line-height:1.75;font-size:.95rem;}
+
+    /* ── Swipeable Panel ── */
+    .slides-section{padding:6rem 0;}
+    .slides-header{text-align:center;margin-bottom:3rem;}
+    .section-tag{display:inline-block;font-size:.7rem;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--pink-deep);border:1px solid rgba(232,96,122,.25);padding:.28rem .75rem;border-radius:100px;margin-bottom:.6rem;}
+    .slides-header h2{font-size:clamp(1.8rem,3.5vw,2.6rem);margin-top:.4rem;}
+    .slider-wrap{position:relative;overflow:hidden;}
+    .slider-track{display:flex;transition:transform .45s cubic-bezier(.4,0,.2,1);}
+    .slide{min-width:100%;padding:0 2rem;}
+    .slide-inner{max-width:800px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;}
+    .slide-text h3{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:.75rem;}
+    .slide-text p{color:var(--muted);font-size:.9rem;line-height:1.75;font-weight:300;}
+    .slide-tag{display:inline-block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--pink-deep);margin-bottom:.5rem;}
+    .slide-visual{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:2rem;display:flex;flex-direction:column;gap:.75rem;}
+    .slide-icon{width:48px;height:48px;background:rgba(255,183,197,.08);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--pink);}
+    .slide-stat{display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid rgba(255,183,197,.07);font-size:.82rem;}
+    .slide-stat:last-child{border-bottom:none;}
+    .slide-stat span:first-child{color:var(--muted);}
+    .slide-stat span:last-child{color:var(--text);}
+    /* Dots */
+    .slider-dots{display:flex;justify-content:center;gap:.6rem;margin-top:2rem;}
+    .dot-btn{width:8px;height:8px;border-radius:50%;background:var(--dim);border:none;cursor:pointer;transition:all .2s;padding:0;}
+    .dot-btn.active{background:var(--pink-mid);width:20px;border-radius:4px;}
+    /* Arrows */
+    .slider-arrows{display:flex;justify-content:center;gap:1rem;margin-top:1.5rem;}
+    .arrow-btn{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:1rem;}
+    .arrow-btn:hover{background:rgba(255,183,197,.12);border-color:rgba(255,183,197,.3);}
+
+    /* ── Reviews ── */
+    .reviews{padding:6rem 0;background:rgba(255,183,197,.02);border-top:1px solid var(--border);}
+    .reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:3rem;}
+    .review-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.75rem;position:relative;}
+    .stars{color:var(--gold);font-size:.9rem;margin-bottom:.75rem;letter-spacing:.1em;}
+    .review-text{color:var(--muted);font-size:.875rem;line-height:1.7;font-weight:300;font-style:italic;margin-bottom:1.25rem;}
+    .reviewer{display:flex;align-items:center;gap:.75rem;}
+    .reviewer-avatar{width:34px;height:34px;border-radius:50%;background:rgba(232,96,122,.15);border:1px solid rgba(232,96,122,.25);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;color:var(--pink);}
+    .reviewer-name{font-size:.82rem;color:var(--text);font-weight:500;}
+    .reviewer-role{font-size:.72rem;color:var(--dim);}
+
+    /* ── CTA / Email ── */
+    .cta{padding:6rem 0;text-align:center;}
+    .cta-box{max-width:560px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:3.5rem 2.5rem;position:relative;overflow:hidden;}
+    .cta-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(232,96,122,.07) 0%,transparent 70%);pointer-events:none;}
+    .cta-petal{font-size:2rem;margin-bottom:1rem;display:block;animation:fp 4s ease-in-out infinite;}
+    @keyframes fp{0%,100%{transform:translateY(0) rotate(0);}50%{transform:translateY(-8px) rotate(8deg);}}
+    .cta-box h2{font-size:clamp(1.6rem,3vw,2.2rem);margin:.75rem 0;}
+    .cta-box p{color:var(--muted);font-size:.9rem;line-height:1.7;font-weight:300;margin-bottom:1.75rem;}
+    .cta-stores{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;}
+    .cta-email{font-size:.82rem;color:var(--muted);}
+    .cta-email a{color:var(--pink);text-decoration:none;}
+    .cta-email a:hover{text-decoration:underline;}
+
+    /* ── Footer ── */
+    .footer{border-top:1px solid var(--border);padding:2rem;background:rgba(8,8,15,.5);}
+    .footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+    .footer-links{display:flex;gap:1.25rem;}
+    .footer-links a{font-size:.8rem;color:var(--muted);text-decoration:none;transition:color .2s;}
+    .footer-links a:hover{color:var(--pink);}
+    .footer-copy{font-size:.75rem;color:var(--dim);}
+
+    /* ── Reveal ── */
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    #petal-overlay{position:fixed;inset:0;z-index:50;pointer-events:none;overflow:hidden;}
+    .bp{position:absolute;border-radius:50% 0 50% 0;background:radial-gradient(ellipse at 40% 35%,rgba(232,96,122,.8) 0%,rgba(255,133,161,.5) 50%,transparent 100%);top:-30px;animation:bfall var(--d,3s) cubic-bezier(.25,.46,.45,.94) var(--dl,0s) both;}
+    @keyframes bfall{0%{transform:translateX(0) translateY(0) rotate(var(--r0)) scale(.7);opacity:0;}8%{opacity:.9;}45%{transform:translateX(var(--sw)) translateY(40vh) rotate(var(--r1)) scale(1);opacity:.85;}100%{transform:translateX(calc(var(--sw) + var(--pt)*2)) translateY(110vh) rotate(var(--r2)) scale(.5);opacity:0;}}
+
+    @media(max-width:900px){.hero{grid-template-columns:1fr;}.phone-wrap{display:none;}.slide-inner{grid-template-columns:1fr;}.reviews-grid{grid-template-columns:1fr;}.nav-links{display:none;}}
+  </style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="overlay"></div>
+<div id="petal-overlay"></div>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="/" class="logo">
+      <span class="logo-app">StartUp</span>
+      <span class="logo-by">by <img src="/M.png" alt="M3XI" class="logo-img-inline"> · 三X一</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#reviews">Reviews</a></li>
+      <li><a href="#download">Download</a></li>
+    </ul>
+    <a href="#download" class="btn btn-primary">Download</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-content">
+    <div class="hero-badge"><span class="dot"></span> Now Available · iOS & Android</div>
+    <h1>Your Business,<br><em>Seen. Heard. Valued.</em></h1>
+    <p class="hero-sub">StartUp is where founders advertise their vision, meet investors, and gain instant clarity on their business — powered by M3XI intelligent analysis.</p>
+
+    <div class="hero-actions">
+      <a href="#download" class="btn btn-primary">Download StartUp</a>
+      <a href="#features" class="btn btn-ghost">See Features →</a>
+    </div>
+
+    <div class="hero-stores" id="download">
+      <a href="#" class="btn-store" aria-label="App Store">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        <div><div style="font-size:.6rem;opacity:.7;">Download on the</div><div style="font-size:.9rem;font-weight:600;">App Store</div></div>
+      </a>
+      <a href="#" class="btn-store" aria-label="Google Play">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.3.17.64.24.99.2l12.09-12.09L13.1 8.81 3.18 23.76zm16.87-10.93l-2.79-1.61-3.36 3.36 3.36 3.35 2.8-1.62c.8-.46.8-1.62-.01-2.08zM2.01 1.37C1.7 1.72 1.5 2.23 1.5 2.89v18.22c0 .66.2 1.17.52 1.52l.08.08L13.1 11.7v-.27L2.09 1.29l-.08.08zm10.65 9.13l3.36-3.36-12.09-7c-.35-.2-.71-.27-1.04-.22l10.77 10.58z"/></svg>
+        <div><div style="font-size:.6rem;opacity:.7;">Get it on</div><div style="font-size:.9rem;font-weight:600;">Google Play</div></div>
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div><span class="stat-n">3 min</span><span class="stat-l">Full Analysis</span></div>
+      <div><span class="stat-n">10×</span><span class="stat-l">Faster</span></div>
+      <div><span class="stat-n">∞</span><span class="stat-l">Businesses</span></div>
+    </div>
+  </div>
+
+  <!-- Phone mockup -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-glow"></div>
+      <div class="phone-screen">
+        <div class="app-bar">
+          <div class="app-bar-dot"></div>
+          <span class="app-bar-title">StartUp · Analysis</span>
+        </div>
+        <div class="app-card">
+          <div class="app-card-title">Business Report</div>
+          <div class="app-card-row"><span class="app-card-key">Company</span><span class="app-card-val">Acme Studio</span></div>
+          <div class="app-card-row"><span class="app-card-key">Valuation</span><span class="app-card-val hi">$1.8M – $2.4M</span></div>
+          <div class="app-card-row"><span class="app-card-key">Model</span><span class="app-card-val">SaaS</span></div>
+          <div class="app-chart">
+            <div class="app-chart-bars">
+              <div class="bar" style="height:40%;"></div><div class="bar" style="height:60%;"></div>
+              <div class="bar" style="height:45%;"></div><div class="bar" style="height:80%;"></div>
+              <div class="bar" style="height:65%;"></div><div class="bar" style="height:90%;"></div>
+              <div class="bar" style="height:75%;"></div>
+            </div>
+          </div>
+          <span class="app-pill">Report Ready ✓</span>
+        </div>
+        <div class="app-card" style="flex:1;">
+          <div class="app-card-title">Feed</div>
+          <div class="app-card-row"><span class="app-card-key">TechVentures</span><span class="app-card-val" style="color:var(--pink);font-size:7px;">▲ 142</span></div>
+          <div class="app-card-row"><span class="app-card-key">CreativeCo</span><span class="app-card-val" style="color:var(--pink);font-size:7px;">▲ 87</span></div>
+          <div class="app-card-row"><span class="app-card-key">BuildStudio</span><span class="app-card-val" style="color:var(--pink);font-size:7px;">▲ 63</span></div>
+        </div>
+        <div class="app-card">
+          <div class="app-card-title">Investors Nearby</div>
+          <div class="app-card-row"><span class="app-card-key">3 Active</span><span class="app-card-val hi">Match →</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SWORD — Path to Opportunity -->
+<div class="sword-section reveal">
+  <svg class="sword-svg" viewBox="0 0 80 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Blade tip -->
+    <path d="M 40 10 L 43 230 L 37 230 Z" fill="url(#blade-grad)" opacity=".9"/>
+    <!-- Blade fuller (groove) -->
+    <line x1="40" y1="20" x2="40" y2="220" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+    <!-- Blade edge highlight -->
+    <path d="M 43 10 L 44 230" stroke="rgba(255,255,255,0.2)" stroke-width=".5"/>
+    <defs>
+      <linearGradient id="blade-grad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#c0c8e0"/>
+        <stop offset="45%" stop-color="#f0f4ff"/>
+        <stop offset="100%" stop-color="#8090b0"/>
+      </linearGradient>
+    </defs>
+    <!-- Guard (tsuba) -->
+    <ellipse cx="40" cy="232" rx="22" ry="7" fill="#c9a96e" opacity=".85"/>
+    <ellipse cx="40" cy="232" rx="18" ry="5" fill="#e8c98a" opacity=".5"/>
+    <!-- Grip wrap (tsuka) -->
+    <rect x="36" y="238" width="8" height="48" rx="2" fill="#3a2510" opacity=".9"/>
+    <!-- Wrap lines -->
+    <line x1="36" y1="244" x2="44" y2="244" stroke="#c9a96e" stroke-width="1" opacity=".5"/>
+    <line x1="36" y1="250" x2="44" y2="250" stroke="#c9a96e" stroke-width="1" opacity=".5"/>
+    <line x1="36" y1="256" x2="44" y2="256" stroke="#c9a96e" stroke-width="1" opacity=".5"/>
+    <line x1="36" y1="262" x2="44" y2="262" stroke="#c9a96e" stroke-width="1" opacity=".5"/>
+    <line x1="36" y1="268" x2="44" y2="268" stroke="#c9a96e" stroke-width="1" opacity=".5"/>
+    <!-- Pommel -->
+    <ellipse cx="40" cy="287" rx="7" ry="4" fill="#c9a96e" opacity=".8"/>
+    <!-- Cherry blossom at tip -->
+    <circle cx="40" cy="14" r="5" fill="rgba(232,96,122,.4)"/>
+    <circle cx="40" cy="8"  r="3" fill="rgba(255,183,197,.5)"/>
+    <circle cx="44" cy="12" r="2.5" fill="rgba(232,96,122,.35)"/>
+    <circle cx="36" cy="12" r="2.5" fill="rgba(232,96,122,.35)"/>
+    <!-- Glow -->
+    <ellipse cx="40" cy="140" rx="8" ry="120" fill="rgba(201,169,110,.04)"/>
+  </svg>
+  <h2>A Path to <em>Opportunity.</em></h2>
+  <p>Every business has a story worth telling. StartUp gives founders the tools and visibility to walk their path with purpose — and meet the people ready to walk it with them.</p>
+</div>
+
+<!-- SWIPEABLE PANEL -->
+<section class="slides-section reveal" id="features">
+  <div class="container">
+    <div class="slides-header">
+      <span class="section-tag">Features</span>
+      <h2>Everything in one place.</h2>
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-track" id="track">
+
+        <!-- Slide 1: Advertise -->
+        <div class="slide">
+          <div class="slide-inner">
+            <div class="slide-text">
+              <span class="slide-tag">For Founders</span>
+              <h3>Advertise Your Business</h3>
+              <p>Post your idea, project, or business to the StartUp feed. Every post gets a 48-hour boost window for fair global visibility. Upvotes resurface your best work — keeping your business seen.</p>
+            </div>
+            <div class="slide-visual">
+              <div class="slide-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5"/><path d="M18.586 2.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l9.586-9.586z"/></svg>
+              </div>
+              <div class="slide-stat"><span>Post to Feed</span><span>Global reach</span></div>
+              <div class="slide-stat"><span>48hr Boost</span><span>Every post</span></div>
+              <div class="slide-stat"><span>Upvote System</span><span>Merit-based</span></div>
+              <div class="slide-stat"><span>Discovery</span><span>60/40 mix</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 2: Investors -->
+        <div class="slide">
+          <div class="slide-inner">
+            <div class="slide-text">
+              <span class="slide-tag">For Both</span>
+              <h3>Connect with Investors</h3>
+              <p>StartUp is a neutral facilitator between idealists and investors. No middlemen. No gatekeeping. Sign in with LinkedIn, find people who match your vision, and start real conversations.</p>
+            </div>
+            <div class="slide-visual">
+              <div class="slide-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              </div>
+              <div class="slide-stat"><span>LinkedIn Sign-In</span><span>Verified identity</span></div>
+              <div class="slide-stat"><span>Direct Messaging</span><span>No middleman</span></div>
+              <div class="slide-stat"><span>Investor Feed</span><span>Active seekers</span></div>
+              <div class="slide-stat"><span>Idea Protection</span><span>T&C enforced</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 3: Analysis -->
+        <div class="slide">
+          <div class="slide-inner">
+            <div class="slide-text">
+              <span class="slide-tag">M3XI Powered</span>
+              <h3>Business Analysis</h3>
+              <p>Get your business valued, summarised, and profiled in minutes. M3XI's intelligent systems process financials, market position, and growth signals — delivering clear, actionable intelligence instantly.</p>
+            </div>
+            <div class="slide-visual">
+              <div class="slide-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="M18 9l-5 5-2-2-5 5"/></svg>
+              </div>
+              <div class="slide-stat"><span>Valuation</span><span style="color:var(--gold-light);">Revenue × EBITDA</span></div>
+              <div class="slide-stat"><span>Summary</span><span>AI-generated</span></div>
+              <div class="slide-stat"><span>Report Time</span><span style="color:var(--pink);">Under 3 minutes</span></div>
+              <div class="slide-stat"><span>Industries</span><span>All sectors</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /track -->
+    </div><!-- /slider-wrap -->
+
+    <div class="slider-arrows">
+      <button class="arrow-btn" id="prev" aria-label="Previous">←</button>
+      <button class="arrow-btn" id="next" aria-label="Next">→</button>
+    </div>
+    <div class="slider-dots" id="dots">
+      <button class="dot-btn active" data-idx="0"></button>
+      <button class="dot-btn" data-idx="1"></button>
+      <button class="dot-btn" data-idx="2"></button>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="reviews reveal" id="reviews">
+  <div class="container">
+    <div style="text-align:center;">
+      <span class="section-tag">Reviews</span>
+      <h2 style="font-size:clamp(1.8rem,3.5vw,2.6rem);margin-top:.4rem;">What people are saying.</h2>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">"Finally an app that takes my idea seriously. The analysis report was clearer than anything my accountant produced — and it took two minutes."</p>
+        <div class="reviewer">
+          <div class="reviewer-avatar">JA</div>
+          <div><div class="reviewer-name">James A.</div><div class="reviewer-role">Founder, DesignBuild Studio</div></div>
+        </div>
+      </div>
+      <div class="review-card">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">"I found two genuine investors through the feed within a week. The LinkedIn verification made me feel safe — no fake profiles, real conversations."</p>
+        <div class="reviewer">
+          <div class="reviewer-avatar">SP</div>
+          <div><div class="reviewer-name">Sarah P.</div><div class="reviewer-role">CEO, NovaTech</div></div>
+        </div>
+      </div>
+      <div class="review-card">
+        <div class="stars">★★★★☆</div>
+        <p class="review-text">"The feed algorithm is genuinely fair. My post got visibility even as a brand new user. The upvote system rewards good ideas, not just loud voices."</p>
+        <div class="reviewer">
+          <div class="reviewer-avatar">MK</div>
+          <div><div class="reviewer-name">Marcus K.</div><div class="reviewer-role">Angel Investor</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA / DOWNLOAD -->
+<section class="cta reveal">
+  <div class="container">
+    <div class="cta-box">
+      <span class="cta-petal">⚔</span>
+      <span class="section-tag">Download</span>
+      <h2>Start your path today.</h2>
+      <p>StartUp is available on iOS and Android. Advertise your business, find investors, and understand your value — all in one place.</p>
+      <div class="cta-stores">
+        <a href="#" class="btn-store">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          <div><div style="font-size:.6rem;opacity:.7;">Download on the</div><div style="font-size:.9rem;font-weight:600;">App Store</div></div>
+        </a>
+        <a href="#" class="btn-store">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.3.17.64.24.99.2l12.09-12.09L13.1 8.81 3.18 23.76zm16.87-10.93l-2.79-1.61-3.36 3.36 3.36 3.35 2.8-1.62c.8-.46.8-1.62-.01-2.08zM2.01 1.37C1.7 1.72 1.5 2.23 1.5 2.89v18.22c0 .66.2 1.17.52 1.52l.08.08L13.1 11.7v-.27L2.09 1.29l-.08.08zm10.65 9.13l3.36-3.36-12.09-7c-.35-.2-.71-.27-1.04-.22l10.77 10.58z"/></svg>
+          <div><div style="font-size:.6rem;opacity:.7;">Get it on</div><div style="font-size:.9rem;font-weight:600;">Google Play</div></div>
+        </a>
+      </div>
+      <p class="cta-email">StartUp enquiries: <a href="mailto:startup@m3xi.com">startup@m3xi.com</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="logo"><span class="logo-app">StartUp</span><span class="logo-by" style="margin-top:2px;">by M3XI · 三X一</span></div>
+    <div class="footer-links">
+      <a href="/">M3XI Home</a>
+      <a href="/team/">Team</a>
+      <a href="/privacy/">Privacy</a>
+      <a href="/terms/">Terms</a>
+      <a href="/contact/">Contact</a>
+    </div>
+    <span class="footer-copy">M3XI © 2025 · England & Wales</span>
+  </div>
+</footer>
+
+<!-- Three.js sakura -->
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+const canvas=document.querySelector('#bg'),scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1000),renderer=new THREE.WebGLRenderer({canvas,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);camera.position.z=30;
+function tex(){const c=document.createElement('canvas');c.width=64;c.height=80;const x=c.getContext('2d');x.save();x.translate(32,40);x.beginPath();x.moveTo(0,-26);x.bezierCurveTo(13,-16,17,8,0,26);x.bezierCurveTo(-17,8,-13,-16,0,-26);x.closePath();const g=x.createRadialGradient(0,-4,0,0,0,26);g.addColorStop(0,'rgba(255,200,212,1)');g.addColorStop(.4,'rgba(255,183,197,.85)');g.addColorStop(1,'rgba(232,96,122,0)');x.fillStyle=g;x.fill();x.restore();return new THREE.CanvasTexture(c);}
+const N=280,geo=new THREE.BufferGeometry(),pos=new Float32Array(N*3),spd=new Float32Array(N),sw=new Float32Array(N),ph=new Float32Array(N);
+for(let i=0;i<N;i++){pos[i*3]=(Math.random()-.5)*110;pos[i*3+1]=Math.random()*80-10;pos[i*3+2]=(Math.random()-.5)*60-5;spd[i]=.022+Math.random()*.05;sw[i]=.22+Math.random()*.5;ph[i]=Math.random()*Math.PI*2;}
+geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+const mat=new THREE.PointsMaterial({size:2.2,map:tex(),transparent:true,opacity:.9,depthWrite:false,blending:THREE.AdditiveBlending});
+const petals=new THREE.Points(geo,mat);scene.add(petals);
+const mx={x:0,y:0,tx:0,ty:0};
+document.addEventListener('mousemove',e=>{mx.tx=(e.clientX/innerWidth-.5)*4;mx.ty=(e.clientY/innerHeight-.5)*-2.5;});
+let t=0;(function a(){requestAnimationFrame(a);t+=.011;mx.x+=(mx.tx-mx.x)*.04;mx.y+=(mx.ty-mx.y)*.04;camera.position.x=mx.x;camera.position.y=mx.y;const p=petals.geometry.attributes.position.array;for(let i=0;i<N;i++){p[i*3+1]-=spd[i];p[i*3]+=Math.sin(t*sw[i]+ph[i])*.016;if(p[i*3+1]<-42){p[i*3+1]=42;p[i*3]=(Math.random()-.5)*110;}}petals.geometry.attributes.position.needsUpdate=true;renderer.render(scene,camera);})();
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+// Petal burst
+const ov=document.getElementById('petal-overlay');let cd=false,ly=scrollY;
+function burst(n=1){if(cd)return;cd=true;setTimeout(()=>cd=false,1100);for(let i=0;i<Math.floor(50*n);i++){const el=document.createElement('div');el.className='bp';const x=Math.random()*100,l=x<50,sz=9+Math.random()*11,d=2.6+Math.random()*1.6,dl=Math.random()*.8,sw2=(Math.random()-.5)*70,pt=(l?-1:1)*(160+Math.random()*200),r=[0,1,2].map(()=>Math.random()*360);el.style.cssText=`width:${sz}px;height:${sz*1.25}px;--d:${d}s;--dl:${dl}s;--sw:${sw2}px;--pt:${pt}px;--r0:${r[0]}deg;--r1:${r[1]}deg;--r2:${r[2]}deg;left:${x}%;`;ov.appendChild(el);setTimeout(()=>el.remove(),(d+dl+.2)*1000);}}
+new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');burst(.8);}});},{threshold:.1}).observe(document.querySelector('.sword-section'));
+document.querySelectorAll('.reveal').forEach(el=>{new IntersectionObserver(([e])=>{if(e.isIntersecting)e.target.classList.add('visible');},{threshold:.1}).observe(el);});
+window.addEventListener('scroll',()=>{const d=Math.abs(scrollY-ly);ly=scrollY;if(d>260&&!cd)burst(.4);document.getElementById('nav').classList.toggle('scrolled',scrollY>50);},{passive:true});
+</script>
+
+<!-- Slider -->
+<script>
+let cur=0;const track=document.getElementById('track'),dots=[...document.querySelectorAll('.dot-btn')],total=3;
+function go(n){cur=(n+total)%total;track.style.transform=`translateX(-${cur*100}%)`;dots.forEach((d,i)=>d.classList.toggle('active',i===cur));}
+document.getElementById('next').onclick=()=>go(cur+1);
+document.getElementById('prev').onclick=()=>go(cur-1);
+dots.forEach(d=>d.onclick=()=>go(+d.dataset.idx));
+// Touch swipe
+let sx=0;track.addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+track.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(dx<0?cur+1:cur-1);});
+</script>
+</body>
+</html>
