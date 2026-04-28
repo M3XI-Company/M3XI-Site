@@ -80,7 +80,7 @@ function makeAmbientParticles() {
 }
 
 // ── Falling sakura petals ──
-const PETAL_COUNT = 350;
+const PETAL_COUNT = 220;
 
 function makePetals() {
   const geo      = new THREE.BufferGeometry();
@@ -174,77 +174,9 @@ window.addEventListener('resize', () => {
 });
 
 
-// ─────────────────────────────────────────────
-//  SCROLL PETAL BURST — section transitions
-// ─────────────────────────────────────────────
-
-// Create overlay container
-const overlay = document.createElement('div');
-overlay.id = 'petal-overlay';
-document.body.appendChild(overlay);
-
-// Track which sections have already fired
-const firedSections = new Set();
-let lastScrollY     = window.scrollY;
-let burstCooldown   = false;
-
-// Spawn a wave of petals that fall & part like wind
-function spawnPetalBurst(intensity = 1) {
-  if (burstCooldown) return;
-  burstCooldown = true;
-  setTimeout(() => { burstCooldown = false; }, 1200);
-
-  const count = Math.floor(55 * intensity);
-
-  for (let i = 0; i < count; i++) {
-    const petal = document.createElement('div');
-    petal.className = 'burst-petal';
-
-    const xPct   = Math.random() * 100;           // 0–100% across screen
-    const isLeft = xPct < 50;                     // which half
-
-    // Random trajectory values
-    const size   = 10 + Math.random() * 12;       // petal size px
-    const dur    = 2.8 + Math.random() * 1.8;     // fall duration
-    const delay  = Math.random() * 0.9;           // stagger
-    const sway   = (Math.random() - 0.5) * 80;   // lateral drift px
-    // Parting: left-half goes left, right-half goes right
-    const partStrength = 180 + Math.random() * 220;
-    const part   = isLeft ? -partStrength : partStrength;
-
-    // Random rotations
-    const r0 = Math.random() * 360;
-    const r1 = r0 + (Math.random() - 0.5) * 120;
-    const r2 = r1 + (Math.random() - 0.5) * 120;
-    const r3 = r2 + (Math.random() - 0.5) * 100;
-    const r4 = r3 + (Math.random() - 0.5) * 80;
-
-    petal.style.cssText = `
-      --x:     ${xPct}%;
-      --size:  ${size}px;
-      --dur:   ${dur}s;
-      --delay: ${delay}s;
-      --sway:  ${sway}px;
-      --part:  ${part}px;
-      --r0: ${r0}deg;
-      --r1: ${r1}deg;
-      --r2: ${r2}deg;
-      --r3: ${r3}deg;
-      --r4: ${r4}deg;
-      left: ${xPct}%;
-    `;
-
-    overlay.appendChild(petal);
-
-    // Remove DOM node after animation ends
-    setTimeout(() => petal.remove(), (dur + delay + 0.3) * 1000);
-  }
-}
-
-// ── Intersection Observer — fire on section enter ──
+// ── Gentle section reveals (no scroll petal bursts — calmer UX) ──
 const sections = document.querySelectorAll('section');
 
-// Add reveal class for fade-in animation
 sections.forEach(section => {
   section.classList.add('section-reveal');
 });
@@ -252,38 +184,12 @@ sections.forEach(section => {
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      const id = entry.target.id || entry.target.className;
-
-      // Reveal animation
       entry.target.classList.add('visible');
-
-      // Petal burst — only once per section, only on downward scroll
-      if (!firedSections.has(id)) {
-        firedSections.add(id);
-
-        // Skip the very first section (hero) — no burst on load
-        if (entry.target.classList.contains('hero')) return;
-
-        // Slight delay so burst coincides with section appearing
-        setTimeout(() => spawnPetalBurst(1), 100);
-      }
     }
   });
 }, {
-  threshold: 0.12,
-  rootMargin: '0px 0px -60px 0px',
+  threshold: 0.1,
+  rootMargin: '0px 0px -40px 0px',
 });
 
 sections.forEach(section => observer.observe(section));
-
-// ── Scroll direction — bonus burst on fast scroll ──
-window.addEventListener('scroll', () => {
-  const currentY = window.scrollY;
-  const delta    = Math.abs(currentY - lastScrollY);
-  lastScrollY    = currentY;
-
-  // Trigger a lighter burst on very fast scroll (momentum swipe feel)
-  if (delta > 280 && !burstCooldown) {
-    spawnPetalBurst(0.45);
-  }
-}, { passive: true });

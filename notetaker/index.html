@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NoteTaker — Voice notes by M3XI</title>
+  <meta name="description" content="NoteTaker captures voice notes, transcripts, and images—synced with your account. By M3XI."/>
+  <link rel="icon" type="image/png" href="/M.png" />
+  <link rel="apple-touch-icon" href="/M.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#08080f;--pink:#ffb7c5;--pink-mid:#ff85a1;--pink-deep:#e8607a;
+      --text:#f0e6ea;--muted:#8a7a80;--dim:#4a3a40;
+      --card:rgba(255,183,197,0.05);--border:rgba(255,183,197,0.12);
+      --radius:18px;
+    }
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.65;overflow-x:hidden;}
+    h1,h2,h3{font-family:'Playfair Display',serif;letter-spacing:-.02em;}
+    em{font-style:italic;color:var(--pink);}
+    .nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;background:rgba(8,8,15,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);}
+    .nav-inner{max-width:960px;margin:0 auto;display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;}
+    .logo-mark{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:inherit;}
+    .logo-mark img{height:34px;width:auto;}
+    .logo-text{display:flex;flex-direction:column;line-height:1.05;}
+    .logo-app{font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:700;color:var(--pink);}
+    .logo-by{font-size:.62rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;}
+    .nav-links{display:flex;margin-left:auto;gap:1rem;flex-wrap:wrap;}
+    .nav-links a{font-size:.85rem;color:var(--muted);text-decoration:none;}
+    .nav-links a:hover{color:var(--pink);}
+    .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:8rem 2rem 4rem;max-width:720px;margin:0 auto;text-align:center;}
+    .badge{display:inline-flex;align-self:center;align-items:center;gap:.4rem;background:rgba(232,96,122,.08);border:1px solid rgba(232,96,122,.22);color:var(--pink);font-size:.78rem;padding:.35rem .95rem;border-radius:100px;margin-bottom:1.5rem;letter-spacing:.04em;}
+    .dot{width:6px;height:6px;border-radius:50%;background:var(--pink-mid);}
+    .hero h1{font-size:clamp(2.4rem,6vw,3.6rem);margin-bottom:1rem;}
+    .hero p{color:var(--muted);font-size:1.05rem;font-weight:300;max-width:520px;margin:0 auto 2rem;}
+    .btn-row{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem;}
+    .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.75rem 1.5rem;border-radius:100px;font-size:.9rem;font-weight:500;text-decoration:none;transition:transform .2s,box-shadow .2s;}
+    .btn-primary{background:linear-gradient(135deg,var(--pink-deep),var(--pink-mid));color:#fff;box-shadow:0 4px 22px rgba(232,96,122,.32);}
+    .btn-primary:hover{transform:translateY(-2px);}
+    .btn-ghost{background:transparent;color:var(--pink);border:1px solid var(--border);}
+    .btn-ghost:hover{background:var(--card);}
+    .stores-note{font-size:.8rem;color:var(--dim);}
+    .section{padding:4rem 2rem 5rem;max-width:900px;margin:0 auto;}
+    .section h2{font-size:clamp(1.6rem,3.5vw,2.1rem);margin-bottom:1rem;text-align:center;}
+    .section-lede{text-align:center;color:var(--muted);font-size:.95rem;max-width:520px;margin:0 auto 2.5rem;font-weight:300;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;}
+    .card h3{font-size:1.05rem;margin-bottom:.5rem;}
+    .card p{font-size:.88rem;color:var(--muted);font-weight:300;line-height:1.6;}
+    .tag{font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:.35rem;}
+    .mini{background:rgba(255,183,197,.04);border-radius:var(--radius);padding:1.5rem 2rem;margin-top:3rem;text-align:center;border:1px solid var(--border);}
+    .mini p{font-size:.85rem;color:var(--muted);margin-bottom:.75rem;}
+    .footer{border-top:1px solid var(--border);padding:2rem;max-width:960px;margin:0 auto;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;font-size:.8rem;color:var(--dim);}
+    .footer a{color:var(--muted);text-decoration:none;}
+    .footer a:hover{color:var(--pink);}
+    .footer-links{display:flex;gap:1rem;flex-wrap:wrap;}
+    @media (max-width:560px){
+      .nav-links{width:100%;margin-left:0;}
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="nav-inner">
+      <a href="/notetaker/" class="logo-mark">
+        <img src="/M.png" alt="" width="34" height="34">
+        <div class="logo-text">
+          <span class="logo-app">NoteTaker</span>
+          <span class="logo-by">by M3XI · Voice notes</span>
+        </div>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="/">M3XI Home</a>
+        <a href="/privacy/">Privacy</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <span class="badge"><span class="dot"></span> Voice · Transcription · Sync</span>
+    <h1>Capture ideas <em>without</em> the friction.</h1>
+    <p>NoteTaker records voice notes, turns speech into text, and lets you add images when you need context—kept in sync when you sign in.</p>
+    <div class="btn-row">
+      <span class="btn btn-primary" style="opacity:.55;cursor:default;">App Store — soon</span>
+      <span class="btn btn-ghost" style="opacity:.55;cursor:default;">Google Play — soon</span>
+    </div>
+    <p class="stores-note">Store links go live when the build is published. Questions: <a href="mailto:support@m3xi.com" style="color:var(--pink);">support@m3xi.com</a></p>
+  </section>
+
+  <section class="section" id="features">
+    <h2>What it does</h2>
+    <p class="section-lede">Cloud and on-device flows can coexist—recording may stay local while transcription runs through secure cloud APIs depending on setup.</p>
+    <div class="grid">
+      <div class="card">
+        <div class="tag">Voice</div>
+        <h3>Record &amp; transcribe</h3>
+        <p>Speak naturally; transcripts help you skim, search, and share.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Context</div>
+        <h3>Photos (optional)</h3>
+        <p>Attach images from the camera or library when they help explain a moment.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Everywhere</div>
+        <h3>Account sync</h3>
+        <p>Notes follow you across signed-in devices with consistent security.</p>
+      </div>
+    </div>
+    <div class="mini">
+      <p><strong>Sister app:</strong> TakeNote follows the same ecosystem and Privacy Policy commitments.</p>
+      <a href="/privacy/" class="btn btn-ghost">Read Privacy Policy →</a>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <h2>Permissions</h2>
+    <p class="section-lede">Aligned with honesty on Google Play: microphone for recording; camera/photos where you attach media; network for sync and cloud features.</p>
+  </section>
+
+  <footer class="footer">
+    <span>M3XI · England &amp; Wales</span>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/startup/">StartUp</a>
+      <a href="/privacy/">Privacy</a>
+      <a href="/terms/">Terms</a>
+      <a href="/contact/">Contact</a>
+    </div>
+  </footer>
+</body>
+</html>

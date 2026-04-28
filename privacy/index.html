@@ -9,7 +9,7 @@
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     :root{--bg:#08080f;--pink:#ffb7c5;--pink-deep:#e8607a;--text:#f0e6ea;--muted:#8a7a80;--dim:#4a3a40;--card:rgba(255,183,197,.05);--border:rgba(255,183,197,.12);}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.65;}
     .nav{background:rgba(8,8,15,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);padding:.9rem 2rem;position:sticky;top:0;z-index:100;}
     .nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
     .logo{text-decoration:none;display:flex;align-items:center;}
@@ -18,17 +18,21 @@
     .content{max-width:760px;margin:0 auto;padding:5rem 2rem 6rem;}
     .badge{display:inline-block;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--pink-deep);border:1px solid rgba(232,96,122,.2);padding:.25rem .7rem;border-radius:100px;margin-bottom:1.25rem;}
     h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);margin-bottom:.5rem;letter-spacing:-.02em;}
-    .updated{font-size:.8rem;color:var(--dim);margin-bottom:3rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);}
-    h2{font-family:'Playfair Display',serif;font-size:1.25rem;margin:2.5rem 0 .75rem;color:var(--text);}
+    .updated{font-size:.8rem;color:var(--dim);margin-bottom:2rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border);}
+    h2{font-family:'Playfair Display',serif;font-size:1.28rem;margin:2rem 0 .65rem;color:var(--text);}
+    h3{font-size:.95rem;color:var(--text);margin:1.25rem 0 .4rem;font-weight:600;}
     p{color:var(--muted);font-size:.9rem;margin-bottom:1rem;font-weight:300;}
     ul{color:var(--muted);font-size:.9rem;font-weight:300;padding-left:1.5rem;margin-bottom:1rem;}
-    li{margin-bottom:.4rem;}
+    li{margin-bottom:.45rem;}
     a{color:var(--pink);text-decoration:none;}
     a:hover{text-decoration:underline;}
-    .highlight{background:rgba(255,183,197,.05);border-left:2px solid var(--pink-deep);padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1.5rem 0;}
+    .highlight{background:rgba(255,183,197,.05);border-left:2px solid var(--pink-deep);padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1.25rem 0;}
     .highlight p{margin:0;font-size:.875rem;}
+    .toc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:2rem;font-size:.85rem;color:var(--muted);}
+    .toc strong{color:var(--text);display:block;margin-bottom:.5rem;font-weight:600;}
     .footer{border-top:1px solid var(--border);padding:1.5rem 2rem;text-align:center;font-size:.78rem;color:var(--dim);}
     .footer a{color:var(--muted);}
+    .mono{font-family:ui-monospace,monospace;font-size:.82rem;}
   </style>
 </head>
 <body>
@@ -42,84 +46,121 @@
   <div class="content">
     <span class="badge">Legal</span>
     <h1>Privacy Policy</h1>
-    <p class="updated">Last updated: February 2026</p>
+    <p class="updated">Effective: 28 April 2026 · Last updated: 28 April 2026</p>
 
     <div class="highlight">
-      <p>This Privacy Policy explains how M3XI and StartUp ("we", "us", "our") collect, use, and protect your personal data when you use the StartUp mobile application and M3XI website. By using our services, you agree to the terms described here.</p>
+      <p>This Privacy Policy explains how <strong>M3XI</strong> (“we”, “us”, “our”) collects, uses, and shares personal data when you use our <strong>mobile applications</strong> (including <strong>StartUp</strong>, <strong>TakeNote</strong>, and <strong>NoteTaker</strong>) and the <strong>M3XI website</strong>. By using our services, you agree to this policy.</p>
     </div>
 
-    <h2>1. Who We Are</h2>
-    <p>M3XI is a technology company based in England and Wales. StartUp is a mobile application developed and operated by M3XI. For data protection purposes, M3XI is the controller of your personal data.</p>
-    <p>Contact: <a href="mailto:support@m3xi.com">support@m3xi.com</a></p>
+    <div class="toc">
+      <strong>Scope</strong>
+      Some details apply only to certain apps—where relevant, we name the product. Features may vary by platform and version.
+    </div>
 
-    <h2>2. Information We Collect</h2>
-    <p>We collect information you provide directly and information generated through your use of our services:</p>
+    <h2>1. Who we are</h2>
+    <p><strong>Controller:</strong> M3XI, operating in England and Wales.</p>
+    <p><strong>Privacy &amp; GDPR requests:</strong> <a href="mailto:support@m3xi.com">support@m3xi.com</a></p>
+    <p><strong>Mailing address:</strong> Available on written request sent to the email above.</p>
+
+    <h2>2. What our apps &amp; website are</h2>
     <ul>
-      <li><strong>Account information:</strong> Name, email address, LinkedIn profile data (when signing in with LinkedIn).</li>
-      <li><strong>Profile data:</strong> Business descriptions, ideas, posts, and content you publish to the feed.</li>
-      <li><strong>Usage data:</strong> Pages visited, features used, interactions with posts and other users.</li>
-      <li><strong>Payment data:</strong> Processed securely via Stripe. We do not store card details.</li>
-      <li><strong>Device data:</strong> Device type, operating system, and app version for troubleshooting.</li>
+      <li><strong>StartUp</strong> — community and business tooling: investor-oriented feed, business profiles and posts, valuation and analysis features built on URLs and information you submit, subscriptions.</li>
+      <li><strong>TakeNote</strong> — voice-centric notes with transcription, optional images from camera or gallery, titles and text notes, account sync.</li>
+      <li><strong>NoteTaker</strong> — voice notes, transcription, optional photo/camera features, sync with your account, aligned with TakeNote-class experiences.</li>
+      <li><strong>m3xi.co website</strong> — marketing pages, privacy/terms, contact.</li>
     </ul>
 
-    <h2>3. How We Use Your Information</h2>
+    <h2>3. Data we collect (by category)</h2>
+
+    <h3>Account and identity</h3>
     <ul>
-      <li>To provide and improve the StartUp platform and M3XI services.</li>
-      <li>To match users with relevant investors and business opportunities via the feed algorithm.</li>
-      <li>To generate business analysis and valuation reports on request.</li>
-      <li>To process payments for subscriptions and premium features.</li>
-      <li>To send service notifications (not marketing, unless you opt in).</li>
-      <li>To ensure platform safety and enforce our Terms and Conditions.</li>
+      <li>Email address, name, avatar or profile basics from your sign-in provider.</li>
+      <li>An internal user ID tied to your account.</li>
     </ul>
 
-    <h2>4. LinkedIn Sign-In</h2>
-    <p>When you sign in with LinkedIn, we receive your public profile information (name, photo, email) via LinkedIn's OAuth service. We use this solely for account creation and identity verification. We do not post to LinkedIn on your behalf.</p>
-
-    <h2>5. Your Ideas and Content</h2>
-    <p>You retain full ownership of any ideas, business plans, or content you post on StartUp. We do not claim ownership of your intellectual property. Other users are contractually prohibited from misappropriating your ideas under our Terms and Conditions.</p>
-
-    <h2>6. Data Sharing</h2>
-    <p>We do not sell your personal data. We share data only with:</p>
+    <h3>User content</h3>
     <ul>
-      <li><strong>Supabase:</strong> Our backend infrastructure provider (data hosting and authentication).</li>
-      <li><strong>Stripe:</strong> Payment processing (card data never touches our servers).</li>
-      <li><strong>LinkedIn:</strong> Only for OAuth authentication.</li>
-      <li><strong>Legal authorities:</strong> When required by law or to protect safety.</li>
+      <li><strong>Voice apps (TakeNote, NoteTaker):</strong> audio recordings; generated transcripts; images you capture or choose; note text, titles, tags; timestamps and ordering metadata.</li>
+      <li><strong>StartUp:</strong> ideas, descriptions, posts, media you upload for posting, URLs you submit for analysis, and interactions with feeds and users.</li>
     </ul>
 
-    <h2>7. Data Retention</h2>
-    <p>We retain your data for as long as your account is active. Upon account deletion, personal data is removed within 30 days, except where retention is required by law.</p>
+    <h3>Device / app telemetry</h3>
+    <p>We may collect device type, operating system, app version, and coarse diagnostic data (such as stability information) via platform or third-party tooling <strong>where enabled</strong> to operate and secure the apps. Use of dedicated crash or analytics SDKs follows their privacy notices—we do not sell personal data.</p>
 
-    <h2>8. Your Rights</h2>
-    <p>Under UK GDPR, you have the right to:</p>
+    <h3>Payments</h3>
+    <p>Payments are handled by <strong>Stripe</strong>. We do not collect or store full card numbers. We receive identifiers and status needed to administer subscriptions—such as <span class="mono">customer ID</span>, plan, and billing state—from Stripe.</p>
+
+    <h2>4. Purposes</h2>
     <ul>
-      <li>Access the personal data we hold about you.</li>
-      <li>Correct inaccurate data.</li>
-      <li>Request deletion of your data ("right to be forgotten").</li>
-      <li>Restrict or object to processing.</li>
-      <li>Data portability.</li>
+      <li>Provide the service—sync, storage, transcription, analysis, feeds, posting, URLs you ask us to analyse.</li>
+      <li>Authentication, security, anti-abuse, and fraud prevention.</li>
+      <li>Billing and plan status.</li>
+      <li>Support and enforcement of rules and legal obligations.</li>
+      <li><strong>StartUp-specific:</strong> matching and surfacing posts, optional LinkedIn-based verification.</li>
     </ul>
-    <p>To exercise any of these rights, contact <a href="mailto:support@m3xi.com">support@m3xi.com</a>.</p>
 
-    <h2>9. Cookies</h2>
-    <p>The StartUp app does not use browser cookies. Our website uses minimal session cookies required for functionality. We do not use tracking or advertising cookies.</p>
+    <h2>5. Legal bases (UK / EU / UK GDPR)</h2>
+    <ul>
+      <li><strong>Contract</strong> — delivering the apps and requested features.</li>
+      <li><strong>Legitimate interests</strong> — security, debugging, preventing abuse, and improving products (balanced against your rights).</li>
+      <li><strong>Consent</strong> — where required (e.g. non-essential website cookies where applicable).</li>
+    </ul>
 
-    <h2>10. Security</h2>
-    <p>We use industry-standard security measures including encrypted connections (HTTPS/TLS), Row Level Security on our database, and secure OAuth flows. No system is 100% secure — please use a strong, unique password and report any concerns to <a href="mailto:support@m3xi.com">support@m3xi.com</a>.</p>
+    <h2>6. Third parties (subprocessors)</h2>
+    <p>We share data only as needed:</p>
 
-    <h2>11. Children</h2>
-    <p>StartUp is not intended for users under 18. We do not knowingly collect data from children. If you believe a child has registered, please contact us immediately.</p>
+    <ul>
+      <li><strong>Supabase</strong> — authentication, Postgres database, and object storage hosting for accounts and Your content.</li>
+      <li><strong>OpenAI (or successor AI processors we configure)</strong> — audio, text, and/or images may be transmitted for <strong>transcription</strong> and optional <strong>image understanding</strong> on TakeNote and NoteTaker (and textual analysis tied to AI features elsewhere). Inputs and outputs follow OpenAI processing terms relevant to API business use—not used to advertise to you personally via these integrations.</li>
+      <li><strong>Google</strong> — <strong>Google Sign-In</strong> OAuth; identity tokens/profile fields required to authenticate you. Processing is governed by Google’s agreements and policies alongside this policy.</li>
+      <li><strong>LinkedIn</strong> — <strong>only if you initiate optional verification</strong> in StartUp; OAuth profile subset for verification.</li>
+      <li><strong>Stripe</strong> — payment processing and billing records as described above.</li>
+      <li><strong>Infrastructure/CDN/hosting</strong> (e.g. Vercel or similar)—operational delivery of the website and APIs; routing and HTTPS.</li>
+    </ul>
+    <p>We use each provider under written terms appropriate to processors; we don’t sell your personal data.</p>
 
-    <h2>12. Changes to This Policy</h2>
-    <p>We may update this Privacy Policy from time to time. We will notify registered users of significant changes via the app or email.</p>
+    <h2>7. AI / cloud versus on-device</h2>
+    <p>For TakeNote and NoteTaker, <strong>certain workflows run in the cloud</strong> (including transmission to transcription/AI APIs). Depending on implementation and settings, <strong>other steps may occur on your device first</strong> (recording, offline caching). Exact routing can vary by OS build and toggle—consult in-app disclosures where provided.</p>
+    <p><strong>Retention by AI vendors</strong> is governed by OpenAI (<a href="https://openai.com/policies" target="_blank" rel="noopener">OpenAI policies</a>) plus our deletion requests and account workflows. Where you delete content or your account per section 10, we remove copies we control subject to lawful retention.</p>
 
-    <h2>13. Contact</h2>
-    <p>For all privacy-related enquiries: <a href="mailto:support@m3xi.com">support@m3xi.com</a></p>
-    <p>For StartUp app support: <a href="mailto:startup@m3xi.com">startup@m3xi.com</a></p>
+    <h2>8. Location, storage, security, retention</h2>
+    <p><strong>Locations:</strong> Data may reside in regions where Supabase, Stripe, AI providers, and hosting operate (possibly including the United Kingdom, European Economic Area, and United States).</p>
+    <p><strong>Transfers:</strong> Where personal data transfers outside your country occur, we use appropriate safeguards (including Standard Contractual Clauses where applicable).</p>
+    <p><strong>Security:</strong> Encryption in transit (HTTPS/TLS), access controls aligned to principle of least privilege, and hardened cloud configuration. No online service is flawless—please avoid sharing sensitive secrets in notes not intended for that purpose.</p>
+    <p><strong>Retention:</strong> Active accounts retain profile and content unless you delete items or terminate the account—then we erase or anonymise within a reasonable operational window (typically within <strong>30 days</strong> of deletion), except mandatory legal, taxation, dispute, or fraud-prevention records.</p>
+
+    <h2>9. App permissions</h2>
+    <table style="font-size:.88rem;color:var(--muted);margin-bottom:1rem;border-collapse:collapse;width:100%;">
+      <tr style="border-bottom:1px solid var(--border);"><td style="padding:.4rem .4rem .4rem 0;"><strong>Microphone</strong></td><td style="padding:.4rem 0;">Record voice notes and dictation.</td></tr>
+      <tr style="border-bottom:1px solid var(--border);"><td style="padding:.4rem .4rem .4rem 0;"><strong>Camera / photos</strong></td><td style="padding:.4rem 0;">Attach images you choose to capture or import for notes/posts.</td></tr>
+      <tr style="border-bottom:1px solid var(--border);"><td style="padding:.4rem .4rem .4rem 0;"><strong>Storage / media</strong></td><td style="padding:.4rem 0;">Pick or export files locally when the feature permits.</td></tr>
+      <tr><td style="padding:.4rem .4rem 0 0;"><strong>Internet</strong></td><td style="padding:.4rem 0;">Sync, sign-in, cloud transcription, backups, subscriptions, and telemetry.</td></tr>
+    </table>
+
+    <h2>10. Children</h2>
+    <p><strong>TakeNote</strong> and <strong>NoteTaker</strong> are not aimed at children under <strong>13</strong>; we don’t knowingly collect children’s personal data outside permitted contexts.</p>
+    <p><strong>StartUp</strong> is intended for adults (18+).</p>
+
+    <h2>11. User rights</h2>
+    <p>Depending on jurisdiction, you may exercise access, correction, deletion, portability, restriction, objection or complaint rights. Requests: <a href="mailto:support@m3xi.com">support@m3xi.com</a> from your registered email where feasible. ICO complaints guidance (UK users): <a href="https://ico.org.uk/make-a-complaint/" target="_blank" rel="noopener">ico.org.uk</a>.</p>
+
+    <h2>12. Cookies (website)</h2>
+    <p>Our apps do not rely on HTTP cookies while running natively where applicable. On <strong>this marketing site</strong>, we may use strictly necessary operational cookies plus optional analytics aligned with banner/consent tooling if deployed.</p>
+
+    <h2>13. Moderation / content (StartUp)</h2>
+    <p>You own your posted ideas unless otherwise agreed commercially. Moderation mixes automated and human elements: reporting paths, sanctions, removals for safety breaches. Submitting URLs acknowledges processing for the analysis feature you initiate. Do not submit unlawfully obtained materials; we may refuse or remove unsafe outputs.</p>
+
+    <h2>14. Changes</h2>
+    <p>We may update this policy; we will post the revision date at the top and, if material, notify through the app or email.</p>
+
+    <h2>15. More help</h2>
+    <p>General privacy: <a href="mailto:support@m3xi.com">support@m3xi.com</a></p>
+    <p>StartUp app: <a href="mailto:startup@m3xi.com">startup@m3xi.com</a></p>
+    <p>See also <a href="/terms/">Terms of Use</a>.</p>
   </div>
 
   <footer class="footer">
-    <a href="/">M3XI</a> · <a href="/terms/">Terms</a> · <a href="/contact/">Contact</a> · M3XI © 2025 · England & Wales
+    <a href="/">M3XI</a> · <a href="/notetaker/">NoteTaker</a> · <a href="/terms/">Terms</a> · <a href="/contact/">Contact</a> · M3XI © 2026 · England &amp; Wales
   </footer>
 </body>
 </html>
