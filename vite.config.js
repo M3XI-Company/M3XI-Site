@@ -14,7 +14,7 @@ export default defineConfig({
         startup: resolve(__dirname, 'startup/index.html'),
         team: resolve(__dirname, 'team/index.html'),
         terms: resolve(__dirname, 'terms/index.html'),
-        takenote: resolve(__dirname, 'takenote/index.html'),
+        notetaker: resolve(__dirname, 'notetaker/index.html'),
       },
     },
   },

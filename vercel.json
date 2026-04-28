@@ -1,6 +1,6 @@
 {
   "redirects": [
-    { "source": "/notetaker", "destination": "/takenote", "permanent": true },
-    { "source": "/notetaker/", "destination": "/takenote/", "permanent": true }
+    { "source": "/takenote", "destination": "/notetaker", "permanent": true },
+    { "source": "/takenote/", "destination": "/notetaker/", "permanent": true }
   ]
 }
