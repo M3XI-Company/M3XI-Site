@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="CinemaToon — AI-assisted manga and novels with narrator workflows. By M3XI."/>
+  <title>CinemaToon — AI manga &amp; narrator · M3XI</title>
+  <link rel="icon" type="image/png" href="/M.png" />
+  <link rel="apple-touch-icon" href="/M.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&family=Noto+Serif+JP:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--bg:#fff;--paper:#fafafa;--ink:#171717;--muted:#525252;--line:#eaeaea;--accent:#0a0a0a;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;}
+    h1,h2,h3{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.02em;}
+    em{font-style:italic;color:var(--muted);}
+    .nav{position:fixed;top:0;left:0;right:0;z-index:50;padding:1rem 2rem;transition:.25s;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);}
+    .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+    .nav-home{font-size:.84rem;color:var(--muted);text-decoration:none;font-weight:500;}
+    .nav-home:hover{color:var(--accent);}
+    .logo{margin-left:auto;text-decoration:none;display:flex;flex-direction:column;line-height:1.2;}
+    @media(min-width:720px){.logo{margin-left:0;margin-right:auto;}}
+    .logo-app{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--ink);font-weight:700;}
+    .logo-by{font-size:.58rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+    .logo-img-inline{height:13px;vertical-align:middle;}
+    .nav-links{display:flex;gap:1.25rem;list-style:none;margin-left:auto;flex-wrap:wrap;}
+    .nav-links a{font-size:.84rem;color:var(--muted);text-decoration:none;}
+    .nav-links a:hover{color:var(--accent);}
+    .btn{background:var(--accent);color:#fff;text-decoration:none;padding:.65rem 1.35rem;border-radius:999px;font-size:.86rem;font-weight:500;display:inline-flex;align-items:center;}
+    .btn:hover{opacity:.92;}
+    .btn-outline{background:transparent;color:var(--ink);border:1px solid var(--line);}
+    .hero{padding:10rem 2rem 4rem;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 360px;gap:3rem;align-items:center;min-height:85vh;}
+    .badge{display:inline-block;font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);padding:.35rem .8rem;border:1px solid var(--line);border-radius:999px;background:var(--paper);margin-bottom:1rem;}
+    .hero h1{font-size:clamp(2rem,4vw,3.15rem);line-height:1.1;margin-bottom:1rem;}
+    .lead{color:var(--muted);font-size:1rem;max-width:30rem;margin-bottom:1.75rem;font-weight:400;}
+    .actions{display:flex;gap:.65rem;flex-wrap:wrap;}
+    .stage{display:flex;justify-content:center;padding:1rem;}
+    .device{padding:11px;background:linear-gradient(145deg,#eee,#e2e2e2);border-radius:40px;box-shadow:0 28px 70px rgba(0,0,0,.1);width:268px;}
+    .screen{border-radius:30px;overflow:hidden;background:#111;color:#fafafa;line-height:0;aspect-ratio:9/17.8;}
+    .manga-strip{display:flex;flex-direction:column;gap:2px;background:#050505;padding:4px;font-size:7px;line-height:1.3;}
+    .panel{aspect-ratio:3/4;background:linear-gradient(135deg,#1a1518 0%,#2d2629 55%,#0c0c0c 100%);display:flex;align-items:flex-end;padding:12px;color:#ebe6e8;font-family:system-ui,sans-serif;}
+    .panel small{opacity:.75;font-size:6px;}
+    .narrator{padding:12px;background:#111;border-top:1px solid #222;}
+    .narrator p{font-size:7px;color:#bbb;line-height:1.45;}
+    .section{padding:4rem 2rem;border-top:1px solid var(--line);max-width:900px;margin:0 auto;}
+    .section h2{font-size:1.75rem;margin-bottom:.75rem;}
+    .section p{color:var(--muted);font-size:.95rem;}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2rem;}
+    .card{border:1px solid var(--line);border-radius:12px;padding:1.25rem;background:var(--paper);}
+    .card h3{font-size:1rem;margin-bottom:.4rem;font-family:'Inter',sans-serif;font-weight:600;}
+    .card p{font-size:.86rem;color:var(--muted);line-height:1.55;}
+    .cta{padding:4rem 2rem;text-align:center;border-top:1px solid var(--line);background:var(--paper);}
+    .cta-inner{max-width:480px;margin:0 auto;border:1px solid var(--line);border-radius:16px;padding:2.5rem 2rem;background:#fff;}
+    .footer{padding:2rem;border-top:1px solid var(--line);background:var(--paper);font-size:.8rem;color:var(--muted);}
+    .footer-inner{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;align-items:center;}
+    .footer a{color:var(--muted);text-decoration:none;margin-right:1rem;}
+    .footer a:hover{color:var(--accent);}
+    @media(max-width:900px){
+      .hero{grid-template-columns:1fr;padding-top:8rem;}
+      .grid-3{grid-template-columns:1fr;}
+      .nav-links{display:none;}
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-home">Home</a>
+    <a href="/cinematoon/" class="logo">
+      <span class="logo-app">CinemaToon</span>
+      <span class="logo-by">by <img src="/M.png" alt="M3XI" class="logo-img-inline"> · 三X一</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#vision">Vision</a></li>
+      <li><a href="#pipeline">Pipeline</a></li>
+      <li><a href="#contact">Updates</a></li>
+    </ul>
+    <a href="mailto:support@m3xi.com" class="btn" style="margin-left:auto;">Email us</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div>
+    <div class="badge">Story · Panels · Voice</div>
+    <h1>AI-native<br><em>manga &amp; novels.</em></h1>
+    <p class="lead">CinemaToon is M3XI’s creative engine for long-form narrative: generate manga-style sequences, refine dialogue, and pair stories with <strong>narrator-first</strong> playback — built for authors who think in scenes, not spreadsheets.</p>
+    <div class="actions">
+      <a href="mailto:support@m3xi.com?subject=CinemaToon" class="btn">Request access</a>
+      <a href="/#products" class="btn btn-outline">All products</a>
+    </div>
+  </div>
+  <div class="stage" aria-hidden="true">
+    <div class="device">
+      <div class="screen">
+        <div class="manga-strip">
+          <div class="panel" style="aspect-ratio:16/9;"><div><strong>Act I</strong><br><small>Neon rain · midnight alley</small></div></div>
+          <div class="panel" style="aspect-ratio:1/1;"><div><strong>Beat</strong><br><small>Close-up — whispered clue</small></div></div>
+          <div class="narrator">
+            <p><strong>Narrator</strong><br>“She pocketed the chip before the shutter closed — the city never forgives late exits.”</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p style="text-align:center;font-size:.72rem;color:var(--muted);margin-top:.75rem;max-width:14rem;margin-left:auto;margin-right:auto;">Concept UI — final app art will ship with launch builds.</p>
+  </div>
+</section>
+
+<section class="section" id="vision">
+  <h2>Presence for long stories.</h2>
+  <p>CinemaToon focuses on the hard parts of serialized fiction: keeping visual language consistent, letting you iterate on panels and prose together, and exporting experiences that feel authored — not templated.</p>
+</section>
+
+<section class="section" id="pipeline" style="max-width:1100px;">
+  <h2>Pipeline</h2>
+  <p style="margin-bottom:.5rem;">Three anchors we’re building toward:</p>
+  <div class="grid-3">
+    <div class="card"><h3>Scene graph</h3><p>Characters, locations, and tone tags travel with every chapter so AI suggestions stay on-model.</p></div>
+    <div class="card"><h3>Manga mode</h3><p>Panel prompts, gutters, and speech balloons tuned for print and mobile scroll.</p></div>
+    <div class="card"><h3>Narrator</h3><p>Script-aware read-aloud with pacing cues — built for Audio + visual bundles.</p></div>
+  </div>
+</section>
+
+<section class="cta" id="contact">
+  <div class="cta-inner">
+    <h2 style="font-size:1.5rem;margin-bottom:.5rem;font-family:'Playfair Display',serif;">Early cohort</h2>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:1.25rem;">Tell us what you publish — manga, web novel, audiobook hybrids — we’ll route you as betas open.</p>
+    <a href="mailto:support@m3xi.com?subject=CinemaToon%20beta" class="btn">support@m3xi.com</a>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span>CinemaToon © M3XI 2026</span>
+    <div>
+      <a href="/">Home</a>
+      <a href="/startup/">StartUp</a>
+      <a href="/notetaker/">Note Taker</a>
+      <a href="/privacy/">Privacy</a>
+      <a href="/terms/">Terms</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

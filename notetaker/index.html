@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Note Taker records lectures, transcribes audio, and applies the Cornell method so you get organised, study-ready notes. By M3XI."/>
-  <title>Note Taker — Lecture notes · Cornell · by M3XI</title>
+  <meta name="description" content="NoteTaker — lecture recording, transcripts, Cornell & photo-to-notes. By M3XI."/>
+  <title>Note Taker · NoteTaker · M3XI</title>
   <link rel="icon" type="image/png" href="/M.png" />
   <link rel="apple-touch-icon" href="/M.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,260 +13,193 @@
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     :root{
-      --bg:#08080f; --bg2:#0e0e1c;
-      --pink:#ffb7c5; --pink-mid:#ff85a1; --pink-deep:#e8607a;
-      --gold:#c9a96e; --gold-light:#e8c98a;
-      --text:#f0e6ea; --muted:#8a7a80; --dim:#4a3a40;
-      --card:rgba(255,183,197,0.05); --border:rgba(255,183,197,0.12);
-      --r:14px;
+      --bg:#fff; --paper:#fafafa; --ink:#171717; --muted:#525252; --line:#eaeaea;
+      --accent:#0a0a0a; --font:system-ui,-apple-system,'Segoe UI',Roboto,'Inter',sans-serif;
     }
     html{scroll-behavior:smooth;}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6;}
-    #bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
-    .overlay{position:fixed;inset:0;z-index:1;pointer-events:none;
-      background:radial-gradient(ellipse 80% 50% at 50% -5%,rgba(232,96,122,.1) 0%,transparent 60%),
-                radial-gradient(ellipse 50% 40% at 90% 80%,rgba(201,169,110,.06) 0%,transparent 50%);}
-    nav,section,footer,.strip{position:relative;z-index:10;}
-
-    .nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;transition:all .3s;}
-    .nav.scrolled{background:rgba(8,8,15,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);}
-    .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:2rem;}
-    .logo{text-decoration:none;display:flex;flex-direction:column;line-height:1;}
-    .logo-app{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--pink);letter-spacing:.04em;}
-    .logo-by{font-size:.62rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:.3rem;}
-    .logo-img-inline{height:14px;width:auto;object-fit:contain;display:inline-block;vertical-align:middle;opacity:.8;}
-    .nav-links{display:flex;list-style:none;gap:1.75rem;margin-left:auto;}
-    .nav-links a{color:var(--muted);text-decoration:none;font-size:.85rem;transition:color .2s;}
-    .nav-links a:hover{color:var(--pink);}
-    .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.4rem;border-radius:100px;font-size:.875rem;font-weight:500;text-decoration:none;cursor:pointer;border:none;transition:all .25s;font-family:'Inter',sans-serif;}
-    .btn-primary{background:linear-gradient(135deg,var(--pink-deep),var(--pink-mid));color:#fff;box-shadow:0 4px 20px rgba(232,96,122,.3);}
-    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(232,96,122,.45);}
-    .btn-ghost{background:transparent;color:var(--pink);border:1px solid var(--border);}
-    .btn-ghost:hover{background:var(--card);}
-    .btn-store{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);padding:.6rem 1.2rem;border-radius:10px;display:inline-flex;align-items:center;gap:.55rem;font-size:.82rem;transition:all .2s;}
-    .btn-store:hover{background:rgba(255,183,197,.1);border-color:rgba(255,183,197,.3);}
+    body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.65;overflow-x:hidden;}
+    h1,h2,h3{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.02em;}
+    em{font-style:italic;color:var(--muted);}
+    .nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;transition:.25s;}
+    .nav.scrolled{background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);}
+    .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:1rem 1.5rem;flex-wrap:wrap;}
+    .nav-home{font-size:.85rem;color:var(--muted);text-decoration:none;font-weight:500;}
+    .nav-home:hover{color:var(--accent);}
+    .logo{margin-left:auto;text-decoration:none;display:flex;flex-direction:column;line-height:1.25;}
+    @media(min-width:700px){.logo{margin-left:0;margin-right:auto;}}
+    .logo-app{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;color:var(--ink);letter-spacing:.02em;}
+    .logo-by{font-size:.58rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:.25rem;}
+    .logo-img-inline{height:13px;width:auto;opacity:.85;}
+    .nav-links{display:flex;list-style:none;gap:1.25rem;margin-left:auto;flex-wrap:wrap;}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:.84rem;font-weight:400;}
+    .nav-links a:hover{color:var(--accent);}
+    .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.35rem;border-radius:999px;font-size:.86rem;font-weight:500;text-decoration:none;border:none;font-family:inherit;cursor:pointer;transition:.2s;}
+    .btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 12px rgba(0,0,0,.1);}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.12);}
+    .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line);}
+    .btn-ghost:hover{background:var(--paper);}
+    .btn-store{background:var(--paper);border:1px solid var(--line);color:var(--ink);padding:.55rem 1rem;border-radius:10px;display:inline-flex;align-items:center;gap:.5rem;font-size:.8rem;}
+    .btn-store:hover{border-color:#ccc;background:#fff;}
     .container{max-width:1100px;margin:0 auto;padding:0 2rem;}
-    h1,h2,h3{font-family:'Playfair Display',serif;line-height:1.15;letter-spacing:-.02em;}
-    em{font-style:italic;color:var(--pink);}
+    .hero{min-height:100vh;display:grid;grid-template-columns:1fr 380px;align-items:center;gap:3rem;padding:8rem 2rem 4rem;max-width:1140px;margin:0 auto;}
+    .hero-badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--paper);border:1px solid var(--line);font-size:.72rem;color:var(--muted);padding:.32rem .75rem;border-radius:999px;margin-bottom:1.25rem;letter-spacing:.04em;text-transform:uppercase;}
+    .hero h1{font-size:clamp(2.2rem,4.5vw,3.35rem);margin-bottom:1rem;line-height:1.12;}
+    .hero-sub{font-size:.98rem;color:var(--muted);max-width:32rem;margin-bottom:1.75rem;font-weight:400;}
+    .hero-actions{display:flex;gap:.65rem;flex-wrap:wrap;margin-bottom:1.25rem;}
+    .hero-stores{display:flex;gap:.65rem;flex-wrap:wrap;margin-bottom:2rem;}
 
-    .hero{min-height:100vh;display:grid;grid-template-columns:1fr 420px;align-items:center;gap:4rem;padding:8rem 2rem 4rem;max-width:1100px;margin:0 auto;}
-    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(232,96,122,.08);border:1px solid rgba(232,96,122,.2);color:var(--pink);font-size:.78rem;padding:.35rem .9rem;border-radius:100px;margin-bottom:1.5rem;letter-spacing:.03em;}
-    .dot{width:6px;height:6px;border-radius:50%;background:var(--pink-mid);animation:pulse 2s infinite;}
-    @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.4);}}
-    .hero h1{font-size:clamp(2.6rem,5.5vw,4rem);margin-bottom:1.25rem;}
-    .hero-sub{font-size:1rem;color:var(--muted);max-width:480px;margin-bottom:2rem;font-weight:300;line-height:1.75;}
-    .hero-actions{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.5rem;}
-    .hero-stores{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:2.5rem;}
-    .hero-stats{display:flex;gap:2rem;padding-top:1.5rem;border-top:1px solid var(--border);}
-    .stat-n{display:block;font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--pink);line-height:1;}
-    .stat-l{font-size:.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;}
+    /* Device frame — real screenshots */
+    .phone-wrap{display:flex;justify-content:center;align-items:center;padding:2rem 0;}
+    .device{position:relative;width:260px;padding:11px;background:linear-gradient(145deg,#f3f3f3,#ebebeb);border-radius:42px;
+      box-shadow:0 35px 80px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.9);}
+    .device-inner{border-radius:32px;overflow:hidden;background:#000;line-height:0;}
+    .device-inner img{display:block;width:100%;height:auto;aspect-ratio:9/18.8;object-fit:cover;}
 
-    .phone-wrap{display:flex;justify-content:center;align-items:center;animation:floatPhone 4s ease-in-out infinite;}
-    @keyframes floatPhone{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
-    .phone{width:240px;height:480px;background:linear-gradient(160deg,#1a1225,#0d0918);border:2.5px solid rgba(255,183,197,.25);border-radius:36px;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,183,197,.06),inset 0 1px 0 rgba(255,255,255,.05);overflow:hidden;}
-    .phone-notch{width:80px;height:20px;background:#0d0918;border-radius:0 0 12px 12px;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:5;}
-    .phone-screen{position:absolute;inset:0;padding:32px 14px 14px;display:flex;flex-direction:column;gap:8px;}
-    .app-bar{height:28px;background:rgba(255,183,197,.06);border-radius:8px;display:flex;align-items:center;padding:0 10px;gap:6px;}
-    .app-bar-dot{width:14px;height:14px;border-radius:50%;background:var(--pink-deep);opacity:.7;}
-    .app-bar-title{font-size:8px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
-    .app-card{background:rgba(255,183,197,.05);border:1px solid rgba(255,183,197,.1);border-radius:10px;padding:10px;}
-    .app-card-title{font-size:7px;color:var(--pink);font-weight:600;margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase;}
-    .app-card-row{display:flex;justify-content:space-between;margin-bottom:3px;}
-    .app-card-key{font-size:6px;color:var(--muted);}
-    .app-card-val{font-size:6px;color:var(--text);}
-    .app-card-val.hi{color:var(--gold-light);}
-    .app-wave{display:flex;align-items:flex-end;gap:2px;height:22px;margin-top:4px;}
-    .wav{flex:1;background:linear-gradient(to top,var(--pink-deep),transparent);border-radius:1px;opacity:.55;}
-    .app-pill{display:inline-block;background:rgba(232,96,122,.15);border:1px solid rgba(232,96,122,.25);color:var(--pink);font-size:6px;padding:2px 6px;border-radius:100px;margin-top:4px;}
-    .cornell-mini{display:grid;grid-template-columns:1fr 2fr;gap:3px;margin-top:4px;height:44px;}
-    .cell{border-radius:3px;font-size:5px;padding:3px;color:var(--muted);line-height:1.2;}
-    .cell-cues{background:rgba(201,169,110,.12);border:1px solid rgba(201,169,110,.2);}
-    .cell-notes{background:rgba(255,183,197,.06);border:1px solid rgba(255,183,197,.1);}
-    .cell-sum{grid-column:1/-1;background:rgba(232,96,122,.1);border:1px solid rgba(232,96,122,.15);font-size:5px;padding:3px;margin-top:2px;border-radius:3px;text-align:center;color:var(--gold-light);}
-    .phone-glow{position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 20%,rgba(232,96,122,.08) 0%,transparent 70%);pointer-events:none;}
+    /* App collage */
+    #screens{padding:4rem 0 2rem;background:var(--paper);border-top:1px solid var(--line);}
+    .screens-row{display:flex;gap:.65rem;overflow-x:auto;padding-bottom:.5rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}
+    .screens-row figure{flex:0 0 auto;scroll-snap-align:start;width:120px;margin:0;}
+    .screens-row img{width:120px;height:auto;border-radius:10px;display:block;border:1px solid var(--line);}
+    figcaption{font-size:.65rem;color:var(--muted);margin-top:.4rem;line-height:1.35;}
+    .section-head{margin-bottom:1.5rem;text-align:center;}
+    .section-tag{display:inline-block;font-size:.68rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;}
+    .section-head h2{font-size:clamp(1.5rem,3vw,2rem);color:var(--ink);}
 
-    .sword-section{padding:5rem 0;display:flex;flex-direction:column;align-items:center;text-align:center;border-top:1px solid var(--border);}
-    .sword-svg{width:80px;margin-bottom:2rem;filter:drop-shadow(0 0 20px rgba(232,96,122,.3));}
-    .sword-section h2{font-size:clamp(1.8rem,3.5vw,2.8rem);margin-bottom:1rem;}
-    .sword-section p{color:var(--muted);max-width:480px;font-weight:300;line-height:1.75;font-size:.95rem;}
+    .divider{padding:5rem 0;text-align:center;border-top:1px solid var(--line);}
+    .divider h2{font-size:clamp(1.6rem,3vw,2.4rem);margin-bottom:.75rem;font-weight:600;}
+    .divider p{color:var(--muted);max-width:32rem;margin:0 auto;font-size:.94rem;font-weight:400;line-height:1.75;}
 
-    .slides-section{padding:6rem 0;}
-    .slides-header{text-align:center;margin-bottom:3rem;}
-    .section-tag{display:inline-block;font-size:.7rem;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--pink-deep);border:1px solid rgba(232,96,122,.25);padding:.28rem .75rem;border-radius:100px;margin-bottom:.6rem;}
-    .slides-header h2{font-size:clamp(1.8rem,3.5vw,2.6rem);margin-top:.4rem;}
-    .slider-wrap{position:relative;overflow:hidden;}
+    .slides-section{padding:4rem 0 5rem;border-top:1px solid var(--line);}
+    .slides-header{text-align:center;margin-bottom:2.5rem;}
+    .slides-header .section-tag{margin-bottom:.4rem;display:inline-block;font-size:.68rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);}
+    .slides-header h2{font-size:clamp(1.5rem,3vw,2rem);}
+    .slider-wrap{overflow:hidden;border-radius:0;}
     .slider-track{display:flex;transition:transform .45s cubic-bezier(.4,0,.2,1);}
-    .slide{min-width:100%;padding:0 2rem;}
-    .slide-inner{max-width:800px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;}
-    .slide-text h3{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:.75rem;}
-    .slide-text p{color:var(--muted);font-size:.9rem;line-height:1.75;font-weight:300;}
-    .slide-tag{display:inline-block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--pink-deep);margin-bottom:.5rem;}
-    .slide-visual{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:2rem;display:flex;flex-direction:column;gap:.75rem;}
-    .slide-icon{width:48px;height:48px;background:rgba(255,183,197,.08);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--pink);}
-    .slide-stat{display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid rgba(255,183,197,.07);font-size:.82rem;}
-    .slide-stat:last-child{border-bottom:none;}
-    .slide-stat span:first-child{color:var(--muted);}
-    .slide-stat span:last-child{color:var(--text);}
-    .slider-dots{display:flex;justify-content:center;gap:.6rem;margin-top:2rem;}
-    .dot-btn{width:8px;height:8px;border-radius:50%;background:var(--dim);border:none;cursor:pointer;transition:all .2s;padding:0;}
-    .dot-btn.active{background:var(--pink-mid);width:20px;border-radius:4px;}
-    .slider-arrows{display:flex;justify-content:center;gap:1rem;margin-top:1.5rem;}
-    .arrow-btn{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:1rem;}
-    .arrow-btn:hover{background:rgba(255,183,197,.12);border-color:rgba(255,183,197,.3);}
+    .slide{min-width:100%;padding:0 1rem;}
+    .slide-inner{max-width:880px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;}
+    .slide-text h3{font-size:1.4rem;margin-bottom:.5rem;font-weight:600;}
+    .slide-text p{color:var(--muted);font-size:.9rem;font-weight:400;line-height:1.7;}
+    .slide-tag{display:inline-block;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.4rem;}
+    .slide-photo{border-radius:12px;border:1px solid var(--line);overflow:hidden;line-height:0;background:var(--paper);}
+    .slide-photo img{width:100%;height:auto;display:block;}
+    .slider-arrows{display:flex;justify-content:center;gap:.75rem;margin-top:2rem;}
+    .slider-dots{display:flex;justify-content:center;gap:.45rem;margin-top:1.25rem;}
+    .dot-btn{width:8px;height:8px;border-radius:50%;border:none;background:#ccc;cursor:pointer;padding:0;transition:.2s;}
+    .dot-btn.active{background:var(--accent);width:18px;border-radius:4px;}
+    .arrow-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--paper);cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;}
+    .arrow-btn:hover{background:#fff;border-color:#ccc;}
 
-    .reviews{padding:6rem 0;background:rgba(255,183,197,.02);border-top:1px solid var(--border);}
-    .reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:3rem;}
-    .review-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.75rem;position:relative;}
-    .stars{color:var(--gold);font-size:.9rem;margin-bottom:.75rem;letter-spacing:.1em;}
-    .review-text{color:var(--muted);font-size:.875rem;line-height:1.7;font-weight:300;font-style:italic;margin-bottom:1.25rem;}
-    .reviewer{display:flex;align-items:center;gap:.75rem;}
-    .reviewer-avatar{width:34px;height:34px;border-radius:50%;background:rgba(232,96,122,.15);border:1px solid rgba(232,96,122,.25);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;color:var(--pink);}
-    .reviewer-name{font-size:.82rem;color:var(--text);font-weight:500;}
-    .reviewer-role{font-size:.72rem;color:var(--dim);}
+    .reviews{padding:4rem 0;background:var(--paper);border-top:1px solid var(--line);}
+    .reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2rem;}
+    .review-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:1.5rem;}
+    .stars{color:#737373;font-size:.85rem;margin-bottom:.6rem;letter-spacing:.08em;}
+    .review-text{color:var(--muted);font-size:.86rem;line-height:1.65;font-style:italic;margin-bottom:1rem;}
+    .reviewer{display:flex;align-items:center;gap:.6rem;}
+    .reviewer-avatar{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;}
+    .reviewer-name{font-size:.8rem;font-weight:500;}
+    .reviewer-role{font-size:.72rem;color:var(--muted);}
 
-    .cta{padding:6rem 0;text-align:center;}
-    .cta-box{max-width:560px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:3.5rem 2.5rem;position:relative;overflow:hidden;}
-    .cta-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(232,96,122,.07) 0%,transparent 70%);pointer-events:none;}
-    .cta-petal{font-size:2rem;margin-bottom:1rem;display:block;animation:fp 4s ease-in-out infinite;}
-    @keyframes fp{0%,100%{transform:translateY(0) rotate(0);}50%{transform:translateY(-8px) rotate(8deg);}}
-    .cta-box h2{font-size:clamp(1.6rem,3vw,2.2rem);margin:.75rem 0;}
-    .cta-box p{color:var(--muted);font-size:.9rem;line-height:1.7;font-weight:300;margin-bottom:1.75rem;}
-    .cta-stores{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;}
+    .cta{padding:4rem 0 5rem;text-align:center;}
+    .cta-box{max-width:520px;margin:0 auto;border:1px solid var(--line);border-radius:16px;padding:2.75rem 2rem;background:#fff;}
+    .cta-box h2{font-size:clamp(1.45rem,2.5vw,1.9rem);margin:.5rem 0 1rem;}
+    .cta-box p{color:var(--muted);font-size:.9rem;margin-bottom:1.5rem;}
+    .cta-stores{display:flex;gap:.65rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.25rem;}
     .cta-email{font-size:.82rem;color:var(--muted);}
-    .cta-email a{color:var(--pink);text-decoration:none;}
-    .cta-email a:hover{text-decoration:underline;}
+    .cta-email a{color:var(--ink);text-decoration:underline;}
 
-    .footer{border-top:1px solid var(--border);padding:2rem;background:rgba(8,8,15,.5);}
+    .footer{border-top:1px solid var(--line);padding:2rem;background:var(--paper);}
     .footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
-    .footer-links{display:flex;gap:1.25rem;}
-    .footer-links a{font-size:.8rem;color:var(--muted);text-decoration:none;transition:color .2s;}
-    .footer-links a:hover{color:var(--pink);}
-    .footer-copy{font-size:.75rem;color:var(--dim);}
+    .footer-links{display:flex;gap:1rem;flex-wrap:wrap;}
+    .footer-links a{font-size:.8rem;color:var(--muted);text-decoration:none;}
+    .footer-links a:hover{color:var(--accent);}
+    .footer-copy{font-size:.72rem;color:#999;}
 
-    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease;}
     .reveal.visible{opacity:1;transform:translateY(0);}
-    #petal-overlay{position:fixed;inset:0;z-index:50;pointer-events:none;overflow:hidden;}
 
-    @media(max-width:900px){.hero{grid-template-columns:1fr;}.phone-wrap{display:none;}.slide-inner{grid-template-columns:1fr;}.reviews-grid{grid-template-columns:1fr;}.nav-links{display:none;}}
+    @media(max-width:900px){
+      .hero{grid-template-columns:1fr;padding-top:7rem;}
+      .phone-wrap{order:-1;padding:0 0 1rem;}
+      .slide-inner{grid-template-columns:1fr;}
+      .reviews-grid{grid-template-columns:1fr;}
+      .nav-links{display:none;}
+    }
   </style>
 </head>
 <body>
-<canvas id="bg"></canvas>
-<div class="overlay"></div>
-<div id="petal-overlay"></div>
 
 <nav class="nav" id="nav">
   <div class="nav-inner">
+    <a href="/" class="nav-home">Home</a>
     <a href="/notetaker/" class="logo">
       <span class="logo-app">Note Taker</span>
       <span class="logo-by">by <img src="/M.png" alt="M3XI" class="logo-img-inline"> · 三X一</span>
     </a>
     <ul class="nav-links">
+      <li><a href="#screens">App</a></li>
       <li><a href="#features">Features</a></li>
       <li><a href="#reviews">Reviews</a></li>
       <li><a href="#download">Download</a></li>
     </ul>
-    <a href="#download" class="btn btn-primary">Download</a>
+    <a href="#download" class="btn btn-primary" style="margin-left:auto;">Get the app</a>
   </div>
 </nav>
 
 <section class="hero" id="home">
   <div class="hero-content">
-    <div class="hero-badge"><span class="dot"></span> Lecture · Cornell · Organised</div>
-    <h1>RECORD THE LECTURE.<br><em>KEEP THE STRUCTURE.</em></h1>
-    <p class="hero-sub"><strong>Note Taker</strong> (NoteTaker in app stores) is built for class: capture the whole session, turn speech into transcripts, then use the <strong>Cornell note-taking method</strong>—cues, main notes, and summaries—so audio becomes usable, well-organised notes instead of a wall of text.</p>
-
+    <div class="hero-badge">Lecture · Transcript · Layouts</div>
+    <h1>Record once.<br><em>Study with intent.</em></h1>
+    <p class="hero-sub"><strong>Note Taker</strong> (stores: <strong>NoteTaker</strong>) captures lectures, transcribes speech, organises layouts — Cornell, outline, mind map, and more — plus <strong>photo-to-notes</strong> for boards and handwritten pages.</p>
     <div class="hero-actions">
-      <a href="#download" class="btn btn-primary">Download Note Taker</a>
-      <a href="#features" class="btn btn-ghost">See features →</a>
+      <a href="#download" class="btn btn-primary">Download</a>
+      <a href="#screens" class="btn btn-ghost">See the UI</a>
     </div>
-
     <div class="hero-stores" id="download">
       <a href="#" class="btn-store" aria-label="App Store">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-        <div><div style="font-size:.6rem;opacity:.7;">Download on the</div><div style="font-size:.9rem;font-weight:600;">App Store</div></div>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        <div><div style="font-size:.58rem;opacity:.7;">Download on</div><div style="font-size:.82rem;font-weight:600;">App Store</div></div>
       </a>
       <a href="#" class="btn-store" aria-label="Google Play">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.3.17.64.24.99.2l12.09-12.09L13.1 8.81 3.18 23.76zm16.87-10.93l-2.79-1.61-3.36 3.36 3.36 3.35 2.8-1.62c.8-.46.8-1.62-.01-2.08zM2.01 1.37C1.7 1.72 1.5 2.23 1.5 2.89v18.22c0 .66.2 1.17.52 1.52l.08.08L13.1 11.7v-.27L2.09 1.29l-.08.08zm10.65 9.13l3.36-3.36-12.09-7c-.35-.2-.71-.27-1.04-.22l10.77 10.58z"/></svg>
-        <div><div style="font-size:.6rem;opacity:.7;">Get it on</div><div style="font-size:.9rem;font-weight:600;">Google Play</div></div>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.3.17.64.24.99.2l12.09-12.09L13.1 8.81 3.18 23.76zm16.87-10.93l-2.79-1.61-3.36 3.36 3.36 3.35 2.8-1.62c.8-.46.8-1.62-.01-2.08zM2.01 1.37C1.7 1.72 1.5 2.23 1.5 2.89v18.22c0 .66.2 1.17.52 1.52l.08.08L13.1 11.7v-.27L2.09 1.29l-.08.08zm10.65 9.13l3.36-3.36-12.09-7c-.35-.2-.71-.27-1.04-.22l10.77 10.58z"/></svg>
+        <div><div style="font-size:.58rem;opacity:.7;">Get it on</div><div style="font-size:.82rem;font-weight:600;">Google Play</div></div>
       </a>
     </div>
-
-    <div class="hero-stats">
-      <div><span class="stat-n">●</span><span class="stat-l">Record</span></div>
-      <div><span class="stat-n">III</span><span class="stat-l">Cornell</span></div>
-      <div><span class="stat-n">↻</span><span class="stat-l">Sync</span></div>
-    </div>
   </div>
-
   <div class="phone-wrap">
-    <div class="phone">
-      <div class="phone-notch"></div>
-      <div class="phone-glow"></div>
-      <div class="phone-screen">
-        <div class="app-bar">
-          <div class="app-bar-dot"></div>
-          <span class="app-bar-title">Note Taker · Biology 102</span>
-        </div>
-        <div class="app-card" style="min-height:108px;display:flex;flex-direction:column;justify-content:center;border:2px solid rgba(255,183,197,.2);background:rgba(232,96,122,.06);">
-          <div class="app-card-title">Recording</div>
-          <div class="app-card-row"><span class="app-card-key">Elapsed</span><span class="app-card-val hi">52:03</span></div>
-          <div class="app-wave">
-            <div class="wav" style="height:40%;"></div><div class="wav" style="height:70%;"></div><div class="wav" style="height:55%;"></div>
-            <div class="wav" style="height:85%;"></div><div class="wav" style="height:45%;"></div><div class="wav" style="height:90%;"></div>
-            <div class="wav" style="height:35%;"></div>
-          </div>
-          <span class="app-pill">Lecture capture · stereo</span>
-        </div>
-        <div class="app-card" style="flex:1;">
-          <div class="app-card-title">Cornell layout</div>
-          <div class="cornell-mini">
-            <div class="cell cell-cues">Cues<br>· ATP<br>· Mitochondria</div>
-            <div class="cell cell-notes">Main notes — lecture points follow the slide deck; links to timestamp in audio.</div>
-          </div>
-          <div class="cell-sum">Summary: Energy transfer in the cell — review cards ready.</div>
-        </div>
-        <div class="app-card">
-          <div class="app-card-title">Transcript</div>
-          <div class="app-card-row"><span class="app-card-key">Status</span><span class="app-card-val hi">Synced</span></div>
-          <div class="app-card-row"><span class="app-card-key">Words</span><span class="app-card-val">~8.4k</span></div>
-        </div>
+    <div class="device" aria-hidden="true">
+      <div class="device-inner">
+        <img src="/notetaker/screenshot-record.png" width="738" height="1600" alt="Note Taker: record screen with layouts and AI allowance"/>
       </div>
     </div>
   </div>
 </section>
 
-<div class="sword-section reveal">
-  <svg class="sword-svg" viewBox="0 0 80 280" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <path d="M 40 10 L 43 230 L 37 230 Z" fill="url(#tn-blade)" opacity=".9"/>
-    <line x1="40" y1="20" x2="40" y2="220" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-    <path d="M 43 10 L 44 230" stroke="rgba(255,255,255,0.2)" stroke-width=".5"/>
-    <defs>
-      <linearGradient id="tn-blade" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#c0c8e0"/>
-        <stop offset="45%" stop-color="#f0f4ff"/>
-        <stop offset="100%" stop-color="#8090b0"/>
-      </linearGradient>
-    </defs>
-    <ellipse cx="40" cy="232" rx="22" ry="7" fill="#c9a96e" opacity=".85"/>
-    <ellipse cx="40" cy="232" rx="18" ry="5" fill="#e8c98a" opacity=".5"/>
-    <rect x="36" y="238" width="8" height="48" rx="2" fill="#3a2510" opacity=".9"/>
-    <line x1="36" y1="244" x2="44" y2="244" stroke="#c9a96e" stroke-width="1" opacity=".5"/>
-    <line x1="36" y1="256" x2="44" y2="256" stroke="#c9a96e" stroke-width="1" opacity=".5"/>
-    <ellipse cx="40" cy="287" rx="7" ry="4" fill="#c9a96e" opacity=".8"/>
-    <circle cx="40" cy="14" r="5" fill="rgba(232,96,122,.4)"/>
-    <circle cx="40" cy="8"  r="3" fill="rgba(255,183,197,.5)"/>
-    <ellipse cx="40" cy="140" rx="8" ry="120" fill="rgba(201,169,110,.04)"/>
-  </svg>
-  <h2>From messy audio to <em>clear notes.</em></h2>
-  <p>Long recordings are hard to revise. Note Taker bridges raw lecture audio and searchable text, then lays everything out with Cornell-style structure so review sessions actually work.</p>
+<section class="container reveal" id="screens" style="padding-bottom:4rem;">
+  <div class="section-head">
+    <span class="section-tag">Actual UI</span>
+    <h2>In-app screens.</h2>
+    <p style="color:var(--muted);font-size:.9rem;margin-top:.5rem;max-width:36rem;margin-left:auto;margin-right:auto;">Captured from production builds — dark interface inside a light chrome frame.</p>
+  </div>
+  <div class="screens-row">
+    <figure><img src="/notetaker/screenshot-transcript.png" alt="Transcript tab" loading="lazy" width="360" height="780"/><figcaption>Transcript &amp; PDF</figcaption></figure>
+    <figure><img src="/notetaker/screenshot-photo-notes.png" alt="Photo to notes" loading="lazy" width="360" height="780"/><figcaption>Photo to notes · layouts</figcaption></figure>
+    <figure><img src="/notetaker/screenshot-processing.png" alt="Processing" loading="lazy" width="360" height="780"/><figcaption>Generating notes</figcaption></figure>
+    <figure><img src="/notetaker/screenshot-transcribe-tab.png" alt="Transcribe" loading="lazy" width="360" height="780"/><figcaption>Listen with transcript</figcaption></figure>
+    <figure><img src="/notetaker/screenshot-library.png" alt="Library" loading="lazy" width="360" height="780"/><figcaption>Library &amp; keywords</figcaption></figure>
+    <figure><img src="/notetaker/screenshot-cornell-onboarding.png" alt="Cornell guide" loading="lazy" width="360" height="780"/><figcaption>Cornell onboarding</figcaption></figure>
+  </div>
+</section>
+
+<div class="divider reveal">
+  <h2>From waveform to <em>exam-ready rows.</em></h2>
+  <p>Note Taker shares one thoughtful AI allowance across recording, transcription, structured notes, and photo capture — so every feature pulls from the same session.</p>
 </div>
 
 <section class="slides-section reveal" id="features">
   <div class="container">
     <div class="slides-header">
       <span class="section-tag">Features</span>
-      <h2>Record. Transcribe. Structure.</h2>
+      <h2>Flows that matter.</h2>
     </div>
     <div class="slider-wrap">
       <div class="slider-track" id="tn-track">
@@ -275,17 +208,11 @@
           <div class="slide-inner">
             <div class="slide-text">
               <span class="slide-tag">Capture</span>
-              <h3>Lecture recording first</h3>
-              <p>Designed for real classrooms and long sessions—not just thirty-second snippets. Keep the original audio as the source of truth while you annotate.</p>
+              <h3>Record · layouts · AI cap</h3>
+              <p>Pick Cornell, outline, mind map, or box layouts before or after capture. Recording, transcripts, notes, and photo-to-notes share one token-style allowance until you subscribe.</p>
             </div>
-            <div class="slide-visual">
-              <div class="slide-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 18v4M12 6V2"/></svg>
-              </div>
-              <div class="slide-stat"><span>Session length</span><span>Flexible</span></div>
-              <div class="slide-stat"><span>Quality</span><span>Adaptive</span></div>
-              <div class="slide-stat"><span>Offline moments</span><span>Capture first</span></div>
-              <div class="slide-stat"><span>Focus</span><span>Lectures &amp; talks</span></div>
+            <div class="slide-photo">
+              <img src="/notetaker/screenshot-record.png" alt="Record screen with layout chips" width="738" height="1600" loading="lazy"/>
             </div>
           </div>
         </div>
@@ -293,18 +220,12 @@
         <div class="slide">
           <div class="slide-inner">
             <div class="slide-text">
-              <span class="slide-tag">Understand</span>
-              <h3>Transcripts you can skim</h3>
-              <p>Speech is turned into searchable text so you can jump to vocabulary, formulae, or that one sentence the examiner repeated twice.</p>
+              <span class="slide-tag">Read</span>
+              <h3>Transcripts + export</h3>
+              <p>Jump between Notes, Transcript, and Audio. Keywords surface automatically; export when you’re ready.</p>
             </div>
-            <div class="slide-visual">
-              <div class="slide-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h10M4 18h14"/></svg>
-              </div>
-              <div class="slide-stat"><span>Search</span><span>Full text</span></div>
-              <div class="slide-stat"><span>Timestamps</span><span>Tie to audio</span></div>
-              <div class="slide-stat"><span>Privacy</span><span>See policy →</span></div>
-              <div class="slide-stat"><span>Cloud-ready</span><span>Where enabled</span></div>
+            <div class="slide-photo">
+              <img src="/notetaker/screenshot-transcript.png" alt="Lecture transcript view" width="738" height="1600" loading="lazy"/>
             </div>
           </div>
         </div>
@@ -312,28 +233,21 @@
         <div class="slide">
           <div class="slide-inner">
             <div class="slide-text">
-              <span class="slide-tag">Cornell layout</span>
-              <h3>Organised by design</h3>
-              <p>The <strong>Cornell method</strong> splits your page into cues, main notes, and a bottom summary. Note Taker applies that logic to what was said—so you study from structure, not chaos.</p>
+              <span class="slide-tag">Photo</span>
+              <h3>Desk &amp; board → structured notes</h3>
+              <p>Shoot scraps and whiteboards — the same layout engine folds handwriting and diagrams into your study shelf.</p>
             </div>
-            <div class="slide-visual">
-              <div class="slide-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M3 15h18"/></svg>
-              </div>
-              <div class="slide-stat"><span>Cues column</span><span>Keywords &amp; questions</span></div>
-              <div class="slide-stat"><span>Notes</span><span>Main concepts</span></div>
-              <div class="slide-stat"><span>Summary strip</span><span>One-glance recap</span></div>
-              <div class="slide-stat"><span>Exam prep</span><span style="color:var(--gold-light);">Ready to review</span></div>
+            <div class="slide-photo">
+              <img src="/notetaker/screenshot-photo-notes.png" alt="Photo to notes camera" width="738" height="1600" loading="lazy"/>
             </div>
           </div>
         </div>
 
       </div>
     </div>
-
     <div class="slider-arrows">
-      <button class="arrow-btn" id="tn-prev" type="button" aria-label="Previous slide">←</button>
-      <button class="arrow-btn" id="tn-next" type="button" aria-label="Next slide">→</button>
+      <button class="arrow-btn" id="tn-prev" type="button" aria-label="Previous">←</button>
+      <button class="arrow-btn" id="tn-next" type="button" aria-label="Next">→</button>
     </div>
     <div class="slider-dots" id="tn-dots">
       <button class="dot-btn active" type="button" data-idx="0" aria-label="Slide 1"></button>
@@ -347,32 +261,23 @@
   <div class="container">
     <div style="text-align:center;">
       <span class="section-tag">Reviews</span>
-      <h2 style="font-size:clamp(1.8rem,3.5vw,2.6rem);margin-top:.4rem;">What students are saying.</h2>
+      <h2 style="font-size:clamp(1.4rem,3vw,1.95rem);margin-top:.35rem;font-weight:600;">From students.</h2>
     </div>
     <div class="reviews-grid">
       <div class="review-card">
         <div class="stars">★★★★★</div>
-        <p class="review-text">“I stopped pausing fifty times per lecture—Note Taker grabs the transcript and the Cornell breakdown actually matches how I revise.”</p>
-        <div class="reviewer">
-          <div class="reviewer-avatar">E</div>
-          <div><div class="reviewer-name">Elena</div><div class="reviewer-role">Biochemistry</div></div>
-        </div>
+        <p class="review-text">“The transcript strip and Cornell onboarding finally match how I revise — fewer pauses, more capture.”</p>
+        <div class="reviewer"><div class="reviewer-avatar">E</div><div><div class="reviewer-name">Elena</div><div class="reviewer-role">Biochemistry</div></div>
       </div>
       <div class="review-card">
         <div class="stars">★★★★★</div>
-        <p class="review-text">“The summary row at the bottom is unfairly good for exam week—it's like the lecture folded into one paragraph.”</p>
-        <div class="reviewer">
-          <div class="reviewer-avatar">R</div>
-          <div><div class="reviewer-name">Ravi</div><div class="reviewer-role">Engineering</div></div>
-        </div>
+        <p class="review-text">“Photo-to-notes bridges my paper mess with searchable rows — outrageous for exam prep.”</p>
+        <div class="reviewer"><div class="reviewer-avatar">R</div><div><div class="reviewer-name">Ravi</div><div class="reviewer-role">Engineering</div></div>
       </div>
       <div class="review-card">
         <div class="stars">★★★★☆</div>
-        <p class="review-text">“Finally an app that treats lectures as lectures—not a voice memo I’ll never listen to again.”</p>
-        <div class="reviewer">
-          <div class="reviewer-avatar">M</div>
-          <div><div class="reviewer-name">Maya</div><div class="reviewer-role">Law</div></div>
-        </div>
+        <p class="review-text">“Finally treats full lectures like first-class citizens, not orphaned voice memos.”</p>
+        <div class="reviewer"><div class="reviewer-avatar">M</div><div><div class="reviewer-name">Maya</div><div class="reviewer-role">Law</div></div>
       </div>
     </div>
   </div>
@@ -381,19 +286,12 @@
 <section class="cta reveal">
   <div class="container">
     <div class="cta-box">
-      <span class="cta-petal">📓</span>
       <span class="section-tag">Download</span>
-      <h2>Bring structure to your next class.</h2>
-      <p>Note Taker is coming to iOS and Android — lecture recording, transcripts, and Cornell-organised notes in one calm workflow.</p>
+      <h2>Bring structure to class.</h2>
+      <p>iOS &amp; Android — one calm workflow from mic to Cornell rows.</p>
       <div class="cta-stores">
-        <a href="#" class="btn-store" aria-label="App Store">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-          <div><div style="font-size:.6rem;opacity:.7;">Download on the</div><div style="font-size:.9rem;font-weight:600;">App Store</div></div>
-        </a>
-        <a href="#" class="btn-store" aria-label="Google Play">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.3.17.64.24.99.2l12.09-12.09L13.1 8.81 3.18 23.76zm16.87-10.93l-2.79-1.61-3.36 3.36 3.36 3.35 2.8-1.62c.8-.46.8-1.62-.01-2.08zM2.01 1.37C1.7 1.72 1.5 2.23 1.5 2.89v18.22c0 .66.2 1.17.52 1.52l.08.08L13.1 11.7v-.27L2.09 1.29l-.08.08zm10.65 9.13l3.36-3.36-12.09-7c-.35-.2-.71-.27-1.04-.22l10.77 10.58z"/></svg>
-          <div><div style="font-size:.6rem;opacity:.7;">Get it on</div><div style="font-size:.9rem;font-weight:600;">Google Play</div></div>
-        </a>
+        <a href="#" class="btn-store"><span>App Store</span></a>
+        <a href="#" class="btn-store"><span>Google Play</span></a>
       </div>
       <p class="cta-email">Questions: <a href="mailto:support@m3xi.com">support@m3xi.com</a></p>
     </div>
@@ -402,40 +300,27 @@
 
 <footer class="footer">
   <div class="footer-inner">
-    <div class="logo"><span class="logo-app">Note Taker</span><span class="logo-by" style="margin-top:2px;">by M3XI · 三X一</span></div>
+    <div class="logo" style="margin:0;"><span class="logo-app">Note Taker</span><span class="logo-by">by M3XI · 三X一</span></div>
     <div class="footer-links">
-      <a href="/">M3XI Home</a>
+      <a href="/">Home</a>
       <a href="/startup/">StartUp</a>
+      <a href="/cinematoon/">CinemaToon</a>
       <a href="/team/">Team</a>
       <a href="/privacy/">Privacy</a>
       <a href="/terms/">Terms</a>
       <a href="/contact/">Contact</a>
     </div>
-    <span class="footer-copy">M3XI © 2026 · England & Wales</span>
+    <span class="footer-copy">M3XI © 2026</span>
   </div>
 </footer>
 
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
-<script type="module">
-import * as THREE from 'three';
-const canvas=document.querySelector('#bg'),scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1000),renderer=new THREE.WebGLRenderer({canvas,alpha:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);camera.position.z=30;
-function tex(){const c=document.createElement('canvas');c.width=64;c.height=80;const x=c.getContext('2d');x.save();x.translate(32,40);x.beginPath();x.moveTo(0,-26);x.bezierCurveTo(13,-16,17,8,0,26);x.bezierCurveTo(-17,8,-13,-16,0,-26);x.closePath();const g=x.createRadialGradient(0,-4,0,0,0,26);g.addColorStop(0,'rgba(255,200,212,1)');g.addColorStop(.4,'rgba(255,183,197,.85)');g.addColorStop(1,'rgba(232,96,122,0)');x.fillStyle=g;x.fill();x.restore();return new THREE.CanvasTexture(c);}
-const N=280,geo=new THREE.BufferGeometry(),pos=new Float32Array(N*3),spd=new Float32Array(N),sw=new Float32Array(N),ph=new Float32Array(N);
-for(let i=0;i<N;i++){pos[i*3]=(Math.random()-.5)*110;pos[i*3+1]=Math.random()*80-10;pos[i*3+2]=(Math.random()-.5)*60-5;spd[i]=.022+Math.random()*.05;sw[i]=.22+Math.random()*.5;ph[i]=Math.random()*Math.PI*2;}
-geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
-const mat=new THREE.PointsMaterial({size:2.2,map:tex(),transparent:true,opacity:.9,depthWrite:false,blending:THREE.AdditiveBlending});
-const petals=new THREE.Points(geo,mat);scene.add(petals);
-const mx={x:0,y:0,tx:0,ty:0};
-document.addEventListener('mousemove',e=>{mx.tx=(e.clientX/innerWidth-.5)*4;mx.ty=(e.clientY/innerHeight-.5)*-2.5;});
-let t=0;(function a(){requestAnimationFrame(a);t+=.011;mx.x+=(mx.tx-mx.x)*.04;mx.y+=(mx.ty-mx.y)*.04;camera.position.x=mx.x;camera.position.y=mx.y;const p=petals.geometry.attributes.position.array;for(let i=0;i<N;i++){p[i*3+1]-=spd[i];p[i*3]+=Math.sin(t*sw[i]+ph[i])*.016;if(p[i*3+1]<-42){p[i*3+1]=42;p[i*3]=(Math.random()-.5)*110;}}petals.geometry.attributes.position.needsUpdate=true;renderer.render(scene,camera);})();
-window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
-document.querySelectorAll('.reveal').forEach(el=>{new IntersectionObserver(([e])=>{if(e.isIntersecting)e.target.classList.add('visible');},{threshold:.1}).observe(el);});
-document.querySelector('.sword-section')?.classList.add('visible');
-window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',scrollY>50);},{passive:true});
-</script>
-
 <script>
+document.querySelectorAll('.reveal').forEach(el=>{
+  new IntersectionObserver(([e])=>{if(e.isIntersecting)e.target.classList.add('visible');},{threshold:.12}).observe(el);
+});
+document.querySelector('.divider')?.classList.add('visible');
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',scrollY>40);},{passive:true});
+
 let tnCur=0;
 const tnTrack=document.getElementById('tn-track');
 const tnDots=[...document.querySelectorAll('#tn-dots .dot-btn')];

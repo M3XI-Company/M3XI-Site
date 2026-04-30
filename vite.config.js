@@ -15,6 +15,7 @@ export default defineConfig({
         team: resolve(__dirname, 'team/index.html'),
         terms: resolve(__dirname, 'terms/index.html'),
         notetaker: resolve(__dirname, 'notetaker/index.html'),
+        cinematoon: resolve(__dirname, 'cinematoon/index.html'),
       },
     },
   },
