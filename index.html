@@ -1,149 +1,307 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>M3XI — Digital services across platforms</title>
-  <link rel="icon" type="image/png" href="/M.png" />
-  <link rel="apple-touch-icon" href="/M.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&family=Noto+Serif+JP:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/src/style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="M3XI is a studio building software that lowers barriers and gets things done. Meet Cornelia, our note-taking app for students." />
+<title>M3XI — We build software that works</title>
+<link rel="icon" type="image/png" href="/M.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F0E8D8; --paper2:#F6F0E3; --panel:#FBF6EC; --white:#fff;
+  --ink:#19150F; --ink2:#605747; --blue:#2B4257; --blue2:#3E6079;
+  --gold:#B6892F; --gold2:#CBA14A; --line:rgba(25,21,15,.14); --ok:#2f6b46; --err:#9b3030;
+  --maxw:1140px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-weight:400;line-height:1.62;-webkit-font-smoothing:antialiased;
+  background-color:#EFE7D6;
+  background-image:
+    linear-gradient(rgba(43,66,87,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(43,66,87,.045) 1px, transparent 1px),
+    radial-gradient(1200px 700px at 80% -8%, rgba(255,253,247,.9), transparent 60%);
+  background-size:30px 30px, 30px 30px, 100% 100%;
+}
+a{color:inherit;text-decoration:none}
+img{max-width:100%}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+.eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 14px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
+.eyebrow.c{justify-content:center}.eyebrow.c::after{content:"";width:26px;height:1px;background:var(--gold)}
+h1,h2,h3,h4{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;color:var(--ink);margin:0}
+h1{font-size:clamp(40px,6.2vw,68px);line-height:1.05;font-weight:600}
+h1 em,h2 em{font-style:italic;color:var(--gold);font-weight:500}
+h2{font-size:clamp(28px,4vw,42px);line-height:1.12;font-weight:600}
+p{margin:0 0 16px}
+.lede{font-size:clamp(16px,2vw,19px);color:#3c382f;max-width:62ch}
+.jp{font-family:'Noto Serif JP',serif;color:var(--ink2)}
+.muted{color:var(--ink2)}
+.btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:15px;padding:13px 24px;border-radius:999px;cursor:pointer;border:1px solid transparent;transition:transform .08s, background .2s, color .2s}
+.btn-primary{background:linear-gradient(180deg,#2c2a22,#19150F);color:#F4EEDF;border-color:#0c0b08}
+.btn-primary:hover{transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--blue)}
+.btn-gold{background:linear-gradient(180deg,#E3C271,#B6892F);color:#1c1606;border:none}
+.btn-gold:hover{transform:translateY(-1px)}
+
+/* header */
+header.site{position:sticky;top:0;z-index:40;backdrop-filter:saturate(180%) blur(9px);
+  background:rgba(241,234,221,.82);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:64px;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-weight:600;font-size:19px}
+.brand .mk{width:30px;height:30px;border-radius:8px;display:block}
+.brand .jp{font-size:13px;margin-left:1px}
+.menu{display:flex;align-items:center;gap:24px;font-size:14px;color:var(--ink2)}
+.menu a:hover{color:var(--ink)}
+.menu a.active{color:var(--ink)}
+.menu .cta{padding:8px 15px;border:1px solid var(--ink);border-radius:999px;color:var(--ink);font-weight:600}
+.menu .cta:hover{background:var(--ink);color:var(--paper)}
+@media(max-width:780px){.menu a.lnk{display:none}}
+
+/* sections */
+section{padding:64px 0;position:relative}
+.center{text-align:center}
+.dim{display:flex;align-items:center;gap:14px;color:var(--blue);opacity:.6;font-size:11px;letter-spacing:.2em;text-transform:uppercase;margin:0 auto;max-width:var(--maxw);padding:0 24px}
+.dim::before,.dim::after{content:"";height:1px;background:repeating-linear-gradient(90deg,var(--blue),var(--blue) 4px,transparent 4px,transparent 9px);flex:1;opacity:.5}
+
+/* hero */
+.hero{padding:64px 0 40px}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center}
+.hero-cta{display:flex;gap:13px;flex-wrap:wrap;margin-top:26px}
+.hero-art{width:100%;height:auto;filter:drop-shadow(0 30px 50px rgba(43,66,87,.14))}
+@media(max-width:880px){.hero-grid{grid-template-columns:1fr;gap:18px}.hero-art{max-width:440px;margin:0 auto;order:-1}}
+
+/* product card */
+.product{display:grid;grid-template-columns:280px 1fr;gap:34px;align-items:center;background:var(--panel);
+  border:1px solid var(--line);border-radius:24px;padding:30px;box-shadow:0 30px 60px -46px rgba(43,66,87,.5)}
+.product .device{margin:0 auto}
+.prod-head{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.prod-head img{width:58px;height:58px;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.16)}
+.prod-head .nm{font-family:'Playfair Display',serif;font-size:26px;font-weight:600}
+.prod-head .tag{font-size:12px;color:var(--blue);letter-spacing:.16em;text-transform:uppercase;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 20px}
+.chip{font-size:12.5px;color:var(--ink2);background:#efe7d4;border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+@media(max-width:760px){.product{grid-template-columns:1fr;text-align:center}.prod-head{justify-content:center}.chips{justify-content:center}}
+
+/* device frame */
+.device{position:relative;width:230px;padding:9px;background:linear-gradient(150deg,#26211a,#15120d);border-radius:34px;
+  box-shadow:0 26px 50px -22px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.12)}
+.device::before{content:"";position:absolute;top:14px;left:50%;transform:translateX(-50%);width:54px;height:5px;border-radius:3px;background:rgba(255,255,255,.25);z-index:2}
+.device img{display:block;width:100%;border-radius:26px;background:#0c0c0c;aspect-ratio:9/16;object-fit:cover}
+
+/* value cards */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px 24px}
+.card h3{font-size:20px;margin-bottom:8px}
+.card p{color:var(--ink2);font-size:14.5px;margin:0}
+.card .ic{width:42px;height:42px;border-radius:11px;background:#e9e0cd;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.card .ic svg{width:22px;height:22px;stroke:var(--blue);fill:none;stroke-width:1.6}
+@media(max-width:820px){.grid3{grid-template-columns:1fr}}
+
+/* steps (how we build) */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:34px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel)}
+.step{padding:28px 24px;border-right:1px dashed var(--line);position:relative}
+.step:last-child{border-right:none}
+.step .no{font-family:'Playfair Display',serif;color:var(--gold);font-size:14px;letter-spacing:.1em;margin-bottom:12px}
+.step h3{font-size:19px;margin-bottom:6px}
+.step p{color:var(--ink2);font-size:14px;margin:0}
+.step svg{width:30px;height:30px;stroke:var(--blue);fill:none;stroke-width:1.5;margin-bottom:14px}
+@media(max-width:820px){.steps{grid-template-columns:1fr}.step{border-right:none;border-bottom:1px dashed var(--line)}.step:last-child{border-bottom:none}}
+
+/* screens row */
+.screens{display:flex;gap:16px;overflow-x:auto;padding:6px 2px 14px;scroll-snap-type:x mandatory}
+.screens .device{flex:0 0 auto;scroll-snap-align:center}
+.screens .device img{width:200px}
+
+/* features / reviews */
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
+.feat .card h3{font-size:19px}
+@media(max-width:820px){.feat{grid-template-columns:1fr}}
+.reviews{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px}
+.review{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:22px}
+.stars{color:var(--gold);letter-spacing:3px;font-size:13px;margin:0 0 10px}
+.review p{font-size:14.5px;margin:0 0 14px}
+.who{display:flex;align-items:center;gap:10px}
+.who .av{width:32px;height:32px;border-radius:50%;background:#e9e0cd;color:#8a6d22;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.who b{font-size:13.5px}.who small{display:block;color:var(--ink2);font-size:12px}
+@media(max-width:820px){.reviews{grid-template-columns:1fr}}
+
+/* waitlist (dark, gold) */
+.waitlist{background:linear-gradient(165deg,#23344a,#141d28);color:#EFE9DC;border-radius:26px;padding:54px 28px;text-align:center;position:relative;overflow:hidden}
+.waitlist h2{color:#fff}.waitlist h2 em{color:#E3C271}
+.waitlist .lede{color:#c4cdd6;margin-left:auto;margin-right:auto}
+.wl-form{max-width:440px;margin:24px auto 0;text-align:left}
+.wl-row{display:flex;gap:10px;flex-wrap:wrap}.wl-row .f{flex:1;min-width:150px}
+.waitlist label{font-size:12px;letter-spacing:.04em;color:#a9b4bf;display:block;margin:0 0 6px}
+.waitlist input{width:100%;padding:13px 15px;font:inherit;color:#fff;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);border-radius:11px;outline:none;transition:.15s}
+.waitlist input::placeholder{color:#8a96a2}
+.waitlist input:focus{border-color:#E3C271;box-shadow:0 0 0 3px rgba(227,194,113,.22)}
+.wl-hp{position:absolute;left:-9999px}
+.wl-form button{width:100%;margin-top:12px;padding:14px;font:inherit;font-weight:700;color:#1c1606;background:linear-gradient(180deg,#E9CB7E,#B6892F);border:none;border-radius:11px;cursor:pointer;transition:.1s}
+.wl-form button:hover{transform:translateY(-1px)}.wl-form button:disabled{opacity:.6;transform:none}
+.wl-msg{font-size:13.5px;margin:12px 2px 0;text-align:center;min-height:18px}
+.wl-msg.ok{color:#9fe0b8}.wl-msg.err{color:#f3b4b4}
+.wl-fine{font-size:12px;color:#8a96a2;margin-top:16px}
+.wl-success{display:none}
+.wl-success .tick{width:52px;height:52px;border-radius:50%;background:rgba(159,224,184,.16);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.wl-success h3{color:#fff;font-size:24px;margin:0 0 6px}.wl-success p{color:#c4cdd6;margin:0}
+
+/* team */
+.people{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
+.person{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px}
+.person .av{width:54px;height:54px;border-radius:14px;background:#e9e0cd;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--blue);font-family:'Playfair Display',serif;font-size:20px;margin-bottom:14px}
+.person .role{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600}
+.person h3{font-size:22px;margin:2px 0 8px}.person p{color:var(--ink2);font-size:14.5px;margin:0}
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}
+.role-card{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:18px}
+.role-card .k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:6px}
+.role-card h4{font-size:16px;margin:0 0 6px}.role-card p{font-size:13px;color:var(--ink2);margin:0}
+@media(max-width:820px){.people{grid-template-columns:1fr}.roles{grid-template-columns:1fr}}
+
+/* contact */
+.contact-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:26px;margin-top:30px;align-items:start}
+.contact-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px}
+.contact-card a.email{font-family:'Playfair Display',serif;font-size:22px;color:var(--ink)}
+.socials{display:flex;gap:10px;margin-top:18px}
+.socials a{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;background:var(--white)}
+.socials svg{width:18px;height:18px;fill:var(--ink)}
+form.cf label{font-size:12px;color:var(--ink2);display:block;margin:0 0 6px}
+form.cf input,form.cf select,form.cf textarea{width:100%;padding:12px 14px;font:inherit;color:var(--ink);background:var(--white);border:1px solid var(--line);border-radius:11px;outline:none;margin-bottom:13px}
+form.cf input:focus,form.cf select:focus,form.cf textarea:focus{border-color:var(--blue)}
+@media(max-width:820px){.contact-grid{grid-template-columns:1fr}}
+
+/* footer */
+footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);font-size:13px;background:rgba(246,240,227,.6)}
+.foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+.foot a:hover{color:var(--ink)}
+.foot .lnks{display:flex;gap:16px;flex-wrap:wrap}
+</style>
 </head>
 <body>
-
-  <nav class="nav" id="nav">
-    <div class="nav-inner">
-      <a href="/" class="logo">
-        <img src="/M.png" alt="M3XI" class="logo-img">
-        <span class="logo-jp">三X一</span>
-      </a>
-      <ul class="nav-links">
-        <li class="nav-link-page"><a href="#products">Products</a></li>
-        <li><a href="/startup/">StartUp</a></li>
-        <li><a href="/notetaker/">Note Taker</a></li>
-        <li><a href="/cinematoon/">CinemaToon</a></li>
-        <li class="nav-link-page"><a href="#company">Company</a></li>
-      </ul>
-      <div class="nav-tail">
-        <a href="/contact/" class="nav-link-soft">Contact</a>
-      </div>
-    </div>
+<header class="site"><div class="wrap nav">
+  <a class="brand" href="/"><img class="mk" src="/M.png" alt="M3XI"/> M3XI <span class="jp">三X一</span></a>
+  <nav class="menu">
+    <a class="lnk active" href="/">Home</a>
+    <a class="lnk " href="/notetaker/">Cornelia</a>
+    <a class="lnk " href="/#vision">Vision</a>
+    <a class="lnk " href="/team/">Team</a>
+    <a class="cta" href="/notetaker/#waitlist">Join waitlist</a>
   </nav>
+</div></header>
 
-  <section class="hero hero--simple" id="home">
-    <div class="hero-content">
+<section class="hero"><div class="wrap hero-grid">
+  <div>
+    <p class="eyebrow">M3XI &middot; 三X一</p>
+    <h1>We build software that <em>works.</em></h1>
+    <p class="lede">M3XI is a small studio making tools that lower barriers and quietly get things done &mdash; from lecture halls to everyday life. Less ornament, more intent.</p>
+    <div class="hero-cta"><a class="btn btn-primary" href="/notetaker/">Meet Cornelia &rarr;</a><a class="btn btn-ghost" href="#vision">Our vision</a></div>
+  </div>
+  <div>
+<svg class="hero-art" viewBox="0 0 470 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Blueprint sketch: a phone being lifted into place">
+  <defs>
+    <linearGradient id="scr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBF7EC"/><stop offset="1" stop-color="#EDE4D2"/></linearGradient>
+  </defs>
+  <!-- blueprint guides -->
+  <g stroke="#2B4257" stroke-width="1" opacity=".35">
+    <line x1="36" y1="24" x2="36" y2="476" stroke-dasharray="2 7"/>
+    <line x1="434" y1="24" x2="434" y2="476" stroke-dasharray="2 7"/>
+    <line x1="36" y1="250" x2="434" y2="250" stroke-dasharray="2 7"/>
+    <path d="M36 64 h10 M36 124 h10 M36 184 h10 M36 314 h10 M36 374 h10 M36 434 h10" />
+    <path d="M424 64 h10 M424 124 h10 M424 184 h10 M424 314 h10 M424 374 h10 M424 434 h10"/>
+  </g>
+  <!-- scaffolding base -->
+  <g stroke="#2B4257" stroke-width="2" fill="none" opacity=".28" stroke-linecap="round">
+    <path d="M70 470 h330 M96 470 v-66 M186 470 v-66 M284 470 v-66 M374 470 v-66 M96 438 h288 M70 404 h330"/>
+    <path d="M96 404 l90 34 M186 404 l-90 34 M284 404 l90 34 M374 404 l-90 34"/>
+  </g>
+  <!-- crane hook + cable -->
+  <g stroke="#2B4257" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="250" y1="14" x2="250" y2="92"/>
+    <path d="M250 92 v16 M236 116 a14 14 0 1 0 28 0 v-8"/>
+    <line x1="250" y1="120" x2="176" y2="176"/>
+    <line x1="250" y1="120" x2="322" y2="176"/>
+  </g>
+  <!-- phone being lifted -->
+  <g transform="rotate(-7 250 286)">
+    <rect x="176" y="150" width="148" height="272" rx="26" fill="url(#scr)" stroke="#2B4257" stroke-width="3"/>
+    <rect x="188" y="166" width="124" height="240" rx="16" fill="#fff" stroke="#2B4257" stroke-width="1.4" opacity=".9"/>
+    <rect x="230" y="158" width="40" height="7" rx="3.5" fill="#2B4257"/>
+    <!-- cornell layout hint -->
+    <line x1="224" y1="182" x2="224" y2="356" stroke="#2B4257" stroke-width="1.2" opacity=".55"/>
+    <g stroke="#2B4257" stroke-width="2" opacity=".5" stroke-linecap="round">
+      <line x1="234" y1="196" x2="300" y2="196"/><line x1="234" y1="212" x2="296" y2="212"/>
+      <line x1="234" y1="228" x2="302" y2="228"/><line x1="234" y1="244" x2="288" y2="244"/>
+      <line x1="200" y1="196" x2="216" y2="196"/><line x1="200" y1="222" x2="216" y2="222"/>
+    </g>
+    <!-- waveform (lecture audio) -->
+    <g stroke="#B6892F" stroke-width="2.4" stroke-linecap="round">
+      <line x1="202" y1="330" x2="202" y2="342"/><line x1="210" y1="322" x2="210" y2="350"/>
+      <line x1="218" y1="334" x2="218" y2="338"/><line x1="226" y1="318" x2="226" y2="354"/>
+      <line x1="234" y1="328" x2="234" y2="344"/><line x1="242" y1="324" x2="242" y2="348"/>
+      <line x1="250" y1="332" x2="250" y2="340"/><line x1="258" y1="320" x2="258" y2="352"/>
+      <line x1="266" y1="330" x2="266" y2="342"/><line x1="274" y1="326" x2="274" y2="346"/>
+      <line x1="282" y1="334" x2="282" y2="338"/><line x1="290" y1="324" x2="290" y2="348"/>
+    </g>
+    <rect x="222" y="372" width="56" height="10" rx="5" fill="#B6892F" opacity=".85"/>
+  </g>
+  <!-- dimension annotation -->
+  <g stroke="#B6892F" stroke-width="1.6" opacity=".9">
+    <line x1="350" y1="150" x2="386" y2="150"/><line x1="350" y1="422" x2="386" y2="422"/>
+    <line x1="368" y1="150" x2="368" y2="422" stroke-dasharray="3 5"/>
+  </g>
+  <text x="376" y="290" font-family="Inter,sans-serif" font-size="12" fill="#B6892F" transform="rotate(90 376 290)">BUILT TO WORK</text>
+</svg>
+</div>
+</div></section>
 
-      <h1 class="hero-title">
-        Quiet software.<br><em>Bold clarity.</em>
-      </h1>
-
-      <p class="hero-sub">
-        <strong>M3XI</strong> is a digital services studio: we ship products and experiences that sharpen your presence across platforms — from careers to lectures to storytelling.
-      </p>
-
-      <div class="hero-cta">
-        <a href="#products" class="btn btn-primary">Our products</a>
-        <a href="/contact/" class="btn btn-ghost">Contact</a>
-      </div>
-
+<div class="dim">What we're building</div>
+<section id="product"><div class="wrap">
+  <p class="eyebrow">The product</p>
+  <h2>One app, built with <em>care.</em></h2>
+  <p class="lede" style="margin-bottom:26px">Our focus right now is Cornelia &mdash; a calm, capable note-taker for students.</p>
+  <div class="product">
+    <div class="device"><img src="https://play-lh.googleusercontent.com/GWT6QCMj_TH5hpVuC8A-QTkBk1XDYlS2I_HUi0-x7QPnheQzWjZuKmpNUlxGDv1OyCpZzs_YClHB2zxX1VDu=w640" alt="Cornelia app screenshot" loading="lazy"></div>
+    <div>
+      <div class="prod-head"><img src="https://play-lh.googleusercontent.com/kFzSrwfvG3uZNXggcoIYnkqwpqziKXGJtNdGAaNYyl_OZw1pDnaSjDJMdSUWNHW9xrtUPaSmXgkkoGE73Fk=s128" alt="Cornelia icon"><div><div class="tag">Learning &middot; iOS &amp; Android</div><div class="nm">Cornelia</div></div></div>
+      <p class="muted">Record lectures, transcribe speech, and turn it into Cornell, outline and mind-map notes &mdash; plus photo-to-notes for boards and handwritten pages. One calm workflow from mic to exam-ready rows.</p>
+      <div class="chips"><span class="chip">Lecture capture</span><span class="chip">Transcripts</span><span class="chip">Cornell layouts</span><span class="chip">Photo-to-notes</span></div>
+      <div class="hero-cta" style="margin-top:0"><a class="btn btn-gold" href="/notetaker/#waitlist">Join the waitlist</a><a class="btn btn-ghost" href="/notetaker/">Explore Cornelia</a></div>
     </div>
-  </section>
+  </div>
+</div></section>
 
-  <section class="products" id="products">
-    <div class="container">
+<section id="vision" style="background:rgba(251,246,236,.55);border-top:1px solid var(--line);border-bottom:1px solid var(--line)"><div class="wrap center">
+  <p class="eyebrow c">M3XI vision</p>
+  <h2>Technology that works <em>for your life.</em></h2>
+  <p class="lede" style="margin:8px auto 0">We find creative ways to make technology genuinely useful &mdash; on the job and from the home. Painting opportunity through tech, one product at a time.</p>
+  <div class="grid3">
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v6M12 15v6M3 12h6M15 12h6"/></svg></div><h3>Opportunity</h3><p>Technology should lower barriers, not raise them. We build tools people can actually reach.</p></div>
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16 16 3l5 5L8 21z"/><path d="M7 12l2 2M10 9l2 2M13 6l2 2"/></svg></div><h3>Japanese restraint</h3><p>Fewer surfaces, cleaner type, products that respect your time. 技術と芸術の融合 &mdash; the fusion of technology and art.</p></div>
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16M6 21V9l6-4 6 4v12"/><path d="M10 21v-5h4v5"/></svg></div><h3>Practical innovation</h3><p>We ship things designed for real-world use &mdash; built to work, not just to demo.</p></div>
+  </div>
+</div></section>
 
-      <div class="section-header section-header--left">
-        <span class="section-tag">Products</span>
-        <h2>Three focused lines.</h2>
-        <p class="section-lede">Tools and creative systems built to feel inevitable — not flashy.</p>
-      </div>
+<section><div class="wrap">
+  <p class="eyebrow">How we build</p>
+  <h2>From sketch to <em>shipped.</em></h2>
+  <div class="steps">
+    <div class="step"><div class="no">01</div><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16 16 3l5 5L8 21z"/><path d="M7 12l2 2M10 9l2 2M13 6l2 2"/></svg><h3>Design</h3><p>Start from the problem and the person. Draw it, pressure-test it, keep it simple.</p></div>
+    <div class="step"><div class="no">02</div><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16M6 21V9l6-4 6 4v12"/><path d="M10 21v-5h4v5"/></svg><h3>Build</h3><p>Real software on real infrastructure &mdash; Expo, React Native, Supabase. Built to last.</p></div>
+    <div class="step"><div class="no">03</div><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l-2 5h18l-2-5M12 3v13M12 3l5 5M12 3l-5 5"/></svg><h3>Ship</h3><p>Put it in hands, listen, refine. Momentum over perfection.</p></div>
+  </div>
+</div></section>
 
-      <div class="products-grid">
-
-        <article class="product-card">
-          <span class="product-label">Careers</span>
-          <h3 class="product-title">StartUp</h3>
-          <p>Skill-matching to jobs and collaborators — swipe demos, DM opportunities, AI coaching.</p>
-          <a href="/startup/" class="product-link">StartUp →</a>
-        </article>
-
-        <article class="product-card">
-          <span class="product-label">Learning</span>
-          <h3 class="product-title">NoteTaker</h3>
-          <p>Lecture capture, transcripts, Cornell &amp; outline layouts, photo-to-notes — store listing: <strong>NoteTaker</strong>.</p>
-          <a href="/notetaker/" class="product-link">Note Taker →</a>
-        </article>
-
-        <article class="product-card">
-          <span class="product-label">Story</span>
-          <h3 class="product-title">CinemaToon</h3>
-          <p>AI-assisted manga and novel creation with narrator-style delivery — build worlds panel by panel.</p>
-          <a href="/cinematoon/" class="product-link">CinemaToon →</a>
-        </article>
-
-      </div>
-    </div>
-  </section>
-
-  <section class="company-block" id="company">
-    <div class="container">
-      <div class="company-inner">
-        <span class="section-tag">M3XI</span>
-        <h2>Digital craft, Japanese restraint.</h2>
-        <p>We prefer fewer surfaces, cleaner typography, and products that respect your time. Less ornament — more intent.</p>
-        <p class="jp-text">間 · 精緻</p>
-        <p class="jp-en">Space and refinement</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="cta-section" id="contact">
-    <div class="container">
-      <div class="cta-inner cta-inner--minimal">
-        <h2>Work with us</h2>
-        <p>Partnerships, press, or product questions — one inbox.</p>
-        <div class="hero-cta" style="justify-content:center;margin-bottom:0;">
-          <a href="/contact/" class="btn btn-primary">Contact</a>
-          <a href="/team/" class="btn btn-ghost">Team</a>
-        </div>
-        <p class="cta-note">Enquiries: <a href="mailto:support@m3xi.com">support@m3xi.com</a></p>
-      </div>
-    </div>
-  </section>
-
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-inner">
-        <div class="footer-brand">
-          <span class="logo-main">M3XI</span>
-          <span class="logo-jp footer-jp-small">三X一</span>
-          <span class="footer-tagline">Digital services across platforms.</span>
-        </div>
-        <div class="footer-links">
-          <a href="/startup/">StartUp</a>
-          <a href="/notetaker/">Note Taker</a>
-          <a href="/cinematoon/">CinemaToon</a>
-          <a href="/team/">Team</a>
-          <a href="/privacy/">Privacy</a>
-          <a href="/terms/">Terms</a>
-          <a href="/contact/">Contact</a>
-        </div>
-        <div class="footer-copy">
-          <span>M3XI © 2026</span>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    window.addEventListener('scroll', () => {
-      const nav = document.getElementById('nav');
-      nav.classList.toggle('nav--scrolled', window.scrollY > 60);
-    });
-  </script>
-
-  <script type="module" src="/src/main.js"></script>
-</body>
-</html>
+<footer class="site"><div class="wrap foot">
+  <div>M3XI <span class="jp">三X一</span> · building software that works</div>
+  <nav class="lnks">
+    <a href="/">Home</a><a href="/notetaker/">Cornelia</a><a href="/team/">Team</a>
+    <a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/contact/">Contact</a>
+  </nav>
+  <div>© 2026 · England &amp; Wales</div>
+</div></footer>
+</body></html>
