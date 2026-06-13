@@ -1,337 +1,314 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="NoteTaker — lecture recording, transcripts, Cornell & photo-to-notes. By M3XI."/>
-  <title>Note Taker · NoteTaker · M3XI</title>
-  <link rel="icon" type="image/png" href="/M.png" />
-  <link rel="apple-touch-icon" href="/M.png" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Cornelia — lecture recording, transcripts, Cornell & outline layouts, photo-to-notes. By M3XI. Join the waitlist." />
+  <title>Cornelia · Note-taking by M3XI</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect x='16' y='16' width='480' height='480' rx='116' fill='%23FBF8F2' stroke='%23C29B43' stroke-opacity='.45' stroke-width='3'/%3E%3Cpath d='M 320.65 152.54 A 122 122 0 1 0 320.65 359.46' fill='none' stroke='%2316140F' stroke-width='56'/%3E%3Cline x1='206' y1='256' x2='372' y2='256' stroke='%23C29B43' stroke-width='11' stroke-linecap='round'/%3E%3Ccircle cx='372' cy='256' r='13' fill='%2316140F'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&family=Noto+Serif+JP:wght@300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=Noto+Serif+JP:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     :root{
-      --bg:#fff; --paper:#fafafa; --ink:#171717; --muted:#525252; --line:#eaeaea;
-      --accent:#0a0a0a; --font:system-ui,-apple-system,'Segoe UI',Roboto,'Inter',sans-serif;
+      --ink:#16140F; --ivory:#F7F3EC; --paper:#FCFAF5; --white:#fff;
+      --gold:#C29B43; --gold-d:#A8823200; --mute:#7A746A; --line:rgba(22,20,15,.12);
+      --ok:#2f6b46; --err:#9b3030; --maxw:1080px;
     }
-    html{scroll-behavior:smooth;}
-    body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.65;overflow-x:hidden;}
-    h1,h2,h3{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.02em;}
-    em{font-style:italic;color:var(--muted);}
-    .nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;transition:.25s;}
-    .nav.scrolled{background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);}
-    .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:1rem 1.5rem;flex-wrap:wrap;}
-    .nav-home{font-size:.85rem;color:var(--muted);text-decoration:none;font-weight:500;}
-    .nav-home:hover{color:var(--accent);}
-    .logo{margin-left:auto;text-decoration:none;display:flex;flex-direction:column;line-height:1.25;}
-    @media(min-width:700px){.logo{margin-left:0;margin-right:auto;}}
-    .logo-app{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;color:var(--ink);letter-spacing:.02em;}
-    .logo-by{font-size:.58rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:.25rem;}
-    .logo-img-inline{height:13px;width:auto;opacity:.85;}
-    .nav-links{display:flex;list-style:none;gap:1.25rem;margin-left:auto;flex-wrap:wrap;}
-    .nav-links a{color:var(--muted);text-decoration:none;font-size:.84rem;font-weight:400;}
-    .nav-links a:hover{color:var(--accent);}
-    .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.35rem;border-radius:999px;font-size:.86rem;font-weight:500;text-decoration:none;border:none;font-family:inherit;cursor:pointer;transition:.2s;}
-    .btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 12px rgba(0,0,0,.1);}
-    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.12);}
-    .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line);}
-    .btn-ghost:hover{background:var(--paper);}
-    .btn-store{background:var(--paper);border:1px solid var(--line);color:var(--ink);padding:.55rem 1rem;border-radius:10px;display:inline-flex;align-items:center;gap:.5rem;font-size:.8rem;}
-    .btn-store:hover{border-color:#ccc;background:#fff;}
-    .container{max-width:1100px;margin:0 auto;padding:0 2rem;}
-    .hero{min-height:100vh;display:grid;grid-template-columns:1fr 380px;align-items:center;gap:3rem;padding:8rem 2rem 4rem;max-width:1140px;margin:0 auto;}
-    .hero-badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--paper);border:1px solid var(--line);font-size:.72rem;color:var(--muted);padding:.32rem .75rem;border-radius:999px;margin-bottom:1.25rem;letter-spacing:.04em;text-transform:uppercase;}
-    .hero h1{font-size:clamp(2.2rem,4.5vw,3.35rem);margin-bottom:1rem;line-height:1.12;}
-    .hero-sub{font-size:.98rem;color:var(--muted);max-width:32rem;margin-bottom:1.75rem;font-weight:400;}
-    .hero-actions{display:flex;gap:.65rem;flex-wrap:wrap;margin-bottom:1.25rem;}
-    .hero-stores{display:flex;gap:.65rem;flex-wrap:wrap;margin-bottom:2rem;}
-
-    /* Device frame — real screenshots */
-    .phone-wrap{display:flex;justify-content:center;align-items:center;padding:2rem 0;}
-    .device{position:relative;width:260px;padding:11px;background:linear-gradient(145deg,#f3f3f3,#ebebeb);border-radius:42px;
-      box-shadow:0 35px 80px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.9);}
-    .device-inner{border-radius:32px;overflow:hidden;background:#000;line-height:0;}
-    .device-inner img{display:block;width:100%;height:auto;aspect-ratio:9/18.8;object-fit:cover;}
-
-    /* App collage */
-    #screens{padding:4rem 0 2rem;background:var(--paper);border-top:1px solid var(--line);}
-    .screens-row{display:flex;gap:.65rem;overflow-x:auto;padding-bottom:.5rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}
-    .screens-row figure{flex:0 0 auto;scroll-snap-align:start;width:120px;margin:0;}
-    .screens-row img{width:120px;height:auto;border-radius:10px;display:block;border:1px solid var(--line);}
-    figcaption{font-size:.65rem;color:var(--muted);margin-top:.4rem;line-height:1.35;}
-    .section-head{margin-bottom:1.5rem;text-align:center;}
-    .section-tag{display:inline-block;font-size:.68rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;}
-    .section-head h2{font-size:clamp(1.5rem,3vw,2rem);color:var(--ink);}
-
-    .divider{padding:5rem 0;text-align:center;border-top:1px solid var(--line);}
-    .divider h2{font-size:clamp(1.6rem,3vw,2.4rem);margin-bottom:.75rem;font-weight:600;}
-    .divider p{color:var(--muted);max-width:32rem;margin:0 auto;font-size:.94rem;font-weight:400;line-height:1.75;}
-
-    .slides-section{padding:4rem 0 5rem;border-top:1px solid var(--line);}
-    .slides-header{text-align:center;margin-bottom:2.5rem;}
-    .slides-header .section-tag{margin-bottom:.4rem;display:inline-block;font-size:.68rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);}
-    .slides-header h2{font-size:clamp(1.5rem,3vw,2rem);}
-    .slider-wrap{overflow:hidden;border-radius:0;}
-    .slider-track{display:flex;transition:transform .45s cubic-bezier(.4,0,.2,1);}
-    .slide{min-width:100%;padding:0 1rem;}
-    .slide-inner{max-width:880px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;}
-    .slide-text h3{font-size:1.4rem;margin-bottom:.5rem;font-weight:600;}
-    .slide-text p{color:var(--muted);font-size:.9rem;font-weight:400;line-height:1.7;}
-    .slide-tag{display:inline-block;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.4rem;}
-    .slide-photo{border-radius:12px;border:1px solid var(--line);overflow:hidden;line-height:0;background:var(--paper);}
-    .slide-photo img{width:100%;height:auto;display:block;}
-    .slider-arrows{display:flex;justify-content:center;gap:.75rem;margin-top:2rem;}
-    .slider-dots{display:flex;justify-content:center;gap:.45rem;margin-top:1.25rem;}
-    .dot-btn{width:8px;height:8px;border-radius:50%;border:none;background:#ccc;cursor:pointer;padding:0;transition:.2s;}
-    .dot-btn.active{background:var(--accent);width:18px;border-radius:4px;}
-    .arrow-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--paper);cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;}
-    .arrow-btn:hover{background:#fff;border-color:#ccc;}
-
-    .reviews{padding:4rem 0;background:var(--paper);border-top:1px solid var(--line);}
-    .reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2rem;}
-    .review-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:1.5rem;}
-    .stars{color:#737373;font-size:.85rem;margin-bottom:.6rem;letter-spacing:.08em;}
-    .review-text{color:var(--muted);font-size:.86rem;line-height:1.65;font-style:italic;margin-bottom:1rem;}
-    .reviewer{display:flex;align-items:center;gap:.6rem;}
-    .reviewer-avatar{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;}
-    .reviewer-name{font-size:.8rem;font-weight:500;}
-    .reviewer-role{font-size:.72rem;color:var(--muted);}
-
-    .cta{padding:4rem 0 5rem;text-align:center;}
-    .cta-box{max-width:520px;margin:0 auto;border:1px solid var(--line);border-radius:16px;padding:2.75rem 2rem;background:#fff;}
-    .cta-box h2{font-size:clamp(1.45rem,2.5vw,1.9rem);margin:.5rem 0 1rem;}
-    .cta-box p{color:var(--muted);font-size:.9rem;margin-bottom:1.5rem;}
-    .cta-stores{display:flex;gap:.65rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.25rem;}
-    .cta-email{font-size:.82rem;color:var(--muted);}
-    .cta-email a{color:var(--ink);text-decoration:underline;}
-
-    .footer{border-top:1px solid var(--line);padding:2rem;background:var(--paper);}
-    .footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
-    .footer-links{display:flex;gap:1rem;flex-wrap:wrap;}
-    .footer-links a{font-size:.8rem;color:var(--muted);text-decoration:none;}
-    .footer-links a:hover{color:var(--accent);}
-    .footer-copy{font-size:.72rem;color:#999;}
-
-    .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease;}
-    .reveal.visible{opacity:1;transform:translateY(0);}
-
-    @media(max-width:900px){
-      .hero{grid-template-columns:1fr;padding-top:7rem;}
-      .phone-wrap{order:-1;padding:0 0 1rem;}
-      .slide-inner{grid-template-columns:1fr;}
-      .reviews-grid{grid-template-columns:1fr;}
-      .nav-links{display:none;}
-    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0; background:var(--ivory); color:var(--ink);
+      font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; font-weight:400;
+      line-height:1.6; -webkit-font-smoothing:antialiased;}
+    a{color:inherit; text-decoration:none}
+    .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
+    /* Header */
+    header{position:sticky; top:0; z-index:30; backdrop-filter:saturate(180%) blur(10px);
+      background:rgba(247,243,236,.82); border-bottom:1px solid var(--line)}
+    .nav{display:flex; align-items:center; justify-content:space-between; height:66px}
+    .brand{display:flex; align-items:center; gap:11px; font-family:'Playfair Display',serif; font-weight:600; font-size:20px}
+    .brand svg{width:30px; height:30px}
+    .brand .jp{font-family:'Noto Serif JP',serif; font-weight:500; color:var(--mute); font-size:14px; margin-left:2px}
+    .menu{display:flex; gap:26px; align-items:center; font-size:14px; color:var(--mute)}
+    .menu a:hover{color:var(--ink)}
+    .menu .cta{padding:9px 16px; border:1px solid var(--ink); border-radius:999px; color:var(--ink); font-weight:500}
+    .menu .cta:hover{background:var(--ink); color:var(--ivory)}
+    @media(max-width:760px){ .menu a:not(.cta){display:none} }
+    /* Hero */
+    .hero{padding:84px 0 54px; text-align:center}
+    .eyebrow{font-size:12px; letter-spacing:.34em; text-transform:uppercase; color:var(--mute); margin:0 0 18px}
+    h1{font-family:'Playfair Display',Georgia,serif; font-weight:600; letter-spacing:-.015em;
+      font-size:clamp(42px,7vw,76px); line-height:1.04; margin:0 0 18px}
+    h1 em{font-style:italic; color:var(--gold); font-weight:500}
+    .lede{font-size:clamp(16px,2.2vw,19px); color:#42403a; max-width:60ch; margin:0 auto 30px}
+    .hero-cta{display:flex; gap:14px; justify-content:center; flex-wrap:wrap}
+    .btn{display:inline-flex; align-items:center; gap:9px; font-weight:600; font-size:15px;
+      padding:14px 26px; border-radius:999px; cursor:pointer; border:1px solid transparent; transition:transform .08s, background .2s}
+    .btn-primary{background:linear-gradient(180deg,#2a2720,#16140F); color:var(--ivory); border-color:#0c0b08}
+    .btn-primary:hover{transform:translateY(-1px)}
+    .btn-ghost{background:transparent; color:var(--ink); border-color:var(--line)}
+    .btn-ghost:hover{border-color:var(--ink)}
+    .sectlabel{font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:var(--gold); margin:0 0 12px; font-weight:600}
+    h2{font-family:'Playfair Display',serif; font-weight:600; font-size:clamp(28px,4vw,40px); letter-spacing:-.01em; margin:0 0 14px; line-height:1.12}
+    h2 em{font-style:italic; color:var(--gold); font-weight:500}
+    section{padding:62px 0}
+    .center{text-align:center}
+    /* Screens */
+    .shots{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:18px; margin-top:34px}
+    .shot{background:var(--white); border:1px solid var(--line); border-radius:18px; padding:12px; text-align:center}
+    .shot img{width:100%; height:auto; border-radius:10px; display:block; background:#111}
+    .shot span{display:block; font-size:12px; color:var(--mute); margin-top:10px; letter-spacing:.02em}
+    /* Features */
+    .features{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:20px; margin-top:34px}
+    .feature{background:var(--paper); border:1px solid var(--line); border-radius:18px; padding:26px 24px}
+    .feature h3{font-family:'Playfair Display',serif; font-weight:600; font-size:21px; margin:0 0 8px}
+    .feature p{color:var(--mute); font-size:14.5px; margin:0}
+    .feature .ic{width:40px;height:40px;border-radius:11px;background:#efe7d6;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+    .feature .ic svg{width:21px;height:21px;stroke:var(--gold)}
+    /* Reviews */
+    .reviews{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; margin-top:34px}
+    .review{background:var(--white); border:1px solid var(--line); border-radius:18px; padding:24px}
+    .stars{color:var(--gold); letter-spacing:3px; font-size:14px; margin:0 0 12px}
+    .review p{font-size:15px; margin:0 0 16px}
+    .who{display:flex; align-items:center; gap:11px}
+    .who .av{width:34px;height:34px;border-radius:50%;background:#efe7d6;color:#8a6d22;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px}
+    .who b{font-weight:600; font-size:14px} .who small{display:block; color:var(--mute); font-size:12px}
+    /* Waitlist */
+    .waitlist{background:linear-gradient(180deg,#1b1913,#100f0b); color:#F4EFE6; border-radius:28px; padding:56px 28px; margin:20px 0; text-align:center}
+    .waitlist h2{color:#fff} .waitlist h2 em{color:var(--gold)}
+    .waitlist .lede{color:#cdc7ba}
+    .wl-form{max-width:440px; margin:26px auto 0; text-align:left}
+    .wl-row{display:flex; gap:10px; flex-wrap:wrap}
+    .wl-row .f{flex:1; min-width:150px}
+    .waitlist label{font-size:12px; letter-spacing:.04em; color:#b6b0a4; display:block; margin:0 0 6px}
+    .waitlist input{width:100%; padding:14px 16px; font:inherit; color:#fff; background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.18); border-radius:12px; outline:none; transition:border-color .15s, box-shadow .15s}
+    .waitlist input::placeholder{color:#8d877b}
+    .waitlist input:focus{border-color:var(--gold); box-shadow:0 0 0 3px rgba(194,155,67,.25)}
+    .wl-hp{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden}
+    .wl-form button{width:100%; margin-top:12px; padding:15px; font:inherit; font-weight:600; letter-spacing:.02em;
+      color:#16140F; background:linear-gradient(180deg,#E7C979,#C29B43); border:none; border-radius:12px; cursor:pointer; transition:transform .08s, opacity .15s}
+    .wl-form button:hover{transform:translateY(-1px)}
+    .wl-form button:disabled{opacity:.6; cursor:default; transform:none}
+    .wl-msg{font-size:13.5px; margin:12px 2px 0; text-align:center; min-height:18px}
+    .wl-msg.ok{color:#9fe0b8} .wl-msg.err{color:#f1b0b0}
+    .wl-fine{font-size:12px; color:#8d877b; margin-top:16px}
+    .wl-success{display:none}
+    .wl-success .tick{width:54px;height:54px;border-radius:50%;background:rgba(159,224,184,.16);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+    .wl-success h3{font-family:'Playfair Display',serif; font-weight:600; font-size:25px; margin:0 0 6px; color:#fff}
+    .wl-success p{color:#cdc7ba; margin:0}
+    /* Footer */
+    footer{border-top:1px solid var(--line); padding:40px 0; color:var(--mute); font-size:13px}
+    .foot-row{display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap; align-items:center}
+    .foot-links{display:flex; gap:18px; flex-wrap:wrap}
+    .foot-links a:hover{color:var(--ink)}
+    .jpfoot{font-family:'Noto Serif JP',serif}
   </style>
 </head>
 <body>
-
-<nav class="nav" id="nav">
-  <div class="nav-inner">
-    <a href="/" class="nav-home">Home</a>
-    <a href="/notetaker/" class="logo">
-      <span class="logo-app">Note Taker</span>
-      <span class="logo-by">by <img src="/M.png" alt="M3XI" class="logo-img-inline"> · 三X一</span>
-    </a>
-    <ul class="nav-links">
-      <li><a href="#screens">App</a></li>
-      <li><a href="#features">Features</a></li>
-      <li><a href="#reviews">Reviews</a></li>
-      <li><a href="#download">Download</a></li>
-    </ul>
-    <a href="#download" class="btn btn-primary" style="margin-left:auto;">Get the app</a>
-  </div>
-</nav>
-
-<section class="hero" id="home">
-  <div class="hero-content">
-    <div class="hero-badge">Lecture · Transcript · Layouts</div>
-    <h1>Record once.<br><em>Study with intent.</em></h1>
-    <p class="hero-sub"><strong>Note Taker</strong> (stores: <strong>NoteTaker</strong>) captures lectures, transcribes speech, organises layouts — Cornell, outline, mind map, and more — plus <strong>photo-to-notes</strong> for boards and handwritten pages.</p>
-    <div class="hero-actions">
-      <a href="#download" class="btn btn-primary">Download</a>
-      <a href="#screens" class="btn btn-ghost">See the UI</a>
-    </div>
-    <div class="hero-stores" id="download">
-      <a href="#" class="btn-store" aria-label="App Store">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-        <div><div style="font-size:.58rem;opacity:.7;">Download on</div><div style="font-size:.82rem;font-weight:600;">App Store</div></div>
+  <header>
+    <div class="wrap nav">
+      <a class="brand" href="/">
+        <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="16" y="16" width="480" height="480" rx="116" fill="#FBF8F2" stroke="#C29B43" stroke-opacity=".45" stroke-width="3"/>
+          <path d="M 320.65 152.54 A 122 122 0 1 0 320.65 359.46" fill="none" stroke="#16140F" stroke-width="56"/>
+          <line x1="206" y1="256" x2="372" y2="256" stroke="#C29B43" stroke-width="11" stroke-linecap="round"/>
+          <circle cx="372" cy="256" r="13" fill="#16140F"/>
+        </svg>
+        Cornelia <span class="jp">三X一</span>
       </a>
-      <a href="#" class="btn-store" aria-label="Google Play">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.3.17.64.24.99.2l12.09-12.09L13.1 8.81 3.18 23.76zm16.87-10.93l-2.79-1.61-3.36 3.36 3.36 3.35 2.8-1.62c.8-.46.8-1.62-.01-2.08zM2.01 1.37C1.7 1.72 1.5 2.23 1.5 2.89v18.22c0 .66.2 1.17.52 1.52l.08.08L13.1 11.7v-.27L2.09 1.29l-.08.08zm10.65 9.13l3.36-3.36-12.09-7c-.35-.2-.71-.27-1.04-.22l10.77 10.58z"/></svg>
-        <div><div style="font-size:.58rem;opacity:.7;">Get it on</div><div style="font-size:.82rem;font-weight:600;">Google Play</div></div>
-      </a>
+      <nav class="menu">
+        <a href="#screens">App</a>
+        <a href="#features">Features</a>
+        <a href="#reviews">Reviews</a>
+        <a href="#waitlist" class="cta">Join waitlist</a>
+      </nav>
     </div>
-  </div>
-  <div class="phone-wrap">
-    <div class="device" aria-hidden="true">
-      <div class="device-inner">
-        <img src="/notetaker/screenshot-record.png" width="738" height="1600" alt="Note Taker: record screen with layouts and AI allowance"/>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="wrap">
+        <p class="eyebrow">Cornelia · by M3XI</p>
+        <h1>Record once.<br><em>Study with intent.</em></h1>
+        <p class="lede">Cornelia captures lectures, transcribes speech, and organises your notes into Cornell, outline, mind‑map and box layouts — plus <strong>photo‑to‑notes</strong> for boards and handwritten pages. One calm workflow from mic to exam‑ready rows.</p>
+        <div class="hero-cta">
+          <a href="#waitlist" class="btn btn-primary">Join the waitlist</a>
+          <a href="#screens" class="btn btn-ghost">See the app →</a>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<section class="container reveal" id="screens" style="padding-bottom:4rem;">
-  <div class="section-head">
-    <span class="section-tag">Actual UI</span>
-    <h2>In-app screens.</h2>
-    <p style="color:var(--muted);font-size:.9rem;margin-top:.5rem;max-width:36rem;margin-left:auto;margin-right:auto;">Captured from production builds — dark interface inside a light chrome frame.</p>
-  </div>
-  <div class="screens-row">
-    <figure><img src="/notetaker/screenshot-transcript.png" alt="Transcript tab" loading="lazy" width="360" height="780"/><figcaption>Transcript &amp; PDF</figcaption></figure>
-    <figure><img src="/notetaker/screenshot-photo-notes.png" alt="Photo to notes" loading="lazy" width="360" height="780"/><figcaption>Photo to notes · layouts</figcaption></figure>
-    <figure><img src="/notetaker/screenshot-processing.png" alt="Processing" loading="lazy" width="360" height="780"/><figcaption>Generating notes</figcaption></figure>
-    <figure><img src="/notetaker/screenshot-transcribe-tab.png" alt="Transcribe" loading="lazy" width="360" height="780"/><figcaption>Listen with transcript</figcaption></figure>
-    <figure><img src="/notetaker/screenshot-library.png" alt="Library" loading="lazy" width="360" height="780"/><figcaption>Library &amp; keywords</figcaption></figure>
-    <figure><img src="/notetaker/screenshot-cornell-onboarding.png" alt="Cornell guide" loading="lazy" width="360" height="780"/><figcaption>Cornell onboarding</figcaption></figure>
-  </div>
-</section>
+    <!-- SCREENS -->
+    <section id="screens">
+      <div class="wrap center">
+        <p class="sectlabel">Actual UI</p>
+        <h2>In‑app screens.</h2>
+        <p class="lede" style="margin-top:8px">Captured from production builds — a dark interface inside a light chrome frame.</p>
+        <div class="shots">
+          <div class="shot"><img loading="lazy" src="/notetaker/screenshot-record.png" alt="Record screen with layouts"><span>Record · layouts</span></div>
+          <div class="shot"><img loading="lazy" src="/notetaker/screenshot-transcript.png" alt="Transcript and PDF"><span>Transcript &amp; PDF</span></div>
+          <div class="shot"><img loading="lazy" src="/notetaker/screenshot-photo-notes.png" alt="Photo to notes"><span>Photo to notes</span></div>
+          <div class="shot"><img loading="lazy" src="/notetaker/screenshot-processing.png" alt="Generating notes"><span>Generating notes</span></div>
+          <div class="shot"><img loading="lazy" src="/notetaker/screenshot-transcribe-tab.png" alt="Listen with transcript"><span>Listen + transcript</span></div>
+          <div class="shot"><img loading="lazy" src="/notetaker/screenshot-library.png" alt="Library and keywords"><span>Library &amp; keywords</span></div>
+        </div>
+      </div>
+    </section>
 
-<div class="divider reveal">
-  <h2>From waveform to <em>exam-ready rows.</em></h2>
-  <p>Note Taker shares one thoughtful AI allowance across recording, transcription, structured notes, and photo capture — so every feature pulls from the same session.</p>
-</div>
-
-<section class="slides-section reveal" id="features">
-  <div class="container">
-    <div class="slides-header">
-      <span class="section-tag">Features</span>
-      <h2>Flows that matter.</h2>
-    </div>
-    <div class="slider-wrap">
-      <div class="slider-track" id="tn-track">
-
-        <div class="slide">
-          <div class="slide-inner">
-            <div class="slide-text">
-              <span class="slide-tag">Capture</span>
-              <h3>Record · layouts · AI cap</h3>
-              <p>Pick Cornell, outline, mind map, or box layouts before or after capture. Recording, transcripts, notes, and photo-to-notes share one token-style allowance until you subscribe.</p>
-            </div>
-            <div class="slide-photo">
-              <img src="/notetaker/screenshot-record.png" alt="Record screen with layout chips" width="738" height="1600" loading="lazy"/>
-            </div>
+    <!-- FEATURES -->
+    <section id="features" style="background:var(--white); border-top:1px solid var(--line); border-bottom:1px solid var(--line)">
+      <div class="wrap center">
+        <p class="sectlabel">Flows that matter</p>
+        <h2>From waveform to <em>exam‑ready rows.</em></h2>
+        <p class="lede" style="margin-top:8px">Cornelia shares one thoughtful AI allowance across recording, transcription, structured notes, and photo capture — so every feature pulls from the same session.</p>
+        <div class="features">
+          <div class="feature">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg></div>
+            <h3>Record · layouts · AI cap</h3>
+            <p>Pick Cornell, outline, mind‑map or box layouts before or after capture. Recording, transcripts, notes and photo‑to‑notes share one token‑style allowance until you subscribe.</p>
+          </div>
+          <div class="feature">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M4 5h16M4 12h16M4 19h10"/></svg></div>
+            <h3>Transcripts + export</h3>
+            <p>Jump between Notes, Transcript and Audio. Keywords surface automatically; export to PDF when you're ready.</p>
+          </div>
+          <div class="feature">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+            <h3>Desk &amp; board → notes</h3>
+            <p>Shoot scraps and whiteboards — the same layout engine folds handwriting and diagrams into your study shelf.</p>
           </div>
         </div>
+      </div>
+    </section>
 
-        <div class="slide">
-          <div class="slide-inner">
-            <div class="slide-text">
-              <span class="slide-tag">Read</span>
-              <h3>Transcripts + export</h3>
-              <p>Jump between Notes, Transcript, and Audio. Keywords surface automatically; export when you’re ready.</p>
-            </div>
-            <div class="slide-photo">
-              <img src="/notetaker/screenshot-transcript.png" alt="Lecture transcript view" width="738" height="1600" loading="lazy"/>
-            </div>
+    <!-- REVIEWS -->
+    <section id="reviews">
+      <div class="wrap center">
+        <p class="sectlabel">From students</p>
+        <h2>Built for how you actually revise.</h2>
+        <div class="reviews">
+          <div class="review">
+            <p class="stars">★★★★★</p>
+            <p>"The transcript strip and Cornell onboarding finally match how I revise — fewer pauses, more capture."</p>
+            <div class="who"><span class="av">E</span><div><b>Elena</b><small>Biochemistry</small></div></div>
+          </div>
+          <div class="review">
+            <p class="stars">★★★★★</p>
+            <p>"Photo‑to‑notes bridges my paper mess with searchable rows — outrageous for exam prep."</p>
+            <div class="who"><span class="av">R</span><div><b>Ravi</b><small>Engineering</small></div></div>
+          </div>
+          <div class="review">
+            <p class="stars">★★★★☆</p>
+            <p>"Finally treats full lectures like first‑class citizens, not orphaned voice memos."</p>
+            <div class="who"><span class="av">M</span><div><b>Maya</b><small>Law</small></div></div>
           </div>
         </div>
+      </div>
+    </section>
 
-        <div class="slide">
-          <div class="slide-inner">
-            <div class="slide-text">
-              <span class="slide-tag">Photo</span>
-              <h3>Desk &amp; board → structured notes</h3>
-              <p>Shoot scraps and whiteboards — the same layout engine folds handwriting and diagrams into your study shelf.</p>
+    <!-- WAITLIST -->
+    <section id="waitlist" style="padding-top:12px">
+      <div class="wrap">
+        <div class="waitlist">
+          <p class="sectlabel" style="color:var(--gold)">Early access</p>
+          <h2>Be first to <em>Cornelia.</em></h2>
+          <p class="lede">We're opening Cornelia to a first group of students soon. Join the waitlist and we'll email you the moment it's ready — iOS &amp; Android.</p>
+
+          <form class="wl-form" id="wl-form" novalidate>
+            <div class="wl-row">
+              <div class="f">
+                <label for="wl-name">Name <span style="opacity:.6">(optional)</span></label>
+                <input id="wl-name" name="name" type="text" autocomplete="name" placeholder="Your name" maxlength="120">
+              </div>
+              <div class="f">
+                <label for="wl-email">Email address</label>
+                <input id="wl-email" name="email" type="email" autocomplete="email" placeholder="you@university.edu" required>
+              </div>
             </div>
-            <div class="slide-photo">
-              <img src="/notetaker/screenshot-photo-notes.png" alt="Photo to notes camera" width="738" height="1600" loading="lazy"/>
-            </div>
+            <input class="wl-hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <button id="wl-submit" type="submit">Join the waitlist</button>
+            <p class="wl-msg" id="wl-msg" aria-live="polite"></p>
+          </form>
+
+          <div class="wl-success" id="wl-success">
+            <div class="tick"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9fe0b8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <h3>You're on the list.</h3>
+            <p id="wl-success-msg">We'll email you the moment Cornelia opens.</p>
           </div>
+
+          <p class="wl-fine">No spam. We only email you about Cornelia's launch.</p>
         </div>
-
       </div>
-    </div>
-    <div class="slider-arrows">
-      <button class="arrow-btn" id="tn-prev" type="button" aria-label="Previous">←</button>
-      <button class="arrow-btn" id="tn-next" type="button" aria-label="Next">→</button>
-    </div>
-    <div class="slider-dots" id="tn-dots">
-      <button class="dot-btn active" type="button" data-idx="0" aria-label="Slide 1"></button>
-      <button class="dot-btn" type="button" data-idx="1" aria-label="Slide 2"></button>
-      <button class="dot-btn" type="button" data-idx="2" aria-label="Slide 3"></button>
-    </div>
-  </div>
-</section>
+    </section>
+  </main>
 
-<section class="reviews reveal" id="reviews">
-  <div class="container">
-    <div style="text-align:center;">
-      <span class="section-tag">Reviews</span>
-      <h2 style="font-size:clamp(1.4rem,3vw,1.95rem);margin-top:.35rem;font-weight:600;">From students.</h2>
+  <footer>
+    <div class="wrap foot-row">
+      <div>Cornelia <span class="jpfoot">三X一</span> · by M3XI</div>
+      <nav class="foot-links">
+        <a href="/">Home</a>
+        <a href="/startup/">StartUp</a>
+        <a href="/cinematoon/">CinemaToon</a>
+        <a href="/team/">Team</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+        <a href="/contact/">Contact</a>
+      </nav>
+      <div>Questions: <a href="mailto:support@m3xi.com">support@m3xi.com</a></div>
     </div>
-    <div class="reviews-grid">
-      <div class="review-card">
-        <div class="stars">★★★★★</div>
-        <p class="review-text">“The transcript strip and Cornell onboarding finally match how I revise — fewer pauses, more capture.”</p>
-        <div class="reviewer"><div class="reviewer-avatar">E</div><div><div class="reviewer-name">Elena</div><div class="reviewer-role">Biochemistry</div></div>
-      </div>
-      <div class="review-card">
-        <div class="stars">★★★★★</div>
-        <p class="review-text">“Photo-to-notes bridges my paper mess with searchable rows — outrageous for exam prep.”</p>
-        <div class="reviewer"><div class="reviewer-avatar">R</div><div><div class="reviewer-name">Ravi</div><div class="reviewer-role">Engineering</div></div>
-      </div>
-      <div class="review-card">
-        <div class="stars">★★★★☆</div>
-        <p class="review-text">“Finally treats full lectures like first-class citizens, not orphaned voice memos.”</p>
-        <div class="reviewer"><div class="reviewer-avatar">M</div><div><div class="reviewer-name">Maya</div><div class="reviewer-role">Law</div></div>
-      </div>
-    </div>
-  </div>
-</section>
+  </footer>
 
-<section class="cta reveal">
-  <div class="container">
-    <div class="cta-box">
-      <span class="section-tag">Download</span>
-      <h2>Bring structure to class.</h2>
-      <p>iOS &amp; Android — one calm workflow from mic to Cornell rows.</p>
-      <div class="cta-stores">
-        <a href="#" class="btn-store"><span>App Store</span></a>
-        <a href="#" class="btn-store"><span>Google Play</span></a>
-      </div>
-      <p class="cta-email">Questions: <a href="mailto:support@m3xi.com">support@m3xi.com</a></p>
-    </div>
-  </div>
-</section>
+  <script>
+    // --- Cornelia waitlist → Supabase (NoteTaker project). Publishable key is safe in the browser. ---
+    const SUPABASE_URL = "https://nfdegwfgrlikmmzakxqw.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_7ChibjJuhY73-E_PGHz1DA_Pq_SnsNT";
+    const PRODUCT = "cornelia";
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-<footer class="footer">
-  <div class="footer-inner">
-    <div class="logo" style="margin:0;"><span class="logo-app">Note Taker</span><span class="logo-by">by M3XI · 三X一</span></div>
-    <div class="footer-links">
-      <a href="/">Home</a>
-      <a href="/startup/">StartUp</a>
-      <a href="/cinematoon/">CinemaToon</a>
-      <a href="/team/">Team</a>
-      <a href="/privacy/">Privacy</a>
-      <a href="/terms/">Terms</a>
-      <a href="/contact/">Contact</a>
-    </div>
-    <span class="footer-copy">M3XI © 2026</span>
-  </div>
-</footer>
+    const form = document.getElementById('wl-form');
+    const emailEl = document.getElementById('wl-email');
+    const nameEl = document.getElementById('wl-name');
+    const hpEl = form.querySelector('input[name="company"]');
+    const btn = document.getElementById('wl-submit');
+    const msg = document.getElementById('wl-msg');
+    const okBox = document.getElementById('wl-success');
+    const okMsg = document.getElementById('wl-success-msg');
 
-<script>
-document.querySelectorAll('.reveal').forEach(el=>{
-  new IntersectionObserver(([e])=>{if(e.isIntersecting)e.target.classList.add('visible');},{threshold:.12}).observe(el);
-});
-document.querySelector('.divider')?.classList.add('visible');
-window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',scrollY>40);},{passive:true});
+    function setMsg(t, k){ msg.textContent = t || ''; msg.className = 'wl-msg' + (k ? ' ' + k : ''); }
 
-let tnCur=0;
-const tnTrack=document.getElementById('tn-track');
-const tnDots=[...document.querySelectorAll('#tn-dots .dot-btn')];
-const tnTotal=3;
-function tnGo(n){tnCur=(n+tnTotal)%tnTotal;tnTrack.style.transform=`translateX(-${tnCur*100}%)`;tnDots.forEach((d,i)=>d.classList.toggle('active',i===tnCur));}
-document.getElementById('tn-next').onclick=()=>tnGo(tnCur+1);
-document.getElementById('tn-prev').onclick=()=>tnGo(tnCur-1);
-tnDots.forEach(d=>d.onclick=()=>tnGo(+d.dataset.idx));
-let tnSx=0;
-tnTrack.addEventListener('touchstart',e=>tnSx=e.touches[0].clientX,{passive:true});
-tnTrack.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tnSx;if(Math.abs(dx)>50)tnGo(dx<0?tnCur+1:tnCur-1);});
-</script>
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setMsg('');
+      const email = (emailEl.value || '').trim().toLowerCase();
+      const name = (nameEl.value || '').trim();
+      if (hpEl.value) return; // bot
+      if (!EMAIL_RE.test(email)) { setMsg('Please enter a valid email address.', 'err'); emailEl.focus(); return; }
+      btn.disabled = true; const label = btn.textContent; btn.textContent = 'Joining…';
+      const params = new URLSearchParams(location.search);
+      const payload = { email, name: name || null, product: PRODUCT, source: 'website',
+        metadata: { ref: document.referrer || null, utm_source: params.get('utm_source'), utm_campaign: params.get('utm_campaign'), ua: navigator.userAgent } };
+      try {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/waitlist', {
+          method: 'POST',
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) { form.style.display = 'none'; okBox.style.display = 'block'; return; }
+        let body = {}; try { body = await res.json(); } catch (_) {}
+        if (res.status === 409 || body.code === '23505') {
+          form.style.display = 'none'; okBox.style.display = 'block';
+          okMsg.textContent = "You're already on the list — we'll be in touch.";
+          return;
+        }
+        setMsg(body.message || 'Something went wrong. Please try again.', 'err');
+      } catch (err) {
+        setMsg('Network error. Please check your connection and try again.', 'err');
+      } finally {
+        btn.disabled = false; btn.textContent = label;
+      }
+    });
+  </script>
 </body>
 </html>
