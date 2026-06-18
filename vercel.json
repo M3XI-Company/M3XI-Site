@@ -2,5 +2,8 @@
   "redirects": [
     { "source": "/takenote", "destination": "/notetaker", "permanent": true },
     { "source": "/takenote/", "destination": "/notetaker/", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/home", "destination": "/" }
   ]
 }
