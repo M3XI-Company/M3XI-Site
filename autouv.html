@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AutoUV — Automated UV mapping for Blender, by M3XI</title>
+    <meta
+      name="description"
+      content="AutoUV is M3XI's Blender add-on for game-ready UV unwrapping — Adaptive UV Intelligence, a full seam toolbox, quality scoring and one-click engine export. In active development. Join the waitlist."
+    />
+    <link rel="icon" type="image/png" href="/M/M.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* =======================================================
+         AutoUV — warm parchment · gold · slate-blue · Playfair
+         Editorial-technical theme following the AutoUV designer's
+         own product page. Self-contained (no shared stylesheet).
+         ======================================================= */
+      * { box-sizing: border-box; }
+
+      :root {
+        --paper: #f0e8d8;
+        --paper-2: #f6f0e3;
+        --panel: #fbf6ec;
+        --white: #fffdf8;
+        --ink: #19150f;
+        --ink-2: #605747;
+        --line: rgba(25, 21, 15, 0.14);
+        --gold: #b6892f;
+        --gold-2: #cba14a;
+        --gold-soft: rgba(182, 137, 47, 0.12);
+        --blue: #2b4257;
+        --blue-2: #3e6079;
+        --green: #4f9e74;
+        --rose: #a8506a;
+        --viewport: #1f2024;
+        --viewport-2: #16171a;
+        --blender: #e87d0d;
+        --radius: 16px;
+        --radius-lg: 26px;
+        --maxw: 1140px;
+        --display: "Playfair Display", Georgia, serif;
+        --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+        --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+      }
+
+      html, body { margin: 0; min-height: 100%; }
+      body {
+        font-family: var(--body);
+        color: var(--ink);
+        background-color: var(--paper);
+        background-image:
+          radial-gradient(circle at 15% 12%, rgba(182, 137, 47, 0.08) 0 8px, transparent 9px),
+          radial-gradient(circle at 85% 22%, rgba(43, 66, 87, 0.06) 0 10px, transparent 11px),
+          linear-gradient(180deg, var(--paper-2), var(--paper));
+        background-attachment: fixed;
+        line-height: 1.6;
+      }
+      a { color: inherit; text-decoration: none; }
+      img { max-width: 100%; display: block; }
+
+      h1, h2, h3, h4 {
+        font-family: var(--display);
+        color: var(--ink);
+        line-height: 1.08;
+        letter-spacing: -0.01em;
+        margin: 0 0 0.5em;
+        font-weight: 700;
+      }
+      p { color: var(--ink-2); max-width: 62ch; }
+
+      .wrap { width: min(var(--maxw), 92vw); margin: 0 auto; }
+
+      /* ---------- Header ---------- */
+      .site-header {
+        position: sticky; top: 0; z-index: 20;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0.85rem clamp(1rem, 4vw, 2.4rem);
+        background: rgba(251, 246, 236, 0.82);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--line);
+      }
+      .brand { display: flex; align-items: center; gap: 0.6rem; font-family: var(--display); font-weight: 800; font-size: 1.15rem; letter-spacing: 0.02em; }
+      .brand img { width: 30px; height: 30px; border-radius: 8px; }
+      .nav { display: flex; align-items: center; gap: 1.4rem; font-weight: 500; font-size: 0.95rem; }
+      .nav a { color: var(--ink-2); transition: color 0.2s; }
+      .nav a:hover { color: var(--gold); }
+      .nav-cta {
+        padding: 0.5rem 1.05rem; border-radius: 999px;
+        background: var(--blue); color: var(--white) !important;
+        font-weight: 600;
+      }
+      .nav-cta:hover { background: var(--blue-2); }
+      @media (max-width: 720px) { .nav a:not(.nav-cta) { display: none; } }
+
+      /* ---------- Buttons ---------- */
+      .btn {
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        padding: 0.8rem 1.5rem; border-radius: 999px;
+        font-weight: 600; font-size: 0.98rem; cursor: pointer;
+        border: 1.5px solid transparent; transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+      }
+      .btn:hover { transform: translateY(-2px); }
+      .btn-primary { background: linear-gradient(135deg, var(--gold-2), var(--gold)); color: #1a1206; box-shadow: 0 8px 20px rgba(182, 137, 47, 0.28); }
+      .btn-ghost { background: transparent; border-color: var(--blue); color: var(--blue); }
+      .btn-ghost:hover { background: var(--blue); color: var(--white); }
+
+      /* ---------- Sections ---------- */
+      section { padding: clamp(3rem, 7vw, 5.5rem) 0; }
+      .eyebrow {
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        font-family: var(--mono); font-size: 0.76rem; font-weight: 500;
+        letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold);
+        margin-bottom: 0.9rem;
+      }
+      .section-title { font-size: clamp(1.8rem, 3.6vw, 2.7rem); }
+      .lead { font-size: 1.1rem; max-width: 60ch; }
+
+      .pill {
+        display: inline-flex; align-items: center; gap: 0.45rem;
+        padding: 0.32rem 0.85rem; border-radius: 999px;
+        font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em;
+        background: var(--gold-soft); color: var(--gold); border: 1px solid rgba(182, 137, 47, 0.3);
+      }
+      .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blender); box-shadow: 0 0 0 3px rgba(232, 125, 13, 0.2); animation: pulse 2s infinite; }
+      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+      /* ---------- Hero ---------- */
+      .hero { padding-top: clamp(2.4rem, 5vw, 4rem); }
+      .hero-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: clamp(2rem, 4vw, 3.5rem); align-items: center; }
+      @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
+      .hero h1 { font-size: clamp(2.4rem, 6vw, 4rem); margin-top: 0.6rem; }
+      .hero h1 em { font-style: italic; color: var(--gold); }
+      .hero .lead { margin: 1.2rem 0 1.8rem; }
+      .hero-actions { display: flex; flex-wrap: wrap; gap: 0.9rem; }
+      .back-link { display: inline-block; margin-bottom: 1rem; color: var(--ink-2); font-size: 0.9rem; font-weight: 500; }
+      .back-link:hover { color: var(--gold); }
+      .trust { margin-top: 1.8rem; display: flex; flex-wrap: wrap; gap: 1.3rem; font-size: 0.85rem; color: var(--ink-2); }
+      .trust span { display: inline-flex; align-items: center; gap: 0.4rem; }
+      .trust b { color: var(--ink); font-weight: 700; }
+
+      /* ---------- Blender viewport mockup ---------- */
+      .viewport-card {
+        border-radius: var(--radius-lg); overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.35);
+        box-shadow: 0 30px 60px -25px rgba(25, 21, 15, 0.55), 0 4px 0 rgba(255,255,255,0.4) inset;
+        background: var(--viewport);
+        transform: rotate(-1.2deg);
+      }
+      .vp-bar { display: flex; align-items: center; gap: 0.5rem; padding: 0.55rem 0.85rem; background: #2b2d31; border-bottom: 1px solid #000; }
+      .vp-bar .tb { width: 11px; height: 11px; border-radius: 50%; background: #4a4d52; }
+      .vp-bar .tb.on { background: var(--blender); }
+      .vp-bar .tag { margin-left: auto; font-family: var(--mono); font-size: 0.68rem; color: #9aa0a8; letter-spacing: 0.04em; }
+      .vp-body { display: grid; grid-template-columns: 1.1fr 1fr; min-height: 300px; }
+      @media (max-width: 480px) { .vp-body { grid-template-columns: 1fr; } }
+      .vp-3d {
+        position: relative; background:
+          radial-gradient(120% 120% at 50% 20%, #35373d 0%, var(--viewport) 55%, var(--viewport-2) 100%);
+        display: flex; align-items: center; justify-content: center;
+      }
+      .vp-3d::before { /* grid floor */
+        content: ""; position: absolute; inset: 0;
+        background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+        background-size: 26px 26px; mask-image: linear-gradient(180deg, transparent, #000 60%);
+      }
+      .mesh { width: 62%; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5)); }
+      .mesh path, .mesh polygon { fill: #3f4d3a; stroke: var(--blender); stroke-width: 1.2; stroke-linejoin: round; }
+      .mesh .seam { stroke: #ff3b3b; stroke-width: 2; }
+      .vp-uv { position: relative; background: #202226; border-left: 1px solid #000; padding: 14px; display: flex; align-items: center; justify-content: center; }
+      .vp-uv::before { content: ""; position: absolute; inset: 14px; background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px); background-size: 22px 22px; border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; }
+      .islands { position: relative; width: 100%; height: 100%; }
+      .isl { position: absolute; border-radius: 3px; opacity: 0.92; box-shadow: 0 0 0 1px rgba(0,0,0,0.3); }
+
+      /* ---------- Feature grid ---------- */
+      .grid { display: grid; gap: 1.1rem; }
+      .cols-3 { grid-template-columns: repeat(3, 1fr); }
+      .cols-4 { grid-template-columns: repeat(4, 1fr); }
+      @media (max-width: 900px) { .cols-3, .cols-4 { grid-template-columns: repeat(2, 1fr); } }
+      @media (max-width: 560px) { .cols-3, .cols-4 { grid-template-columns: 1fr; } }
+      .card {
+        background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+        padding: 1.5rem 1.4rem; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      }
+      .card:hover { transform: translateY(-4px); box-shadow: 0 18px 34px -20px rgba(25,21,15,0.4); border-color: rgba(182,137,47,0.4); }
+      .card .ico { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; background: var(--gold-soft); color: var(--gold); margin-bottom: 0.9rem; }
+      .card .ico svg { width: 22px; height: 22px; }
+      .card h3 { font-size: 1.18rem; margin-bottom: 0.35rem; }
+      .card p { font-size: 0.94rem; margin: 0; }
+      .card.blue .ico { background: rgba(43,66,87,0.1); color: var(--blue); }
+      .card.green .ico { background: rgba(79,158,116,0.12); color: var(--green); }
+      .card.rose .ico { background: rgba(168,80,106,0.12); color: var(--rose); }
+
+      .band { background: var(--white); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+
+      /* ---------- Steps ---------- */
+      .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; counter-reset: step; }
+      @media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
+      .step { position: relative; padding: 1.6rem 1.4rem 1.4rem; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+      .step::before {
+        counter-increment: step; content: counter(step, decimal-leading-zero);
+        font-family: var(--display); font-weight: 800; font-size: 2.1rem; color: var(--gold);
+        display: block; margin-bottom: 0.4rem; line-height: 1;
+      }
+      .step h4 { font-size: 1.15rem; }
+      .step p { font-size: 0.92rem; margin: 0; }
+
+      /* ---------- Code chip ---------- */
+      .code {
+        font-family: var(--mono); font-size: 0.86rem; color: #f4eede;
+        background: var(--viewport); border: 1px solid #000; border-radius: 12px;
+        padding: 0.9rem 1.1rem; margin-top: 1.4rem; overflow-x: auto;
+      }
+      .code .k { color: var(--gold-2); }
+      .code .s { color: #9adcb6; }
+
+      /* ---------- Waitlist ---------- */
+      .waitlist { text-align: center; }
+      .waitlist-card {
+        max-width: 620px; margin: 1.6rem auto 0; background: var(--white);
+        border: 1px solid var(--line); border-radius: var(--radius-lg); padding: clamp(1.6rem, 4vw, 2.6rem);
+        box-shadow: 0 24px 48px -30px rgba(25,21,15,0.4);
+      }
+      .subscribe-form { display: flex; gap: 0.6rem; margin: 1.2rem auto 0; max-width: 460px; }
+      @media (max-width: 520px) { .subscribe-form { flex-direction: column; } }
+      .subscribe-form input {
+        flex: 1; padding: 0.85rem 1.1rem; border-radius: 999px; border: 1.5px solid var(--line);
+        font-family: var(--body); font-size: 1rem; background: var(--paper-2); color: var(--ink);
+      }
+      .subscribe-form input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+      .subscribe-form button { border: none; }
+      .subscribe-message { min-height: 1.3em; margin-top: 0.9rem; font-size: 0.92rem; font-weight: 600; color: var(--green); }
+
+      /* ---------- CTA / footer ---------- */
+      .cta { text-align: center; }
+      .cta-inner { background: linear-gradient(135deg, var(--blue), #22384a); color: var(--paper-2); border-radius: var(--radius-lg); padding: clamp(2rem, 5vw, 3.2rem); }
+      .cta-inner h2 { color: var(--white); font-size: clamp(1.6rem, 3.5vw, 2.4rem); }
+      .cta-inner p { color: rgba(255,253,248,0.8); margin-left: auto; margin-right: auto; }
+      .cta .btn-ghost { border-color: var(--gold-2); color: var(--gold-2); }
+      .cta .btn-ghost:hover { background: var(--gold-2); color: #1a1206; }
+      footer { padding: 2.2rem 0; border-top: 1px solid var(--line); text-align: center; color: var(--ink-2); font-size: 0.88rem; }
+      footer a { color: var(--gold); }
+
+      .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.6s ease, transform 0.6s ease; }
+      .reveal.is-visible { opacity: 1; transform: none; }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/"><img src="/M/M.png" alt="M3XI logo" /> M3XI</a>
+      <nav class="nav">
+        <a href="/#products">Products</a>
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a class="nav-cta" href="#waitlist">Join waitlist</a>
+      </nav>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div class="reveal is-visible">
+            <a class="back-link" href="/">&larr; Back to M3XI</a>
+            <div class="pill"><span class="dot"></span> Blender add-on · in development</div>
+            <h1>Stop cutting <em>UVs</em> by hand.</h1>
+            <p class="lead">
+              AutoUV is a native Blender add-on that turns a raw mesh into production-ready,
+              game-ready UVs — powered by <strong>Adaptive UV Intelligence</strong>. One click:
+              cleanup, unwrap, seams written from the islands, and a quality score you can trust.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#waitlist">Join the waitlist</a>
+              <a class="btn btn-ghost" href="#features">See what it does</a>
+            </div>
+            <div class="trust">
+              <span><b>Blender 4.2+</b> · 5.x ready</span>
+              <span><b>Unity</b> · <b>Unreal</b> · <b>Godot</b> export</span>
+              <span><b>90%+</b> quality target</span>
+            </div>
+          </div>
+
+          <div class="reveal is-visible viewport-card" aria-hidden="true">
+            <div class="vp-bar">
+              <span class="tb on"></span><span class="tb"></span><span class="tb"></span>
+              <span class="tag">Sidebar (N) ▸ Mesh Optimizer</span>
+            </div>
+            <div class="vp-body">
+              <div class="vp-3d">
+                <svg class="mesh" viewBox="0 0 120 120" fill="none">
+                  <polygon points="60,8 104,34 104,86 60,112 16,86 16,34" />
+                  <path d="M60,8 L60,112 M16,34 L104,86 M104,34 L16,86" />
+                  <path class="seam" d="M60,8 L16,34 L16,86" />
+                </svg>
+              </div>
+              <div class="vp-uv">
+                <div class="islands">
+                  <span class="isl" style="left:6%; top:10%; width:38%; height:30%; background:#e2b13a;"></span>
+                  <span class="isl" style="left:52%; top:8%; width:40%; height:22%; background:#4f9e74;"></span>
+                  <span class="isl" style="left:10%; top:48%; width:30%; height:40%; background:#7fa6c5;"></span>
+                  <span class="isl" style="left:46%; top:40%; width:24%; height:26%; background:#a8506a;"></span>
+                  <span class="isl" style="left:74%; top:42%; width:18%; height:46%; background:#b6a8e6;"></span>
+                  <span class="isl" style="left:46%; top:72%; width:26%; height:18%; background:#cba14a;"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STATUS / IN DEVELOPMENT -->
+      <section class="band">
+        <div class="wrap reveal">
+          <p class="eyebrow">Status</p>
+          <h2 class="section-title">v2 — now a Blender add-on, still shaping it</h2>
+          <p class="lead">
+            AutoUV started life as a standalone desktop tool. It now lives entirely
+            inside Blender as a native add-on, in the <em>Mesh Optimizer</em> sidebar tab.
+            The core pipeline works today; we're polishing the Adaptive AI unwrap, the seam
+            tooling and the export presets before a public release. Get on the list and we'll
+            hand you early access first.
+          </p>
+          <div class="code" aria-label="Example scripting operator">
+            <span class="k">&gt;&gt;&gt; bpy.ops.gmo.</span>unwrap(<span class="s">method_override</span>=<span class="k">'ADAPTIVE'</span>)  <span style="color:#7f8790">&#35; scriptable, headless-friendly</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- FEATURES -->
+      <section id="features">
+        <div class="wrap">
+          <div class="reveal">
+            <p class="eyebrow">What it does</p>
+            <h2 class="section-title">Everything a game-ready UV needs</h2>
+            <p class="lead">One toolbox for unwrapping, seams, quality, cleanup, LODs and export — without leaving the viewport.</p>
+          </div>
+          <div class="grid cols-3" style="margin-top: 2rem;">
+            <article class="card reveal">
+              <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>
+              <h3>Make Game Ready</h3>
+              <p>One click per mesh: cleanup → Adaptive AI unwrap → seams written 1:1 from the UV islands → a quality score.</p>
+            </article>
+            <article class="card blue reveal">
+              <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18M6 6l12 12M18 6 6 18"/></svg></span>
+              <h3>Adaptive AI unwrap</h3>
+              <p>Scores on three quality axes and retries alternate seam strategies until confidence clears the bar — keeping the best attempt.</p>
+            </article>
+            <article class="card rose reveal">
+              <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4 20 9.5M4 20l5.5-2 8-8-3.5-3.5-8 8L4 20z"/></svg></span>
+              <h3>Seam toolbox</h3>
+              <p>Seams on hard corners, boundary seams, rebuild exactly from UV islands, mark/clear in edit mode. The mesh always matches its layout.</p>
+            </article>
+            <article class="card green reveal">
+              <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
+              <h3>Quality Report</h3>
+              <p>Per-object scores stored in the .blend: texel uniformity, artist usability, human readability, texel density and overlap alerts.</p>
+            </article>
+            <article class="card reveal">
+              <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></span>
+              <h3>Mesh cleanup</h3>
+              <p>Merge by distance, delete loose, recalculate normals, fill holes — so the unwrap starts from clean geometry.</p>
+            </article>
+            <article class="card blue reveal">
+              <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5zM2 16l10 5 10-5M2 12l10 5 10-5"/></svg></span>
+              <h3>LOD generation</h3>
+              <p>Decimate in place or generate <span style="font-family:var(--mono);font-size:0.85em">_LOD1..n</span> copies with per-level triangle falloff. Original stays as LOD0.</p>
+            </article>
+            <article class="card green reveal">
+              <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></span>
+              <h3>Engine export presets</h3>
+              <p>Unity FBX, Unreal FBX, Godot GLB, glTF and OBJ — correct unit scale and smoothing baked in, geometry-only by default.</p>
+            </article>
+            <article class="card rose reveal">
+              <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6-6 6 6 6M16 6l6 6-6 6M13 4l-2 16"/></svg></span>
+              <h3>Developer friendly</h3>
+              <p>Workflow presets, a full <span style="font-family:var(--mono);font-size:0.85em">api.py</span>, scriptable operators and a headless smoke test for CI.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- HOW IT WORKS -->
+      <section id="how" class="band">
+        <div class="wrap">
+          <div class="reveal">
+            <p class="eyebrow">The workflow</p>
+            <h2 class="section-title">From raw mesh to clean UVs in three steps</h2>
+          </div>
+          <div class="steps" style="margin-top: 2rem;">
+            <article class="step reveal">
+              <h4>Select your meshes</h4>
+              <p>Point AutoUV at one object or a whole selection. Pick a preset — Hard Surface, Organic, Modular or Mobile.</p>
+            </article>
+            <article class="step reveal">
+              <h4>Make Game Ready</h4>
+              <p>One button runs cleanup, the Adaptive unwrap, seam writing and scoring — retrying until confidence clears your bar.</p>
+            </article>
+            <article class="step reveal">
+              <h4>Export to your engine</h4>
+              <p>Send it straight to Unity, Unreal or Godot with the right scale and smoothing. Seams match the final layout, every time.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- WAITLIST -->
+      <section id="waitlist" class="waitlist">
+        <div class="wrap reveal">
+          <p class="eyebrow">Early access</p>
+          <h2 class="section-title">Join the AutoUV waitlist</h2>
+          <p class="lead" style="margin-inline:auto;">
+            AutoUV is in active development. Drop your email and we'll invite you the moment
+            the Blender add-on opens for early access — no spam, just AutoUV.
+          </p>
+          <div class="waitlist-card">
+            <form id="subscribe-form" class="subscribe-form" data-app="AutoUV">
+              <label class="sr-only" for="subscribe-email">Email address</label>
+              <input id="subscribe-email" name="email" type="email" placeholder="you@studio.com" required />
+              <button type="submit" class="btn btn-primary">Join waitlist</button>
+            </form>
+            <p id="subscribe-message" class="subscribe-message" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="cta">
+        <div class="wrap reveal">
+          <div class="cta-inner">
+            <h2>UV unwrapping shouldn't eat your afternoon.</h2>
+            <p>AutoUV is one of several tools we're building at M3XI. Come see the rest.</p>
+            <div class="hero-actions" style="justify-content:center; margin-top:1.4rem;">
+              <a class="btn btn-primary" href="#waitlist">Get early access</a>
+              <a class="btn btn-ghost" href="/#products">Explore M3XI apps</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        © <span id="year"></span> M3XI · AutoUV — Automated UV mapping for Blender · <a href="/privacy.html">Privacy</a>
+      </div>
+    </footer>
+
+    <script type="module" src="/main.js"></script>
+    <script type="module" src="/cookie-consent.js"></script>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Cornelia app icon">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FBF8F2"/>
+      <stop offset="1" stop-color="#EFE8DA"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22201A"/>
+      <stop offset="1" stop-color="#100F0B"/>
+    </linearGradient>
+  </defs>
+  <rect x="16" y="16" width="480" height="480" rx="116" fill="url(#tile)"/>
+  <rect x="16.5" y="16.5" width="479" height="479" rx="115.5" fill="none" stroke="#C29B43" stroke-opacity="0.45" stroke-width="3"/>
+  <!-- didone C -->
+  <path d="M 320.65 152.54 A 122 122 0 1 0 320.65 359.46" fill="none" stroke="url(#ink)" stroke-width="56" stroke-linecap="butt"/>
+  <!-- gold pen-rule (note line) across the mouth -->
+  <line x1="206" y1="256" x2="372" y2="256" stroke="#C29B43" stroke-width="11" stroke-linecap="round"/>
+  <!-- the Cornelia period -->
+  <circle cx="372" cy="256" r="13" fill="url(#ink)"/>
+</svg>

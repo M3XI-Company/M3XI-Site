@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cornelia — Join the waitlist</title>
+<meta name="description" content="Cornelia by M3XI — lecture capture, transcripts, Cornell & outline layouts, photo-to-notes. Join the waitlist." />
+<link rel="icon" type="image/svg+xml" href="cornelia-icon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=Inter:wght@300;400;500;600&family=Noto+Serif+JP:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16140F; --ivory:#F7F3EC; --paper:#FCFAF5; --gold:#C29B43;
+    --mute:#7A746A; --line:rgba(22,20,15,.12); --ok:#2f6b46; --err:#9b3030;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #fffdf8, transparent 60%),
+      var(--ivory);
+    color:var(--ink); font-family:'Inter',system-ui,sans-serif; font-weight:400;
+    -webkit-font-smoothing:antialiased; line-height:1.6;
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:40px 20px;
+  }
+  .card{
+    width:100%; max-width:560px; background:var(--paper);
+    border:1px solid var(--line); border-radius:22px;
+    box-shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 30px 70px -40px rgba(22,20,15,.45);
+    padding:48px 44px 40px; text-align:center;
+  }
+  .mark{display:flex; justify-content:center; margin-bottom:22px}
+  .mark svg{width:84px; height:84px}
+  .eyebrow{
+    font-size:12px; letter-spacing:.34em; text-transform:uppercase; color:var(--mute);
+    margin:0 0 14px;
+  }
+  h1{
+    font-family:'Playfair Display',Georgia,serif; font-weight:600;
+    font-size:clamp(34px,6vw,46px); line-height:1.08; margin:0 0 8px; letter-spacing:-.01em;
+  }
+  h1 em{font-style:italic; color:var(--gold); font-weight:500}
+  .lede{color:var(--mute); font-size:16px; margin:0 auto 26px; max-width:42ch}
+  .features{
+    display:flex; gap:8px 18px; flex-wrap:wrap; justify-content:center;
+    margin:0 0 30px; padding:0; list-style:none;
+    font-size:13px; color:var(--ink);
+  }
+  .features li{display:flex; align-items:center; gap:7px; opacity:.85}
+  .features li::before{content:""; width:5px; height:5px; border-radius:50%; background:var(--gold)}
+  form{display:flex; flex-direction:column; gap:12px; text-align:left}
+  .row{display:flex; gap:12px}
+  .row .field{flex:1}
+  label{display:block; font-size:12px; letter-spacing:.04em; color:var(--mute); margin:0 0 6px}
+  input{
+    width:100%; padding:14px 16px; font:inherit; color:var(--ink);
+    background:#fff; border:1px solid var(--line); border-radius:12px; outline:none;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input:focus{border-color:var(--gold); box-shadow:0 0 0 3px rgba(194,155,67,.18)}
+  .hp{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden}
+  button{
+    margin-top:4px; padding:15px 18px; font:inherit; font-weight:600; letter-spacing:.02em;
+    color:var(--ivory); background:linear-gradient(180deg,#2a2720,#16140F);
+    border:1px solid #0c0b08; border-radius:12px; cursor:pointer;
+    transition:transform .08s ease, opacity .15s;
+  }
+  button:hover{transform:translateY(-1px)}
+  button:active{transform:translateY(0)}
+  button:disabled{opacity:.55; cursor:default; transform:none}
+  .msg{font-size:14px; margin:14px 2px 0; min-height:20px; text-align:center}
+  .msg.ok{color:var(--ok)} .msg.err{color:var(--err)}
+  .fine{font-size:12px; color:var(--mute); margin:18px 0 0; text-align:center}
+  .success{display:none; text-align:center; padding:6px 0}
+  .success .tick{
+    width:56px;height:56px;border-radius:50%;margin:0 auto 14px;
+    background:rgba(47,107,70,.1); display:flex; align-items:center; justify-content:center;
+  }
+  .success h2{font-family:'Playfair Display',serif; font-weight:600; font-size:26px; margin:0 0 6px}
+  .success p{color:var(--mute); margin:0}
+  .foot{margin-top:30px; font-size:12px; color:var(--mute); letter-spacing:.02em}
+  .foot .jp{font-family:'Noto Serif JP',serif; opacity:.8}
+  a{color:inherit}
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="mark">
+      <!-- Cornelia mark -->
+      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-label="Cornelia">
+        <defs>
+          <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#22201A"/><stop offset="1" stop-color="#100F0B"/>
+          </linearGradient>
+        </defs>
+        <rect x="16" y="16" width="480" height="480" rx="116" fill="#FBF8F2" stroke="#C29B43" stroke-opacity=".45" stroke-width="3"/>
+        <path d="M 320.65 152.54 A 122 122 0 1 0 320.65 359.46" fill="none" stroke="url(#ink)" stroke-width="56"/>
+        <line x1="206" y1="256" x2="372" y2="256" stroke="#C29B43" stroke-width="11" stroke-linecap="round"/>
+        <circle cx="372" cy="256" r="13" fill="#16140F"/>
+      </svg>
+    </div>
+
+    <p class="eyebrow">Cornelia · by M3XI</p>
+    <h1>Record once.<br><em>Study with intent.</em></h1>
+    <p class="lede">Cornelia captures lectures, transcribes speech, and organises your notes into Cornell, outline and mind‑map layouts — plus photo‑to‑notes. Be first in line.</p>
+
+    <ul class="features">
+      <li>Lecture capture</li>
+      <li>Transcripts</li>
+      <li>Cornell layouts</li>
+      <li>Photo‑to‑notes</li>
+    </ul>
+
+    <form id="wl-form" novalidate>
+      <div class="row">
+        <div class="field">
+          <label for="wl-name">Name <span style="opacity:.6">(optional)</span></label>
+          <input id="wl-name" name="name" type="text" autocomplete="name" placeholder="Your name" maxlength="120" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="wl-email">Email address</label>
+        <input id="wl-email" name="email" type="email" autocomplete="email" placeholder="you@university.edu" required />
+      </div>
+      <input class="hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <button id="wl-submit" type="submit">Join the waitlist</button>
+      <p id="wl-msg" class="msg" aria-live="polite"></p>
+    </form>
+
+    <div class="success" id="wl-success">
+      <div class="tick">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2f6b46" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <h2>You're on the list.</h2>
+      <p id="wl-success-msg">We'll email you the moment Cornelia opens.</p>
+    </div>
+
+    <p class="fine">No spam. We only email you about Cornelia's launch.</p>
+    <div class="foot"><span class="jp">間 · 精緻</span> &nbsp;·&nbsp; M3XI 三X一</div>
+  </main>
+
+<script>
+  // --- Supabase config (publishable / anon key — safe for the browser) ---
+  const SUPABASE_URL = "https://nfdegwfgrlikmmzakxqw.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_7ChibjJuhY73-E_PGHz1DA_Pq_SnsNT";
+  const PRODUCT = "cornelia";
+
+  const form = document.getElementById('wl-form');
+  const emailEl = document.getElementById('wl-email');
+  const nameEl = document.getElementById('wl-name');
+  const hpEl = form.querySelector('input[name="company"]');
+  const btn = document.getElementById('wl-submit');
+  const msg = document.getElementById('wl-msg');
+  const okBox = document.getElementById('wl-success');
+  const okMsg = document.getElementById('wl-success-msg');
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function setMsg(text, kind){ msg.textContent = text || ''; msg.className = 'msg' + (kind ? ' ' + kind : ''); }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setMsg('');
+    const email = (emailEl.value || '').trim().toLowerCase();
+    const name = (nameEl.value || '').trim();
+    if (hpEl.value) { return; } // honeypot tripped — silently ignore bots
+    if (!EMAIL_RE.test(email)) { setMsg('Please enter a valid email address.', 'err'); emailEl.focus(); return; }
+
+    btn.disabled = true; const label = btn.textContent; btn.textContent = 'Joining…';
+    const params = new URLSearchParams(location.search);
+    const payload = {
+      email,
+      name: name || null,
+      product: PRODUCT,
+      source: 'website',
+      metadata: {
+        ref: document.referrer || null,
+        utm_source: params.get('utm_source'),
+        utm_campaign: params.get('utm_campaign'),
+        ua: navigator.userAgent
+      }
+    };
+    try {
+      const res = await fetch(SUPABASE_URL + '/rest/v1/waitlist', {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        form.style.display = 'none';
+        okBox.style.display = 'block';
+        return;
+      }
+      let body = {};
+      try { body = await res.json(); } catch (_) {}
+      if (res.status === 409 || (body.code === '23505')) {
+        form.style.display = 'none';
+        okBox.style.display = 'block';
+        okMsg.textContent = "You're already on the list — we'll be in touch.";
+        return;
+      }
+      setMsg(body.message || body.hint || 'Something went wrong. Please try again.', 'err');
+    } catch (err) {
+      setMsg('Network error. Please check your connection and try again.', 'err');
+    } finally {
+      btn.disabled = false; btn.textContent = label;
+    }
+  });
+</script>
+</body>
+</html>

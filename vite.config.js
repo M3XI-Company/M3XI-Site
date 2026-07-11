@@ -1,20 +1,16 @@
-import { defineConfig } from 'vite'
-import { resolve, dirname } from 'path'
-import { fileURLToPath } from 'url'
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
+import { defineConfig } from "vite";
+import { resolve } from "node:path";
 
 export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'index.html'),
-        contact: resolve(__dirname, 'contact/index.html'),
-        privacy: resolve(__dirname, 'privacy/index.html'),
-        team: resolve(__dirname, 'team/index.html'),
-        terms: resolve(__dirname, 'terms/index.html'),
-        notetaker: resolve(__dirname, 'notetaker/index.html'),
-      },
-    },
-  },
-})
+        index: resolve(__dirname, "index.html"),
+        cornelia: resolve(__dirname, "cornelia.html"),
+        autouv: resolve(__dirname, "autouv.html"),
+        callme: resolve(__dirname, "callme.html"),
+        privacy: resolve(__dirname, "privacy.html")
+      }
+    }
+  }
+});

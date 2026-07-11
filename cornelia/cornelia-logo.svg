@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 260" width="760" height="260" role="img" aria-label="Cornelia by M3XI">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@500&display=swap');
+    .word { font-family:'Playfair Display', Georgia, serif; font-weight:600; fill:#16140F; }
+    .sub  { font-family:'Inter', system-ui, sans-serif; font-weight:500; fill:#7A746A; letter-spacing:.32em; }
+  </style>
+  <rect width="760" height="260" fill="none"/>
+  <g transform="translate(40,30) scale(0.42)">
+    <path d="M 320.65 152.54 A 122 122 0 1 0 320.65 359.46" fill="none" stroke="#16140F" stroke-width="56" stroke-linecap="butt"/>
+    <line x1="206" y1="256" x2="372" y2="256" stroke="#C29B43" stroke-width="13" stroke-linecap="round"/>
+    <circle cx="372" cy="256" r="14" fill="#16140F"/>
+  </g>
+  <text class="word" x="250" y="150" font-size="118">Cornelia</text>
+  <text class="sub"  x="254" y="196" font-size="23">N O T E — T A K I N G　·　B Y　M 3 X I</text>
+</svg>
