@@ -465,7 +465,7 @@ TEAM = """
 <section style="padding-top:10px"><div class="wrap">
   <p class="eyebrow">Leadership</p>
   <div class="people">
-    <div class="person"><div class="av">MG</div><div class="role">Chief Executive Officer</div><h3>Michael Gbeleyi</h3><p>Founder and visionary behind M3XI and Cornelia. Driven by the belief that technology should paint opportunity &mdash; making capable tools accessible for work and home life. Building the future of intelligent, creative technology.</p></div>
+    <div class="person"><div class="av">MG</div><div class="role">Chief Executive Officer</div><h3>Michael</h3><p>Founder and visionary behind M3XI and Cornelia. Driven by the belief that technology should paint opportunity &mdash; making capable tools accessible for work and home life. Building the future of intelligent, creative technology.</p></div>
     <div class="person"><div class="av">MP</div><div class="role">Chief Marketing Officer</div><h3>Justin</h3><p>Leading brand strategy, growth and creative direction at M3XI. Shaping how the world understands and connects with intelligent technology &mdash; with clarity, precision and artistry.</p></div>
   </div>
 </div></section>
