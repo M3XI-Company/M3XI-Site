@@ -1,7 +1,10 @@
 {
   "redirects": [
-    { "source": "/takenote", "destination": "/notetaker", "permanent": true },
-    { "source": "/takenote/", "destination": "/notetaker/", "permanent": true }
+    { "source": "/takenote", "destination": "/cornelia.html", "permanent": true },
+    { "source": "/takenote/", "destination": "/cornelia.html", "permanent": true },
+    { "source": "/notetaker", "destination": "/cornelia.html", "permanent": true },
+    { "source": "/notetaker/", "destination": "/cornelia.html", "permanent": true },
+    { "source": "/privacy.html", "destination": "/privacy/", "permanent": true }
   ],
   "rewrites": [
     { "source": "/home", "destination": "/" }

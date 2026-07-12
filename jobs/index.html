@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jobs — join the M3XI group</title>
+<meta name="description" content="Open roles at M3XI. We're an early, unfunded, not-yet-registered studio building Cornelia, AutoUV and CallMe — looking for curious builders who want to grow with us." />
+<link rel="icon" type="image/png" href="/M.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F0E8D8; --paper2:#F6F0E3; --panel:#FBF6EC; --white:#fff;
+  --ink:#19150F; --ink2:#605747; --blue:#2B4257; --blue2:#3E6079;
+  --gold:#B6892F; --gold2:#CBA14A; --line:rgba(25,21,15,.14);
+  --maxw:1140px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-weight:400;line-height:1.62;-webkit-font-smoothing:antialiased;
+  background-color:#EFE7D6;
+  background-image:
+    linear-gradient(rgba(43,66,87,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(43,66,87,.045) 1px, transparent 1px),
+    radial-gradient(1200px 700px at 80% -8%, rgba(255,253,247,.9), transparent 60%);
+  background-size:30px 30px, 30px 30px, 100% 100%;
+}
+a{color:inherit;text-decoration:none}
+img{max-width:100%}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+.eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 14px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
+h1,h2,h3,h4{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;color:var(--ink);margin:0}
+h1{font-size:clamp(38px,5.6vw,60px);line-height:1.05;font-weight:600}
+h1 em,h2 em{font-style:italic;color:var(--gold);font-weight:500}
+h2{font-size:clamp(26px,3.6vw,38px);line-height:1.12;font-weight:600}
+p{margin:0 0 16px}
+.lede{font-size:clamp(16px,2vw,19px);color:#3c382f;max-width:62ch}
+.jp{font-family:'Noto Serif JP',serif;color:var(--ink2)}
+.muted{color:var(--ink2)}
+.btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:15px;padding:12px 22px;border-radius:999px;cursor:pointer;border:1px solid transparent;transition:transform .08s, background .2s, color .2s}
+.btn-primary{background:linear-gradient(180deg,#2c2a22,#19150F);color:#F4EEDF;border-color:#0c0b08}
+.btn-primary:hover{transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--blue)}
+.btn-gold{background:linear-gradient(180deg,#E3C271,#B6892F);color:#1c1606;border:none}
+.btn-gold:hover{transform:translateY(-1px)}
+
+header.site{position:sticky;top:0;z-index:40;backdrop-filter:saturate(180%) blur(9px);
+  background:rgba(241,234,221,.82);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:64px;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-weight:600;font-size:19px}
+.brand .mk{width:30px;height:30px;border-radius:8px;display:block}
+.brand .jp{font-size:13px;margin-left:1px}
+.menu{display:flex;align-items:center;gap:24px;font-size:14px;color:var(--ink2)}
+.menu a:hover{color:var(--ink)}
+.menu a.active{color:var(--ink)}
+.menu .cta{padding:8px 15px;border:1px solid var(--ink);border-radius:999px;color:var(--ink);font-weight:600}
+.menu .cta:hover{background:var(--ink);color:var(--paper)}
+@media(max-width:880px){.menu a.lnk{display:none}}
+
+section{padding:56px 0;position:relative}
+.dim{display:flex;align-items:center;gap:14px;color:var(--blue);opacity:.6;font-size:11px;letter-spacing:.2em;text-transform:uppercase;margin:0 auto;max-width:var(--maxw);padding:0 24px}
+.dim::before,.dim::after{content:"";height:1px;background:repeating-linear-gradient(90deg,var(--blue),var(--blue) 4px,transparent 4px,transparent 9px);flex:1;opacity:.5}
+
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+/* honesty banner */
+.honest{background:var(--white);border:1px dashed var(--gold);border-radius:18px;padding:26px 28px;margin-top:28px}
+.honest h3{font-size:20px;margin-bottom:8px}
+.honest p{color:var(--ink2);font-size:14.5px}
+.honest ul{margin:0;padding-left:20px;color:var(--ink2);font-size:14.5px}
+.honest li{margin-bottom:6px}
+
+/* role cards — job postings pinned like notices */
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
+@media(max-width:860px){.roles{grid-template-columns:1fr}}
+.role{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px;display:flex;flex-direction:column;
+  box-shadow:0 24px 48px -40px rgba(43,66,87,.55)}
+.role .k{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:8px}
+.role h3{font-size:22px;margin-bottom:10px}
+.role p{color:var(--ink2);font-size:14.5px}
+.role ul{margin:0 0 16px;padding-left:20px;color:var(--ink2);font-size:14px}
+.role li{margin-bottom:5px}
+.role .apply{margin-top:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.role .terms{font-size:12px;color:var(--ink2);opacity:.85}
+
+/* contact strip */
+.contact-strip{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;margin-top:30px;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.contact-strip .email{font-family:'Playfair Display',serif;font-size:24px}
+.contact-strip .email a{border-bottom:2px solid var(--gold)}
+.contact-strip p{margin:0;color:var(--ink2);font-size:14px}
+
+footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);font-size:13px;background:rgba(246,240,227,.6);margin-top:40px}
+.foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+.foot a:hover{color:var(--ink)}
+.foot .lnks{display:flex;gap:16px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header class="site"><div class="wrap nav">
+  <a class="brand" href="/"><img class="mk" src="/M.png" alt="M3XI"/> M3XI <span class="jp">三X一</span></a>
+  <nav class="menu">
+    <a class="lnk" href="/">Home</a>
+    <a class="lnk" href="/#products">Apps</a>
+    <a class="lnk" href="/projects/">Projects</a>
+    <a class="lnk active" href="/jobs/">Jobs</a>
+    <a class="lnk" href="/#contact">Contact</a>
+    <a class="cta" href="mailto:support@m3xi.com?subject=Joining%20M3XI">Apply</a>
+  </nav>
+</div></header>
+
+<section style="padding-bottom:24px"><div class="wrap">
+  <p class="eyebrow">Jobs at M3XI</p>
+  <h1>Help us build the <em>studio.</em></h1>
+  <p class="lede">We&rsquo;re a small group building Cornelia, AutoUV and CallMe &mdash; and aiming at robotics beyond that. We&rsquo;d love more curious hands. Read the honest bit first, then pick a role.</p>
+
+  <div class="honest reveal">
+    <h3>The honest bit — read before applying</h3>
+    <ul>
+      <li><b>We are not funded and not yet a registered company.</b> M3XI is in the middle of being set up.</li>
+      <li>These are <b>unpaid, volunteer co-builder roles</b> for now — there is no salary yet. If and when M3XI is registered and revenue arrives, the people who built it with us are first in line.</li>
+      <li>What we can offer today: real shipped products for your portfolio, honest credit for everything you make, a small kind team, and a genuine say in what M3XI becomes.</li>
+      <li>Everything is remote and flexible around your studies or job.</li>
+    </ul>
+    <p style="margin:10px 0 0">If that excites you rather than puts you off — you&rsquo;re exactly who we&rsquo;re looking for.</p>
+  </div>
+</div></section>
+
+<div class="dim">Open roles · apply via support@m3xi.com</div>
+
+<section style="padding-top:24px"><div class="wrap">
+  <div class="roles">
+
+    <article class="role reveal">
+      <p class="k">Engineering · Cornelia &amp; CallMe</p>
+      <h3>App Developer</h3>
+      <p>Build features across our mobile apps — from Cornelia&rsquo;s note flows to CallMe&rsquo;s live voice calls.</p>
+      <ul>
+        <li>React Native / Expo (or keen to learn it fast)</li>
+        <li>Supabase, TypeScript, mobile UX instincts</li>
+        <li>Ship small, ship often, care about polish</li>
+      </ul>
+      <div class="apply">
+        <a class="btn btn-gold" href="mailto:support@m3xi.com?subject=Application%3A%20App%20Developer%20at%20M3XI">Apply — App Developer</a>
+        <span class="terms">Remote · volunteer</span>
+      </div>
+    </article>
+
+    <article class="role reveal">
+      <p class="k">Engineering · AutoUV</p>
+      <h3>Tools / 3D Developer</h3>
+      <p>Work on AutoUV — our Blender add-on for game-ready UV unwrapping — and the pipeline around it.</p>
+      <ul>
+        <li>Python, ideally some Blender API experience</li>
+        <li>Understanding of UVs, meshes and game engines a big plus</li>
+        <li>Enjoys geometry problems and artist-friendly tools</li>
+      </ul>
+      <div class="apply">
+        <a class="btn btn-gold" href="mailto:support@m3xi.com?subject=Application%3A%20Tools%20%2F%203D%20Developer%20at%20M3XI">Apply — 3D Developer</a>
+        <span class="terms">Remote · volunteer</span>
+      </div>
+    </article>
+
+    <article class="role reveal">
+      <p class="k">Design</p>
+      <h3>Product / Brand Designer</h3>
+      <p>Give each app its own personality — screens, icons, store listings and the M3XI identity itself.</p>
+      <ul>
+        <li>Figma (or your tool of choice) and a good eye</li>
+        <li>Mobile-first product thinking</li>
+        <li>Portfolio over CV — student work welcome</li>
+      </ul>
+      <div class="apply">
+        <a class="btn btn-gold" href="mailto:support@m3xi.com?subject=Application%3A%20Designer%20at%20M3XI">Apply — Designer</a>
+        <span class="terms">Remote · volunteer</span>
+      </div>
+    </article>
+
+    <article class="role reveal">
+      <p class="k">Growth</p>
+      <h3>Content &amp; Community</h3>
+      <p>Tell the M3XI story — build-in-public posts, app launches, and growing our waitlists on Instagram and TikTok.</p>
+      <ul>
+        <li>Short-form video or writing that people actually enjoy</li>
+        <li>Comfortable showing work-in-progress honestly</li>
+        <li>Bonus: student communities and app launch experience</li>
+      </ul>
+      <div class="apply">
+        <a class="btn btn-gold" href="mailto:support@m3xi.com?subject=Application%3A%20Content%20%26%20Community%20at%20M3XI">Apply — Content</a>
+        <span class="terms">Remote · volunteer</span>
+      </div>
+    </article>
+
+    <article class="role reveal">
+      <p class="k">The long game</p>
+      <h3>Robotics Tinkerer</h3>
+      <p>Robotics is where M3XI is headed. If you prototype, print, solder or simulate — we want to learn and build with you.</p>
+      <ul>
+        <li>Any background: mechanical, electrical, firmware, simulation</li>
+        <li>Hobbyists and students absolutely welcome</li>
+        <li>Help shape our first robotics experiments from day one</li>
+      </ul>
+      <div class="apply">
+        <a class="btn btn-gold" href="mailto:support@m3xi.com?subject=Application%3A%20Robotics%20at%20M3XI">Apply — Robotics</a>
+        <span class="terms">Remote · volunteer</span>
+      </div>
+    </article>
+
+    <article class="role reveal" style="border-style:dashed;background:transparent">
+      <p class="k">Something else?</p>
+      <h3>Surprise us</h3>
+      <p>Writer, tester, translator, musician, spreadsheet wizard — if you&rsquo;re curious and kind and want to build, there&rsquo;s room. Tell us what you&rsquo;d love to do.</p>
+      <div class="apply">
+        <a class="btn btn-ghost" href="mailto:support@m3xi.com?subject=I%27d%20like%20to%20join%20M3XI">Say hello</a>
+        <span class="terms">Remote · volunteer</span>
+      </div>
+    </article>
+
+  </div>
+
+  <div class="contact-strip reveal">
+    <div>
+      <p class="eyebrow" style="margin-bottom:6px">How to apply</p>
+      <p>Email us with the role in the subject line, a few lines about yourself, and one thing you&rsquo;ve made — a repo, a design, a video, anything real.</p>
+    </div>
+    <p class="email"><a href="mailto:support@m3xi.com">support@m3xi.com</a></p>
+  </div>
+</div></section>
+
+<footer class="site"><div class="wrap foot">
+  <div>M3XI <span class="jp">三X一</span> · building software that works</div>
+  <nav class="lnks">
+    <a href="/">Home</a><a href="/cornelia.html">Cornelia</a><a href="/autouv.html">AutoUV</a><a href="/callme.html">CallMe</a>
+    <a href="/projects/">Projects</a><a href="/privacy/">Policies</a><a href="/terms/">Terms</a>
+  </nav>
+  <div>© <span id="year">2026</span> M3XI</div>
+</div></footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

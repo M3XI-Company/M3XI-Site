@@ -1,227 +1,259 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cornelia (NoteTaker) by M3XI — a study note-taking app</title>
-    <meta
-      name="description"
-      content="Cornelia is M3XI's study note-taking app (NoteTaker) — capture lecture and class notes, organise them by subject, and revise with ease. Available on Google Play."
-    />
-    <link rel="icon" type="image/png" href="/M/M.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cornelia (NoteTaker) by M3XI — a study note-taking app</title>
+<meta name="description" content="Cornelia is M3XI's study note-taking app (NoteTaker) — record lectures, transcribe speech, and turn it into Cornell, outline and mind-map notes. Coming soon to Google Play — join the waitlist." />
+<link rel="icon" type="image/png" href="/M.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#FDFAF1; --page2:#F8F3E6; --card:#FFFEFA;
+  --ink:#22201A; --ink2:#65604F; --rule:rgba(84,110,160,.22); --margin:#C64B3C;
+  --blue:#3A5A80; --gold:#B6892F; --line:rgba(34,32,26,.14); --ok:#2f6b46; --err:#9b3030;
+  --maxw:1080px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  line-height:1.62;-webkit-font-smoothing:antialiased;
+  background-color:var(--page);
+  /* ruled notebook paper */
+  background-image:
+    linear-gradient(transparent 31px, var(--rule) 31px, var(--rule) 32px, transparent 32px),
+    linear-gradient(90deg, transparent 88px, rgba(198,75,60,.35) 88px, rgba(198,75,60,.35) 90px, transparent 90px);
+  background-size:100% 32px, 100% 100%;
+  background-attachment:fixed;
+}
+@media(max-width:720px){body{background-image:linear-gradient(transparent 31px, var(--rule) 31px, var(--rule) 32px, transparent 32px);background-size:100% 32px}}
+a{color:inherit;text-decoration:none}
+img{max-width:100%}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+.eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 14px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--margin)}
+h1,h2,h3,h4{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;margin:0}
+h1{font-size:clamp(40px,6.4vw,66px);line-height:1.05;font-weight:600}
+h1 em,h2 em{font-style:italic;color:var(--margin);font-weight:500}
+h2{font-size:clamp(27px,4vw,40px);line-height:1.12;font-weight:600}
+p{margin:0 0 16px}
+.lede{font-size:clamp(16px,2vw,19px);color:#4a4536;max-width:60ch}
+.muted{color:var(--ink2)}
+.hand{font-family:'Caveat',cursive;font-size:1.35em;color:var(--margin)}
+.btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:15px;padding:13px 24px;border-radius:999px;cursor:pointer;border:1px solid transparent;transition:transform .08s, background .2s, color .2s}
+.btn-primary{background:linear-gradient(180deg,#33302a,#22201A);color:#F6F1E2;border-color:#151310}
+.btn-primary:hover{transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--margin)}
+.btn-red{background:linear-gradient(180deg,#D96A5B,#C64B3C);color:#fff;border:none}
+.btn-red:hover{transform:translateY(-1px)}
 
-  </head>
-  <body>
-    <header class="site-header">
-      <a class="brand" href="/">
-        <img class="brand-badge" src="/M/M.png" alt="M3XI logo" />
-        M3XI
-      </a>
-      <nav class="nav">
-        <a href="/#work">What we do</a>
-        <a href="/cornelia.html">Cornelia</a>
-        <a href="/#involved">Get involved</a>
-        <a href="/#contact">Contact</a>
-        <a class="nav-cta" href="/#involved">Join us</a>
-      </nav>
-    </header>
+/* header */
+header.site{position:sticky;top:0;z-index:40;backdrop-filter:saturate(180%) blur(9px);
+  background:rgba(253,250,241,.86);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:64px;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-weight:600;font-size:19px}
+.brand .mk{width:30px;height:30px;border-radius:8px;display:block}
+.menu{display:flex;align-items:center;gap:22px;font-size:14px;color:var(--ink2)}
+.menu a:hover{color:var(--ink)}
+.menu a.active{color:var(--ink)}
+.menu .cta{padding:8px 15px;border:1px solid var(--margin);border-radius:999px;color:var(--margin);font-weight:600}
+.menu .cta:hover{background:var(--margin);color:#fff}
+@media(max-width:820px){.menu a.lnk{display:none}}
 
-    <main>
-      <!-- HERO -->
-      <section class="section hero reveal is-visible">
-        <span class="blob blob-1"></span>
-        <span class="blob blob-2"></span>
-        <a class="back-link" href="/">&larr; Back to M3XI</a>
-        <p class="eyebrow hero-eyebrow pop-text">
-          <svg class="doodle" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c.6 4.5 2.9 6.8 7.4 7.4-4.5.6-6.8 2.9-7.4 7.4-.6-4.5-2.9-6.8-7.4-7.4C9.1 8.8 11.4 6.5 12 2z"/></svg>
-          M3XI · our first app
-        </p>
-        <h1 class="pop-text">Meet <span class="hl">Cornelia</span></h1>
-        <p class="hero-sub">
-          Cornelia (NoteTaker) is a study note-taking app. Capture your lecture and class notes, keep them organised by subject, and find them again when it's time to revise.
-        </p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#get">Get Cornelia</a>
-          <a class="btn btn-ghost" href="#features">See features</a>
+section{padding:60px 0;position:relative}
+.dim{display:flex;align-items:center;gap:14px;color:var(--blue);opacity:.65;font-size:11px;letter-spacing:.2em;text-transform:uppercase;margin:0 auto;max-width:var(--maxw);padding:0 24px}
+.dim::before,.dim::after{content:"";height:1px;background:repeating-linear-gradient(90deg,var(--blue),var(--blue) 4px,transparent 4px,transparent 9px);flex:1;opacity:.5}
+
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+/* hero */
+.hero{padding:64px 0 44px}
+.hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:44px;align-items:center}
+@media(max-width:880px){.hero-grid{grid-template-columns:1fr}.hero-shot{max-width:300px;margin:0 auto;order:-1}}
+.hero-cta{display:flex;gap:13px;flex-wrap:wrap;margin-top:26px}
+.status-note{display:inline-flex;align-items:center;gap:9px;margin-top:20px;background:var(--card);border:1px dashed var(--margin);border-radius:12px;padding:9px 15px;font-size:13.5px;color:var(--ink2)}
+.status-note b{color:var(--margin)}
+
+/* phone frame */
+.device{position:relative;width:100%;max-width:280px;padding:9px;background:linear-gradient(150deg,#2a251d,#161310);border-radius:34px;
+  box-shadow:0 26px 50px -22px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.12);margin:0 auto}
+.device::before{content:"";position:absolute;top:14px;left:50%;transform:translateX(-50%);width:54px;height:5px;border-radius:3px;background:rgba(255,255,255,.25);z-index:2}
+.device img{display:block;width:100%;border-radius:26px;background:#0c0c0c;aspect-ratio:9/19.5;object-fit:cover}
+
+/* feature cards: index cards */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
+@media(max-width:840px){.grid3{grid-template-columns:1fr}}
+.notecard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;position:relative;
+  box-shadow:0 18px 34px -28px rgba(34,32,26,.5)}
+.notecard::before{content:"";position:absolute;left:0;right:0;top:44px;height:1px;background:var(--rule)}
+.notecard h3{font-size:19px;margin-bottom:12px}
+.notecard p{color:var(--ink2);font-size:14.5px;margin:0}
+.notecard .pin{position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:16px;height:16px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#E3A197,#C64B3C);box-shadow:0 2px 4px rgba(0,0,0,.3)}
+
+/* screenshots row */
+.screens{display:flex;gap:18px;overflow-x:auto;padding:10px 2px 18px;scroll-snap-type:x mandatory}
+.screens figure{flex:0 0 auto;margin:0;scroll-snap-align:center;text-align:center}
+.screens .device{width:210px}
+.screens figcaption{font-family:'Caveat',cursive;font-size:19px;color:var(--ink2);margin-top:10px}
+
+/* waitlist */
+.waitlist-card{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--margin);border-radius:16px;
+  padding:clamp(26px,4vw,42px);max-width:640px;margin:26px auto 0;box-shadow:0 24px 48px -34px rgba(34,32,26,.55)}
+.wl-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.wl-row .f{flex:1;min-width:170px}
+.waitlist-card label{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink2);display:block;margin:0 0 6px;font-weight:600}
+.waitlist-card input{width:100%;padding:13px 15px;font:inherit;color:var(--ink);background:var(--page);border:1px solid var(--line);border-radius:11px;outline:none;transition:.15s}
+.waitlist-card input:focus{border-color:var(--margin);box-shadow:0 0 0 3px rgba(198,75,60,.16)}
+.wl-hp{position:absolute;left:-9999px;opacity:0;pointer-events:none}
+.waitlist-card button{width:100%;margin-top:14px;padding:14px;font:inherit;font-weight:700;color:#fff;background:linear-gradient(180deg,#D96A5B,#C64B3C);border:none;border-radius:11px;cursor:pointer;transition:.1s}
+.waitlist-card button:hover{transform:translateY(-1px)}
+.waitlist-card button:disabled{opacity:.6;transform:none;cursor:wait}
+.wl-msg{font-size:13.5px;margin:12px 2px 0;text-align:center;min-height:18px}
+.wl-msg.ok{color:var(--ok)}.wl-msg.err{color:var(--err)}
+.wl-fine{font-size:12px;color:var(--ink2);margin-top:14px;text-align:center}
+.wl-fine a{border-bottom:1px solid var(--line)}
+
+/* footer */
+footer.site{border-top:1px solid var(--line);padding:32px 0;color:var(--ink2);font-size:13px;background:rgba(248,243,230,.75)}
+.foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+.foot a:hover{color:var(--ink)}
+.foot .lnks{display:flex;gap:16px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header class="site"><div class="wrap nav">
+  <a class="brand" href="/"><img class="mk" src="/M.png" alt="M3XI"/> M3XI</a>
+  <nav class="menu">
+    <a class="lnk" href="/">Home</a>
+    <a class="lnk active" href="/cornelia.html">Cornelia</a>
+    <a class="lnk" href="/projects/">Projects</a>
+    <a class="lnk" href="/privacy/#cornelia">Policy</a>
+    <a class="cta" href="#waitlist">Join waitlist</a>
+  </nav>
+</div></header>
+
+<section class="hero"><div class="wrap hero-grid">
+  <div>
+    <p class="eyebrow">M3XI &middot; NoteTaker</p>
+    <h1>Meet <em>Cornelia.</em></h1>
+    <p class="lede">A calm, capable note-taker for students. Record your lectures, let Cornelia transcribe them, and turn everything into Cornell, outline and mind-map notes &mdash; plus photo-to-notes for whiteboards and handwritten pages.</p>
+    <div class="hero-cta">
+      <a class="btn btn-red" href="#waitlist">Join the waitlist</a>
+      <a class="btn btn-ghost" href="#features">See what it does</a>
+    </div>
+    <p class="status-note"><b>Coming soon to Google Play</b> &middot; Android first, iOS later. Waitlisters get in first.</p>
+  </div>
+  <div class="hero-shot">
+    <div class="device"><img src="/notetaker/screenshot-record.png" alt="Cornelia recording a lecture" loading="eager"></div>
+  </div>
+</div></section>
+
+<div class="dim">One calm workflow · mic to exam-ready rows</div>
+
+<section id="features"><div class="wrap reveal">
+  <p class="eyebrow">What Cornelia does</p>
+  <h2>From lecture to <em>exam-ready.</em></h2>
+  <div class="grid3">
+    <article class="notecard"><span class="pin"></span>
+      <h3>Record &amp; transcribe</h3>
+      <p>Tap record in class. Cornelia captures the lecture and turns speech into clean, searchable text.</p>
+    </article>
+    <article class="notecard"><span class="pin"></span>
+      <h3>Cornell, outline &amp; mind-map</h3>
+      <p>Your transcript becomes structured notes &mdash; cue columns, summaries and layouts made for revision, not just storage.</p>
+    </article>
+    <article class="notecard"><span class="pin"></span>
+      <h3>Photo-to-notes</h3>
+      <p>Point your camera at a whiteboard or a handwritten page and Cornelia lifts it into tidy digital notes.</p>
+    </article>
+    <article class="notecard"><span class="pin"></span>
+      <h3>Organised by subject</h3>
+      <p>Every course and topic in its own place. Nothing gets lost between September and exam season.</p>
+    </article>
+    <article class="notecard"><span class="pin"></span>
+      <h3>Built for revision</h3>
+      <p>Summaries, key terms and checklists come out of your own notes &mdash; so revising feels like a head start.</p>
+    </article>
+    <article class="notecard"><span class="pin"></span>
+      <h3>Calm by design</h3>
+      <p>No clutter, no noise. Open the app, take the note, get back to listening.</p>
+    </article>
+  </div>
+</div></section>
+
+<section style="background:rgba(248,243,230,.7);border-top:1px solid var(--line);border-bottom:1px solid var(--line)"><div class="wrap reveal">
+  <p class="eyebrow">Take a look</p>
+  <h2>Real screens, <em>real app.</em> <span class="hand">— straight from the build</span></h2>
+  <div class="screens">
+    <figure>
+      <div class="device"><img src="/notetaker/screenshot-record.png" alt="Recording a lecture in Cornelia" loading="lazy"></div>
+      <figcaption>record the lecture</figcaption>
+    </figure>
+    <figure>
+      <div class="device"><img src="/notetaker/screenshot-transcript.png" alt="A lecture transcript in Cornelia" loading="lazy"></div>
+      <figcaption>read the transcript</figcaption>
+    </figure>
+    <figure>
+      <div class="device"><img src="/notetaker/screenshot-cornell-onboarding.png" alt="Cornell notes layout in Cornelia" loading="lazy"></div>
+      <figcaption>Cornell layout</figcaption>
+    </figure>
+    <figure>
+      <div class="device"><img src="/notetaker/screenshot-photo-notes.png" alt="Photo to notes in Cornelia" loading="lazy"></div>
+      <figcaption>photo → notes</figcaption>
+    </figure>
+    <figure>
+      <div class="device"><img src="/notetaker/screenshot-library.png" alt="The notes library in Cornelia" loading="lazy"></div>
+      <figcaption>your library</figcaption>
+    </figure>
+  </div>
+</div></section>
+
+<section id="waitlist"><div class="wrap reveal" style="text-align:center">
+  <p class="eyebrow" style="justify-content:center">Early access</p>
+  <h2>Be first in <em>class.</em></h2>
+  <p class="lede" style="margin:8px auto 0">Cornelia is nearly ready. Leave your email and we&rsquo;ll invite you the moment it lands on Google Play &mdash; no spam, just Cornelia.</p>
+  <div class="waitlist-card" style="text-align:left">
+    <form class="m3xi-waitlist" data-product="cornelia" novalidate>
+      <div class="wl-row">
+        <div class="f">
+          <label for="wl-name">Name <span style="text-transform:none;font-weight:400">(optional)</span></label>
+          <input id="wl-name" name="name" type="text" autocomplete="name" placeholder="Alex the note-taker" maxlength="120" />
         </div>
-      </section>
-
-      <!-- SHOWCASE -->
-      <section id="features" class="section reveal">
-        <p class="eyebrow">Take a look</p>
-        <h2 class="section-title">Cornelia in your pocket</h2>
-        <p class="section-lead">Swipe through a few screens. Real screenshots from the app.</p>
-
-        <div class="carousel showcase" data-carousel="cornelia-full">
-          <div class="phone-wrap">
-            <div class="phone">
-              <div class="phone-screen">
-                <span class="phone-notch"></span>
-                <div class="carousel-track">
-                  <div class="carousel-slide">
-                    <div class="shot-placeholder ph-s1">
-                      <span class="ph-title">Biology · Lecture 4</span>
-                      <span class="ph-line"></span>
-                      <span class="ph-line"></span>
-                      <span class="ph-line short"></span>
-                      <span class="ph-badge">Cornelia · preview</span>
-                    </div>
-                  </div>
-                  <div class="carousel-slide">
-                    <div class="shot-placeholder ph-s2">
-                      <span class="ph-title">Key terms</span>
-                      <span class="ph-line"></span>
-                      <span class="ph-line short"></span>
-                      <span class="ph-line"></span>
-                      <span class="ph-badge">Cornelia · preview</span>
-                    </div>
-                  </div>
-                  <div class="carousel-slide">
-                    <div class="shot-placeholder ph-s3">
-                      <span class="ph-title">Revision checklist</span>
-                      <span class="ph-chk"><span></span> Review chapter 4</span>
-                      <span class="ph-chk"><span></span> Summarise Lecture 7</span>
-                      <span class="ph-chk"><span></span> Practice past paper</span>
-                      <span class="ph-badge">Cornelia · preview</span>
-                    </div>
-                  </div>
-                  <div class="carousel-slide">
-                    <div class="shot-placeholder ph-s4">
-                      <span class="ph-title">Exam summary</span>
-                      <span class="ph-line"></span>
-                      <span class="ph-line short"></span>
-                      <span class="ph-line"></span>
-                      <span class="ph-badge">Cornelia · preview</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="carousel-indicators" role="tablist" aria-label="Cornelia screenshots">
-              <button type="button" class="carousel-dot active" data-index="0" aria-label="Screenshot 1"></button>
-              <button type="button" class="carousel-dot" data-index="1" aria-label="Screenshot 2"></button>
-              <button type="button" class="carousel-dot" data-index="2" aria-label="Screenshot 3"></button>
-              <button type="button" class="carousel-dot" data-index="3" aria-label="Screenshot 4"></button>
-            </div>
-            <div class="carousel-nav">
-              <button type="button" class="carousel-arrow carousel-prev" aria-label="Previous screenshot">&larr;</button>
-              <button type="button" class="carousel-arrow carousel-next" aria-label="Next screenshot">&rarr;</button>
-            </div>
-          </div>
-
-          <div class="showcase-panels">
-            <div class="feature-panel active">
-              <h4>Capture lecture notes</h4>
-              <p>Open Cornelia and start writing. No setup, no clutter — perfect for keeping up in class.</p>
-            </div>
-            <div class="feature-panel">
-              <h4>Organise by subject</h4>
-              <p>Keep every course and topic in its own tidy place, so nothing gets lost.</p>
-            </div>
-            <div class="feature-panel">
-              <h4>Build revision summaries</h4>
-              <p>Turn your notes into clear summaries and checklists when exam season comes around.</p>
-            </div>
-            <div class="feature-panel">
-              <h4>Find it again, fast</h4>
-              <p>Everything stays organised and easy to come back to when you need to study.</p>
-            </div>
-          </div>
+        <div class="f">
+          <label for="wl-email">Email</label>
+          <input id="wl-email" name="email" type="email" autocomplete="email" placeholder="you@university.ac.uk" required maxlength="320" />
         </div>
-      </section>
+      </div>
+      <input class="wl-hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <button type="submit">Join the Cornelia waitlist</button>
+      <p class="wl-msg" aria-live="polite"></p>
+    </form>
+    <p class="wl-fine">We only use your email to tell you about Cornelia. Read the <a href="/privacy/#cornelia">Cornelia policy</a>.</p>
+  </div>
+</div></section>
 
-      <!-- GET IT -->
-      <section id="get" class="section reveal">
-        <div class="tint tint-coral">
-          <p class="eyebrow">Download</p>
-          <h2 class="section-title">Get Cornelia</h2>
-          <p class="section-lead">Cornelia is published on Google Play. iOS is on the way.</p>
-          <div class="store-row">
-            <a class="store-btn" href="#" data-store="google-play" aria-label="Get Cornelia on Google Play">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.6 2.3c-.2.3-.4.7-.4 1.2v17c0 .5.2.9.4 1.2l.1.1L13 12.6v-.2L3.7 2.2l-.1.1z"/><path d="M16.3 15.9 13 12.6v-.2l3.3-3.3.1.1 3.9 2.2c1.1.6 1.1 1.6 0 2.3l-3.9 2.2z"/><path d="M16.4 15.8 13 12.4 3.6 21.8c.4.4 1 .4 1.7.1l11.1-6.1z"/><path d="M16.4 8.9 5.3 2.8c-.7-.4-1.3-.3-1.7.1l9.4 9.4 3.4-3.4z"/></svg>
-              <span><small>Get it on</small><strong>Google Play</strong></span>
-            </a>
-            <span class="store-btn soon" aria-label="App Store coming soon">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 1.5c.1 1-.3 2-.9 2.7-.7.8-1.7 1.4-2.7 1.3-.1-1 .4-2 .9-2.6.7-.8 1.8-1.4 2.7-1.4zM19 17c-.5 1.1-.7 1.6-1.3 2.5-.9 1.3-2.1 3-3.6 3-1.3 0-1.7-.9-3.5-.8-1.8 0-2.2.8-3.5.8-1.5 0-2.7-1.5-3.6-2.8C.9 16.3.6 12 2.4 9.7c1-1.3 2.4-2 3.7-2 1.4 0 2.2.9 3.4.9 1.1 0 1.8-.9 3.4-.9 1.2 0 2.5.7 3.4 1.8-3 1.6-2.5 5.9 1.3 6.8z"/></svg>
-              <span><small>Coming soon to</small><strong>App Store</strong></span>
-            </span>
-          </div>
-        </div>
-      </section>
+<footer class="site"><div class="wrap foot">
+  <div>© <span id="year">2026</span> M3XI · Cornelia (NoteTaker)</div>
+  <nav class="lnks">
+    <a href="/">M3XI Home</a><a href="/projects/">Projects</a><a href="/jobs/">Jobs</a>
+    <a href="/privacy/#cornelia">Privacy &amp; Policy</a><a href="/terms/">Terms</a>
+  </nav>
+  <div><a href="mailto:support@m3xi.com">support@m3xi.com</a></div>
+</div></footer>
 
-      <!-- SUBSCRIBE + FEEDBACK -->
-      <section class="section reveal">
-        <div class="split-2">
-          <section class="stack-card">
-            <h3>Get updates</h3>
-            <p>Pop in your email for Cornelia news and new features from M3XI.</p>
-            <form id="subscribe-form" class="subscribe-form" data-app="Cornelia">
-              <label class="sr-only" for="subscribe-email">Email address</label>
-              <input id="subscribe-email" name="email" type="email" placeholder="you@example.com" required />
-              <button type="submit">Subscribe</button>
-            </form>
-            <p id="subscribe-message" class="subscribe-message" aria-live="polite"></p>
-          </section>
-          <section class="stack-card">
-            <h3>Tell us what you think</h3>
-            <p>Got a feature idea or a bug? We read everything.</p>
-            <form id="feedback-form" class="feedback-form">
-              <label class="sr-only" for="feedback-text">Feedback message</label>
-              <textarea id="feedback-text" name="feedback" rows="4" placeholder="Your thoughts about Cornelia..." required></textarea>
-              <button type="submit">Send feedback</button>
-            </form>
-            <p id="feedback-message" class="feedback-message" aria-live="polite"></p>
-          </section>
-        </div>
-      </section>
-
-      <!-- REVIEWS -->
-      <section class="section reveal">
-        <p class="eyebrow">Kind words</p>
-        <h2 class="section-title">What people say</h2>
-        <div class="reviews-grid">
-          <article class="review-card">
-            <p class="review-stars">★★★★★</p>
-            <p class="quote">"Perfect for lecture notes — calm to use, and everything's easy to find at exam time."</p>
-            <p class="review-author">— Jordan</p>
-          </article>
-          <article class="review-card">
-            <p class="review-stars">★★★★★</p>
-            <p class="quote">"Keeps all my subjects organised in one place. My revision is so much less stressful now."</p>
-            <p class="review-author">— Alina</p>
-          </article>
-          <article class="review-card">
-            <p class="review-stars">★★★★★</p>
-            <p class="quote">"Love that a small team made this with so much care. Great for studying — excited to see where M3XI goes."</p>
-            <p class="review-author">— Marcus</p>
-          </article>
-        </div>
-        <p style="font-size:0.8rem; color: var(--ink-soft); margin-top: 0.9rem;">Sample testimonials shown while Cornelia gathers its first reviews.</p>
-      </section>
-
-      <!-- CTA -->
-      <section class="section reveal">
-        <div class="cta-banner">
-          <h2>Made by a small team with big plans.</h2>
-          <div class="cta-actions">
-            <a class="btn btn-sun" href="/#involved">Join the group</a>
-            <a class="btn btn-ghost" href="/">Back to M3XI</a>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer class="site-footer">
-      <p>© <span id="year"></span> M3XI · Cornelia (NoteTaker)</p>
-      <p><a href="/privacy.html">Privacy Policy</a></p>
-    </footer>
-
-    <script type="module" src="/src/main.js"></script>
-  </body>
+<script src="/waitlist.js" defer></script>
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
 </html>
