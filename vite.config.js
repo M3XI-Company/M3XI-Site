@@ -9,7 +9,7 @@ export default defineConfig({
         cornelia: resolve(__dirname, "cornelia.html"),
         autouv: resolve(__dirname, "autouv.html"),
         callme: resolve(__dirname, "callme.html"),
-        privacy: resolve(__dirname, "privacy.html")
+        privacy: resolve(__dirname, "privacy/index.html")
       }
     }
   }
