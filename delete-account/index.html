@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Delete your account — M3XI</title>
+<meta name="description" content="How to delete your M3XI account and data — CallMe, Cornelia (NoteTaker) and AutoUV. In-app steps plus a request route if you no longer have the app installed." />
+<link rel="icon" type="image/png" href="/M.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F0E8D8; --paper2:#F6F0E3; --panel:#FBF6EC; --white:#fff;
+  --ink:#19150F; --ink2:#605747; --blue:#2B4257; --blue2:#3E6079;
+  --gold:#B6892F; --gold2:#CBA14A; --line:rgba(25,21,15,.14);
+  --cornelia:#C64B3C; --autouv:#B6892F; --callme:#B7566B;
+  --maxw:980px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-weight:400;line-height:1.66;-webkit-font-smoothing:antialiased;
+  background-color:#EFE7D6;
+  background-image:
+    linear-gradient(rgba(43,66,87,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(43,66,87,.045) 1px, transparent 1px),
+    radial-gradient(1200px 700px at 80% -8%, rgba(255,253,247,.9), transparent 60%);
+  background-size:30px 30px, 30px 30px, 100% 100%;
+}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+.eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 14px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
+h1,h2,h3,h4{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;color:var(--ink);margin:0}
+h1{font-size:clamp(34px,5vw,54px);line-height:1.06;font-weight:600}
+h1 em,h2 em{font-style:italic;color:var(--gold);font-weight:500}
+h2{font-size:clamp(24px,3.2vw,34px);line-height:1.14;font-weight:600}
+h3{font-size:19px;margin:26px 0 8px}
+p{margin:0 0 14px}
+ul{margin:0 0 14px;padding-left:22px}
+li{margin-bottom:6px}
+.lede{font-size:clamp(16px,2vw,18px);color:#3c382f;max-width:64ch}
+.jp{font-family:'Noto Serif JP',serif;color:var(--ink2)}
+.muted{color:var(--ink2)}
+small.upd{display:block;color:var(--ink2);font-size:13px;margin-top:10px}
+
+header.site{position:sticky;top:0;z-index:40;backdrop-filter:saturate(180%) blur(9px);
+  background:rgba(241,234,221,.82);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:64px;gap:14px;max-width:1140px;margin:0 auto;padding:0 24px}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-weight:600;font-size:19px}
+.brand .mk{width:30px;height:30px;border-radius:8px;display:block}
+.brand .jp{font-size:13px;margin-left:1px}
+.menu{display:flex;align-items:center;gap:24px;font-size:14px;color:var(--ink2)}
+.menu a:hover{color:var(--ink)}
+.menu a.active{color:var(--ink)}
+@media(max-width:880px){.menu a.lnk{display:none}}
+
+section{padding:48px 0;position:relative}
+.toc{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.toc a{font-size:13.5px;font-weight:600;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:var(--panel)}
+.toc a:hover{border-color:var(--blue)}
+.toc a.t-web{border-left:4px solid var(--blue)}
+.toc a.t-cornelia{border-left:4px solid var(--cornelia)}
+.toc a.t-autouv{border-left:4px solid var(--autouv)}
+.toc a.t-callme{border-left:4px solid var(--callme)}
+
+.policy{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:clamp(26px,4vw,42px);margin-top:30px;
+  box-shadow:0 30px 60px -50px rgba(43,66,87,.5);scroll-margin-top:84px}
+.policy.web{border-top:5px solid var(--blue)}
+.policy.cornelia{border-top:5px solid var(--cornelia)}
+.policy.autouv{border-top:5px solid var(--autouv)}
+.policy.callme{border-top:5px solid var(--callme)}
+.p-tag{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--ink2)}
+.policy p,.policy li{color:#46412f;font-size:15px}
+.policy .backtop{font-size:13px;color:var(--blue);border-bottom:1px solid var(--line)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px 26px}
+@media(max-width:720px){.grid2{grid-template-columns:1fr}}
+
+footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);font-size:13px;background:rgba(246,240,227,.6);margin-top:40px}
+.foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;max-width:1140px;margin:0 auto;padding:0 24px}
+.foot a:hover{color:var(--ink)}
+.foot .lnks{display:flex;gap:16px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header class="site"><div class="nav">
+  <a class="brand" href="/"><img class="mk" src="/M.png" alt="M3XI"/> M3XI <span class="jp">三X一</span></a>
+  <nav class="menu">
+    <a class="lnk" href="/">Home</a>
+    <a class="lnk" href="/#products">Apps</a>
+    <a class="lnk" href="/projects/">Projects</a>
+    <a class="lnk" href="/jobs/">Jobs</a>
+    <a class="lnk" href="/privacy/">Policies</a>
+    <a class="lnk" href="/terms/">Terms</a>
+  </nav>
+</div></header>
+
+<section class="wrap" id="top">
+<div class="head">
+  <p class="p-tag">Account &amp; data</p>
+  <h1>Delete your <i>account.</i></h1>
+  <p class="lede">You can delete your M3XI account and its data at any time — from inside the app, or by asking us here if you no longer have it installed. No account is required to make the request.</p>
+  <p class="meta">Last updated: 6 August 2026 · Contact: <a href="mailto:support@m3xi.com">support@m3xi.com</a></p>
+</div>
+
+<article class="policy callme" id="callme">
+  <p class="p-tag">CallMe</p>
+  <h2>Deleting your CallMe account</h2>
+
+  <h3>In the app (fastest)</h3>
+  <ol>
+    <li>Open CallMe and go to <b>Settings</b> (the gear, top right of the home screen).</li>
+    <li>Scroll to <b>Delete account &amp; data</b>.</li>
+    <li>Confirm. Your account is closed immediately.</li>
+  </ol>
+
+  <h3>Without the app</h3>
+  <p>Email <a href="mailto:support@m3xi.com?subject=Delete%20my%20CallMe%20account">support@m3xi.com</a> from the address you signed up with, with the subject <b>“Delete my CallMe account”</b>. Sending it from your registered address is how we confirm it is really you — if you cannot, tell us and we will verify another way. We action every request within 30 days and confirm by email when it is done.</p>
+
+  <h3>What is deleted</h3>
+  <ul>
+    <li>Your profile — name, age, city, bio, gender, orientation, ethnicity, interests, occupation and education</li>
+    <li>Your MeCards, including every photo you uploaded</li>
+    <li>Your matching preferences</li>
+    <li>Your match and call history, and your connections</li>
+    <li>Your identity verification record</li>
+    <li>Your wallet and subscription record held by us</li>
+  </ul>
+
+  <h3>What we keep, and why</h3>
+  <ul>
+    <li><b>Safety records</b> — bans, blocks and reports made about your account. These are kept so that a removed account cannot simply be recreated, and so we can still act on a report made by someone else. They are held for up to 24 months.</li>
+    <li><b>Records we are legally required to retain</b>, such as purchase records needed for tax and accounting.</li>
+  </ul>
+  <p>Everything else is erased or irreversibly anonymised within <b>30 days</b>.</p>
+
+  <h3>Two things worth knowing</h3>
+  <ul>
+    <li><b>Your subscription is separate.</b> Deleting your account does not cancel Premium — that is billed by Apple or Google. Cancel it in your App Store or Google Play account, or it will keep renewing.</li>
+    <li><b>Your ID documents were never ours to delete.</b> Verification is carried out by Didit; document images and selfies go to them and never reach our servers. We only ever held the outcome, and that is deleted with your account.</li>
+  </ul>
+  <p><a class="backtop" href="#top">↑ Back to top</a></p>
+</article>
+
+<article class="policy" id="others">
+  <p class="p-tag">Other apps</p>
+  <h2>Cornelia (NoteTaker) and AutoUV</h2>
+  <p><b>Cornelia.</b> Delete your account in the app under Settings, or email <a href="mailto:support@m3xi.com?subject=Delete%20my%20Cornelia%20account">support@m3xi.com</a>. Your recordings, transcripts, images and notes are erased; we may retain billing records where required by law.</p>
+  <p><b>AutoUV.</b> Your 3D work never leaves your machine, so there is nothing of yours on our servers to delete. If we issued you a licence key or early-access account, email us and we will remove it.</p>
+  <p><b>Waitlists.</b> Use the unsubscribe link in any email we have sent you, or email us — we delete the entry.</p>
+  <p><a class="backtop" href="#top">↑ Back to top</a></p>
+</article>
+
+<article class="policy" id="rights">
+  <p class="p-tag">Your rights</p>
+  <h2>Other data requests</h2>
+  <p>As well as deletion, you can ask us for a copy of your data, to correct anything inaccurate, or to restrict or object to particular processing. Email <a href="mailto:support@m3xi.com">support@m3xi.com</a> and we will respond within one month.</p>
+  <p>If you are unhappy with how we handle a request, you can complain to the UK Information Commissioner's Office at <a href="https://ico.org.uk" rel="noopener">ico.org.uk</a>, or to your local supervisory authority in the EEA.</p>
+  <p>See also our <a href="/privacy/">privacy policy</a> and <a href="/terms/">terms</a>.</p>
+  <p><a class="backtop" href="#top">↑ Back to top</a></p>
+</article>
+</section>
+
+<footer class="site"><div class="foot">
+  <div>M3XI <span class="jp">三X一</span> · building software that works</div>
+  <nav class="lnks">
+    <a href="/">Home</a><a href="/cornelia.html">Cornelia</a><a href="/autouv.html">AutoUV</a><a href="/callme.html">CallMe</a>
+    <a href="/privacy/">Policies</a><a href="/terms/">Terms</a>
+  </nav>
+  <div>© <span id="year">2026</span> M3XI</div>
+</div></footer>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
