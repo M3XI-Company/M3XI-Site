@@ -145,10 +145,14 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
       <li><b>Account &amp; identity.</b> Email address, name and avatar basics from your sign-in provider (e.g. Google Sign-In), plus an internal user ID.</li>
       <li><b>Your content.</b> Audio recordings you make; generated transcripts; images you capture or import; note text, titles and tags; timestamps and ordering metadata.</li>
       <li><b>Device &amp; telemetry.</b> Device type, OS, app version and coarse diagnostic/stability data where enabled — used to operate and secure the app. We do not sell personal data.</li>
-      <li><b>Payments.</b> Handled by Stripe. We never see or store full card numbers — only customer ID, plan and billing state needed to run subscriptions.</li>
+      <li><b>Usage metering.</b> A count of AI minutes used, uploads and timestamps, so we can apply your plan's allowance. This is a measure of <i>how much</i> you used — never the content itself.</li>
+      <li><b>Payments.</b> Handled entirely by Google Play or the Apple App Store. We never see or store card numbers — only the subscription status and store transaction ID needed to give you what you paid for.</li>
+      <li><b>Advertising.</b> On the free plan Cornelia shows ads via Google AdMob, which uses your device's advertising ID. See "Advertising &amp; consent" below. Pro subscribers see no ads.</li>
     </ul>
-    <h3>AI &amp; cloud processing</h3>
-    <p>Some Cornelia workflows run in the cloud: audio and text you provide may be sent to transcription/AI providers (OpenAI or successors we configure) to produce transcripts and optional image understanding. Recording and offline caching may happen on-device first. AI vendors retain data per their API terms for business use, plus our deletion requests.</p>
+    <h3>AI runs on your device</h3>
+    <p><b>Transcription and note generation run entirely on your phone.</b> Your lecture audio, transcripts and generated notes are not uploaded to us and we cannot read them. The AI models are downloaded to the device and run locally, which is why Cornelia works offline. Content leaves your device only if you export or share it yourself, or switch on optional cloud sync.</p>
+    <h3>Advertising &amp; consent</h3>
+    <p>Ads are served by Google AdMob. If you are in the UK or EEA you will see a consent form the first time the app opens, provided by Google's User Messaging Platform, and you can change your answer at any time from <b>Account → Ad privacy options</b>. On iOS you will also be asked for permission to track (Apple's ATT prompt); you can decline and still use every feature. Declining means ads are non-personalised, not absent.</p>
     <h3>App permissions</h3>
     <div class="grid2">
       <p><b>Microphone</b> — record lectures and voice notes.</p>
@@ -157,9 +161,9 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
       <p><b>Internet</b> — sync, sign-in, transcription, backups.</p>
     </div>
     <h3>Subprocessors</h3>
-    <p>Supabase (auth, database, storage) · OpenAI or successor AI processors (transcription/understanding) · Google (sign-in) · Stripe (payments) · Vercel or similar (hosting/CDN).</p>
+    <p>Supabase (auth, database, storage — EU region) · Google (sign-in) · Google Play &amp; Apple (purchase verification) · Google AdMob (advertising) · Vercel or similar (hosting/CDN). <b>No third-party AI processor</b> — generation is on-device.</p>
     <h3>Retention &amp; children</h3>
-    <p>Active accounts keep their content until you delete items or close the account — we then erase or anonymise within a reasonable window (typically 30 days), except records we must keep for legal, tax or fraud-prevention reasons. Cornelia is not aimed at children under 13 and we don't knowingly collect their data.</p>
+    <p>Active accounts keep their content until you delete items or close the account — we then erase or anonymise within a reasonable window (typically 30 days), except records we must keep for legal, tax or fraud-prevention reasons. Anything held only on your device disappears when you uninstall. You can delete your account from <b>Account → Delete my account</b> in the app. Cornelia is not aimed at children under 13 and we don't knowingly collect their data.</p>
     <p><a class="backtop" href="#top">↑ Back to all policies</a></p>
   </article>
 
@@ -189,29 +193,75 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
   <article class="policy callme" id="callme">
     <p class="p-tag">Policy 04 · CallMe — call-first dating</p>
     <h2>CallMe</h2>
-    <p>CallMe connects two compatible people in a live voice call instead of endless swiping. Dating data is sensitive, so this policy is deliberately strict. CallMe is in development; we will finalise and re-publish this policy before public launch.</p>
+    <p>CallMe connects two compatible adults in a live voice call instead of endless swiping. Dating data is sensitive and every user's identity is verified before they can call anyone, so this policy is deliberately specific about what that involves.</p>
+
+    <h3>Age and identity verification</h3>
+    <p>CallMe is strictly 18+, and verification is <b>mandatory</b> — there is no way to skip it and reach the calling features. The check is carried out by <b>Didit</b>, our verification provider, and involves three steps:</p>
+    <ul>
+      <li>photographing an identity document — passport, driving licence or national ID;</li>
+      <li>taking a live selfie, checked for <i>liveness</i>: that a real person is present rather than a photograph, mask or video;</li>
+      <li>a <b>face match</b> between that selfie and the photograph on your document.</li>
+    </ul>
+    <p>The face match is <b>biometric processing</b>. Under UK and EU GDPR, biometric data used to identify someone is special-category data, and we rely on your explicit consent together with the substantial public interest in keeping under-18s out of an adult service.</p>
+    <p><b>Your document images and selfie are never sent to us and are never stored on our servers.</b> They go directly to Didit. We receive only the outcome — pass or fail, your date of birth, and your derived age.</p>
+
     <h3>Data we collect</h3>
     <ul>
-      <li><b>Account.</b> Email or phone sign-in, date of birth (to verify you are 18+), display name and optional profile basics.</li>
-      <li><b>Preferences.</b> The matching preferences you set once — such as age range, interests and languages — used only to pair you with compatible people.</li>
-      <li><b>Call metadata.</b> Who was matched with whom, call start/end times and connection quality — needed to run the service, prevent abuse and improve matching.</li>
-      <li><b>Safety reports.</b> If you report or block someone, we store the report and enough context to act on it.</li>
+      <li><b>Account.</b> Email sign-in (Google), display name, and an internal user ID.</li>
+      <li><b>Verification outcome.</b> Pass or fail, date of birth and derived age — not the documents themselves.</li>
+      <li><b>Profile.</b> Age, city, bio, gender, interests, and optionally occupation, education, relationship aim, sexual orientation and ethnicity. The last two are optional special-category fields; leave them blank if you would rather not say.</li>
+      <li><b>MeCards.</b> The trading-card profiles you design — stats, motto, colourway, the stickers and GIFs you place on them, and the photographs you add.</li>
+      <li><b>Preferences.</b> Age range, distance and which genders you want to be matched with, used only to pair you with compatible people.</li>
+      <li><b>Location.</b> Your city, and coordinates if you choose to use GPS, for distance-based matching. You can type a city instead; we show distance to others, never a precise position.</li>
+      <li><b>Photos.</b> Images you upload to a MeCard, shown during call intros. If you and your match both opt in to connect, the photo captured at that moment is saved to each of your connection walls.</li>
+      <li><b>Call metadata.</b> Who was matched with whom, call start/end times, whether video was mutually enabled, and connection quality — needed to run the service, prevent abuse and improve matching.</li>
+      <li><b>Connections and social handles.</b> When you and another person both choose to connect, each of you can see the social handle the other chose to share.</li>
+      <li><b>Safety reports.</b> If you report, block or mute someone, we store the report and enough context to act on it, plus any moderation flags raised against your content.</li>
+      <li><b>Purchases.</b> Premium subscription status. Card details are handled entirely by Apple or Google and never reach us.</li>
+      <li><b>Sticker searches.</b> What you type into the sticker and GIF picker is sent to GIPHY to return results.</li>
+      <li><b>Advertising.</b> CallMe shows ads via Google AdMob, which uses your device's advertising ID. See "Advertising &amp; consent" below.</li>
     </ul>
     <h3>Your calls</h3>
     <ul>
-      <li><b>Calls are live voice conversations. We do not record call audio by default.</b></li>
+      <li><b>Calls are live voice conversations. We do not record call audio or video.</b></li>
+      <li>Video is off by default and turns on only when <b>both</b> people opt in during the call.</li>
       <li>If any moderation or safety feature ever requires audio processing, it will be clearly disclosed in-app before it applies, and this policy will be updated first.</li>
-      <li>Your phone number is never shown to other users; calls connect through the app.</li>
+      <li>Your phone number and email are never shown to other users; calls connect through the app.</li>
+    </ul>
+
+    <h3>Photos, stickers and moderation</h3>
+    <p>Images and text you publish may be scanned automatically by a content moderation provider before they appear. Content that fails is blocked and the account is flagged; repeated flags lead to a warning, then suspension, then a permanent ban. Stickers and GIFs come from GIPHY and are requested at GIPHY's family-safe "G" rating.</p>
+
+    <h3>What other people can see</h3>
+    <ul>
+      <li>During a call: your display name, age, city, interests and the MeCard you were dealt.</li>
+      <li>For <b>24 hours</b> after a call, the person you spoke to may see one of your MeCards on their home screen. It disappears on its own.</li>
+      <li>Your social handle is revealed <b>only</b> when both of you have chosen to connect. A one-sided like never reveals it.</li>
+      <li>People you block or mute cannot be matched with you again and do not appear anywhere in your app.</li>
+    </ul>
+
+    <h3>How long we keep things</h3>
+    <ul>
+      <li><b>Account, profile and MeCards</b> — until you delete your account.</li>
+      <li><b>Recent calls list in the app</b> — visible for 48 hours.</li>
+      <li><b>MeCard wall in the app</b> — visible for 24 hours.</li>
+      <li><b>Call metadata</b> — up to 12 months, so we can investigate reports.</li>
+      <li><b>Verification outcome</b> — while your account exists; it is what keeps you verified.</li>
+      <li><b>Blocks, reports and moderation flags</b> — retained after an account closes, so that a banned user cannot simply come back.</li>
     </ul>
     <h3>Ground rules</h3>
     <ul>
       <li><b>18+ only.</b> CallMe is strictly for adults. Accounts found to belong to minors are removed.</li>
-      <li>We never sell your dating preferences or match history, and we do not use them for third-party advertising.</li>
+      <li>We never sell your dating preferences or match history, and we never share them with advertisers. Ads in CallMe are not targeted using your profile, preferences or who you matched with.</li>
       <li>Blocking someone prevents them from being matched with you again.</li>
-      <li>Delete your account in-app or by email and we erase your profile, preferences and match history within 30 days, except safety records we are required to keep.</li>
+      <li>Delete your account from <b>Settings → Delete account &amp; data</b> and we erase your profile, MeCards, photos, preferences and match history within 30 days, except safety records we are required to keep to protect other users.</li>
+      <li>You must not create an account for anyone else, use another person's identity document, or attempt to defeat the verification check.</li>
     </ul>
+    <h3>Advertising &amp; consent</h3>
+    <p>Ads are served by Google AdMob. In the UK and EEA you will see a consent form when the app first opens, provided by Google's User Messaging Platform, and can change your answer any time from <b>Settings → Ad privacy options</b>. On iOS you will also see Apple's tracking prompt; declining still leaves every feature available. You can also choose to watch a rewarded advert to earn an extra call. As above, your dating data is never used to target ads.</p>
     <h3>Subprocessors</h3>
-    <p>Supabase (auth, database — EU region) · live-voice infrastructure provider (call connection only) · Vercel or similar (hosting). The final list will be published here before launch.</p>
+    <p>Supabase (auth, database, storage — EU region) · Didit (identity document, liveness and face-match verification — EU) · Agora (live voice and video transport only — calls are not recorded or stored) · Google AdMob (advertising) · GIPHY (sticker and GIF search — USA) · content moderation provider (automated image and text scanning) · ElevenLabs (the synthesised host voice used in call intros) · Google Play &amp; Apple (purchase verification) · Vercel or similar (hosting).</p>
+    <p>Where a provider processes data outside the UK or EEA, we rely on Standard Contractual Clauses or the UK International Data Transfer Addendum.</p>
     <p><a class="backtop" href="#top">↑ Back to all policies</a></p>
   </article>
 
