@@ -109,6 +109,16 @@ a{color:var(--gold)}
   <input type="range" id="spd" min="0.6" max="7" step="0.1" value="2.6">
   <label>Solid walls</label>
   <div class="rowb"><button class="btn on" id="btnCollide">On — walk it like a real space</button></div>
+  <div class="rowb" style="margin-top:12px">
+    <label style="display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.75;margin-bottom:4px">Clean the scan</label>
+    <select id="cleanLevel" style="width:100%">
+      <option value="off">Off — show the raw capture</option>
+      <option value="light">Light — trim the worst spikes</option>
+      <option value="normal" selected>Normal — spikes, haze and ghosts</option>
+      <option value="heavy">Heavy — aggressive, for messy scans</option>
+    </select>
+    <div id="cleanStat" style="font-size:11px;opacity:.7;margin-top:4px">&nbsp;</div>
+  </div>
   <div class="rowb" style="margin-top:12px"><button class="btn" id="btnRecenter">Re-centre view</button></div>
 </div>
 
@@ -243,57 +253,291 @@ scene.add(spark);
 const splatRoot=new THREE.Group();scene.add(splatRoot);
 let splat=null,splatCount=0;
 
-/* ---------- game geometry: heightfield + occupancy built from the scan (not the raw mesh) ---------- */
-let colGrid=null,collideOn=true;
+/* ---------- scan cleanup: the spikes, the haze, and the invisible walls -------
+   A photogrammetry scan carries three kinds of rubbish, and they are the same
+   rubbish wearing different hats:
+
+     SPIKES   Wildly oversized splats, usually anchored to a surface the camera
+              only glimpsed once. On the demo capture the largest splat is 80x
+              the median — those are the translucent quills sticking out of the
+              walls.
+     HAZE     Near-transparent splats filling the air. Individually invisible,
+              collectively a fog that makes everything read as blurred, and they
+              still cost fill rate on every frame.
+     GHOSTS   Floaters hanging in empty space. These are the "invisible
+              colliders": the collision builder saw points, called it geometry,
+              and blocked a doorway with nothing.
+
+   Removing them once fixes the look AND the physics, because both read from the
+   same cloud. Splats are hidden (opacity 0) rather than deleted, so the cleanup
+   is reversible and the original file is never modified.
+
+   Threshold is a multiple of the MEDIAN splat size, not an absolute — captures
+   arrive at wildly different scales and a fixed number would either destroy a
+   small scan or do nothing to a large one.
+   ---------------------------------------------------------------------------- */
+let cleanMask=null;          // 1 = hidden, and skipped when building collision
+let cleanStats=null;
+let cleanOn=true;
+const CLEAN_PRESETS={off:null,light:{big:22,haze:0.03},normal:{big:14,haze:0.06},heavy:{big:8,haze:0.12}};
+let cleanLevel='normal';
+
+function cleanScan(level){
+  if(level)cleanLevel=level;
+  const p=CLEAN_PRESETS[cleanLevel];
+  if(!splat){cleanStats=null;return;}
+  const ps=splat.packedSplats||splat.splats;
+  if(!ps||!ps.forEachSplat||!ps.getSplat||!ps.setSplat)return;
+  const n=ps.getNumSplats?ps.getNumSplats():0;
+  if(!n)return;
+  try{
+    // Restore anything hidden by a previous pass so levels are not cumulative.
+    if(cleanMask){
+      for(let i=0;i<n;i++){
+        if(!cleanMask[i])continue;
+        const s=ps.getSplat(i);
+        ps.setSplat(i,s.center,s.scales,s.quaternion,cleanMask[i]/255,s.color);
+      }
+      cleanMask=null;
+    }
+    if(!p||!cleanOn){cleanStats={removed:0,pct:0};ps.needsUpdate=true;buildCollision();ensureSpawn();return;}
+
+    const samp=[];const st=Math.max(1,Math.floor(n/50000));
+    ps.forEachSplat((i,c,s)=>{if(i%st)return;
+      samp.push(Math.max(Math.abs(s.x),Math.abs(s.y),Math.abs(s.z)));});
+    if(!samp.length)return;
+    samp.sort((a,b)=>a-b);
+    const med=samp[samp.length>>1]||1e-4;
+    const BIG=med*p.big;
+
+    const mask=new Uint8Array(n);
+    let removed=0;
+    ps.forEachSplat((i,c,s,q,o)=>{
+      const M=Math.max(Math.abs(s.x),Math.abs(s.y),Math.abs(s.z));
+      if(M>BIG||o<p.haze){mask[i]=Math.max(1,Math.round(o*255));removed++;}
+    });
+    for(let i=0;i<n;i++){
+      if(!mask[i])continue;
+      const s=ps.getSplat(i);
+      ps.setSplat(i,s.center,s.scales,s.quaternion,0,s.color);
+    }
+    ps.needsUpdate=true;
+    cleanMask=mask;
+    cleanStats={removed,pct:+(100*removed/n).toFixed(1),median:med,big:BIG,level:cleanLevel};
+  }catch(e){cleanStats={error:String(e&&e.message||e)};}
+  buildCollision();ensureSpawn();
+}
+window.__cleanScan=cleanScan;
+window.__cleanStats=()=>cleanStats;
+
+/* ---------- game geometry: a walkable heightfield derived from the scan ----------
+   A Gaussian splat cloud has no surfaces. It is a haze of coloured points, so a
+   camera moving through it passes through everything — which is why an untreated
+   scan can only ever be flown through, never walked. Walking needs geometry, and
+   the only place to get it is the cloud itself. Four steps:
+
+   1. FLOOR      Per grid cell, the 15th percentile of point heights. Not the
+                 minimum — every scan carries a few stray points below the real
+                 floor and one of them would drop the floor through the ground.
+
+   2. BLOCKED    What FRACTION of a cell's points sit between knee and head
+                 height. Fraction, not count: the previous build marked a cell
+                 solid at 5 points in that band, which on a 500k-splat room is
+                 almost every cell. Measured: 42% of the map solid and the player
+                 could not move one step from spawn in any direction. The only
+                 escape was switching collision off — which is precisely the
+                 "flying through a scan" this is meant to replace.
+
+   3. CLEARANCE  A distance transform from the blocked cells, so we know how much
+                 room a body actually has. Testing a few points around the player
+                 against raw cells is not enough: a single speck of scan noise
+                 inside an open room reads as a pillar and pins the player in
+                 place. Clearance asks the honest question — can a shoulder-width
+                 body stand here — and answers it once, for every cell.
+
+   4. REACHABLE  Flood fill the largest region of cells that a body fits in and
+                 whose floors connect by steps rather than cliffs. That region is
+                 the world you can walk; we spawn in the middle of it, and it is
+                 what gets reported as walkable area.
+
+   The band threshold self-tunes: a cluttered room and an empty hall do not share
+   one magic number, so we try several and keep whichever opens the most ground.
+   ---------------------------------------------------------------------------- */
+let colGrid=null,collideOn=true,colDiag={ok:false,reason:'no scan loaded'};
+
+const KNEE=0.35,HEAD=1.50;   // the band that decides "you cannot walk here"
+const STEP_UP=0.38;          // a stair tread, not a wall
+const BODY_R=0.20;           // shoulder half-width a standing body needs
+const MAX_CELLS=140000;      // keeps the per-cell height histogram in sane memory
+
 function buildCollision(){
   colGrid=null;
+  colDiag={ok:false,reason:'no scan loaded'};
   if(!splat)return;
   try{
     const src=splat.packedSplats||splat.splats;
-    if(!src||!src.forEachSplat)return;
+    if(!src||!src.forEachSplat){colDiag={ok:false,reason:'splat data unreadable'};return;}
     const total=src.getNumSplats?src.getNumSplats():0;
-    if(total<3000)return;
+    if(total<3000){colDiag={ok:false,reason:'scan too sparse to stand on ('+total+' splats)'};return;}
+
     splat.updateMatrixWorld(true);
     const M=splat.matrixWorld,v=new THREE.Vector3();
     const stride=Math.max(1,Math.floor(total/240000));
-    let minx=1e9,maxx=-1e9,minz=1e9,maxz=-1e9;
+    let minx=1e9,maxx=-1e9,minz=1e9,maxz=-1e9,miny=1e9,maxy=-1e9;
     const pts=[];
     src.forEachSplat((i,center)=>{ if(i%stride)return;
+      if(cleanMask&&cleanMask[i])return;   // hidden by the cleanup: not geometry, so not a collider
       v.copy(center).applyMatrix4(M);
       pts.push(v.x,v.y,v.z);
-      if(v.x<minx)minx=v.x;if(v.x>maxx)maxx=v.x;
-      if(v.z<minz)minz=v.z;if(v.z>maxz)maxz=v.z;
+      if(v.x<minx)minx=v.x; if(v.x>maxx)maxx=v.x;
+      if(v.z<minz)minz=v.z; if(v.z>maxz)maxz=v.z;
+      if(v.y<miny)miny=v.y; if(v.y>maxy)maxy=v.y;
     });
-    if(pts.length<9000)return;
-    const cs=0.18,w=Math.min(800,Math.ceil((maxx-minx)/cs)+2),h=Math.min(800,Math.ceil((maxz-minz)/cs)+2);
-    if(w<4||h<4)return;
+    if(pts.length<9000){colDiag={ok:false,reason:'not enough geometry to build a floor'};return;}
+
+    // Cell size: fine enough for doorways, coarse enough to keep the grid small.
+    let cs=0.16;
+    let w=Math.ceil((maxx-minx)/cs)+2,h=Math.ceil((maxz-minz)/cs)+2;
+    while(w*h>MAX_CELLS){cs*=1.35;w=Math.ceil((maxx-minx)/cs)+2;h=Math.ceil((maxz-minz)/cs)+2;}
+    if(w<4||h<4){colDiag={ok:false,reason:'scan covers too little ground'};return;}
     const N=w*h;
-    const lo1=new Float32Array(N).fill(1e9),lo2=new Float32Array(N).fill(1e9),cnt=new Uint16Array(N);
+
+    // Vertical histogram per cell — a percentile without keeping every point.
+    const yspan=Math.max(0.5,maxy-miny);
+    const B=Math.max(8,Math.min(48,Math.ceil(yspan/0.10)));
+    const ybin=yspan/B;
+    const hist=new Uint16Array(N*B);
+    const cnt=new Uint32Array(N);
     const idx=(x,z)=>{const gx=((x-minx)/cs)|0,gz=((z-minz)/cs)|0;return(gx<0||gz<0||gx>=w||gz>=h)?-1:gz*w+gx;};
+
     for(let i=0;i<pts.length;i+=3){
       const ii=idx(pts[i],pts[i+2]);if(ii<0)continue;
+      let b=((pts[i+1]-miny)/ybin)|0; if(b<0)b=0; if(b>=B)b=B-1;
+      const c=hist[ii*B+b]; if(c<65535)hist[ii*B+b]=c+1;
       cnt[ii]++;
-      const y=pts[i+1];
-      if(y<lo1[ii]){if(lo1[ii]<1e8&&lo1[ii]>y+0.02)lo2[ii]=lo1[ii];lo1[ii]=y;}
-      else if(y<lo2[ii]&&y>lo1[ii]+0.02)lo2[ii]=y;
     }
+
+    // Reject haze cells before they become invisible walls. A real surface leaves
+    // a dense column of points; a floater — the wispy spike hanging in the air
+    // around the edge of a capture — leaves two or three. Those were being
+    // promoted to solid geometry, which is where "invisible collider" comes from:
+    // something blocks you, and there is nothing there to see.
+    let med=0;
+    {
+      const occ=[];for(let i=0;i<N;i++)if(cnt[i]>0)occ.push(cnt[i]);
+      occ.sort((a,b)=>a-b);med=occ.length?occ[occ.length>>1]:0;
+    }
+    const MIN_CELL=Math.max(3,Math.floor(med*0.12));
+
     const floorY=new Float32Array(N).fill(NaN);
+    let occupied=0;
     for(let i=0;i<N;i++){
-      if(cnt[i]<2)continue;
-      floorY[i]=(lo2[i]<1e8&&lo1[i]<lo2[i]-0.5)?lo2[i]:lo1[i]; // reject a lone floater far below
+      const c=cnt[i]; if(c<MIN_CELL)continue;
+      const want=Math.max(1,Math.floor(c*0.15));
+      let run=0,b=0;
+      for(;b<B;b++){run+=hist[i*B+b];if(run>=want)break;}
+      floorY[i]=miny+(Math.min(b,B-1)+0.5)*ybin;
+      occupied++;
     }
-    const wall=new Uint16Array(N);
-    for(let i=0;i<pts.length;i+=3){
-      const ii=idx(pts[i],pts[i+2]);if(ii<0)continue;
-      const f=floorY[ii];if(f!==f)continue;
-      const dy=pts[i+1]-f;
-      if(dy>0.30&&dy<1.6)wall[ii]++; // mass above knee height = wall / furniture
+    if(occupied<12){colDiag={ok:false,reason:'no continuous floor found in this scan'};return;}
+
+    const bandFrac=new Float32Array(N);
+    for(let i=0;i<N;i++){
+      const c=cnt[i]; const f=floorY[i];
+      if(c<MIN_CELL||f!==f)continue;
+      const b0=Math.max(0,Math.min(B-1,((f+KNEE-miny)/ybin)|0));
+      const b1=Math.max(0,Math.min(B-1,((f+HEAD-miny)/ybin)|0));
+      let band=0; for(let b=b0;b<=b1;b++)band+=hist[i*B+b];
+      bandFrac[i]=band/c;
     }
-    const solid=new Uint8Array(N);
-    for(let i=0;i<N;i++)if(wall[i]>=5)solid[i]=1;
-    colGrid={minx,minz,cs,w,h,solid,floorY,cnt};
-  }catch(e){colGrid=null;}
+
+    // Self-tuning: keep whichever threshold opens the most connected ground.
+    let best=null;
+    for(const thr of [0.30,0.45,0.60,0.75,0.88,0.96]){
+      const solid=new Uint8Array(N);
+      for(let i=0;i<N;i++)if(cnt[i]>=MIN_CELL&&floorY[i]===floorY[i]&&bandFrac[i]>=thr)solid[i]=1;
+      despeckle(solid,w,h);
+      const clear=clearanceCells(solid,w,h);
+      const need=BODY_R/cs;
+      const walk=new Uint8Array(N);
+      for(let i=0;i<N;i++)
+        if(!solid[i]&&cnt[i]>=MIN_CELL&&floorY[i]===floorY[i]&&clear[i]>=need)walk[i]=1;
+      const reg=largestRegion(walk,floorY,w,h);
+      if(!best||reg.cells>best.reg.cells)best={thr,solid,walk,reg};
+      if(reg.cells*cs*cs>=8&&reg.cells>=occupied*0.25)break; // enough room to explore
+    }
+
+    colGrid={minx,minz,cs,w,h,solid:best.solid,walk:best.walk,reach:best.reg.mask,floorY,cnt};
+    colDiag={ok:best.reg.cells>0,
+      cells:best.reg.cells,
+      areaM2:+(best.reg.cells*cs*cs).toFixed(1),
+      threshold:best.thr,grid:w+'x'+h,cell:+cs.toFixed(2),
+      reason:best.reg.cells>0?'ok':'this scan has no ground a person could stand on'};
+  }catch(e){colGrid=null;colDiag={ok:false,reason:'collision build failed: '+(e&&e.message||e)};}
 }
+
+/* Remove lone solid cells (scan speckle) and close one-cell holes in walls. */
+function despeckle(solid,w,h){
+  const src=solid.slice();
+  const nb=(x,z)=>{let n=0;
+    for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){
+      if(!dx&&!dz)continue;const X=x+dx,Z=z+dz;
+      if(X<0||Z<0||X>=w||Z>=h)continue;
+      if(src[Z*w+X])n++;}
+    return n;};
+  for(let z=0;z<h;z++)for(let x=0;x<w;x++){
+    const i=z*w+x,n=nb(x,z);
+    if(src[i]&&n<=1)solid[i]=0;        // an isolated speck is noise, not a wall
+    else if(!src[i]&&n>=7)solid[i]=1;  // a pinhole in a wall is not a doorway
+  }
+}
+
+/* Chamfer distance (in cells) from every cell to the nearest blocked cell.
+   Two passes, so it is O(cells) rather than a search per query. */
+function clearanceCells(solid,w,h){
+  const N=w*h,D=1,D2=1.41421356,INF=1e9,d=new Float32Array(N);
+  for(let i=0;i<N;i++)d[i]=solid[i]?0:INF;
+  for(let z=0;z<h;z++)for(let x=0;x<w;x++){
+    const i=z*w+x;let v=d[i];
+    if(x>0)v=Math.min(v,d[i-1]+D);
+    if(z>0)v=Math.min(v,d[i-w]+D);
+    if(x>0&&z>0)v=Math.min(v,d[i-w-1]+D2);
+    if(x<w-1&&z>0)v=Math.min(v,d[i-w+1]+D2);
+    d[i]=v;
+  }
+  for(let z=h-1;z>=0;z--)for(let x=w-1;x>=0;x--){
+    const i=z*w+x;let v=d[i];
+    if(x<w-1)v=Math.min(v,d[i+1]+D);
+    if(z<h-1)v=Math.min(v,d[i+w]+D);
+    if(x<w-1&&z<h-1)v=Math.min(v,d[i+w+1]+D2);
+    if(x>0&&z<h-1)v=Math.min(v,d[i+w-1]+D2);
+    d[i]=v;
+  }
+  return d;
+}
+
+/* Biggest set of body-sized cells whose floors connect by steps, not cliffs. */
+function largestRegion(walk,floorY,w,h){
+  const N=w*h,seen=new Uint8Array(N),mask=new Uint8Array(N);
+  let best=0;const stack=[];
+  for(let s=0;s<N;s++){
+    if(seen[s]||!walk[s])continue;
+    let n=0;const comp=[];stack.length=0;stack.push(s);seen[s]=1;
+    while(stack.length){
+      const i=stack.pop();comp.push(i);n++;
+      const x=i%w,z=(i/w)|0,fy=floorY[i];
+      for(const d of [[1,0],[-1,0],[0,1],[0,-1]]){
+        const X=x+d[0],Z=z+d[1];if(X<0||Z<0||X>=w||Z>=h)continue;
+        const j=Z*w+X;if(seen[j]||!walk[j])continue;
+        if(Math.abs(floorY[j]-fy)>STEP_UP)continue;   // a cliff is not a connection
+        seen[j]=1;stack.push(j);
+      }
+    }
+    if(n>best){best=n;mask.fill(0);for(const i of comp)mask[i]=1;}
+  }
+  return{mask,cells:best};
+}
+
 function cellIndex(x,z){
   if(!colGrid)return -1;
   const gx=((x-colGrid.minx)/colGrid.cs)|0,gz=((z-colGrid.minz)/colGrid.cs)|0;
@@ -306,38 +550,61 @@ function cellFloor(x,z){
   const f=colGrid.floorY[i];
   return f!==f?null:f;
 }
+/* Clearance already accounts for body width, so this is a single lookup: is the
+   target cell part of the walkable region, and is the step up to it a step. */
 function canStand(x,z,feetY){
   if(!collideOn||!colGrid)return true;
-  const r=0.2;
-  for(const o of [[0,0],[r,0],[-r,0],[0,r],[0,-r]]){
-    const i=cellIndex(x+o[0],z+o[1]);
-    if(i>=0&&colGrid.solid[i])return false;
-  }
-  const f=cellFloor(x,z);
-  if(f===null){ // beyond the captured floor: only edge-hugging allowed
-    let ok=false;const cs=colGrid.cs;
-    for(const o of [[cs,0],[-cs,0],[0,cs],[0,-cs]])if(cellFloor(x+o[0],z+o[1])!==null){ok=true;break;}
-    return ok;
-  }
-  if(f-feetY>0.38)return false; // too high to step up (stairs pass one step at a time)
+  const i=cellIndex(x,z);
+  if(i<0)return false;
+  if(colGrid.reach&&!colGrid.reach[i])return false;
+  if(!colGrid.reach&&!colGrid.walk[i])return false;
+  const f=colGrid.floorY[i];
+  if(f!==f)return false;
+  if(f-feetY>STEP_UP)return false;   // stairs are climbed one tread at a time
   return true;
 }
 function ensureSpawn(){
   if(!colGrid||!collideOn)return;
-  const f0=cellFloor(player.x,player.z);
-  if(f0!==null&&canStand(player.x,player.z,f0)){player.feetY=f0;return;}
-  let best=null,bd=1e9;
-  for(let gz=0;gz<colGrid.h;gz++)for(let gx=0;gx<colGrid.w;gx++){
-    const i=gz*colGrid.w+gx;
-    if(colGrid.solid[i]||colGrid.floorY[i]!==colGrid.floorY[i]||colGrid.cnt[i]<3)continue;
-    const x=colGrid.minx+(gx+0.5)*colGrid.cs,z=colGrid.minz+(gz+0.5)*colGrid.cs;
-    const d=(x-player.x)*(x-player.x)+(z-player.z)*(z-player.z);
-    if(d<bd){bd=d;best=[x,z,colGrid.floorY[i]];}
+  const R=colGrid.reach;
+  const here=cellIndex(player.x,player.z);
+  if(here>=0&&R&&R[here]){player.feetY=colGrid.floorY[here];return;}
+  // Land in the middle of the walkable region, not the nearest free cell — the
+  // nearest one is usually a sliver on the far side of a wall.
+  let sx=0,sz=0,n=0;
+  for(let i=0;i<colGrid.w*colGrid.h;i++){
+    if(!R||!R[i])continue;
+    sx+=colGrid.minx+((i%colGrid.w)+0.5)*colGrid.cs;
+    sz+=colGrid.minz+(((i/colGrid.w)|0)+0.5)*colGrid.cs;n++;
   }
-  if(best){player.x=best[0];player.z=best[1];player.feetY=best[2];player.vy=0;player.grounded=true;}
+  if(!n)return;
+  const cx=sx/n,cz=sz/n;
+  let bi=-1,bd=1e9;
+  for(let i=0;i<colGrid.w*colGrid.h;i++){
+    if(!R||!R[i])continue;
+    const x=colGrid.minx+((i%colGrid.w)+0.5)*colGrid.cs;
+    const z=colGrid.minz+(((i/colGrid.w)|0)+0.5)*colGrid.cs;
+    const d=(x-cx)*(x-cx)+(z-cz)*(z-cz);
+    if(d<bd){bd=d;bi=i;}
+  }
+  if(bi>=0){
+    player.x=colGrid.minx+((bi%colGrid.w)+0.5)*colGrid.cs;
+    player.z=colGrid.minz+(((bi/colGrid.w)|0)+0.5)*colGrid.cs;
+    player.feetY=colGrid.floorY[bi];player.vy=0;player.grounded=true;
+  }
 }
-window.__colInfo=()=>{if(!colGrid)return null;let s=0,fl=0;for(let i=0;i<colGrid.solid.length;i++){if(colGrid.solid[i])s++;if(colGrid.floorY[i]===colGrid.floorY[i])fl++;}return{w:colGrid.w,h:colGrid.h,solid:s,floor:fl};};
+window.__colInfo=()=>{
+  if(!colGrid)return Object.assign({built:false},colDiag);
+  let s=0,fl=0,rc=0;
+  for(let i=0;i<colGrid.solid.length;i++){
+    if(colGrid.solid[i])s++;
+    if(colGrid.floorY[i]===colGrid.floorY[i])fl++;
+    if(colGrid.reach&&colGrid.reach[i])rc++;
+  }
+  return{built:true,w:colGrid.w,h:colGrid.h,cell:colGrid.cs,solid:s,floor:fl,
+    walkable:rc,areaM2:colDiag.areaM2,threshold:colDiag.threshold};
+};
 window.__canStand=(x,z)=>{const f=cellFloor(x,z);return canStand(x,z,f===null?player.feetY:f);};
+window.__colDiag=()=>colDiag;
 
 /* ---------- player state ---------- */
 const player={x:0,y:1.6,z:2.4,yaw:0,pitch:0,eye:1.6,speed:2.6,floor:0,feetY:0,vy:0,grounded:true};
@@ -383,7 +650,7 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
       if(fromDoc.spawn&&fromDoc.spawn.pos){player.x=fromDoc.spawn.pos[0];player.z=fromDoc.spawn.pos[2];player.yaw=fromDoc.spawn.yaw||0;player.pitch=0;}
       docExtras(fromDoc);
       try{const src2=mesh.packedSplats||mesh.splats;splatCount=src2&&src2.getNumSplats?src2.getNumSplats():0;}catch(e){}
-      buildCollision();ensureSpawn();
+      cleanScan();   // hides spikes/haze/ghosts, then builds collision from what is left
       setStatus((splatCount?splatCount.toLocaleString()+' splats \u00b7 ':'')+'world restored \u00b7 drag to look \u00b7 WASD / joystick to move');
       overlay.style.display='none';
       return;
@@ -431,7 +698,8 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
   player.x=0;player.z=authored?2.2:0.01;player.yaw=0;player.pitch=0;
   orbit.target.set(0,player.floor+1,0);orbit.dist=authored?5:4;
   if(fromDoc)docExtras(fromDoc);
-  buildCollision();ensureSpawn();
+  cleanScan();   // hides spikes/haze/ghosts, then builds collision from what is left
+  if(window.__reportClean)window.__reportClean();
   setStatus((splatCount?splatCount.toLocaleString()+' splats \u00b7 ':'')+(mode==='walk'?'drag to look \u00b7 WASD / joystick to move':'drag to orbit \u00b7 pinch or scroll to zoom'));
   overlay.style.display='none';
 }
@@ -914,6 +1182,25 @@ $('#btnShare').onclick=()=>{
 };
 document.querySelectorAll('[data-rot]').forEach(b=>b.onclick=()=>{
   const [ax,deg]=b.dataset.rot.split(',');splatRoot.rotation[ax]+=Number(deg)*Math.PI/180;buildCollision();ensureSpawn();});
+$('#cleanLevel').onchange=e=>{
+  const lvl=e.target.value;
+  cleanOn=lvl!=='off';
+  $('#cleanStat').textContent='Cleaning…';
+  // let the label paint before a ~1s synchronous pass over half a million splats
+  setTimeout(()=>{cleanScan(lvl);reportClean();},16);
+};
+function reportClean(){
+  const el=$('#cleanStat');if(!el)return;
+  const cs=cleanStats,ci=(window.__colInfo?window.__colInfo():null);
+  const bits=[];
+  if(cs&&cs.error)bits.push('cleanup failed: '+cs.error);
+  else if(cs&&cs.removed)bits.push(cs.pct+'% of splats hidden');
+  else bits.push('showing every splat');
+  if(ci&&ci.built)bits.push(ci.areaM2+' m² walkable');
+  else if(ci&&ci.reason)bits.push(ci.reason);
+  el.textContent=bits.join(' · ');
+}
+window.__reportClean=reportClean;
 $('#btnCollide').onclick=()=>{collideOn=!collideOn;
   $('#btnCollide').textContent=collideOn?'On \u2014 walk it like a real space':'Off \u2014 free fly-through';
   $('#btnCollide').classList.toggle('on',collideOn);if(collideOn)ensureSpawn();};
@@ -977,6 +1264,7 @@ addEventListener('resize',()=>{renderer.setPixelRatio(Math.min(devicePixelRatio,
 /* ---------- boot ---------- */
 window.__afterLoadTest=d=>afterLoad(splat,{fromDoc:d});
 window.__player=player;window.__keys=keys;
+window.__splat=()=>splat;window.__scene=scene;
 if(Q.get('world'))openWorld(Q.get('world'),Q.get('key')||'');
 else if(Q.get('url'))loadFromUrl(Q.get('url'));
 </script>
