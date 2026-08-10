@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Cornelia">
+  <defs>
+    <linearGradient id="cnGold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C09433"/>
+      <stop offset="1" stop-color="#A67C1E"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="#FFFFFF"/>
+  <g fill="url(#cnGold)">
+    <rect x="120.0" y="230.3" width="16.0" height="51.4" rx="8.0"/>
+    <rect x="145.6" y="211.1" width="16.0" height="89.9" rx="8.0"/>
+    <rect x="171.2" y="181.1" width="16.0" height="149.8" rx="8.0"/>
+    <rect x="196.8" y="154.4" width="16.0" height="203.3" rx="8.0"/>
+    <rect x="222.4" y="189.7" width="16.0" height="132.7" rx="8.0"/>
+    <rect x="248.0" y="149.0" width="16.0" height="214.0" rx="8.0"/>
+    <rect x="273.6" y="172.5" width="16.0" height="166.9" rx="8.0"/>
+    <rect x="299.2" y="159.7" width="16.0" height="192.6" rx="8.0"/>
+    <rect x="324.8" y="197.2" width="16.0" height="117.7" rx="8.0"/>
+    <rect x="350.4" y="215.3" width="16.0" height="81.3" rx="8.0"/>
+    <rect x="376.0" y="232.5" width="16.0" height="47.1" rx="8.0"/>
+  </g>
+</svg>

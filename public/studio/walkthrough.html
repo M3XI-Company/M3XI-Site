@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>M3XI — Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Caveat:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f5f2e9;--card:#fffdf6;--ink:#161512;--mut:#5f5b50;--gold:#d0402b;--line:#161512;
+  --disp:'Archivo Black','Arial Black',sans-serif;--hand:'Caveat','Segoe Script',cursive;
+  --body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#161512;color:var(--ink);font-family:var(--body);-webkit-user-select:none;user-select:none}
+canvas{display:block}
+button,input,textarea{font-family:inherit}
+.bar{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;gap:8px;align-items:center;padding:9px 12px;background:var(--card);border-bottom:3px solid var(--line);flex-wrap:wrap}
+.logo{font-family:var(--disp);font-size:16px;letter-spacing:.02em;margin-right:6px;color:var(--ink);text-decoration:none;cursor:pointer}
+.logo em{color:var(--gold);font-style:normal}
+.logo span{color:var(--mut);font-weight:600;font-size:10.5px;margin-left:7px;letter-spacing:.22em;text-transform:uppercase;font-family:var(--body)}
+.btn{border:3px solid var(--line);background:var(--card);color:var(--ink);padding:7px 13px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:3px 3px 0 rgba(22,21,18,.85);transition:transform .07s,box-shadow .07s;text-decoration:none;display:inline-block}
+.btn:hover{transform:translate(1px,1px);box-shadow:2px 2px 0 rgba(22,21,18,.85)}
+.btn.gold{background:var(--gold);color:#fff}
+.btn.on{background:var(--ink);color:var(--paper)}
+.status{position:fixed;left:12px;bottom:12px;z-index:15;background:var(--card);border:2px solid var(--line);padding:6px 11px;font-size:12px;color:var(--mut);box-shadow:3px 3px 0 rgba(22,21,18,.55)}
+.hint{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);z-index:15;background:var(--ink);color:var(--paper);padding:8px 18px;font-size:14px;font-weight:600;display:none;box-shadow:4px 4px 0 rgba(208,64,43,.55);border:3px solid var(--ink)}
+#overlay{position:fixed;inset:0;z-index:40;background:var(--paper);background-image:radial-gradient(rgba(22,21,18,.055) 1px,transparent 1.3px);background-size:22px 22px;display:flex;align-items:flex-start;justify-content:center;text-align:center;overflow-y:auto}
+.ovScroll{position:relative;z-index:5;margin:5vh auto 70px;display:flex;flex-direction:column;align-items:center;gap:26px;width:min(960px,94vw)}
+#ovPrompt{width:100%;min-height:64px;border:2px solid var(--line);background:#fff;color:var(--ink);padding:10px;font-size:13.5px;font-family:var(--body);resize:vertical;margin-top:14px}
+#ovLibWrap{width:100%;background:var(--card);border:3px solid var(--line);box-shadow:8px 8px 0 rgba(22,21,18,.9);padding:18px;text-align:left}
+.ovLibHead{font-family:var(--disp);font-size:15px;letter-spacing:.04em;margin-bottom:12px}
+.ovLib{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+.ovLib .wc{border:2px solid var(--line);background:#fff;box-shadow:4px 4px 0 rgba(22,21,18,.8);cursor:pointer;transition:transform .07s}
+.ovLib .wc:hover{transform:translate(1px,1px)}
+.ovLib .wc .cv{height:118px;background:var(--paper);display:flex;align-items:center;justify-content:center;overflow:hidden;border-bottom:2px solid var(--line)}
+.ovLib .wc .cv img{width:100%;height:100%;object-fit:cover;display:block}
+.ovLib .wc .cv span{font-family:var(--disp);color:rgba(22,21,18,.25);font-size:18px}
+.ovLib .wc .m{padding:8px 10px;font-size:12.5px;font-weight:700;line-height:1.3}
+.ovLib .wc .by{font-weight:400;color:var(--mut);font-size:11px;margin-top:2px}
+#overlay .card{position:relative;z-index:5;max-width:470px;padding:28px;background:var(--card);border:3px solid var(--line);box-shadow:8px 8px 0 rgba(22,21,18,.9)}
+#overlay h3{margin-bottom:8px;font-family:var(--disp);letter-spacing:.02em;font-size:20px}
+#overlay p{color:var(--mut);font-size:13.5px;line-height:1.55;margin-bottom:14px}
+#overlay b{color:var(--ink)}
+.ovArt{position:fixed;inset:0;z-index:1;pointer-events:none}
+.ovArt .pp{position:absolute;border:3px solid var(--line);box-shadow:7px 7px 0 rgba(22,21,18,.85);overflow:hidden;background:var(--card)}
+.ovArt .pp img{width:100%;height:100%;object-fit:cover;display:block}
+.ovArt .pcap{position:absolute;top:-3px;left:-3px;background:var(--ink);color:var(--paper);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;z-index:2}
+.ovArt .pcap.red{background:var(--gold);color:#fff}
+.ovArt .hand{position:absolute;font-family:var(--hand);font-weight:700;font-size:24px;color:var(--gold)}
+.ovArt .tape{position:absolute;width:90px;height:24px;background:rgba(226,220,196,.9);border-left:1px dashed rgba(22,21,18,.25);border-right:1px dashed rgba(22,21,18,.25);box-shadow:0 2px 3px rgba(22,21,18,.15);z-index:3}
+.ovArt .dots{position:absolute;background-image:radial-gradient(var(--ink) 1.4px,transparent 1.7px);background-size:9px 9px;opacity:.13}
+.panel{position:fixed;right:12px;top:64px;z-index:25;width:250px;background:var(--card);border:3px solid var(--line);box-shadow:6px 6px 0 rgba(22,21,18,.85);padding:14px;display:none}
+.panel h4{font-size:13px;margin-bottom:10px;color:var(--gold);font-family:var(--disp);letter-spacing:.04em}
+.panel label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);margin:10px 0 4px;font-weight:700}
+.panel input[type=range]{width:100%;accent-color:var(--gold)}
+.rowb{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.rowb .btn{padding:6px 9px;font-size:12px}
+#hsPanel{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:30;background:var(--card);border:3px solid var(--line);box-shadow:7px 7px 0 rgba(22,21,18,.9);padding:16px;width:min(360px,92vw);display:none}
+#hsPanel input,#hsPanel textarea,#leadPanel input,#leadPanel textarea{width:100%;background:#fff;border:2px solid var(--line);color:var(--ink);padding:8px;font-size:13px;margin-bottom:8px}
+#drawer{position:fixed;left:12px;top:64px;z-index:25;width:min(300px,90vw);background:var(--card);border:3px solid var(--line);box-shadow:6px 6px 0 rgba(22,21,18,.85);padding:14px;display:none;max-height:calc(100vh - 84px);overflow:auto}
+#drawer input[type=text]{width:100%;background:#fff;border:2px solid var(--line);color:var(--ink);padding:8px;font-size:13px;margin-bottom:6px}
+#drawer textarea{width:100%;height:110px;background:#fff;border:2px solid var(--line);color:var(--mut);font-size:11px;padding:8px}
+#drawer h4{font-family:var(--disp);letter-spacing:.04em}
+#stick{position:fixed;z-index:18;width:110px;height:110px;border-radius:50%;border:2px solid rgba(22,21,18,.4);background:rgba(245,242,233,.25);display:none}
+#nub{position:absolute;left:50%;top:50%;width:46px;height:46px;border-radius:50%;background:rgba(208,64,43,.85);border:2px solid #fff;transform:translate(-50%,-50%)}
+.small{font-size:12px;color:var(--mut)}
+a{color:var(--gold)}
+#leadPanel h4,#overlay .hand{font-family:var(--disp)}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <a class="logo" href="index.html" title="M3XI Studio — home">M3<em>XI</em><span>Walkthrough</span></a>
+  <a class="btn" href="https://www.m3xi.com/" title="m3xi.com">M3XI.com</a>
+  <button class="btn gold" id="btnLoad">Load scan</button>
+  <input type="file" id="fileInput" accept=".ply,.spz,.splat,.ksplat" style="display:none">
+  <button class="btn on" id="btnWalkMode">Walk</button>
+  <button class="btn" id="btnOrbitMode">Orbit</button>
+  <button class="btn" id="btnCal">Calibrate</button>
+  <button class="btn" id="btnHs">World editor</button>
+  <button class="btn gold" id="btnPublish">Publish</button>
+  <span style="flex:1"></span>
+  <button class="btn" id="btnShare">Share</button>
+  <button class="btn" id="btnFull">Fullscreen</button>
+</div>
+
+<div class="status" id="status">No scan loaded</div>
+<div class="hint" id="hint"></div>
+
+<div class="panel" id="calPanel">
+  <h4>Calibrate scan</h4>
+  <div class="small">Scans arrive in random orientations — square it up here.</div>
+  <label>Rotate</label>
+  <div class="rowb">
+    <button class="btn" data-rot="x,90">X +90°</button>
+    <button class="btn" data-rot="x,-90">X −90°</button>
+    <button class="btn" data-rot="z,90">Z +90°</button>
+    <button class="btn" data-rot="z,-90">Z −90°</button>
+    <button class="btn" data-rot="y,90">Spin 90°</button>
+    <button class="btn" data-rot="x,180">Flip</button>
+  </div>
+  <label>Scale <span id="scaleVal" class="small">1.0×</span></label>
+  <input type="range" id="scale" min="-1" max="1" step="0.01" value="0">
+  <label>Eye height <span id="eyeVal" class="small">1.6 m</span></label>
+  <input type="range" id="eye" min="0.4" max="3" step="0.05" value="1.6">
+  <label>Walk speed <span id="spdVal" class="small">2.6</span></label>
+  <input type="range" id="spd" min="0.6" max="7" step="0.1" value="2.6">
+  <label>Solid walls</label>
+  <div class="rowb"><button class="btn on" id="btnCollide">On — walk it like a real space</button></div>
+  <div class="rowb" style="margin-top:12px"><button class="btn" id="btnRecenter">Re-centre view</button></div>
+</div>
+
+<div id="drawer">
+  <h4 style="color:var(--gold);font-size:13px;margin-bottom:6px">World</h4>
+  <input type="text" id="wName" placeholder="World name (e.g. Kings Road Showroom)">
+  <div class="rowb" style="margin:8px 0 6px"><button class="btn gold" id="btnSaveWorld">Save &amp; publish</button><button class="btn" id="btnCopyShare" style="display:none">Copy share code</button></div>
+  <div class="small" id="wStatus">Not saved yet. Saving uploads the scan, layout, assets and hotspots to M3XI and returns a share code that reopens this exact world anywhere.</div>
+  <input type="text" id="bName" placeholder="Brand name shown to visitors" style="margin-top:8px">
+  <div class="rowb" style="margin:6px 0"><input type="text" id="bCtaLabel" placeholder="CTA label (e.g. Book a viewing)" style="flex:1"><input type="color" id="bColor" value="#d0402b" style="width:44px;height:34px;padding:2px;border:2px solid var(--line);background:#fff"></div>
+  <input type="text" id="bCtaUrl" placeholder="CTA link (https://…)">
+  <input type="text" id="cName" placeholder="Creator name (shown in the Library)" style="margin-top:8px">
+  <input type="text" id="cUrl" placeholder="Creator link — portfolio or social (https://…)">
+  <textarea id="embedSnip" readonly spellcheck="false" style="display:none;margin-top:8px;height:64px"></textarea>
+  <h4 style="color:var(--gold);font-size:13px;margin:14px 0 6px">3D assets</h4>
+  <div class="small" style="margin-bottom:6px">Interactive objects inside the scan — generate GLBs in the Studio, then place them here.</div>
+  <input type="text" id="assetUrl" placeholder="GLB URL">
+  <div class="rowb" style="margin:8px 0 6px"><button class="btn" id="btnAssetUrl">Place from URL</button><button class="btn" id="btnAssetFile">Place from file</button><input type="file" id="assetFileInput" accept=".glb,.gltf" style="display:none"></div>
+  <div id="assetList" class="small"></div>
+  <h4 style="color:var(--gold);font-size:13px;margin:14px 0 6px">Hotspots</h4>
+  <div class="rowb" style="margin-bottom:8px"><button class="btn gold" id="btnDrop">Drop hotspot here</button></div>
+  <textarea id="hsJson" spellcheck="false"></textarea>
+  <div class="rowb" style="margin-top:8px"><button class="btn" id="btnApplyJson">Apply JSON</button><button class="btn" id="btnCopyJson2">Copy</button></div>
+  <div class="rowb" style="margin-top:8px"><button class="btn" id="btnExportWorld">Export world data (JSON)</button></div>
+</div>
+
+<div id="hsPanel">
+  <input type="text" id="hsTitle" placeholder="Title">
+  <textarea id="hsBody" rows="3" placeholder="What should visitors read here?"></textarea>
+  <input type="text" id="hsPrice" placeholder="Price / label (optional)">
+  <input type="text" id="hsCta" placeholder="Link URL (optional — Visit button)">
+  <div class="rowb"><button class="btn gold" id="hsSave">Save</button><a class="btn" id="hsVisit" target="_blank" rel="noopener" style="display:none">Visit</a><button class="btn" id="hsDelete">Delete</button><button class="btn" id="hsClose">Close</button></div>
+</div>
+
+<button class="btn gold" id="btnEnquire" style="position:fixed;right:14px;bottom:14px;z-index:22;display:none">Enquire</button>
+<a class="btn" id="btnLibrary" href="index.html#library" target="_blank" rel="noopener" style="position:fixed;left:14px;bottom:14px;z-index:22;display:none">M3XI Library</a>
+<a class="btn" id="btnBrandCta" target="_blank" rel="noopener" style="position:fixed;right:110px;bottom:14px;z-index:22;display:none"></a>
+<div id="leadPanel" style="position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:31;background:rgba(13,16,20,.97);border:1px solid rgba(232,193,90,.5);border-radius:14px;padding:16px;width:min(340px,92vw);display:none">
+  <h4 style="color:var(--gold);font-size:13px;margin-bottom:8px">Enquire</h4>
+  <input type="text" id="leadName" placeholder="Your name">
+  <input type="text" id="leadContact" placeholder="Email or phone">
+  <textarea id="leadMsg" rows="2" placeholder="Message (optional)"></textarea>
+  <div class="rowb"><button class="btn gold" id="leadSend">Send</button><button class="btn" id="leadClose">Close</button></div>
+  <div class="small" id="leadStatus" style="margin-top:6px"></div>
+</div>
+
+<div id="stick"><div id="nub"></div></div>
+
+<div id="overlay">
+<div class="ovArt" id="ovArt">
+  <div class="dots" style="width:170px;height:170px;left:38%;top:4%"></div>
+  <div class="dots" style="width:150px;height:150px;right:36%;bottom:5%"></div>
+  <div class="pp" style="left:2.5%;top:7%;width:24%;height:34%;transform:rotate(-2deg)"><span class="pcap">Showroom world</span><img src="https://v3b.fal.media/files/b/0aa5ae21/Wda12B32TKVOD2l6I3cGC.jpg" alt=""><div class="tape" style="top:-13px;right:26px;transform:rotate(4deg)"></div></div>
+  <div class="pp" style="left:4%;bottom:9%;width:21%;height:30%;transform:rotate(1.6deg)"><span class="pcap red">Anime theme</span><img src="https://v3b.fal.media/files/b/0aa5ae10/NOuG7If89h0Ldk5fok8QW.jpg" alt=""></div>
+  <div class="pp" style="right:3%;top:8%;width:22%;height:31%;transform:rotate(2deg)"><span class="pcap">Penthouse world</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/XomPDS-MR8YNysdErl4nm.jpg" alt=""><div class="tape" style="bottom:-13px;left:30px;transform:rotate(-5deg)"></div></div>
+  <div class="pp" style="right:4.5%;bottom:7%;width:24%;height:34%;transform:rotate(-1.7deg)"><span class="pcap">Gallery world</span><img src="https://v3b.fal.media/files/b/0aa5ae0f/P_5hymWZreaaKZH5-XX2j.jpg" alt=""></div>
+  <div class="pp" style="left:28.5%;top:-5%;width:17%;height:23%;transform:rotate(1deg)"><span class="pcap">Home world</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/-W5THKxgRSpok6zaaPFsZ.jpg" alt=""></div>
+  <div class="pp" style="right:29%;bottom:-6%;width:17%;height:24%;transform:rotate(-1.2deg)"><span class="pcap">Twilight listing</span><img src="https://v3b.fal.media/files/b/0aa5ae20/2LANjv1jCQUgpSwlujnHM.jpg" alt=""></div>
+  <div class="hand" style="left:3.5%;top:46%;transform:rotate(-3.5deg)">simulated walkthrough demos ↓</div>
+  <div class="hand" style="right:4%;top:44%;transform:rotate(2.5deg)">scan it → walk it ★</div>
+</div>
+<div class="ovScroll">
+<div class="card">
+  <h3>M3<em style="color:var(--gold);font-style:normal">XI</em> WALKTHROUGH</h3>
+  <p id="ovMsg">Real places and AI-invented worlds, walkable in the browser.<br><br>
+  <b>Have a scan?</b> Load a .spz / .ply / .splat file — the free <b>Scaniverse</b> app (iPhone &amp; Android) exports them: scan in Splat mode → Share → Export.</p>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <button class="btn gold" id="ovLoad">Load scan</button>
+    <button class="btn" id="ovDemo">Walk the demo world</button>
+  </div>
+  <div id="ovGen">
+    <textarea id="ovPrompt" placeholder="Or write a prompt and the AI builds the world — e.g. 'a sunlit Japanese bookshop, narrow aisles, paper lanterns, dust in the light'"></textarea>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px">
+      <button class="btn gold" id="ovGenBtn">Generate world</button>
+      <input type="text" id="ovCode" placeholder="Credit code (optional)" style="max-width:190px;background:#fff;border:2px solid var(--line);color:var(--ink);padding:9px 11px;font-size:13px">
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+    <input type="text" id="ovWorldCode" placeholder="World code (e.g. showroom-ab12)" style="max-width:230px;background:#fff;border:2px solid var(--line);color:var(--ink);padding:9px 11px;font-size:13px">
+    <button class="btn" id="ovOpenWorld">Open</button>
+  </div>
+  <p class="small" id="ovProg" style="margin-top:14px"></p>
+</div>
+<div id="ovLibWrap">
+  <div class="ovLibHead">THE LIBRARY <span class="small">— published with the M3XI tool · click a world to walk it</span></div>
+  <div class="ovLib" id="ovLib"></div>
+</div>
+</div>
+
+<script>
+// Visible failure if the renderer can't load (offline / very old browser)
+window.__M3IX_READY=false;
+setTimeout(()=>{ if(!window.__M3IX_READY){
+  const p=document.getElementById('ovMsg');
+  if(p) p.innerHTML='<b style="color:#e06c5c">Could not start the 3D engine.</b><br>This viewer needs an internet connection on first load (it fetches the renderer), and a browser with WebGL2. Check your connection and refresh.';
+}},9000);
+</script>
+
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
+  "@sparkjsdev/spark":"https://cdn.jsdelivr.net/npm/@sparkjsdev/spark@2.1.0/dist/spark.module.min.js"
+}}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { SparkRenderer, SplatMesh, SplatFileType } from '@sparkjsdev/spark';
+window.__M3IX_READY=true;
+
+const $=s=>document.querySelector(s);
+const status=$('#status'),hint=$('#hint'),overlay=$('#overlay'),ovProg=$('#ovProg');
+const Q=new URLSearchParams(location.search);
+const EMBED=Q.get('embed')==='1';
+
+/* ---------- renderer / scene ---------- */
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+document.body.appendChild(renderer.domElement);
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x161512);
+// lights: splats ignore them; placed GLB assets need them
+scene.add(new THREE.HemisphereLight(0xf2f4f8,0x6b6258,1.0));
+const sunL=new THREE.DirectionalLight(0xfff2df,0.85);sunL.position.set(12,20,8);scene.add(sunL);
+scene.add(new THREE.AmbientLight(0xffffff,0.35));
+const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.02,600);
+const spark=new SparkRenderer({renderer});
+scene.add(spark);
+const splatRoot=new THREE.Group();scene.add(splatRoot);
+let splat=null,splatCount=0;
+
+/* ---------- game geometry: heightfield + occupancy built from the scan (not the raw mesh) ---------- */
+let colGrid=null,collideOn=true;
+function buildCollision(){
+  colGrid=null;
+  if(!splat)return;
+  try{
+    const src=splat.packedSplats||splat.splats;
+    if(!src||!src.forEachSplat)return;
+    const total=src.getNumSplats?src.getNumSplats():0;
+    if(total<3000)return;
+    splat.updateMatrixWorld(true);
+    const M=splat.matrixWorld,v=new THREE.Vector3();
+    const stride=Math.max(1,Math.floor(total/240000));
+    let minx=1e9,maxx=-1e9,minz=1e9,maxz=-1e9;
+    const pts=[];
+    src.forEachSplat((i,center)=>{ if(i%stride)return;
+      v.copy(center).applyMatrix4(M);
+      pts.push(v.x,v.y,v.z);
+      if(v.x<minx)minx=v.x;if(v.x>maxx)maxx=v.x;
+      if(v.z<minz)minz=v.z;if(v.z>maxz)maxz=v.z;
+    });
+    if(pts.length<9000)return;
+    const cs=0.18,w=Math.min(800,Math.ceil((maxx-minx)/cs)+2),h=Math.min(800,Math.ceil((maxz-minz)/cs)+2);
+    if(w<4||h<4)return;
+    const N=w*h;
+    const lo1=new Float32Array(N).fill(1e9),lo2=new Float32Array(N).fill(1e9),cnt=new Uint16Array(N);
+    const idx=(x,z)=>{const gx=((x-minx)/cs)|0,gz=((z-minz)/cs)|0;return(gx<0||gz<0||gx>=w||gz>=h)?-1:gz*w+gx;};
+    for(let i=0;i<pts.length;i+=3){
+      const ii=idx(pts[i],pts[i+2]);if(ii<0)continue;
+      cnt[ii]++;
+      const y=pts[i+1];
+      if(y<lo1[ii]){if(lo1[ii]<1e8&&lo1[ii]>y+0.02)lo2[ii]=lo1[ii];lo1[ii]=y;}
+      else if(y<lo2[ii]&&y>lo1[ii]+0.02)lo2[ii]=y;
+    }
+    const floorY=new Float32Array(N).fill(NaN);
+    for(let i=0;i<N;i++){
+      if(cnt[i]<2)continue;
+      floorY[i]=(lo2[i]<1e8&&lo1[i]<lo2[i]-0.5)?lo2[i]:lo1[i]; // reject a lone floater far below
+    }
+    const wall=new Uint16Array(N);
+    for(let i=0;i<pts.length;i+=3){
+      const ii=idx(pts[i],pts[i+2]);if(ii<0)continue;
+      const f=floorY[ii];if(f!==f)continue;
+      const dy=pts[i+1]-f;
+      if(dy>0.30&&dy<1.6)wall[ii]++; // mass above knee height = wall / furniture
+    }
+    const solid=new Uint8Array(N);
+    for(let i=0;i<N;i++)if(wall[i]>=5)solid[i]=1;
+    colGrid={minx,minz,cs,w,h,solid,floorY,cnt};
+  }catch(e){colGrid=null;}
+}
+function cellIndex(x,z){
+  if(!colGrid)return -1;
+  const gx=((x-colGrid.minx)/colGrid.cs)|0,gz=((z-colGrid.minz)/colGrid.cs)|0;
+  if(gx<0||gz<0||gx>=colGrid.w||gz>=colGrid.h)return -1;
+  return gz*colGrid.w+gx;
+}
+function cellFloor(x,z){
+  const i=cellIndex(x,z);
+  if(i<0||!colGrid)return null;
+  const f=colGrid.floorY[i];
+  return f!==f?null:f;
+}
+function canStand(x,z,feetY){
+  if(!collideOn||!colGrid)return true;
+  const r=0.2;
+  for(const o of [[0,0],[r,0],[-r,0],[0,r],[0,-r]]){
+    const i=cellIndex(x+o[0],z+o[1]);
+    if(i>=0&&colGrid.solid[i])return false;
+  }
+  const f=cellFloor(x,z);
+  if(f===null){ // beyond the captured floor: only edge-hugging allowed
+    let ok=false;const cs=colGrid.cs;
+    for(const o of [[cs,0],[-cs,0],[0,cs],[0,-cs]])if(cellFloor(x+o[0],z+o[1])!==null){ok=true;break;}
+    return ok;
+  }
+  if(f-feetY>0.38)return false; // too high to step up (stairs pass one step at a time)
+  return true;
+}
+function ensureSpawn(){
+  if(!colGrid||!collideOn)return;
+  const f0=cellFloor(player.x,player.z);
+  if(f0!==null&&canStand(player.x,player.z,f0)){player.feetY=f0;return;}
+  let best=null,bd=1e9;
+  for(let gz=0;gz<colGrid.h;gz++)for(let gx=0;gx<colGrid.w;gx++){
+    const i=gz*colGrid.w+gx;
+    if(colGrid.solid[i]||colGrid.floorY[i]!==colGrid.floorY[i]||colGrid.cnt[i]<3)continue;
+    const x=colGrid.minx+(gx+0.5)*colGrid.cs,z=colGrid.minz+(gz+0.5)*colGrid.cs;
+    const d=(x-player.x)*(x-player.x)+(z-player.z)*(z-player.z);
+    if(d<bd){bd=d;best=[x,z,colGrid.floorY[i]];}
+  }
+  if(best){player.x=best[0];player.z=best[1];player.feetY=best[2];player.vy=0;player.grounded=true;}
+}
+window.__colInfo=()=>{if(!colGrid)return null;let s=0,fl=0;for(let i=0;i<colGrid.solid.length;i++){if(colGrid.solid[i])s++;if(colGrid.floorY[i]===colGrid.floorY[i])fl++;}return{w:colGrid.w,h:colGrid.h,solid:s,floor:fl};};
+window.__canStand=(x,z)=>{const f=cellFloor(x,z);return canStand(x,z,f===null?player.feetY:f);};
+
+/* ---------- player state ---------- */
+const player={x:0,y:1.6,z:2.4,yaw:0,pitch:0,eye:1.6,speed:2.6,floor:0,feetY:0,vy:0,grounded:true};
+let mode='walk',toastUntil=0;
+function toast(t,ms){hint.textContent=t;hint.style.display='block';toastUntil=performance.now()+(ms||1800);}
+const orbit={theta:0.6,phi:1.15,dist:5,target:new THREE.Vector3(0,1,0)};
+const keys={};
+
+/* ---------- helpers ---------- */
+function setStatus(t){status.textContent=t;}
+function clearSplat(){
+  if(splat){splatRoot.remove(splat);try{splat.dispose&&splat.dispose();}catch(e){}}
+  splat=null;splatCount=0;
+}
+function docExtras(fromDoc){
+  if(fromDoc.eye){player.eye=fromDoc.eye;$('#eye').value=fromDoc.eye;$('#eyeVal').textContent=fromDoc.eye.toFixed(2)+' m';}
+  if(fromDoc.speed){player.speed=fromDoc.speed;$('#spd').value=fromDoc.speed;$('#spdVal').textContent=fromDoc.speed.toFixed(1);}
+  hotspots=Array.isArray(fromDoc.hotspots)?fromDoc.hotspots:[];renderMarkers();
+  loadAssetsFromDoc(fromDoc.assets||[]);
+  if(fromDoc.name){$('#wName').value=fromDoc.name;}
+  if(fromDoc.creator){$('#cName').value=fromDoc.creator.name||'';$('#cUrl').value=fromDoc.creator.url||'';}
+  const br=fromDoc.branding||{};
+  if(br.name)$('#bName').value=br.name;
+  if(br.color)$('#bColor').value=br.color;
+  if(br.cta){$('#bCtaLabel').value=br.cta.label||'';$('#bCtaUrl').value=br.cta.url||'';}
+  if(window.__applyBranding)window.__applyBranding(br);
+  if(EMBED){
+    const lg=document.querySelector('.logo');
+    if(lg)lg.innerHTML=String(fromDoc.name||'World').replace(/</g,'&lt;')+(fromDoc.creator&&fromDoc.creator.name?' <span>by '+String(fromDoc.creator.name).replace(/</g,'&lt;')+'</span>':'');
+    toast(('ontouchstart' in window)?'Drag to look \u00b7 joystick to move \u00b7 tap objects':'Click to capture the mouse \u00b7 WASD move \u00b7 Space jump \u00b7 Esc releases',7000);
+  }
+}
+function afterLoad(mesh,{authored=false,fromDoc=null}={}){
+  splat=mesh;
+  const calibrated=!!(fromDoc&&fromDoc.environment&&fromDoc.environment.transform&&Array.isArray(fromDoc.environment.transform.meshPos));
+  if(fromDoc&&calibrated){ // world document restore: exact calibration, no auto-centre
+    try{
+      const t=fromDoc.environment.transform;
+      mesh.position.fromArray(t.meshPos);
+      if(t.rot)splatRoot.rotation.set(t.rot[0],t.rot[1],t.rot[2]);
+      if(t.scale){splatRoot.scale.setScalar(t.scale);$('#scale').value=Math.log10(t.scale);$('#scaleVal').textContent=t.scale.toFixed(2)+'\u00d7';}
+      player.floor=(fromDoc.environment&&fromDoc.environment.floor)||0;player.feetY=player.floor;player.vy=0;player.grounded=true;
+      if(fromDoc.spawn&&fromDoc.spawn.pos){player.x=fromDoc.spawn.pos[0];player.z=fromDoc.spawn.pos[2];player.yaw=fromDoc.spawn.yaw||0;player.pitch=0;}
+      docExtras(fromDoc);
+      try{const src2=mesh.packedSplats||mesh.splats;splatCount=src2&&src2.getNumSplats?src2.getNumSplats():0;}catch(e){}
+      buildCollision();ensureSpawn();
+      setStatus((splatCount?splatCount.toLocaleString()+' splats \u00b7 ':'')+'world restored \u00b7 drag to look \u00b7 WASD / joystick to move');
+      overlay.style.display='none';
+      return;
+    }catch(e){/* fall through to normal load */}
+  }
+  // understand the capture: sample points, find the vertical axis, flip if upside-down, centre, find the floor
+  try{
+    const xs=[],ys=[],zs=[];let cx=0,cy=0,cz=0,count=0;
+    const src=mesh.packedSplats||mesh.splats;
+    if(src&&src.forEachSplat){
+      const total=src.getNumSplats?src.getNumSplats():0;splatCount=total;
+      const stride=Math.max(1,Math.floor(total/60000));
+      src.forEachSplat((i,center)=>{ if(i%stride)return;
+        cx+=center.x;cy+=center.y;cz+=center.z;count++;
+        xs.push(center.x);ys.push(center.y);zs.push(center.z);});
+    }
+    if(count>100&&!authored){
+      cx/=count;cy/=count;cz/=count;
+      const q=(arr,p)=>{const s=[...arr].sort((m,n)=>m-n);return s[Math.floor((s.length-1)*p)]};
+      const rng=arr=>q(arr,0.97)-q(arr,0.03);
+      const rx=rng(xs),ry=rng(ys),rz=rng(zs);
+      let vert='y'; // rooms are wider than tall: the tightest axis is vertical
+      if(rz<ry*0.75&&rz<=rx)vert='z';else if(rx<ry*0.75&&rx<=rz)vert='x';
+      const vpick={x:xs,y:ys,z:zs}[vert];
+      const lo=q(vpick,0.03),hi=q(vpick,0.97),third=Math.max(0.01,(hi-lo)/3);
+      let low=0,high=0;
+      for(const vv of vpick){if(vv<lo+third)low++;else if(vv>hi-third)high++;}
+      const flipped=high>low*1.25; // the dense end is the floor \u2014 it belongs at the bottom
+      if(vert==='y')splatRoot.rotation.set(flipped?Math.PI:0,0,0);
+      else if(vert==='z')splatRoot.rotation.set(flipped?Math.PI/2:-Math.PI/2,0,0);
+      else splatRoot.rotation.set(0,0,flipped?-Math.PI/2:Math.PI/2);
+      mesh.position.set(-cx,-cy,-cz); // centre the capture at the origin
+      const mapv={y:v=>flipped?-(v-cy):(v-cy),z:v=>flipped?-(v-cz):(v-cz),x:v=>flipped?-(v-cx):(v-cx)}[vert];
+      const fy=vpick.map(mapv).sort((m,n)=>m-n);
+      player.floor=fy[Math.floor(fy.length*0.03)];
+    }else{player.floor=0;if(!authored)splatRoot.rotation.set(0,0,0);}
+  }catch(e){player.floor=0;}
+  player.feetY=player.floor;player.vy=0;player.grounded=true;
+  if(fromDoc&&splatCount>0&&splatCount<100){
+    ovProg.textContent='This world\'s scan streamed only '+splatCount+' points — the file did not load correctly. If this is your world, open your editor link and press Save & publish to repair it.';
+    overlay.style.display='flex';
+    setStatus('world data incomplete');
+    return;
+  }
+  player.x=0;player.z=authored?2.2:0.01;player.yaw=0;player.pitch=0;
+  orbit.target.set(0,player.floor+1,0);orbit.dist=authored?5:4;
+  if(fromDoc)docExtras(fromDoc);
+  buildCollision();ensureSpawn();
+  setStatus((splatCount?splatCount.toLocaleString()+' splats \u00b7 ':'')+(mode==='walk'?'drag to look \u00b7 WASD / joystick to move':'drag to orbit \u00b7 pinch or scroll to zoom'));
+  overlay.style.display='none';
+}
+let srcInfo=null; // retained environment source for saving: {kind:'bytes'|'url', bytes?, name, url?}
+function loadFromFile(file){
+  ovProg.textContent='Loading '+file.name+' …';overlay.style.display='flex';
+  file.arrayBuffer().then(buf=>{
+    clearSplat();
+    srcInfo={kind:'bytes',bytes:new Uint8Array(buf),name:file.name};
+    const mesh=new SplatMesh({fileBytes:new Uint8Array(buf),fileName:file.name,
+      onProgress:e=>{if(e.total)ovProg.textContent='Decoding '+Math.round(e.loaded/e.total*100)+'%';},
+      onLoad:m=>afterLoad(m)});
+    splatRoot.add(mesh);
+  }).catch(e=>{ovProg.textContent='Could not read that file: '+e.message;});
+}
+function loadFromUrl(url,opts){
+  ovProg.textContent='Loading scan …';overlay.style.display='flex';
+  clearSplat();
+  srcInfo={kind:'url',url,name:url.split('/').pop()||'scan'};
+  const mesh=new SplatMesh({url,
+    onProgress:e=>{if(e.total)ovProg.textContent='Loading '+Math.round(e.loaded/e.total*100)+'%';},
+    onLoad:m=>afterLoad(m,opts||{})});
+  splatRoot.add(mesh);
+}
+async function loadFromParts(parts,nameHint,opts){
+  try{
+    overlay.style.display='flex';
+    clearSplat();
+    const bufs=[];let got=0;
+    for(let i=0;i<parts.length;i++){
+      ovProg.textContent='Loading world data — part '+(i+1)+' of '+parts.length+' …';
+      const r=await fetch(parts[i]);
+      if(!r.ok)throw new Error('part '+(i+1)+' HTTP '+r.status);
+      const b=new Uint8Array(await r.arrayBuffer());bufs.push(b);got+=b.length;
+    }
+    const all=new Uint8Array(got);let o=0;for(const b of bufs){all.set(b,o);o+=b.length;}
+    const fname=String(nameHint||'scan.ply').split('/').pop().split('?')[0].replace(/\.part\d+$/,'');
+    ovProg.textContent='Decoding '+Math.round(got/1048576)+' MB …';
+    srcInfo={kind:'url',url:parts[0],name:fname,parts:parts.slice()};
+    const mesh=new SplatMesh({fileBytes:all,fileName:fname,onLoad:m=>afterLoad(m,opts||{})});
+    splatRoot.add(mesh);
+  }catch(e){ovProg.textContent='Could not load world data: '+(e&&e.message||'error');}
+}
+
+/* ---------- procedural demo room (.splat bytes generated live) ---------- */
+function demoRoom(){
+  const S=[];const push=(x,y,z,sx,sy,sz,r,g,b,a=255)=>S.push([x,y,z,sx,sy,sz,r,g,b,a]);
+  const n=(a,b)=>a+Math.random()*(b-a);
+  const W=6,D=4.2,H=2.55;
+  for(let x=-W/2;x<=W/2;x+=0.085)for(let z=-D/2;z<=D/2;z+=0.085){ // oak floor
+    const t=0.82+0.18*Math.sin(x*7.1)*Math.cos(z*3.3)+n(-0.05,0.05);
+    push(x+n(-0.02,0.02),n(0,0.012),z+n(-0.02,0.02),0.042,0.012,0.042,168*t,132*t,95*t);}
+  const wall=(fx,fz,tx,tz,nx,nz)=>{ // plaster walls
+    for(let t=0;t<=1.0001;t+=0.014)for(let y=0;y<=H;y+=0.09){
+      const x=fx+(tx-fx)*t,z=fz+(tz-fz)*t;const c=228+n(-10,8)-(y<0.12?70:0);
+      push(x+nx*n(0,0.015),y,z+nz*n(0,0.015),0.038+Math.abs(nz)*0.014,0.038,0.038+Math.abs(nx)*0.014,c,c-6,c-16);}};
+  wall(-W/2,-D/2,W/2,-D/2,0,1); wall(-W/2,D/2,-W/2,-D/2,1,0); wall(W/2,D/2,W/2,-D/2,-1,0);
+  for(let x=-1.1;x<=1.1;x+=0.05)for(let y=0.9;y<=2.1;y+=0.05) // window on back wall
+    push(x,y,-D/2+0.03,0.034,0.034,0.018,190+n(-15,15),225+n(-10,10),255);
+  const blob=(cx,cy,cz,rx,ry,rz,cnt,R,G,B,jit=0.35)=>{for(let i=0;i<cnt;i++){
+    const u=n(-1,1),v=n(-1,1),w=n(-1,1);const m=1/Math.max(1,Math.hypot(u,v,w));
+    push(cx+u*rx*m*n(0.4,1),cy+v*ry*m*n(0.4,1),cz+w*rz*m*n(0.4,1),rx*0.16,ry*0.16,rz*0.16,R+n(-R*jit,R*jit*0.5),G+n(-G*jit,G*jit*0.5),B+n(-B*jit,B*jit*0.5));}};
+  blob(-1.5,0.28,0.9,1.05,0.26,0.48,900,95,108,124); blob(-1.5,0.62,1.28,1.05,0.2,0.14,450,88,100,116); // sofa + back
+  blob(-1.5,0.1,0.15,0.85,0.02,0.55,350,74,60,48); // rug
+  blob(0.7,0.42,0.2,0.42,0.025,0.42,260,120,92,66); blob(0.7,0.2,0.2,0.05,0.2,0.05,90,90,70,52); // table
+  blob(2.2,0.65,-1.4,0.3,0.65,0.3,650,66,112,60); blob(2.2,0.16,-1.4,0.14,0.16,0.14,140,150,84,58); // plant
+  blob(1.9,1.05,1.6,0.5,1.0,0.12,420,205,196,180,0.12); // shelf unit
+  for(let i=0;i<160;i++)push(n(-2.6,2.6),H-0.06,n(-1.7,1.7),0.06,0.02,0.06,255,238,200,120); // warm ceiling glow
+  const buf=new ArrayBuffer(S.length*32);const f32=new Float32Array(buf);const u8=new Uint8Array(buf);
+  S.forEach((s,i)=>{const o=i*8,b=i*32;
+    f32[o]=s[0];f32[o+1]=s[1];f32[o+2]=s[2];f32[o+3]=s[3];f32[o+4]=s[4];f32[o+5]=s[5];
+    u8[b+24]=Math.max(0,Math.min(255,s[6]));u8[b+25]=Math.max(0,Math.min(255,s[7]));u8[b+26]=Math.max(0,Math.min(255,s[8]));u8[b+27]=s[9];
+    u8[b+28]=255;u8[b+29]=128;u8[b+30]=128;u8[b+31]=128;}); // identity rotation
+  clearSplat();splatCount=S.length;
+  srcInfo={kind:'bytes',bytes:new Uint8Array(buf),name:'demo-room.splat'};
+  const mesh=new SplatMesh({fileBytes:new Uint8Array(buf),fileType:SplatFileType.SPLAT,
+    onLoad:m=>afterLoad(m,{authored:true})});
+  splatRoot.add(mesh);
+}
+
+/* ---------- controls: look + move (mouse & touch) ---------- */
+let dragging=false,lastX=0,lastY=0,lookTouch=null,moveTouch=null,pinchD=0;
+const stickEl=$('#stick'),nub=$('#nub');let stickVec={x:0,y:0},stickBase={x:0,y:0};
+const cv=renderer.domElement;
+cv.addEventListener('mousedown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;});
+addEventListener('mouseup',()=>dragging=false);
+addEventListener('mousemove',e=>{
+  if(document.pointerLockElement===cv&&mode==='walk'){
+    player.yaw-=e.movementX*0.0022;player.pitch=Math.max(-1.4,Math.min(1.4,player.pitch-e.movementY*0.0022));
+    return;
+  }
+  if(!dragging)return;
+  if(mode==='walk'){player.yaw-=(e.clientX-lastX)*0.005;player.pitch=Math.max(-1.4,Math.min(1.4,player.pitch-(e.clientY-lastY)*0.005));}
+  else{orbit.theta-=(e.clientX-lastX)*0.006;orbit.phi=Math.max(0.15,Math.min(2.9,orbit.phi-(e.clientY-lastY)*0.006));}
+  lastX=e.clientX;lastY=e.clientY;});
+cv.addEventListener('wheel',e=>{e.preventDefault();
+  if(mode==='orbit')orbit.dist=Math.max(0.6,Math.min(40,orbit.dist*(1+e.deltaY*0.0012)));
+  else player.speed=Math.max(0.6,Math.min(7,player.speed*(1-e.deltaY*0.0008)));
+},{passive:false});
+cv.addEventListener('touchstart',e=>{
+  for(const t of e.changedTouches){
+    if(mode==='walk'&&moveTouch===null&&t.clientX<innerWidth*0.45&&t.clientY>innerHeight*0.4){
+      moveTouch=t.identifier;stickBase={x:t.clientX,y:t.clientY};
+      stickEl.style.display='block';stickEl.style.left=(t.clientX-55)+'px';stickEl.style.top=(t.clientY-55)+'px';
+    }else if(lookTouch===null){lookTouch=t.identifier;lastX=t.clientX;lastY=t.clientY;}
+  }
+  if(e.touches.length===2&&mode==='orbit'){pinchD=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);}
+  e.preventDefault();},{passive:false});
+cv.addEventListener('touchmove',e=>{
+  for(const t of e.changedTouches){
+    if(t.identifier===moveTouch){
+      const dx=t.clientX-stickBase.x,dy=t.clientY-stickBase.y,m=Math.hypot(dx,dy),cap=Math.min(m,52);
+      const ux=m?dx/m:0,uy=m?dy/m:0;stickVec={x:ux*(cap/52),y:uy*(cap/52)};
+      nub.style.left=(50+ux*cap*0.85)+'%';nub.style.top=(50+uy*cap*0.85)+'%';
+    }else if(t.identifier===lookTouch){
+      if(mode==='walk'){player.yaw-=(t.clientX-lastX)*0.006;player.pitch=Math.max(-1.4,Math.min(1.4,player.pitch-(t.clientY-lastY)*0.006));}
+      else{orbit.theta-=(t.clientX-lastX)*0.007;orbit.phi=Math.max(0.15,Math.min(2.9,orbit.phi-(t.clientY-lastY)*0.007));}
+      lastX=t.clientX;lastY=t.clientY;}
+  }
+  if(e.touches.length===2&&mode==='orbit'&&pinchD){
+    const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+    orbit.dist=Math.max(0.6,Math.min(40,orbit.dist*(pinchD/d)));pinchD=d;}
+  e.preventDefault();},{passive:false});
+function endTouch(e){for(const t of e.changedTouches){
+  if(t.identifier===moveTouch){moveTouch=null;stickVec={x:0,y:0};stickEl.style.display='none';nub.style.left='50%';nub.style.top='50%';}
+  if(t.identifier===lookTouch)lookTouch=null;}}
+cv.addEventListener('touchend',endTouch);cv.addEventListener('touchcancel',endTouch);
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();keys[k]=true;keys.shift=e.shiftKey;
+  if(k==='e')tryOpenNearHotspot();
+  if(['w','a','s','d',' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();});
+addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;keys.shift=e.shiftKey;});
+
+/* ---------- hotspots ---------- */
+let hotspots=[];const hsGroup=new THREE.Group();scene.add(hsGroup);let openIdx=-1;
+function hsTexture(){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
+  g.strokeStyle='#d0402b';g.lineWidth=10;g.beginPath();g.arc(64,64,44,0,7);g.stroke();
+  g.fillStyle='#ffffff';g.beginPath();g.arc(64,64,14,0,7);g.fill();return new THREE.CanvasTexture(c);}
+const hsTex=hsTexture();
+function renderMarkers(){
+  hsGroup.clear();
+  hotspots.forEach((h,i)=>{const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:hsTex,depthTest:false}));
+    sp.position.set(h.pos[0],h.pos[1],h.pos[2]);sp.scale.set(0.22,0.22,1);sp.userData.idx=i;hsGroup.add(sp);});
+  $('#hsJson').value=JSON.stringify(hotspots);
+}
+function dropHotspot(){
+  const dir=new THREE.Vector3(-Math.sin(player.yaw),0,-Math.cos(player.yaw));
+  const p=[player.x+dir.x*1.2,player.floor+1.15,player.z+dir.z*1.2];
+  hotspots.push({pos:p,title:'Info point '+(hotspots.length+1),body:'Describe this spot — rent, features, sizes, anything a viewer should know.'});
+  renderMarkers();openHotspot(hotspots.length-1);
+}
+/* ---------- interactive 3D assets (hybrid representation) ---------- */
+const gltfLoader=new GLTFLoader();
+const assetRoot=new THREE.Group();scene.add(assetRoot);
+let assets=[]; // {src,srcKind:'url'|'bytes',bytes?,name,title,body,price,cta,pos:[x,y,z],rotY,scale,_group}
+function loadAssetGLB(src){
+  return new Promise((res,rej)=>gltfLoader.load(src,g=>res(g.scene),undefined,rej));
+}
+async function attachAsset(a){
+  try{
+    const displaySrc=a.srcKind==='bytes'?URL.createObjectURL(new Blob([a.bytes])):a.src;
+    const g=await loadAssetGLB(displaySrc);
+    const wrap=new THREE.Group();wrap.add(g);
+    wrap.position.fromArray(a.pos);wrap.rotation.y=a.rotY||0;wrap.scale.setScalar(a.scale||1);
+    // seat on floor: shift so the model's lowest point sits at the given y
+    const bb=new THREE.Box3().setFromObject(g);
+    if(isFinite(bb.min.y))g.position.y=-bb.min.y;
+    assetRoot.add(wrap);a._group=wrap;wrap.userData.assetRef=a;
+    renderAssetList();
+  }catch(e){setStatus('Could not load 3D asset: '+(e&&e.message||'error'));}
+}
+function placeNewAsset(srcKind,srcOrBytes,name){
+  const dir=new THREE.Vector3(-Math.sin(player.yaw),0,-Math.cos(player.yaw));
+  const a={srcKind,src:srcKind==='url'?srcOrBytes:'',bytes:srcKind==='bytes'?srcOrBytes:undefined,name:name||'asset',
+    title:name||'Asset',body:'Describe this object — model, features, availability.',price:'',cta:'',
+    pos:[player.x+dir.x*2,player.floor,player.z+dir.z*2],rotY:player.yaw+Math.PI,scale:1};
+  assets.push(a);attachAsset(a);
+}
+function removeAsset(i){const a=assets[i];if(a&&a._group)assetRoot.remove(a._group);assets.splice(i,1);renderAssetList();}
+function renderAssetList(){
+  const el=$('#assetList');if(!el)return;el.innerHTML='';
+  if(!assets.length){el.textContent='No assets placed yet.';return;}
+  assets.forEach((a,i)=>{
+    const d=document.createElement('div');d.style.cssText='display:flex;gap:6px;align-items:center;margin:4px 0';
+    d.innerHTML='<span style="flex:1">'+(a.title||a.name)+'</span>'+
+      '<button class="btn" data-a="here" style="padding:3px 8px;font-size:11px">Move here</button>'+
+      '<button class="btn" data-a="edit" style="padding:3px 8px;font-size:11px">Edit</button>'+
+      '<button class="btn" data-a="del" style="padding:3px 8px;font-size:11px">✕</button>';
+    d.querySelector('[data-a=here]').onclick=()=>{const dir=new THREE.Vector3(-Math.sin(player.yaw),0,-Math.cos(player.yaw));
+      a.pos=[player.x+dir.x*2,player.floor,player.z+dir.z*2];if(a._group)a._group.position.fromArray(a.pos);};
+    d.querySelector('[data-a=edit]').onclick=()=>openAsset(i);
+    d.querySelector('[data-a=del]').onclick=()=>removeAsset(i);
+    el.appendChild(d);
+  });
+}
+function loadAssetsFromDoc(list){
+  assets.forEach(a=>{if(a._group)assetRoot.remove(a._group);});
+  assets=(list||[]).map(a=>({srcKind:'url',src:a.src,name:a.name||'asset',title:a.title||'Asset',body:a.body||'',price:a.price||'',cta:a.cta||'',pos:a.pos||[0,0,0],rotY:a.rotY||0,scale:a.scale||1}));
+  assets.forEach(a=>attachAsset(a));
+  renderAssetList();
+}
+$('#btnAssetUrl').onclick=()=>{const u=$('#assetUrl').value.trim();if(!u)return;placeNewAsset('url',u,u.split('/').pop());$('#assetUrl').value='';};
+$('#btnAssetFile').onclick=()=>$('#assetFileInput').click();
+$('#assetFileInput').onchange=async e=>{const f=e.target.files[0];if(!f)return;
+  placeNewAsset('bytes',new Uint8Array(await f.arrayBuffer()),f.name);e.target.value='';};
+
+/* ---------- info panel (hotspots + assets share it) ---------- */
+let openTarget=null; // {type:'hs'|'asset', idx}
+function fillPanel(rec){
+  $('#hsTitle').value=rec.title||'';$('#hsBody').value=rec.body||'';
+  $('#hsPrice').value=rec.price||'';$('#hsCta').value=rec.cta||'';
+  const v=$('#hsVisit');if(rec.cta){v.style.display='';v.href=rec.cta;}else v.style.display='none';
+  $('#hsPanel').style.display='block';
+}
+function openHotspot(i){openTarget={type:'hs',idx:i};openIdx=i;const h=hotspots[i];if(h)fillPanel(h);}
+function openAsset(i){openTarget={type:'asset',idx:i};const a=assets[i];if(a)fillPanel(a);}
+function currentRec(){if(!openTarget)return null;return openTarget.type==='hs'?hotspots[openTarget.idx]:assets[openTarget.idx];}
+$('#hsSave').onclick=()=>{const r=currentRec();if(!r)return;
+  r.title=$('#hsTitle').value;r.body=$('#hsBody').value;r.price=$('#hsPrice').value;r.cta=$('#hsCta').value;
+  renderMarkers();renderAssetList();$('#hsPanel').style.display='none';openTarget=null;openIdx=-1;};
+$('#hsDelete').onclick=()=>{if(!openTarget)return;
+  if(openTarget.type==='hs')hotspots.splice(openTarget.idx,1);else removeAsset(openTarget.idx);
+  renderMarkers();$('#hsPanel').style.display='none';openTarget=null;openIdx=-1;};
+$('#hsClose').onclick=()=>{$('#hsPanel').style.display='none';openTarget=null;openIdx=-1;};
+$('#btnDrop').onclick=dropHotspot;
+$('#btnExportWorld').onclick=()=>{
+  if(!colGrid){wStatus('Load a world first \u2014 the map is built from the scan.');return;}
+  const {w,h,cs,minx,minz,solid,floorY}=colGrid;
+  const seen=new Uint8Array(w*h);const regions=[];
+  const walk=i=>!solid[i]&&floorY[i]===floorY[i];
+  for(let i=0;i<w*h;i++){
+    if(seen[i]||!walk(i))continue;
+    const qq=[i];seen[i]=1;let cells=0,sy=0,bx0=1e9,bx1=-1e9,bz0=1e9,bz1=-1e9;
+    while(qq.length){
+      const c=qq.pop();cells++;sy+=floorY[c];
+      const gx=c%w,gz=(c/w)|0;
+      if(gx<bx0)bx0=gx;if(gx>bx1)bx1=gx;if(gz<bz0)bz0=gz;if(gz>bz1)bz1=gz;
+      const nb=[];
+      if(gx<w-1)nb.push(c+1);if(gx>0)nb.push(c-1);if(gz<h-1)nb.push(c+w);if(gz>0)nb.push(c-w);
+      for(const n of nb){
+        if(seen[n]||!walk(n))continue;
+        if(Math.abs(floorY[n]-floorY[c])>0.45)continue;
+        seen[n]=1;qq.push(n);
+      }
+    }
+    if(cells>25)regions.push({id:'area_'+regions.length,cells,area_m2:+(cells*cs*cs).toFixed(1),floor_y:+(sy/cells).toFixed(2),
+      bounds_m:{x:[+(minx+bx0*cs).toFixed(2),+(minx+(bx1+1)*cs).toFixed(2)],z:[+(minz+bz0*cs).toFixed(2),+(minz+(bz1+1)*cs).toFixed(2)]}});
+  }
+  regions.sort((p,r)=>r.cells-p.cells);
+  const data={world:{name:$('#wName').value||'World',unit:'m',generated_from:'gaussian-splat scan',
+    dimensions:{x_m:+(w*cs).toFixed(1),z_m:+(h*cs).toFixed(1)},
+    grid:{cell_m:cs,w,h,origin:[+minx.toFixed(2),+minz.toFixed(2)]},
+    spawn:{pos:[+player.x.toFixed(2),+player.feetY.toFixed(2),+player.z.toFixed(2)],yaw:+player.yaw.toFixed(2)},
+    walkableAreas:regions,
+    hotspots:hotspots,
+    objects:assets.map(a2=>({title:a2.title,pos:a2.pos,src:a2.src})),
+    limitations:'v1: walkable areas, floors and blockers derived from scan density; room labelling, door detection, object separation and clean structural meshes are the next pipeline phases'}};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a2=document.createElement('a');a2.href=URL.createObjectURL(blob);a2.download=(($('#wName').value||'world').replace(/\W+/g,'-').toLowerCase())+'.world.json';a2.click();
+  wStatus('World data exported \u2014 '+regions.length+' walkable area(s) mapped.');
+};
+$('#btnApplyJson').onclick=()=>{try{hotspots=JSON.parse($('#hsJson').value)||[];renderMarkers();}catch(e){alert('Invalid JSON');}};
+$('#btnCopyJson2').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText($('#hsJson').value);};
+function tryOpenNearHotspot(){
+  let best=null,bd=2.4;
+  hotspots.forEach((h,i)=>{const d=Math.hypot(h.pos[0]-player.x,h.pos[2]-player.z);if(d<bd){bd=d;best={type:'hs',idx:i};}});
+  assets.forEach((a,i)=>{const d=Math.hypot(a.pos[0]-player.x,a.pos[2]-player.z);if(d<bd){bd=d;best={type:'asset',idx:i};}});
+  if(best){best.type==='hs'?openHotspot(best.idx):openAsset(best.idx);}
+}
+const ray=new THREE.Raycaster();const tap=new THREE.Vector2();
+cv.addEventListener('click',e=>{
+  if(mode==='walk'&&!('ontouchstart' in window)&&document.pointerLockElement!==cv){try{cv.requestPointerLock();}catch(_){}}
+  const _cx=document.pointerLockElement===cv?innerWidth/2:e.clientX;
+  const _cy=document.pointerLockElement===cv?innerHeight/2:e.clientY;
+  tap.x=(_cx/innerWidth)*2-1;tap.y=-(_cy/innerHeight)*2+1;
+  ray.setFromCamera(tap,camera);
+  const ah=ray.intersectObjects(assetRoot.children,true)[0];
+  if(ah){let o=ah.object;while(o&&!o.userData.assetRef)o=o.parent;
+    if(o){const i=assets.indexOf(o.userData.assetRef);if(i>=0){openAsset(i);return;}}}
+  const hit=ray.intersectObjects(hsGroup.children)[0];
+  if(hit)openHotspot(hit.object.userData.idx);
+});
+
+/* ---------- world persistence (M3XI Worlds API) ---------- */
+const M3IX_W={
+  fn:'https://tnlcuptfldwxtxajudoq.supabase.co/functions/v1/m3ix-worlds',
+  key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRubGN1cHRmbGR3eHR4YWp1ZG9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODcxNDEsImV4cCI6MjEwMDA2MzE0MX0.mgS1gDa7qeBsTCaXmefpogg02kw7tCzn0uEYPAAuC90'
+};
+const worldState={slug:null,edit_key:null};
+async function wcall(payload){
+  const r=await fetch(M3IX_W.fn,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+M3IX_W.key,'apikey':M3IX_W.key},body:JSON.stringify(payload)});
+  const j=await r.json().catch(()=>({error:'Unreadable response'}));
+  if(!r.ok||j.error)throw new Error(j.error||('HTTP '+r.status));
+  return j;
+}
+async function uploadBytes(filename,bytes){
+  const u=await wcall({action:'upload_url',slug:worldState.slug,edit_key:worldState.edit_key,filename});
+  const put=await fetch(u.upload_url,{method:'PUT',headers:{'Content-Type':'application/octet-stream'},body:bytes});
+  if(!put.ok)throw new Error('Upload failed ('+put.status+')');
+  return u.public_url;
+}
+function wStatus(t){const el=$('#wStatus');if(el)el.textContent=t;}
+async function saveWorld(){
+  try{
+    if(!splat)return wStatus('Load a scan (or the demo room) before saving.');
+    const name=($('#wName').value.trim()||'Untitled world');
+    wStatus('Saving …');
+    if(!worldState.slug){const c=await wcall({action:'create',name});worldState.slug=c.slug;worldState.edit_key=c.edit_key;}
+    // environment file
+    let envSrc;
+    if(srcInfo&&srcInfo.kind==='bytes'){wStatus('Uploading scan ('+Math.round(srcInfo.bytes.length/1048576*10)/10+' MB) …');envSrc=await uploadBytes(srcInfo.name,srcInfo.bytes);srcInfo={kind:'url',url:envSrc,name:srcInfo.name};}
+    else if(srcInfo&&srcInfo.kind==='url')envSrc=srcInfo.url;
+    else return wStatus('Nothing to save — no environment source.');
+    // asset files
+    for(const a of assets){
+      if(a.srcKind==='bytes'&&a.bytes){wStatus('Uploading asset '+a.name+' …');a.src=await uploadBytes(a.name.endsWith('.glb')?a.name:a.name+'.glb',a.bytes);a.srcKind='url';a.bytes=undefined;}
+      if(a._group){a.pos=[a._group.position.x,a._group.position.y,a._group.position.z];a.rotY=a._group.rotation.y;a.scale=a._group.scale.x;}
+    }
+    // capture a cover image for the Library from the current view
+    let coverUrl=null;
+    try{
+      renderer.render(scene,camera);
+      const full=renderer.domElement,cw=640,ch=Math.max(1,Math.round(cw*full.height/full.width));
+      const cc=document.createElement('canvas');cc.width=cw;cc.height=ch;
+      cc.getContext('2d').drawImage(full,0,0,cw,ch);
+      const blob=await new Promise(res=>cc.toBlob(res,'image/jpeg',0.85));
+      if(blob){wStatus('Uploading cover image …');coverUrl=await uploadBytes('cover.jpg',new Uint8Array(await blob.arrayBuffer()));}
+    }catch(e){/* cover is optional */}
+    const doc={
+      name,published:true,unit:'m',
+      environment:{type:'splat',src:envSrc,floor:player.floor,
+        transform:{rot:[splatRoot.rotation.x,splatRoot.rotation.y,splatRoot.rotation.z],scale:splatRoot.scale.x,meshPos:[splat.position.x,splat.position.y,splat.position.z]}},
+      eye:player.eye,speed:player.speed,
+      spawn:{pos:[player.x,player.floor,player.z],yaw:player.yaw},
+      hotspots,
+      assets:assets.map(a=>({src:a.src,name:a.name,title:a.title,body:a.body,price:a.price,cta:a.cta,pos:a.pos,rotY:a.rotY,scale:a.scale})),
+      branding:{name:$('#bName').value.trim(),color:$('#bColor').value,cta:{label:$('#bCtaLabel').value.trim(),url:$('#bCtaUrl').value.trim()}},
+      creator:{name:$('#cName').value.trim(),url:$('#cUrl').value.trim()},
+      cover:coverUrl||undefined
+    };
+    if(srcInfo&&srcInfo.parts&&srcInfo.parts.length){doc.environment.parts=srcInfo.parts;doc.environment.file=srcInfo.name;}
+    wStatus('Publishing …');
+    await wcall({action:'save',slug:worldState.slug,edit_key:worldState.edit_key,world:doc});
+    wStatus('Published to the M3XI Library. World code: '+worldState.slug+' — open anywhere with ?world='+worldState.slug+' · Edit key (keep safe): '+worldState.edit_key);
+    const b=$('#btnCopyShare');b.style.display='';
+    b.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(worldState.slug);b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy share code',1400);};
+    const base=location.href.split('?')[0];
+    const snip=$('#embedSnip');snip.style.display='';
+    snip.value='<iframe src="'+base+'?world='+worldState.slug+'&embed=1" style="width:100%;height:620px;border:0;border-radius:12px" allow="fullscreen"></iframe>';
+  }catch(e){wStatus('Save failed: '+e.message);}
+}
+async function openWorld(slug,key){
+  try{
+    ovProg.textContent='Opening world '+slug+' …';overlay.style.display='flex';
+    const l=await wcall({action:'load',slug,edit_key:key||''});
+    worldState.slug=slug;if(l.owner&&key)worldState.edit_key=key;
+    const doc=l.world;
+    const env=doc&&doc.environment;
+    if(!env||(!env.src&&!(env.parts&&env.parts.length)))throw new Error('World has no environment');
+    if(env.parts&&env.parts.length)loadFromParts(env.parts,env.file||env.src||'scan.ply',{fromDoc:doc});
+    else loadFromUrl(env.src,{fromDoc:doc});
+  }catch(e){ovProg.textContent='Could not open world: '+e.message;}
+}
+$('#btnSaveWorld').onclick=saveWorld;
+$('#ovOpenWorld').onclick=()=>{const c=$('#ovWorldCode').value.trim();if(c)openWorld(c,'');};
+/* ---------- the demo world + prompt-to-world + library archive ---------- */
+const DEMO_WORLD='m3xi-demo-gallery-loft-zynt';
+$('#ovDemo').onclick=()=>openWorld(DEMO_WORLD,'');
+async function gcall(payload){
+  const r=await fetch(M3IX_W.fn.replace('m3ix-worlds','m3ix-generate'),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+M3IX_W.key,'apikey':M3IX_W.key},body:JSON.stringify(payload)});
+  const j=await r.json().catch(()=>({error:'Unreadable response'}));
+  if(!r.ok||j.error)throw new Error(j.error||('HTTP '+r.status));
+  return j;
+}
+async function loadOvLibrary(){
+  const grid=$('#ovLib');if(!grid)return;
+  try{
+    const j=await wcall({action:'list_published',limit:30});
+    const ws=j.worlds||[];
+    grid.innerHTML='';
+    ws.forEach(w=>{
+      const d=document.createElement('div');d.className='wc';
+      d.innerHTML=(w.cover?'<div class="cv"><img loading="lazy" alt=""></div>':'<div class="cv"><span>\u4e09X\u4e00</span></div>')+'<div class="m"><span class="nm"></span></div>';
+      if(w.cover)d.querySelector('img').src=w.cover;
+      d.querySelector('.nm').textContent=w.name||'World';
+      if(w.creator&&w.creator.name){const by=document.createElement('div');by.className='by';by.textContent='by '+w.creator.name;d.querySelector('.m').appendChild(by);}
+      d.onclick=()=>{openWorld(w.slug,'');};
+      grid.appendChild(d);
+    });
+    if(!ws.length)grid.innerHTML='<div class="small">Nothing published yet \u2014 yours can be first.</div>';
+  }catch(e){grid.innerHTML='<div class="small">The Library could not load \u2014 check your connection and refresh.</div>';}
+}
+if(!EMBED)loadOvLibrary();
+async function ovGenerate(){
+  const p=($('#ovPrompt').value||'').trim();
+  if(!p){ovProg.textContent='Describe the world first \u2014 a sentence or two is enough.';return;}
+  const code=($('#ovCode').value||'').trim().toUpperCase();
+  const btn=$('#ovGenBtn');btn.disabled=true;
+  try{
+    ovProg.textContent='Generating your world \u2014 typically 2\u20136 minutes. Keep this page open.';
+    const q=await gcall({action:'world_submit',prompt:p,model:'marble-1.1',code:code||undefined});
+    let st=null;
+    for(let i=0;i<130;i++){
+      await new Promise(x=>setTimeout(x,6000));
+      st=await gcall({action:'world_status',operation_id:q.operation_id});
+      if(st.done)break;
+      if(st.error)throw new Error('Generation failed on the provider side.');
+      ovProg.textContent='Generating \u2026 '+(Math.round((i+1)*6/6)/10)+' min elapsed';
+    }
+    if(!st||!st.done)throw new Error('Still generating \u2014 try again in a few minutes.');
+    ovProg.textContent='Importing into the Library \u2026';
+    const im=await gcall({action:'world_import',operation_id:q.operation_id});
+    ovProg.textContent='Done \u2014 opening '+(im.name||'your world')+' \u2026';
+    loadOvLibrary();
+    openWorld(im.slug,im.edit_key||'');
+  }catch(e){ovProg.textContent='\u2717 '+(e&&e.message||'Generation failed');}
+  btn.disabled=false;
+}
+$('#ovGenBtn').onclick=ovGenerate;
+window.__demoRoom=demoRoom;
+
+/* ---------- embed / visitor mode + branding + enquiries ---------- */
+function applyBranding(b){
+  b=b||{};
+  if(b.color)document.documentElement.style.setProperty('--gold',b.color);
+  if(b.name&&!EMBED){const lg=document.querySelector('.logo');if(lg)lg.innerHTML=b.name.replace(/</g,'&lt;')+' <span>walkthrough</span>';}
+  if(EMBED&&b.cta&&b.cta.url){const c=$('#btnBrandCta');c.href=b.cta.url;c.textContent=b.cta.label||'Visit website';c.style.display='';}
+}
+window.__applyBranding=applyBranding;
+if(EMBED){
+  // Visitors get the experience, not the workshop: world name, share, fullscreen — settings are the creator's.
+  ['btnLoad','btnCal','btnHs','btnPublish','btnWalkMode','btnOrbitMode','ovLoad','ovDemo','ovGen','ovLibWrap','ovArt'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  status.style.display='none';
+  const lb=document.getElementById('btnLibrary');if(lb)lb.style.display='';
+  const oc=$('#ovWorldCode');if(oc&&!Q.get('world')){$('#ovMsg').innerHTML='This experience opens from a world link.';}
+  $('#btnEnquire').style.display='';
+  ['hsTitle','hsBody','hsPrice','hsCta'].forEach(id=>{const el=document.getElementById(id);if(el)el.readOnly=true;});
+  $('#hsSave').style.display='none';$('#hsDelete').style.display='none';
+}
+$('#btnEnquire').onclick=()=>{$('#leadPanel').style.display='block';};
+$('#leadClose').onclick=()=>{$('#leadPanel').style.display='none';};
+$('#leadSend').onclick=async()=>{
+  const st=$('#leadStatus');
+  if(!worldState.slug)return st.textContent='No world loaded.';
+  if(!$('#leadContact').value.trim())return st.textContent='Add an email or phone so they can reach you.';
+  try{st.textContent='Sending …';
+    await wcall({action:'lead',slug:worldState.slug,name:$('#leadName').value,contact:$('#leadContact').value,message:$('#leadMsg').value});
+    st.textContent='Sent — thank you. They will be in touch.';
+    setTimeout(()=>{$('#leadPanel').style.display='none';st.textContent='';},1800);
+  }catch(e){st.textContent='Could not send: '+e.message;}
+};
+
+/* ---------- UI wiring ---------- */
+$('#btnLoad').onclick=()=>$('#fileInput').click();
+$('#ovLoad').onclick=()=>$('#fileInput').click();
+$('#fileInput').onchange=e=>{if(e.target.files[0])loadFromFile(e.target.files[0]);e.target.value='';};
+addEventListener('dragover',e=>e.preventDefault());
+addEventListener('drop',e=>{e.preventDefault();if(e.dataTransfer.files[0])loadFromFile(e.dataTransfer.files[0]);});
+function setMode(m){mode=m;
+  $('#btnWalkMode').classList.toggle('on',m==='walk');
+  $('#btnOrbitMode').classList.toggle('on',m==='orbit');
+  setStatus((splatCount?splatCount.toLocaleString()+' splats · ':'')+(m==='walk'?'drag to look · WASD / joystick to move':'drag to orbit · pinch or scroll to zoom'));
+}
+$('#btnWalkMode').onclick=()=>setMode('walk');
+$('#btnOrbitMode').onclick=()=>setMode('orbit');
+$('#btnCal').onclick=()=>{const p=$('#calPanel');p.style.display=p.style.display==='block'?'none':'block';};
+$('#btnHs').onclick=()=>{const d=$('#drawer');d.style.display=d.style.display==='block'?'none':'block';};
+$('#btnFull').onclick=()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();};
+$('#btnPublish').onclick=()=>{
+  const d=$('#drawer');d.style.display='block';
+  if(!splat){wStatus('Load a scan (or the demo room) first — then name it and publish.');return;}
+  if(!$('#wName').value.trim()){$('#wName').focus();wStatus('Name your world, then press Save & publish.');return;}
+  saveWorld();
+};
+$('#btnShare').onclick=()=>{
+  const slug=worldState.slug||Q.get('world');
+  const base=location.href.split('?')[0];
+  const url=slug?base+'?world='+encodeURIComponent(slug)+'&embed=1':location.href;
+  if(navigator.clipboard)navigator.clipboard.writeText(url);
+  toast(slug?'Visitor link copied':'Link copied — publish to get a world link');
+};
+document.querySelectorAll('[data-rot]').forEach(b=>b.onclick=()=>{
+  const [ax,deg]=b.dataset.rot.split(',');splatRoot.rotation[ax]+=Number(deg)*Math.PI/180;buildCollision();ensureSpawn();});
+$('#btnCollide').onclick=()=>{collideOn=!collideOn;
+  $('#btnCollide').textContent=collideOn?'On \u2014 walk it like a real space':'Off \u2014 free fly-through';
+  $('#btnCollide').classList.toggle('on',collideOn);if(collideOn)ensureSpawn();};
+$('#scale').onchange=()=>{buildCollision();ensureSpawn();};
+$('#scale').oninput=e=>{const s=Math.pow(10,Number(e.target.value));splatRoot.scale.setScalar(s);$('#scaleVal').textContent=s.toFixed(2)+'×';};
+$('#eye').oninput=e=>{player.eye=Number(e.target.value);$('#eyeVal').textContent=player.eye.toFixed(2)+' m';};
+$('#spd').oninput=e=>{player.speed=Number(e.target.value);$('#spdVal').textContent=player.speed.toFixed(1);};
+$('#btnRecenter').onclick=()=>{player.x=0;player.z=0.01;player.yaw=0;player.pitch=0;player.feetY=player.floor;player.vy=0;player.grounded=true;ensureSpawn();orbit.target.set(0,player.floor+1,0);orbit.dist=4;};
+
+/* ---------- main loop ---------- */
+let last=performance.now(),fpsE=60;
+function loop(){
+  requestAnimationFrame(loop);
+  const now=performance.now(),dt=Math.min(0.05,(now-last)/1000);last=now;
+  fpsE=fpsE*0.95+(1/Math.max(dt,1e-3))*0.05;
+  if(mode==='walk'){
+    let mx=0,mz=0;
+    if(keys.w||keys.arrowup)mz+=1; if(keys.s||keys.arrowdown)mz-=1;
+    if(keys.a||keys.arrowleft)mx-=1; if(keys.d||keys.arrowright)mx+=1;
+    mx+=stickVec.x;mz-=stickVec.y;
+    const l=Math.hypot(mx,mz);
+    if(l>0.01){mx/=Math.max(1,l);mz/=Math.max(1,l);
+      const sp=player.speed*(keys.shift?1.8:1)*dt;
+      const sin=Math.sin(player.yaw),cos=Math.cos(player.yaw);
+      const nx=player.x+(-sin*mz+cos*mx)*sp,nz=player.z+(-cos*mz-sin*mx)*sp;
+      if(canStand(nx,nz,player.feetY)){player.x=nx;player.z=nz;}
+      else if(canStand(nx,player.z,player.feetY))player.x=nx;
+      else if(canStand(player.x,nz,player.feetY))player.z=nz;}
+    // gravity, ground, steps and jumping \u2014 the player is a body, not a camera
+    const gf=collideOn?cellFloor(player.x,player.z):null;
+    const ground=(gf!==null)?gf:player.floor;
+    if(keys[' ']&&player.grounded){player.vy=4.4;player.grounded=false;}
+    if(player.grounded){
+      if(ground>player.feetY+0.005)player.feetY=Math.min(ground,player.feetY+dt*6); // climb a step
+      else if(ground<player.feetY-0.28){player.grounded=false;player.vy=0;}          // walked off an edge
+      else player.feetY+=(ground-player.feetY)*Math.min(1,dt*14);
+    }else{
+      player.vy-=9.8*dt;player.feetY+=player.vy*dt;
+      if(player.vy<=0&&player.feetY<=ground){player.feetY=ground;player.vy=0;player.grounded=true;}
+    }
+    camera.position.set(player.x,player.feetY+player.eye,player.z);
+    camera.rotation.order='YXZ';camera.rotation.y=player.yaw;camera.rotation.x=player.pitch;camera.rotation.z=0;
+    // hotspot proximity hint
+    let near=-1,nd=2.2;hotspots.forEach((h,i)=>{const d=Math.hypot(h.pos[0]-player.x,h.pos[2]-player.z);if(d<nd){nd=d;near=i;}});
+    if(near>=0&&$('#hsPanel').style.display!=='block'){hint.style.display='block';hint.textContent=(('ontouchstart' in window)?'Tap marker':'Press E')+' — '+hotspots[near].title;}
+    else if(now>toastUntil)hint.style.display='none';
+  }else{
+    camera.position.set(
+      orbit.target.x+orbit.dist*Math.sin(orbit.phi)*Math.sin(orbit.theta),
+      orbit.target.y+orbit.dist*Math.cos(orbit.phi),
+      orbit.target.z+orbit.dist*Math.sin(orbit.phi)*Math.cos(orbit.theta));
+    camera.lookAt(orbit.target);if(now>toastUntil)hint.style.display='none';
+  }
+  hsGroup.children.forEach((sp,i)=>{sp.position.y=hotspots[i]?hotspots[i].pos[1]+Math.sin(now/500+i)*0.03:sp.position.y;});
+  renderer.render(scene,camera);
+  if((now|0)%30===0)status.textContent=(splatCount?splatCount.toLocaleString()+' splats · ':'')+Math.round(fpsE)+' fps';
+}
+loop();
+addEventListener('resize',()=>{renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();});
+
+/* ---------- boot ---------- */
+window.__afterLoadTest=d=>afterLoad(splat,{fromDoc:d});
+window.__player=player;window.__keys=keys;
+if(Q.get('world'))openWorld(Q.get('world'),Q.get('key')||'');
+else if(Q.get('url'))loadFromUrl(Q.get('url'));
+</script>
+</body>
+</html>

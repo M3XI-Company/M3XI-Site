@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M3XI — UGC Product Studio</title>
+<meta name="description" content="Pick an AI creator, show your product, get UGC clips — batch-ready.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Caveat:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f5f2e9;--paper2:#e9e6da;--card:#fffdf6;--ink:#161512;--mut:#5f5b50;--red:#d0402b;--line:#161512;
+  --disp:'Archivo Black','Arial Black',sans-serif;--hand:'Caveat','Segoe Script',cursive;
+  --body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);color:var(--ink);background:var(--paper);
+  background-image:radial-gradient(rgba(22,21,18,.055) 1px,transparent 1.3px);background-size:22px 22px;
+  -webkit-font-smoothing:antialiased;line-height:1.55}
+img{display:block;max-width:100%}
+a{color:inherit}
+.panel{background:var(--card);border:3px solid var(--line);box-shadow:7px 7px 0 rgba(22,21,18,.92);position:relative}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14.5px;padding:12px 22px;border:3px solid var(--line);
+  background:var(--ink);color:var(--paper);cursor:pointer;box-shadow:5px 5px 0 rgba(22,21,18,.9);text-decoration:none;transition:transform .08s,box-shadow .08s;user-select:none}
+.btn:hover{transform:translate(2px,2px);box-shadow:3px 3px 0 rgba(22,21,18,.9)}
+.btn.red{background:var(--red);color:#fff}
+.btn.ghost{background:var(--card);color:var(--ink)}
+.btn.sm{padding:8px 14px;font-size:13px;box-shadow:4px 4px 0 rgba(22,21,18,.9)}
+.btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+.chip{display:inline-flex;align-items:center;gap:7px;border:2px solid var(--line);background:var(--card);padding:4px 11px;font-size:12px;font-weight:600}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--red)}
+.chip.pick{cursor:pointer;font-size:13px;padding:7px 14px}
+.chip.pick.sel{background:var(--red);color:#fff;border-color:var(--line)}
+.hand{font-family:var(--hand);font-weight:700;color:var(--red)}
+.sfx{font-family:var(--disp);text-transform:uppercase;line-height:.95;text-shadow:4px 4px 0 rgba(208,64,43,.28)}
+.cap{position:absolute;top:-3px;left:-3px;background:var(--ink);color:var(--paper);font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;z-index:2}
+.cap.red{background:var(--red);color:#fff}
+.stamp{position:absolute;font-family:var(--disp);font-size:11px;letter-spacing:.12em;color:var(--red);border:3px solid var(--red);padding:4px 9px;transform:rotate(-7deg);opacity:.85;background:rgba(255,253,246,.75);text-transform:uppercase}
+.wrap{max-width:1240px;margin:0 auto;padding:0 22px}
+section{padding:50px 0 60px}
+.sechead{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:10px}
+.sechead h2{font-size:clamp(26px,3.6vw,42px)}
+.sechead .note{font-size:19px;transform:rotate(-1.6deg);margin-bottom:6px}
+.subline{color:var(--mut);font-size:14.5px;max-width:640px;margin-bottom:26px}
+.small{font-size:12.5px;color:var(--mut)}
+.bar{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:3px solid var(--line)}
+.bar .in{max-width:1240px;margin:0 auto;padding:13px 22px;display:flex;align-items:center;gap:22px}
+.logo{font-family:var(--disp);font-size:19px;text-decoration:none;display:flex;align-items:baseline;gap:9px}
+.logo .jp{font-weight:600;font-size:13px;color:var(--red);font-family:var(--body)}
+.logo .st{font-size:11px;letter-spacing:.3em;color:var(--mut)}
+nav.links{display:flex;gap:4px;margin-left:auto}
+nav.links a{text-decoration:none;font-weight:600;font-size:13.5px;padding:8px 12px;border:2px solid transparent}
+nav.links a:hover,nav.links a.on{border-color:var(--line);background:var(--paper)}
+@media(max-width:920px){nav.links{display:none}}
+.avGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px}
+.av{border:3px solid var(--line);background:var(--card);box-shadow:5px 5px 0 rgba(22,21,18,.85);cursor:pointer;transition:transform .07s;position:relative}
+.av:hover{transform:translate(1px,1px)}
+.av img{width:100%;aspect-ratio:3/4;object-fit:cover}
+.av .nm{padding:7px 10px;font-weight:700;font-size:13px;border-top:3px solid var(--line);background:var(--card)}
+.av.sel{outline:4px solid var(--red);outline-offset:-2px}
+.av.sel .nm{background:var(--red);color:#fff}
+.av.sel:after{content:'YOUR FACE';position:absolute;top:8px;left:8px;background:var(--red);color:#fff;font-size:10px;font-weight:800;letter-spacing:.1em;padding:3px 8px}
+.formGrid{display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:start}
+@media(max-width:960px){.formGrid{grid-template-columns:1fr}}
+.pad{padding:24px}
+.pad h3{font-family:var(--disp);font-size:16px;letter-spacing:.03em;margin-bottom:12px}
+.field{width:100%;border:3px solid var(--line);background:#fff;padding:10px 12px;font-size:14px;font-weight:500;color:var(--ink);font-family:var(--body)}
+.field:focus{outline:3px solid rgba(208,64,43,.4)}
+label.lb{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin:14px 0 5px}
+textarea.field{resize:vertical}
+.srow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.thumbs{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.thumb{position:relative;width:70px;height:70px;border:3px solid var(--line);box-shadow:4px 4px 0 rgba(22,21,18,.85)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb button{position:absolute;top:-12px;right:-12px;width:24px;height:24px;border:2px solid var(--line);background:var(--card);font-weight:800;cursor:pointer;line-height:1}
+#log{margin-top:14px;background:var(--ink);color:#e8e4d6;font:12px/1.7 ui-monospace,Menlo,Consolas,monospace;padding:13px;height:130px;overflow:auto;white-space:pre-wrap;border:3px solid var(--line);box-shadow:6px 6px 0 rgba(208,64,43,.5)}
+#out video,#out img{width:100%;border:3px solid var(--line);box-shadow:6px 6px 0 rgba(22,21,18,.9);margin-top:12px}
+#out .empty{border:3px dashed rgba(22,21,18,.35);padding:36px 18px;text-align:center;color:var(--mut);font-size:14px}
+.roadGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:22px}
+.rc{padding:18px;padding-top:26px}
+.rc h4{font-family:var(--disp);font-size:14px;letter-spacing:.04em;margin-bottom:6px}
+.rc p{font-size:13px;color:var(--mut)}
+.price-note{font-size:12.5px;color:var(--mut);margin-top:10px}
+footer{border-top:3px solid var(--line);background:var(--card);padding:30px 0;margin-top:30px}
+footer .in{max-width:1240px;margin:0 auto;padding:0 22px;display:flex;gap:20px;flex-wrap:wrap;justify-content:space-between;font-size:13px;color:var(--mut)}
+footer a{color:var(--ink)}
+
+/* ---------- motion: reveal on scroll (opt-in, respects reduced-motion) ---------- */
+@media (prefers-reduced-motion: no-preference){
+  .rv{opacity:0;transition:opacity .8s cubic-bezier(.22,.61,.36,1),transform .8s cubic-bezier(.22,.61,.36,1)}
+  .rv.mv{transform:translateY(18px)}
+  .rv.in{opacity:1}
+  .rv.mv.in{transform:translateY(0)}
+}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="in">
+    <a class="logo" href="index.html">M3XI <span class="jp">三X一</span> <span class="st">UGC STUDIO</span></a>
+    <nav class="links">
+      <a href="index.html#work">Work</a>
+      <a href="index.html#studio">Studio</a>
+      <a href="index.html#worlds">Worlds</a>
+      <a href="index.html#library">Library</a>
+      <a href="ugc.html" class="on">UGC Studio</a>
+      <a href="index.html#plans">Credits</a>
+      <a href="https://www.m3xi.com/">M3XI</a>
+    </nav>
+    <span class="chip" id="topCredits" style="cursor:pointer" title="Credit balance — click for plans"><span class="dot"></span><b id="topCreditsN">—</b>&nbsp;credits</span>
+  </div>
+</div>
+
+<section id="pick">
+  <div class="wrap">
+    <div class="sechead"><h2 class="sfx">Pick your creator</h2><span class="note hand">this is the face of your brand ★</span></div>
+    <p class="subline">Every creator below was generated in the Studio — no real people, no licensing headaches. Click one to make them your presenter.</p>
+    <div class="avGrid" id="avGrid"></div>
+  </div>
+</section>
+
+<section id="product" style="padding-top:10px">
+  <div class="wrap">
+    <div class="sechead"><h2 class="sfx">The product</h2><span class="note hand">show it, and the AI sells it</span></div>
+    <div class="formGrid">
+      <div class="panel pad">
+        <span class="cap">Brief</span>
+        <h3>Tell the creator what to sell</h3>
+        <label class="lb">Product name</label>
+        <input class="field" id="pName" placeholder="e.g. FlowBottle — the smart water bottle">
+        <label class="lb">What kind of product?</label>
+        <div class="srow" style="margin-top:2px">
+          <span class="chip pick" data-mode="software">Software</span>
+          <span class="chip pick" data-mode="hardware">Hardware</span>
+          <span class="chip pick" data-mode="both">Both</span>
+        </div>
+        <label class="lb">Product link (optional)</label>
+        <input class="field" id="pLink" placeholder="https://…">
+        <label class="lb">Product screenshots / photos — up to 3</label>
+        <div class="srow" style="margin-top:2px">
+          <button class="btn sm ghost" id="btnShots">Attach product images</button>
+          <input type="file" id="shotInput" accept="image/*" multiple style="display:none">
+          <button class="btn sm ghost" disabled title="Coming soon">Attach demo video</button>
+          <span class="small">demo-video insert — in development</span>
+        </div>
+        <div class="thumbs" id="shotThumbs"></div>
+        <label class="lb">Script — what the creator says / does</label>
+        <textarea class="field" id="pScript" rows="3" placeholder="Hook, one killer feature, call to action — or let the AI write it."></textarea>
+        <div class="srow">
+          <button class="btn sm ghost" id="btnScript">Write the script (AI)</button>
+          <span class="small">2 credits — tuned to software / hardware / both</span>
+        </div>
+        <div class="srow" style="margin-top:18px">
+          <button class="btn red" id="btnGen">Generate UGC clip</button>
+          <button class="btn" id="btnBatch3">Batch ×3</button>
+          <button class="btn" id="btnBatch5">Batch ×5</button>
+        </div>
+        <div class="srow">
+          <input class="field" id="creditCode" placeholder="Credit code (optional — free daily allowance without one)" style="max-width:380px">
+        </div>
+        <p class="price-note">One clip = compose the shot (1) + animate (60) = <b>61 credits</b>. Batch ×3 = 183 · Batch ×5 = 305 — batches are deliberately premium: five angles of the same product, ready to test against each other. Packs in the <a href="index.html#plans">Developer Studio</a>.</p>
+      </div>
+      <div class="panel pad" style="transform:rotate(.6deg)">
+        <span class="cap red">Output</span>
+        <h3>Your clips</h3>
+        <div id="out"><div class="empty">Pick a creator, name the product, press Generate — clips land here.</div></div>
+        <div id="log">M3XI UGC Studio ready.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="road" style="padding-top:8px">
+  <div class="wrap">
+    <div class="sechead"><h2 class="sfx">The full line</h2><span class="note hand">what's being drawn next</span></div>
+    <div class="roadGrid">
+      <div class="panel rc"><span class="stamp" style="top:-12px;right:10px">in development</span><h4>Face-mask onto real footage</h4><p>Upload an existing video — the creator's AI face replaces the original, the product swaps to yours, the script re-targets. Your ad, their proven format.</p></div>
+      <div class="panel rc"><span class="stamp" style="top:-12px;right:10px">in development</span><h4>Voice sync</h4><p>The creator speaks your script out loud — cloned voice styles, lip-synced delivery.</p></div>
+      <div class="panel rc"><span class="stamp" style="top:-12px;right:10px">in development</span><h4>Auto-schedule to socials</h4><p>Connect TikTok / Instagram. Batches generate on your schedule and post themselves every few hours — the whole line runs without you clicking.</p></div>
+      <div class="panel rc"><span class="stamp" style="top:-12px;right:10px">in development</span><h4>Performance dashboard</h4><p>Clicks, activity, which video hit — charts per clip, plus the AI's own summary of what sold and why.</p></div>
+    </div>
+    <p class="price-note" style="margin-top:16px">Register interest for any of these: <a href="mailto:m3xiteam@m3xi.com?subject=UGC%20roadmap%20early%20access">m3xiteam@m3xi.com</a></p>
+  </div>
+</section>
+
+<footer><div class="in">
+  <span><b style="color:var(--ink)">M3XI</b> 三X一 UGC Product Studio</span>
+  <span><a href="index.html">Studio</a> · <a href="walkthrough.html">Walkthrough</a> · <a href="index.html#library">Library</a></span>
+</div></footer>
+<script>
+const $=s=>document.querySelector(s);const $$=s=>[...document.querySelectorAll(s)];
+const M3IX={fn:'https://tnlcuptfldwxtxajudoq.supabase.co/functions/v1/m3ix-generate',
+  key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRubGN1cHRmbGR3eHR4YWp1ZG9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODcxNDEsImV4cCI6MjEwMDA2MzE0MX0.mgS1gDa7qeBsTCaXmefpogg02kw7tCzn0uEYPAAuC90'};
+async function api(payload){
+  const r=await fetch(M3IX.fn,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+M3IX.key,'apikey':M3IX.key},body:JSON.stringify(payload)});
+  const j=await r.json().catch(()=>({error:'Unreadable response'}));
+  if(j&&j.credits_remaining!=null){const el=$('#topCreditsN');if(el)el.textContent=Number(j.credits_remaining).toLocaleString();}
+  if(!r.ok||j.error)throw new Error(j.error||('HTTP '+r.status));
+  return j;
+}
+const log=m=>{const l=$('#log');l.textContent+='\n'+m;l.scrollTop=l.scrollHeight;};
+
+/* credits chip + saved code */
+const codeEl=$('#creditCode');
+codeEl.value=localStorage.getItem('m3ix_code')||'';
+codeEl.addEventListener('input',()=>{localStorage.setItem('m3ix_code',codeEl.value.trim());});
+codeEl.addEventListener('change',refreshCredits);
+const creditCode=()=>codeEl.value.trim().toUpperCase();
+async function refreshCredits(){
+  const el=$('#topCreditsN');
+  if(!creditCode()){el.textContent='—';return;}
+  try{const b=await api({action:'balance',code:creditCode()});el.textContent=Number(b.remaining).toLocaleString();}
+  catch(e){el.textContent='—';}
+}
+$('#topCredits').onclick=()=>location.href='index.html#plans';
+refreshCredits();
+
+/* creators — generated in the Studio (no real people) */
+const CREATORS=[
+ {n:'Ava',u:'https://v3b.fal.media/files/b/0aa5bfcd/x11d8ZSCcFRPO48Yoy2xt.jpg'},
+ {n:'Maya',u:'https://v3b.fal.media/files/b/0aa5bfdf/IqP6lPhsWKukzAUHrERk8.jpg'},
+ {n:'Kenji',u:'https://v3b.fal.media/files/b/0aa5bfcd/7n5VCffu65cQxOtIErYHn.jpg'},
+ {n:'Sofia',u:'https://v3b.fal.media/files/b/0aa5bfcd/GnV9UuFxUtAjBGYAn6xAx.jpg'},
+ {n:'Leo',u:'https://v3b.fal.media/files/b/0aa5bfcd/Uk1DwNLo6Fwbrh5bgXege.jpg'},
+ {n:'Amara',u:'https://v3b.fal.media/files/b/0aa5bfcd/k81iRkBJf4feZ6p-q49jU.jpg'},
+ {n:'Marcus',u:'https://v3b.fal.media/files/b/0aa5bfdf/0bAaxK1M4jp3U_SgAs_WZ.jpg'},
+ {n:'Elin',u:'https://v3b.fal.media/files/b/0aa5bfce/uvQ87_q5O8xRF2MqaTxH7.jpg'}
+];
+let creator=null;
+const grid=$('#avGrid');
+CREATORS.forEach((c,i)=>{
+  const d=document.createElement('div');d.className='av';
+  d.innerHTML='<img loading="lazy" alt="'+c.n+'"><div class="nm">'+c.n+'</div>';
+  d.querySelector('img').src=c.u;
+  d.onclick=()=>{creator=c;$$('.av').forEach(x=>x.classList.toggle('sel',x===d));log('Creator selected: '+c.n);};
+  grid.appendChild(d);
+});
+
+/* mode chips */
+let mode='';
+$$('.chip.pick').forEach(ch=>ch.onclick=()=>{
+  mode=ch.dataset.mode;
+  $$('.chip.pick').forEach(x=>x.classList.toggle('sel',x===ch));
+});
+
+/* product screenshots */
+const shots=[];
+function renderShots(){
+  const t=$('#shotThumbs');t.innerHTML='';
+  shots.forEach((s,i)=>{
+    const d=document.createElement('div');d.className='thumb';
+    d.innerHTML='<img alt="shot"><button title="Remove">×</button>';
+    d.querySelector('img').src=s;
+    d.querySelector('button').onclick=()=>{shots.splice(i,1);renderShots();};
+    t.appendChild(d);
+  });
+}
+$('#btnShots').onclick=()=>$('#shotInput').click();
+$('#shotInput').onchange=e=>{
+  [...e.target.files].forEach(f=>{
+    if(shots.length>=3||!f.type.startsWith('image/'))return;
+    const img=new Image();
+    img.onload=()=>{
+      const mx=1280,s=Math.min(1,mx/Math.max(img.width,img.height));
+      const c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      shots.push(c.toDataURL('image/jpeg',0.9));renderShots();log('Product image attached.');
+    };
+    img.src=URL.createObjectURL(f);
+  });
+  e.target.value='';
+};
+
+/* AI script */
+$('#btnScript').onclick=async()=>{
+  const name=$('#pName').value.trim();
+  if(!name)return log('Name the product first.');
+  const b=$('#btnScript');b.classList.add('red');
+  try{
+    log('Writing the script …');
+    const sys='You write 15-second UGC ad scripts for short vertical video. Output ONLY the spoken script, 2-3 punchy sentences: hook, one concrete benefit, call to action. No hashtags, no emoji, no stage directions.';
+    const j=await api({action:'refine',system:sys,code:creditCode()||undefined,
+      prompt:'Product: '+name+(mode?' ('+mode+')':'')+($('#pLink').value?' — '+$('#pLink').value:'')+'. Audience: social media shoppers.'});
+    $('#pScript').value=String(j.output||'').trim();
+    log('Script ready — edit it if you like.');
+  }catch(e){log('Could not write the script: '+e.message);}
+  b.classList.remove('red');
+};
+
+/* generate — compose the shot, then animate it */
+const ANGLES=[
+ 'holding the product up beside their face, presenting to camera',
+ 'pointing at the product excitedly, product in the foreground',
+ 'unboxing pose, product just revealed, delighted reaction',
+ 'casual over-the-shoulder look, product held toward the lens',
+ 'both hands presenting the product like a reveal, big smile'
+];
+let running=false;
+async function makeClip(idx,total){
+  const name=$('#pName').value.trim();
+  const script=$('#pScript').value.trim();
+  const angle=ANGLES[idx%ANGLES.length];
+  log((total>1?('Clip '+(idx+1)+' of '+total+': '):'')+'composing the shot …');
+  const composePrompt='The person from the first image as a UGC creator '+angle+'. The product is '+name+
+    (mode==='software'?' — a software app; show it on a phone screen they hold.':mode==='hardware'?' — a physical product they hold.':mode==='both'?' — a physical product with its app visible on a phone.':'.')+
+    (shots.length?' Use the product exactly as shown in the other image(s).':'')+
+    ' Keep the person identical to the first image. Bright, clean, vertical social-video framing.';
+  const comp=await api({action:'image',prompt:composePrompt,image_urls:[creator.u,...shots],code:creditCode()||undefined});
+  log('Shot ready — animating (about 1–3 minutes) …');
+  const vidPrompt='UGC selfie-style video: the presenter talks to camera about '+name+
+    (script?', saying: "'+script.slice(0,180)+'"':'')+'. Natural hand gestures, subtle camera sway, authentic energy.';
+  const q=await api({action:'video_submit',prompt:vidPrompt,image_url:comp.url,code:creditCode()||undefined});
+  let st=null;
+  for(let i=0;i<80;i++){
+    await new Promise(x=>setTimeout(x,3500));
+    st=await api({action:'video_status',url:q.status_url});
+    if(st.status==='COMPLETED')break;
+    if(st.status==='FAILED'||st.status==='ERROR')throw new Error('The video provider failed on this one — you were not charged for the failed step.');
+    if(i%6===0&&i>0)log('   still rendering … ('+Math.round(i*3.5)+'s)');
+  }
+  if(!st||st.status!=='COMPLETED')throw new Error('Taking longer than usual — it may still finish; try again shortly.');
+  const resp=await api({action:'video_result',url:q.response_url});
+  const url=resp.video?.url||(resp.videos&&resp.videos[0]&&resp.videos[0].url);
+  if(!url)throw new Error('No video came back.');
+  const out=$('#out');
+  if(out.querySelector('.empty'))out.innerHTML='';
+  const wrap=document.createElement('div');
+  wrap.innerHTML='<video controls muted loop playsinline></video><div class="srow"><a class="btn sm ghost" target="_blank" rel="noopener">Open / download</a></div>';
+  wrap.querySelector('video').src=url;
+  const a=wrap.querySelector('a');a.href=url;
+  out.prepend(wrap);
+  log('Clip '+(total>1?(idx+1)+' of '+total+' ':'')+'done.');
+}
+async function generate(count){
+  if(running)return log('Already working — one batch at a time.');
+  if(!creator)return log('Pick a creator first — click one of the faces above.');
+  if(!$('#pName').value.trim())return log('Name the product.');
+  running=true;
+  const btn=count===1?$('#btnGen'):count===3?$('#btnBatch3'):$('#btnBatch5');
+  btn.classList.add('red');
+  try{
+    for(let i=0;i<count;i++)await makeClip(i,count);
+    log(count>1?'Batch finished — compare the angles and post the winner.':'Done.');
+    refreshCredits();
+  }catch(e){log('✗ '+e.message);}
+  btn.classList.remove('red');
+  running=false;
+}
+$('#btnGen').onclick=()=>generate(1);
+$('#btnBatch3').onclick=()=>generate(3);
+$('#btnBatch5').onclick=()=>generate(5);
+</script>
+
+<script>
+/* reveal-on-scroll: classes are added by JS only, so with no JS everything stays visible */
+(function(){
+  try{
+    if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    if(!('IntersectionObserver' in window))return;
+    var SEL='.sechead,.subline,.av,.panel,.rc,.roadGrid > *';
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    },{rootMargin:'0px 0px -6% 0px',threshold:0.06});
+    var n=0;
+    function scan(){
+      var els=document.querySelectorAll(SEL);
+      for(var i=0;i<els.length;i++){
+        var el=els[i];
+        if(el.dataset.rv)continue;
+        el.dataset.rv='1';
+        var t='';
+        try{t=getComputedStyle(el).transform;}catch(_){}
+        el.classList.add('rv');
+        if(!t||t==='none')el.classList.add('mv');      /* rotated panels fade only, keeping their tilt */
+        el.style.transitionDelay=((n++%5)*70)+'ms';
+        io.observe(el);
+      }
+    }
+    scan();
+    addEventListener('load',scan);
+    setTimeout(scan,800);setTimeout(scan,2400);setTimeout(scan,5000);
+    window.__reveal=scan;
+    if(location.protocol==='file:'){
+      document.querySelectorAll('a[href^="index.html"]').forEach(function(a){
+        a.setAttribute('href','../../studio/index.html'+a.getAttribute('href').slice('index.html'.length));
+      });
+    }
+  }catch(_){}
+})();
+</script>
+</body>
+</html>
