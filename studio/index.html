@@ -1031,12 +1031,34 @@ $('#btnCheckBal').onclick=()=>checkBal($('#balMsg'));
 $('#btnCheckBal2').onclick=()=>checkBal($('#balMsg2'));
 $$('[data-pack]').forEach(btn=>btn.onclick=async()=>{
   try{glog('Opening secure checkout …');
-    const r=await fetch(M3IX_BACKEND.fn.replace('m3ix-generate','m3ix-checkout'),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+M3IX_BACKEND.key,'apikey':M3IX_BACKEND.key},body:JSON.stringify({pack:btn.dataset.pack})});
+    // Send the SIGNED-IN user's token when there is one, so Stripe carries their
+    // id and the credits land on their account instead of becoming a code they
+    // have to keep. Signed out still works — it just falls back to a code.
+    let auth=M3IX_BACKEND.key,who='';
+    try{
+      const sb=window.__sb;
+      if(sb){
+        const{data:{session}}=await sb.auth.getSession();
+        if(session&&session.access_token){auth=session.access_token;who=' to your account';}
+      }
+    }catch(e){}
+    const r=await fetch(M3IX_BACKEND.fn.replace('m3ix-generate','m3ix-checkout'),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+auth,'apikey':M3IX_BACKEND.key},body:JSON.stringify({pack:btn.dataset.pack})});
     const j=await r.json();if(!r.ok||j.error)throw new Error(j.error||('HTTP '+r.status));
-    glog('Checkout opened in a new tab — your credit code appears right after payment.');
+    glog(j.to_account
+      ? 'Checkout opened in a new tab — credits are added'+who+' as soon as payment clears.'
+      : 'Checkout opened in a new tab. You are signed out, so a credit code appears after payment — sign in first and it goes straight onto your account instead.');
     window.open(j.url,'_blank');
   }catch(e){glog('✗ '+e.message);}
 });
+
+// Coming back from a successful payment: say so, and refresh the balance.
+(function(){
+  const paid=new URLSearchParams(location.search).get('paid');
+  if(!paid)return;
+  const msg=document.querySelector('#acctMsg2');
+  if(msg){msg.textContent=Number(paid).toLocaleString()+' credits added. Thank you.';}
+  setTimeout(()=>{try{window.__refreshAccount&&window.__refreshAccount();}catch(e){}},400);
+})();
 
 $('#btnGenWorld').onclick=genWorld;
 $('#btnGenImg').onclick=async()=>{
@@ -1329,6 +1351,7 @@ $('#btnRedeem')&&($('#btnRedeem').onclick=async()=>{
   say('#acctMsg2','Added. New balance: '+Number(data).toLocaleString()+' credits.');
   refreshAccount();
 });
+window.__refreshAccount=refreshAccount;
 sb.auth.onAuthStateChange(()=>refreshAccount());
 refreshAccount();
 window.__sb=sb;
