@@ -118,6 +118,11 @@ a{color:var(--gold)}
       <option value="heavy">Heavy — aggressive, for messy scans</option>
     </select>
     <div id="cleanStat" style="font-size:11px;opacity:.7;margin-top:4px">&nbsp;</div>
+    <label style="display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.75;margin:10px 0 4px">
+      Sharpness <span id="sharpVal" class="small">0.82</span>
+    </label>
+    <input type="range" id="sharp" min="0.55" max="1" step="0.01" value="0.82" style="width:100%">
+    <div style="font-size:11px;opacity:.6;margin-top:2px">Lower is crisper. Too low and surfaces open into holes.</div>
   </div>
   <div class="rowb" style="margin-top:12px"><button class="btn" id="btnRecenter">Re-centre view</button></div>
 </div>
@@ -238,7 +243,7 @@ const EMBED=Q.get('embed')==='1';
 
 /* ---------- renderer / scene ---------- */
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setPixelRatio(Math.min(devicePixelRatio*1.25,2.5));
 renderer.setSize(innerWidth,innerHeight);
 document.body.appendChild(renderer.domElement);
 const scene=new THREE.Scene();
@@ -336,23 +341,34 @@ let splat=null,splatCount=0;
 function roomScore(hist,lo,bin){
   const B=hist.length;
   let total=0;for(let i=0;i<B;i++)total+=hist[i];
-  if(total<=0)return{score:0,floorY:NaN};
+  if(total<=0)return{score:0,floorY:NaN,indoor:false};
   const at=(y)=>{const b=Math.round((y-lo)/bin);return(b<0||b>=B)?0:hist[b]/total;};
   const band=(y0,y1)=>{let s=0,n=0;for(let y=y0;y<=y1;y+=bin){s+=at(y);n++;}return n?s/n:0;};
   const peak=(y0,y1)=>{let m=0;for(let y=y0;y<=y1;y+=bin)m=Math.max(m,at(y));return m;};
-  let best={score:0,floorY:NaN};
+  let best={score:0,floorY:NaN,indoor:false};
+  let lowestSlab=NaN;
   const hiY=lo+B*bin;
   for(let b=0;b<B;b++){
     const f=lo+b*bin;
-    if(f>lo+(hiY-lo)*0.7)break;          // a floor is not in the roof space
+    if(f>lo+(hiY-lo)*0.7)break;          // a floor is not up in the roof space
     const floorD=at(f)+at(f+bin);
     if(floorD<0.004)continue;            // too sparse to be a surface
+    if(lowestSlab!==lowestSlab)lowestSlab=f;   // remember the lowest real surface
     const head=band(f+0.45,f+1.65);      // must be clear: a body stands here
     const ceil=peak(f+2.0,f+3.6);        // and a room has a lid
-    const score=floorD*(ceil+0.015)/(head+0.004);
-    if(score>best.score)best={score,floorY:f};
+    // A ROOM HAS A CEILING, and requiring one is what keeps the visitor off the
+    // roof. The old formula did the exact opposite: above a roof there is sky,
+    // sky is empty, and dividing by empty headroom made the score explode — so
+    // the roof outscored every real floor. That is precisely how the office scan
+    // opened with the visitor standing on top of the building.
+    if(ceil<Math.max(0.0015,floorD*0.10))continue;
+    const score=floorD*ceil/Math.max(head,0.0025);
+    if(score>best.score)best={score,floorY:f,indoor:true};
   }
-  return best;
+  if(best.indoor)return best;
+  // Nothing room-shaped in this scan. Stand on the LOWEST real surface — the
+  // ground — and never on the highest, which is the roof.
+  return{score:lowestSlab===lowestSlab?0.0005:0,floorY:lowestSlab,indoor:false};
 }
 /* Build a vertical histogram of a list of heights, then score it. */
 function scoreHeights(vals){
@@ -482,6 +498,40 @@ function dropToFloor(){
   player.floor=sum/n;          // typical floor height, not the lowest stray cell
   if(!isFinite(player.floor))player.floor=0;
 }
+
+/* ---------- sharpness: the blur that cleanup cannot reach ---------------------
+   Removing oversized and near-transparent splats fixes artefact blur, and on a
+   capture full of them it does a lot — 18.8% of the Gallery Loft. But it can do
+   nothing for a world whose splats are all uniformly sized: the bedroom shed
+   0.1%, because nothing in it is an outlier. That softness is not artefacts, it
+   is the splats themselves overlapping.
+
+   So shrink them. Each splat is a fuzzy ellipse, and scaling every one down
+   tightens the overlap and brings edges back. Too far and the surface breaks
+   into holes, so this is a dial rather than a switch, defaulting to a mild 0.82.
+   The change is a ratio against whatever is applied now, so moving the dial
+   never compounds and 1.0 always returns the file to exactly as it arrived.
+   ---------------------------------------------------------------------------- */
+let sharpAmt=1;
+function setSharpness(target){
+  if(!splat)return;
+  const ps=splat.packedSplats||splat.splats;
+  if(!ps||!ps.getSplat||!ps.setSplat||!ps.getNumSplats)return;
+  const n=ps.getNumSplats();if(!n)return;
+  const ratio=target/sharpAmt;
+  if(!isFinite(ratio)||Math.abs(ratio-1)<0.005)return;
+  try{
+    for(let i=0;i<n;i++){
+      const sp=ps.getSplat(i);
+      sp.scales.multiplyScalar(ratio);
+      ps.setSplat(i,sp.center,sp.scales,sp.quaternion,sp.opacity,sp.color);
+    }
+    ps.needsUpdate=true;
+    sharpAmt=target;
+  }catch(e){}
+}
+window.__setSharpness=setSharpness;
+window.__sharpness=()=>sharpAmt;
 
 /* ---------- scan cleanup: the spikes, the haze, and the invisible walls -------
    A photogrammetry scan carries three kinds of rubbish, and they are the same
@@ -1050,6 +1100,7 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
   if(fromDoc)docExtras(fromDoc);
   autoLevel();   // stand the scan the right way up BEFORE anything measures height
   cleanScan();   // hides spikes/haze/ghosts, then builds collision from what is left
+  setSharpness(Number(($('#sharp')||{}).value)||0.82);
   if(window.__reportClean)window.__reportClean();
   setStatus((splatCount?splatCount.toLocaleString()+' splats \u00b7 ':'')+(mode==='walk'?'drag to look \u00b7 WASD / joystick to move':'drag to orbit \u00b7 pinch or scroll to zoom'));
   overlay.style.display='none';
@@ -1533,6 +1584,12 @@ $('#btnShare').onclick=()=>{
 };
 document.querySelectorAll('[data-rot]').forEach(b=>b.onclick=()=>{
   const [ax,deg]=b.dataset.rot.split(',');splatRoot.rotation[ax]+=Number(deg)*Math.PI/180;buildCollision();ensureSpawn();});
+$('#sharp').oninput=e=>{$('#sharpVal').textContent=Number(e.target.value).toFixed(2);};
+$('#sharp').onchange=e=>{
+  const v=Number(e.target.value)||0.82;
+  $('#sharpVal').textContent=v.toFixed(2);
+  setTimeout(()=>setSharpness(v),16);   // let the label paint before the pass
+};
 $('#cleanLevel').onchange=e=>{
   const lvl=e.target.value;
   cleanOn=lvl!=='off';
