@@ -356,9 +356,11 @@ footer a{color:var(--ink)}
         <textarea id="genPrompt" placeholder="A bright Scandinavian penthouse living room at golden hour, floor-to-ceiling windows, cinematic photoreal…"></textarea>
         <div class="thumbs" id="thumbs"></div>
         <div class="srow">
-          <button class="btn sm ghost" id="btnAttach">Attach images</button>
+          <button class="btn sm ghost" id="btnAttach">Attach files</button>
+          <button class="btn sm ghost" id="btnAttachFolder">Attach a folder</button>
           <input type="file" id="attachInput" accept="image/*" multiple style="display:none">
-          <span class="small">Or drag them straight onto the page — up to 4. The first steers image &amp; video, and is the base for 3D assets.</span>
+          <input type="file" id="attachDirInput" webkitdirectory directory multiple style="display:none">
+          <span class="small">Or drag files or a whole folder onto the page — up to 4 photos are used. The first steers image &amp; video, and is the base for 3D assets.</span>
         </div>
 
         <!-- Composer: say what you want, press Enter. The engine is chosen from
@@ -804,7 +806,59 @@ function addFiles(files){
   });
 }
 $('#btnAttach').onclick=()=>$('#attachInput').click();
-$('#attachInput').onchange=e=>{addFiles(e.target.files);e.target.value='';};
+$('#attachInput').onchange=e=>{takeFiles(e.target.files);e.target.value='';};
+$('#btnAttachFolder').onclick=()=>$('#attachDirInput').click();
+$('#attachDirInput').onchange=e=>{takeFiles(e.target.files);e.target.value='';};
+
+/* A folder of photos is the natural way to hand over a place — it is what a
+   phone gives you after shooting a room. Sort so the pick is predictable rather
+   than filesystem order, and say plainly what happened to the rest. Scan files
+   (.ply and friends) are not generation inputs; they belong to the World Viewer,
+   so name that instead of silently ignoring them. */
+const SCAN_EXT=/\.(ply|splat|spz|ksplat|sog)$/i;
+function takeFiles(list){
+  const all=[...list];
+  if(!all.length)return;
+  const imgs=all.filter(f=>f.type.startsWith('image/'))
+                .sort((a,b)=>(a.webkitRelativePath||a.name).localeCompare(b.webkitRelativePath||b.name,undefined,{numeric:true}));
+  const scans=all.filter(f=>SCAN_EXT.test(f.name));
+  if(imgs.length){
+    const room=Math.max(0,4-attachments.length);
+    if(!room)glog('✗ Already holding 4 photos — remove one to add another.');
+    else{
+      addFiles(imgs.slice(0,room));
+      if(imgs.length>room)glog('  '+imgs.length+' images found; using the first '+room+'.');
+    }
+  }
+  if(scans.length){
+    glog('ℹ '+scans.length+' scan file'+(scans.length>1?'s':'')+' ('+scans[0].name+') — scans are published through the World Viewer, not generated here. Open it from “Walk a world” and drop the file there.');
+  }
+  if(!imgs.length&&!scans.length)glog('✗ Nothing usable in that drop — photos (jpg/png) or a folder of them.');
+}
+
+/* Dropping a FOLDER gives directory entries rather than files, so walk them. */
+async function filesFromDataTransfer(dt){
+  const items=[...(dt.items||[])];
+  const canWalk=items.length&&typeof items[0].webkitGetAsEntry==='function';
+  if(!canWalk)return [...(dt.files||[])];
+  const out=[];
+  const readDir=entry=>new Promise(res=>{
+    const rd=entry.createReader();const acc=[];
+    const step=()=>rd.readEntries(es=>{if(!es.length)return res(acc);acc.push(...es);step();},()=>res(acc));
+    step();
+  });
+  const visit=async(entry,depth)=>{
+    if(!entry||depth>4)return;
+    if(entry.isFile){
+      await new Promise(res=>entry.file(f=>{out.push(f);res();},res));
+    }else if(entry.isDirectory){
+      for(const e of await readDir(entry))await visit(e,depth+1);
+    }
+  };
+  const roots=items.map(i=>i.webkitGetAsEntry&&i.webkitGetAsEntry()).filter(Boolean);
+  for(const r of roots)await visit(r,0);
+  return out.length?out:[...(dt.files||[])];
+}
 
 /* ---------- composer: one prompt, the engine picked from what you wrote -------
    The four buttons are still there for anyone who wants them, but the primary
@@ -870,20 +924,18 @@ $('#genPrompt').addEventListener('keydown',e=>{
 (function dropAnywhere(){
   const veil=document.createElement('div');
   veil.id='dropVeil';
-  veil.innerHTML='<div class="card"><h3>Drop to attach</h3><p>Up to 4 images — they become the reference for what you make next.</p></div>';
+  veil.innerHTML='<div class="card"><h3>Drop to attach</h3><p>Photos or a whole folder of them — the first four become the reference for what you make next.</p></div>';
   document.body.appendChild(veil);
   let depth=0;
   const hasFiles=e=>e.dataTransfer&&[...(e.dataTransfer.types||[])].includes('Files');
   addEventListener('dragenter',e=>{if(!hasFiles(e))return;e.preventDefault();depth++;veil.classList.add('on');});
   addEventListener('dragover',e=>{if(hasFiles(e))e.preventDefault();});
   addEventListener('dragleave',e=>{if(!hasFiles(e))return;depth=Math.max(0,depth-1);if(!depth)veil.classList.remove('on');});
-  addEventListener('drop',e=>{
+  addEventListener('drop',async e=>{
     if(!hasFiles(e))return;
     e.preventDefault();depth=0;veil.classList.remove('on');
-    const files=[...(e.dataTransfer.files||[])];
-    const imgs=files.filter(f=>f.type.startsWith('image/'));
-    if(!imgs.length){glog('✗ Only images can be attached here. For a scan file, use the World Viewer.');return;}
-    addFiles(imgs);
+    const files=await filesFromDataTransfer(e.dataTransfer);
+    takeFiles(files);
     const box=$('#genPrompt');if(box)box.focus();
   });
   addEventListener('paste',e=>{

@@ -415,6 +415,18 @@ function cleanScan(level){
       const M=Math.max(Math.abs(s.x),Math.abs(s.y),Math.abs(s.z));
       if(M>BIG||o<p.haze){mask[i]=Math.max(1,Math.round(o*255));removed++;}
     });
+    // Safety cap. Cleanup decides what to hide from statistics of the scan
+    // itself, and a file with unusual scale or opacity encoding could satisfy
+    // those rules almost everywhere — which would hide the world and leave a
+    // black screen that looks exactly like a crash. Past 45% we are no longer
+    // trimming artefacts, we are deleting the scan, so we stand down.
+    const CAP=Math.floor(n*0.45);
+    if(removed>CAP){
+      cleanStats={removed:0,pct:0,skipped:true,
+        wouldHave:+(100*removed/n).toFixed(1),level:cleanLevel};
+      buildCollision();dropToFloor();ensureSpawn(true);
+      return;
+    }
     for(let i=0;i<n;i++){
       if(!mask[i])continue;
       const s=ps.getSplat(i);
@@ -821,6 +833,18 @@ function docExtras(fromDoc){
 }
 function afterLoad(mesh,{authored=false,fromDoc=null}={}){
   splat=mesh;
+  // A world with almost no splats renders as a black screen, which is
+  // indistinguishable from a crash. Name it instead.
+  try{
+    const _s=mesh.packedSplats||mesh.splats;
+    const _n=_s&&_s.getNumSplats?_s.getNumSplats():0;
+    if(_n<500){
+      overlay.style.display='flex';
+      ovProg.textContent='This world is empty — it holds '+_n+' splat'+(_n===1?'':'s')+
+        ', so there is nothing to render. It was most likely published as a test.';
+      return;
+    }
+  }catch(e){}
   const calibrated=!!(fromDoc&&fromDoc.environment&&fromDoc.environment.transform&&Array.isArray(fromDoc.environment.transform.meshPos));
   if(fromDoc&&calibrated){ // world document restore: exact calibration, no auto-centre
     try{
@@ -1377,6 +1401,7 @@ function reportClean(){
   const cs=cleanStats,ci=(window.__colInfo?window.__colInfo():null);
   const bits=[];
   if(cs&&cs.error)bits.push('cleanup failed: '+cs.error);
+  else if(cs&&cs.skipped)bits.push('cleanup stood down — it would have hidden '+cs.wouldHave+'% of this scan');
   else if(cs&&cs.removed)bits.push(cs.pct+'% of splats hidden');
   else bits.push('showing every splat');
   const al=window.__autoLevel&&window.__autoLevel();
