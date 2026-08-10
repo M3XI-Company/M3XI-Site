@@ -27,6 +27,13 @@ dist-ssr
 .env
 *.local
 
+# Leftovers from an interrupted git operation — 42 loose temp objects, not work.
+_prev/
+
+# Supabase CLI local state (which project this machine is linked to). Belongs to
+# the machine, not the repo.
+supabase/.temp/
+
 # Private ops panel. This repo is PUBLIC and deploys to m3xi.com, so committing
 # panel/ would publish the subscription/credit status of every service — which
 # is a map of what is unfinished and unpaid across the whole stack. It holds no
