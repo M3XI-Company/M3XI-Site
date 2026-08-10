@@ -91,13 +91,33 @@ a{color:var(--gold)}
 
 <div class="panel" id="calPanel">
   <h4>Calibrate scan</h4>
-  <div class="small">Scans arrive in random orientations — square it up here.</div>
-  <label>Rotate</label>
+  <div class="small">Room on its side, or walls you can walk through? Both come from the same thing — which way is up. Try each until the numbers below jump.</div>
+
+  <label>Which way is up?</label>
   <div class="rowb">
-    <button class="btn" data-rot="x,90">X +90°</button>
-    <button class="btn" data-rot="x,-90">X −90°</button>
-    <button class="btn" data-rot="z,90">Z +90°</button>
-    <button class="btn" data-rot="z,-90">Z −90°</button>
+    <button class="btn on" data-up="y,1">Upright</button>
+    <button class="btn" data-up="z,1">Tip forward</button>
+    <button class="btn" data-up="z,-1">Tip back</button>
+    <button class="btn" data-up="x,1">Roll left</button>
+    <button class="btn" data-up="x,-1">Roll right</button>
+    <button class="btn" data-up="y,-1">Upside down</button>
+  </div>
+  <div id="fixStat" style="font-size:11px;opacity:.75;margin-top:6px">&nbsp;</div>
+
+  <label style="margin-top:12px">Walls <span id="wallSenseVal" class="small">auto</span></label>
+  <input type="range" id="wallSense" min="0.2" max="0.96" step="0.02" value="0.6">
+  <div class="small" style="opacity:.7">Left finds more walls, right finds fewer. If you walk through walls, drag left.</div>
+  <div class="rowb" style="margin-top:8px">
+    <button class="btn" id="btnWallAuto">Back to auto</button>
+  </div>
+
+  <div class="rowb" style="margin-top:12px">
+    <button class="btn" id="btnSaveFix">Keep this fix</button>
+  </div>
+  <div id="fixSaveMsg" style="font-size:11px;opacity:.75;margin-top:5px">&nbsp;</div>
+
+  <label style="margin-top:14px">Fine rotate</label>
+  <div class="rowb">
     <button class="btn" data-rot="y,90">Spin 90°</button>
     <button class="btn" data-rot="x,180">Flip</button>
   </div>
@@ -672,6 +692,12 @@ function buildCollision(){
     const total=src.getNumSplats?src.getNumSplats():0;
     if(total<3000){colDiag={ok:false,reason:'scan too sparse to stand on ('+total+' splats)'};return;}
 
+    // Update from the GROUP down, not the mesh. updateMatrixWorld on the child
+    // composes with whatever the parent's matrix currently holds, and rotating
+    // splatRoot does not refresh that until the next render — so a rebuild
+    // triggered straight after a rotation was silently measuring the OLD
+    // orientation. Every "which way is up" option returned identical numbers.
+    splatRoot.updateMatrixWorld(true);
     splat.updateMatrixWorld(true);
     const M=splat.matrixWorld,v=new THREE.Vector3();
     const stride=Math.max(1,Math.floor(total/240000));
@@ -767,7 +793,11 @@ function buildCollision(){
 
     // Self-tuning: keep whichever threshold opens the most connected ground.
     let best=null;
-    for(const thr of [0.30,0.45,0.60,0.75,0.88,0.96]){
+    // When the visitor has taken over the wall dial we use exactly their value
+    // and stop guessing; self-tuning that overrides a person's explicit choice
+    // is just the bug again with extra steps.
+    const LADDER=(wallThreshold!=null)?[Number(wallThreshold)]:[0.30,0.45,0.60,0.75,0.88,0.96];
+    for(const thr of LADDER){
       const solid=new Uint8Array(N);
       for(let i=0;i<N;i++)if(cnt[i]>=MIN_CELL&&floorY[i]===floorY[i]&&bandFrac[i]>=thr)solid[i]=1;
       despeckle(solid,w,h);
@@ -783,10 +813,22 @@ function buildCollision(){
       // cells and a 99.7 m2 field you could drift straight through. A room has
       // structure, so a candidate with no structure cannot win.
       const hasStructure=nSolid>=Math.max(4,occupied*0.01);
-      const better=!best||(hasStructure&&!best.hasStructure)||
-        (hasStructure===best.hasStructure&&reg.cells>best.reg.cells);
+      // Among options that leave ENOUGH ROOM TO WALK, prefer the one that finds
+      // the MOST WALLS. Maximising open space was the wrong objective and it is
+      // why walls could be walked through: on the bedroom it chose 20 walls and
+      // 6.7 m2 over 103 walls and 3.9 m2. A room you can cross but not leave is
+      // a room; an open plain with a bed in it is not.
+      const roomy=reg.cells*cs*cs>=2.5;
+      const bestRoomy=best?best.reg.cells*cs*cs>=2.5:false;
+      let better;
+      if(!best)better=true;
+      else if(hasStructure!==best.hasStructure)better=hasStructure;
+      else if(roomy!==bestRoomy)better=roomy;
+      else if(roomy)better=nSolid>best.nSolid;          // both walkable: more walls wins
+      else better=reg.cells>best.reg.cells;             // neither: take the roomier
       if(better)best={thr,solid,walk,reg,hasStructure,nSolid};
-      if(hasStructure&&reg.cells*cs*cs>=8&&reg.cells>=occupied*0.25)break;
+      // no early exit: the whole ladder is compared, since the best answer is
+      // usually not the first one that merely clears the area bar.
     }
 
     colGrid={minx,minz,cs,w,h,solid:best.solid,walk:best.walk,reach:best.reg.mask,floorY,cnt};
@@ -988,6 +1030,122 @@ window.__colInfo=()=>{
 window.__canStand=(x,z)=>{const f=cellFloor(x,z);return canStand(x,z,f===null?player.feetY:f);};
 window.__colDiag=()=>colDiag;
 
+/* ---------- Fix this world: correcting what detection gets wrong -------------
+   Auto-levelling reads the shape of a room out of a point cloud, and it will
+   never be right every time — a scan with a mezzanine, a mirrored wall, a room
+   captured through a doorway, and it guesses wrong. When it does, the visitor
+   is stuck: the room is on its side and walls they can see do not stop them,
+   because "which way is up" is what decides where walls are. Every wall is
+   found by looking for mass between knee and head height, and if up is wrong,
+   that band sweeps sideways through the room and finds almost nothing. Sideways
+   room and walk-through walls are not two bugs. They are one.
+
+   So rather than keep tuning a guess, hand over the controls:
+
+     UP        four one-click choices, applied live, with the wall count and
+               walkable area updating as you press them. The right answer is
+               the one where the numbers jump.
+     WALLS     a sensitivity dial, because "how much stuff counts as a wall"
+               genuinely differs between an empty hall and a cluttered bedroom.
+     KEEP IT   owners save the fix into the world so every future visitor gets
+               it. Everyone else keeps it in their own browser, so at least
+               their visit is fixed. Nobody has to wait for a code change.
+   ---------------------------------------------------------------------------- */
+let wallThreshold=null;   // null = self-tune, number = the user has taken over
+let fixUp={axis:'y',sign:1};
+
+function worldKey(){
+  const q=new URLSearchParams(location.search).get('world')||'local';
+  return 'm3xi.fix.'+q;
+}
+function saveFixLocal(){
+  try{
+    localStorage.setItem(worldKey(),JSON.stringify({
+      up:fixUp,wall:wallThreshold,sharp:sharpAmt,clean:cleanLevel
+    }));
+  }catch(e){}
+}
+function loadFixLocal(){
+  try{
+    const raw=localStorage.getItem(worldKey());
+    if(!raw)return null;
+    return JSON.parse(raw);
+  }catch(e){return null;}
+}
+
+/** Put the chosen axis upright. Identity is y+, which is the viewer's own frame. */
+function applyUp(axis,sign,{rebuild=true}={}){
+  fixUp={axis,sign};
+  // force the group's world matrix before anything measures it
+  const H=Math.PI/2;
+  splatRoot.rotation.set(0,0,0);
+  if(axis==='z')      splatRoot.rotation.x = sign>0 ? -H :  H;
+  else if(axis==='x') splatRoot.rotation.z = sign>0 ?  H : -H;
+  else if(sign<0)     splatRoot.rotation.x = Math.PI;
+  splatRoot.updateMatrixWorld(true);
+  if(rebuild){buildCollision();dropToFloor();ensureSpawn(true);reportFix();}
+  document.querySelectorAll('[data-up]').forEach(b=>{
+    const [a,s]=b.dataset.up.split(',');
+    b.classList.toggle('on',a===axis&&Number(s)===sign);
+  });
+}
+
+function reportFix(){
+  const el=document.getElementById('fixStat');
+  if(!el)return;
+  const ci=window.__colInfo?window.__colInfo():null;
+  if(!ci||!ci.built){el.textContent=(ci&&ci.reason)||'no scan loaded';return;}
+  const bits=[ci.solid+' walls',ci.areaM2+' m² to walk'];
+  if(ci.solid<25)bits.push('— too few walls: try another “up”');
+  el.textContent=bits.join(' · ');
+}
+window.__reportFix=reportFix;
+
+/* Owners can bake the fix into the world itself. Everyone else keeps it locally,
+   which still fixes their own visit. */
+async function saveFixToWorld(){
+  const st=document.getElementById('fixSaveMsg');
+  const set=(t)=>{if(st)st.textContent=t;};
+  saveFixLocal();
+  if(!worldState.slug||!worldState.edit_key){
+    set('Saved for you on this device. Only the world’s owner can save it for everyone.');
+    return;
+  }
+  try{
+    set('Saving to the world…');
+    const l=await wcall({action:'load',slug:worldState.slug,edit_key:worldState.edit_key});
+    const doc=(l&&l.world)||{};
+    doc.environment=doc.environment||{};
+    doc.environment.transform=Object.assign({},doc.environment.transform,{
+      rot:[splatRoot.rotation.x,splatRoot.rotation.y,splatRoot.rotation.z],
+      scale:splatRoot.scale.x,
+      meshPos:splat?splat.position.toArray():[0,0,0]
+    });
+    doc.environment.floor=player.floor;
+    doc.fix={up:fixUp,wall:wallThreshold,sharp:sharpAmt,clean:cleanLevel};
+    doc.spawn={pos:[player.x,player.feetY,player.z],yaw:player.yaw};
+    await wcall({action:'save',slug:worldState.slug,edit_key:worldState.edit_key,world:doc});
+    set('Saved. Everyone who opens this world now gets the fix.');
+  }catch(e){
+    set('Could not save to the world: '+(e&&e.message||e)+' — kept on this device instead.');
+  }
+}
+window.__saveFixToWorld=saveFixToWorld;
+
+/** Re-apply whatever was remembered, after a world loads. */
+function applyRememberedFix(fromDoc){
+  const remembered=(fromDoc&&fromDoc.fix)||loadFixLocal();
+  if(!remembered)return false;
+  if(remembered.wall!=null)wallThreshold=Number(remembered.wall);
+  if(remembered.clean)cleanLevel=remembered.clean;
+  const s=document.getElementById('wallSense');
+  if(s&&wallThreshold!=null){s.value=wallThreshold;const v=document.getElementById('wallSenseVal');if(v)v.textContent=Number(wallThreshold).toFixed(2);}
+  if(remembered.up)applyUp(remembered.up.axis,remembered.up.sign,{rebuild:false});
+  if(remembered.sharp!=null)setSharpness(Number(remembered.sharp));
+  return true;
+}
+window.__applyRememberedFix=applyRememberedFix;
+
 /* ---------- player state ---------- */
 const player={x:0,y:1.6,z:2.4,yaw:0,pitch:0,eye:1.6,speed:1.35,floor:0,feetY:0,vy:0,grounded:true};
 let mode='walk',toastUntil=0;
@@ -1101,7 +1259,11 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
   autoLevel();   // stand the scan the right way up BEFORE anything measures height
   cleanScan();   // hides spikes/haze/ghosts, then builds collision from what is left
   setSharpness(Number(($('#sharp')||{}).value)||0.82);
+  // A fix the owner saved into the world, or one this visitor made last time,
+  // beats anything auto-levelling decided a moment ago.
+  if(applyRememberedFix(fromDoc)){buildCollision();dropToFloor();ensureSpawn(true);}
   if(window.__reportClean)window.__reportClean();
+  reportFix();
   setStatus((splatCount?splatCount.toLocaleString()+' splats \u00b7 ':'')+(mode==='walk'?'drag to look \u00b7 WASD / joystick to move':'drag to orbit \u00b7 pinch or scroll to zoom'));
   overlay.style.display='none';
 }
@@ -1590,6 +1752,23 @@ $('#sharp').onchange=e=>{
   $('#sharpVal').textContent=v.toFixed(2);
   setTimeout(()=>setSharpness(v),16);   // let the label paint before the pass
 };
+/* ---- Fix panel wiring ---- */
+document.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{
+  const [a,sg]=b.dataset.up.split(',');
+  applyUp(a,Number(sg));
+  saveFixLocal();
+});
+$('#wallSense').oninput=e=>{$('#wallSenseVal').textContent=Number(e.target.value).toFixed(2);};
+$('#wallSense').onchange=e=>{
+  wallThreshold=Number(e.target.value);
+  $('#wallSenseVal').textContent=wallThreshold.toFixed(2);
+  buildCollision();dropToFloor();ensureSpawn(true);reportFix();saveFixLocal();
+};
+$('#btnWallAuto').onclick=()=>{
+  wallThreshold=null;$('#wallSenseVal').textContent='auto';
+  buildCollision();dropToFloor();ensureSpawn(true);reportFix();saveFixLocal();
+};
+$('#btnSaveFix').onclick=()=>saveFixToWorld();
 $('#cleanLevel').onchange=e=>{
   const lvl=e.target.value;
   cleanOn=lvl!=='off';
