@@ -624,6 +624,43 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
   <path class="sk-ln" d="M48 152 h16 M66 152 h16"/>
   <text class="sk-t" x="12" y="182">FIG. R —</text><text class="sk-t" x="12" y="194">ROBOTICS</text>
 </svg></section>
+<!-- Most-liked world this week, straight from the Library -->
+<section id="featured" style="padding-top:0"><div class="wrap reveal" id="featWrap" hidden>
+  <p class="eyebrow">Made in M3XI Studio</p>
+  <h2>This week&rsquo;s most <em>liked.</em></h2>
+  <p class="lede" id="featBy" style="margin-bottom:18px"></p>
+  <a class="app-card" id="featCard" href="/studio/#library" style="display:block;max-width:640px">
+    <span class="app-visual" style="display:block"><img id="featImg" alt="" style="display:block;width:100%;height:auto"></span>
+    <div class="app-body"><div class="app-head"><h3 id="featTitle"></h3><span class="tag" id="featLikes"></span></div>
+      <div class="app-actions"><span class="btn btn-primary">Walk this world &rarr;</span></div></div>
+  </a>
+</div></section>
+<script type="module">
+/* The homepage should show what people actually made this week, not a fixed
+   picture. Anonymous read: the Library is public, so this needs no sign-in. */
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
+const sb=createClient('https://tnlcuptfldwxtxajudoq.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRubGN1cHRmbGR3eHR4YWp1ZG9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODcxNDEsImV4cCI6MjEwMDA2MzE0MX0.mgS1gDa7qeBsTCaXmefpogg02kw7tCzn0uEYPAAuC90');
+try{
+  const{data,error}=await sb.rpc('m3ix_featured_world');
+  if(!error&&data&&data.slug){
+    const esc=t=>String(t==null?'':t).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+    document.getElementById('featTitle').textContent=data.title||'Untitled world';
+    document.getElementById('featLikes').textContent=(data.likes||0)+' likes';
+    const img=document.getElementById('featImg');
+    if(data.cover)img.src=data.cover; else img.remove();
+    const who=data.username?('@'+data.username):'the M3XI Studio community';
+    const ig=data.socials&&data.socials.instagram;
+    const site=data.socials&&data.socials.site;
+    const link=ig?('https://instagram.com/'+String(ig).replace(/^@/,'')):(site||'');
+    document.getElementById('featBy').innerHTML=
+      'By '+(link?('<a href="'+esc(link)+'" target="_blank" rel="noopener" style="border-bottom:1px solid var(--line)">'+esc(who)+'</a>'):esc(who))+
+      ' — made with the Studio and published to the Library.';
+    document.getElementById('featCard').href='/studio/walkthrough.html?world='+encodeURIComponent(data.slug);
+    document.getElementById('featWrap').hidden=false;
+  }
+}catch(e){ /* homepage must never break over a decoration */ }
+</script>
+
 <section id="vision" style="background:rgba(251,246,236,.55);border-top:1px solid var(--line);border-bottom:1px solid var(--line)"><div class="wrap center reveal">
   <p class="eyebrow c">M3XI vision</p>
   <h2>We are working on <em>interaction.</em></h2>

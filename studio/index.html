@@ -153,6 +153,14 @@ details.adv label{display:block;font-size:11px;font-weight:700;letter-spacing:.1
 #genLog{margin-top:16px;background:var(--ink);color:#e8e4d6;font:12px/1.7 ui-monospace,Menlo,Consolas,monospace;
   padding:14px;height:150px;overflow:auto;white-space:pre-wrap;border:3px solid var(--line);box-shadow:6px 6px 0 rgba(208,64,43,.5)}
 .price-note{font-size:12.5px;color:var(--mut);margin-top:10px}
+.meter{height:14px;border:3px solid var(--line);background:var(--card);position:relative;overflow:hidden}
+.meter span{position:absolute;inset:0 auto 0 0;width:0;background:var(--red);transition:width .3s ease}
+.meter.warn span{background:#c8891f}
+.avatars{display:flex;gap:8px;flex-wrap:wrap}
+.avatars button{width:40px;height:40px;border:3px solid var(--line);background:var(--card);font-size:19px;cursor:pointer;line-height:1}
+.avatars button.on{background:var(--red);color:#fff}
+.likeBtn{border:2px solid var(--line);background:var(--card);cursor:pointer;font-size:12px;font-weight:700;padding:3px 9px;white-space:nowrap}
+.likeBtn.on{background:var(--red);color:#fff;border-color:var(--red)}
 
 /* ---------- composer ---------- */
 .composer{margin-top:16px;border-top:2px dashed rgba(22,21,18,.3);padding-top:14px}
@@ -285,7 +293,8 @@ footer a{color:var(--ink)}
       <a href="https://www.m3xi.com/#products">Apps</a>
     </nav>
     <span class="chip" id="topCredits" style="cursor:pointer" title="Credit balance — click for plans"><span class="dot"></span><b id="topCreditsN">—</b>&nbsp;credits</span>
-    <a class="btn sm ghost" id="btnAccount" href="#account">Sign in</a>
+    <a class="btn sm ghost" id="btnAuth" href="#account">Sign in</a>
+    <a class="btn sm ghost" id="btnProfile" href="#account" style="display:none">Profile</a>
     <a class="btn red sm" href="#studio">Enter Studio</a>
   </div>
 </div>
@@ -622,6 +631,31 @@ footer a{color:var(--ink)}
           </div>
           <p class="small" id="acctMsg2" style="margin-top:10px"></p>
           <div class="srow"><button class="btn sm ghost" id="btnSignOut">Sign out</button></div>
+
+          <div style="border-top:2px dashed rgba(22,21,18,.3);margin-top:18px;padding-top:14px">
+            <h3 style="font-size:15px">This hour</h3>
+            <div class="meter"><span id="barHour"></span></div>
+            <p class="small" id="txtHour">—</p>
+            <h3 style="font-size:15px;margin-top:12px">This week</h3>
+            <div class="meter"><span id="barWeek"></span></div>
+            <p class="small" id="txtWeek">—</p>
+            <p class="price-note" style="margin-top:8px">Heavier work costs more of the allowance: an image is 1, a video clip 60, a world 150. Limits reset on a rolling window, not at midnight.</p>
+          </div>
+
+          <div style="border-top:2px dashed rgba(22,21,18,.3);margin-top:18px;padding-top:14px">
+            <h3 style="font-size:15px">How you appear</h3>
+            <p class="small" style="opacity:.75;margin-bottom:8px">Shown on anything of yours featured in the Library.</p>
+            <div class="avatars" id="avatarPick"></div>
+            <div class="srow" style="margin-top:10px">
+              <input type="text" class="field" id="pfUser" placeholder="username" maxlength="24" style="max-width:220px">
+            </div>
+            <div class="srow">
+              <input type="text" class="field" id="pfIG" placeholder="Instagram @handle" style="max-width:220px">
+              <input type="text" class="field" id="pfSite" placeholder="your link" style="max-width:220px">
+            </div>
+            <div class="srow"><button class="btn" id="btnSaveProfile">Save profile</button>
+              <span class="small" id="pfMsg"></span></div>
+          </div>
         </div>
       </div>
 
@@ -813,6 +847,9 @@ async function loadLibrary(){
     const j=await wapi({action:'list_published',limit:24});
     const ws=(j.worlds||[]).filter(w=>w&&w.slug);
     if(!ws.length){empty.style.display='';return;}
+    // The module renders a richer version of this same grid (likes, maker,
+    // avatar). Whichever finishes last must be that one, so hand over.
+    setTimeout(()=>{try{window.__renderLibrary&&window.__renderLibrary();}catch(e){}},0);
     grid.innerHTML='';
     ws.forEach((w,i)=>{
       const d=document.createElement('div');d.className='panel wcard'+(i%3===1?' tilt-r':i%3===2?' tilt-l':'');
@@ -828,6 +865,7 @@ async function loadLibrary(){
       }
       grid.appendChild(d);
     });
+    setTimeout(()=>{try{window.__renderLibrary&&window.__renderLibrary();}catch(e){}},0);
   }catch(e){
     empty.style.display='';
     empty.textContent='The Library could not load right now — check your connection and refresh.';
@@ -1273,29 +1311,66 @@ const sb=createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:
 const $=s=>document.querySelector(s);
 const say=(el,t,bad)=>{const e=$(el);if(e){e.textContent=t;e.style.color=bad?'var(--red)':'';}};
 
+const AVATARS=['◆','▲','●','✦','■','✦️','⚙','♟','☁','☀','☽','⚑'];
+function paintAvatars(chosen){
+  const box=$('#avatarPick');if(!box)return;
+  box.innerHTML='';
+  AVATARS.forEach(a=>{
+    const b=document.createElement('button');
+    b.type='button';b.textContent=a;b.className=(a===chosen?'on':'');
+    b.onclick=()=>{paintAvatars(a);box.dataset.pick=a;};
+    box.appendChild(b);
+  });
+  box.dataset.pick=chosen||box.dataset.pick||'';
+}
+function meter(barSel,txtSel,used,cap,unit){
+  const pct=cap>0?Math.min(100,Math.round(used/cap*100)):0;
+  const bar=$(barSel),txt=$(txtSel);
+  if(bar){bar.style.width=pct+'%';bar.parentElement.classList.toggle('warn',pct>=80);}
+  if(txt)txt.textContent=Math.round(used).toLocaleString()+' of '+Math.round(cap).toLocaleString()+' '+unit+
+    (pct>=100?' — limit reached, it frees up as the window rolls':pct>=80?' — close to the limit':'');
+}
+
 async function refreshAccount(){
   const{data:{session}}=await sb.auth.getSession();
-  const inEl=$('#acctSignedIn'),outEl=$('#acctSignedOut'),btn=$('#btnAccount');
+  const inEl=$('#acctSignedIn'),outEl=$('#acctSignedOut');
+  const authBtn=$('#btnAuth'),profBtn=$('#btnProfile');
   if(!session){
     if(inEl)inEl.style.display='none';
     if(outEl)outEl.style.display='';
-    if(btn)btn.textContent='Sign in';
+    if(authBtn){authBtn.textContent='Sign in';authBtn.dataset.mode='in';authBtn.href='#account';}
+    if(profBtn)profBtn.style.display='none';
     const w=$('#acctWorkList');if(w)w.innerHTML='<p class="price-note">Sign in to see the worlds you have made.</p>';
+    renderLibrary();
     return;
   }
   if(inEl)inEl.style.display='';
   if(outEl)outEl.style.display='none';
+  // Signed in: the nav button becomes Sign out and actually signs you out.
+  if(authBtn){authBtn.textContent='Sign out';authBtn.dataset.mode='out';authBtn.removeAttribute('href');authBtn.style.cursor='pointer';}
+  if(profBtn)profBtn.style.display='';
+
   const m=session.user.user_metadata||{};
   const who=m.full_name||m.name||session.user.email||'signed in';
   say('#acctWho',who+(m.full_name&&session.user.email?' · '+session.user.email:''));
-  let bal='—';
+
   try{
-    const{data,error}=await sb.rpc('m3ix_balance');
-    if(!error&&data!=null)bal=Number(data).toLocaleString();
+    const{data,error}=await sb.rpc('m3ix_usage_status');
+    if(!error&&data){
+      say('#acctBal',Number(data.balance||0).toLocaleString());
+      if(authBtn)authBtn.title=Number(data.balance||0).toLocaleString()+' credits';
+      if(profBtn)profBtn.textContent=Number(data.balance||0).toLocaleString()+' credits';
+      meter('#barHour','#txtHour',Number(data.hour_used||0),Number(data.hour_cap||0),'this hour');
+      meter('#barWeek','#txtWeek',Number(data.week_used||0),Number(data.week_cap||0),'this week');
+      if($('#pfUser')&&!$('#pfUser').value)$('#pfUser').value=data.username||'';
+      const soc=data.socials||{};
+      if($('#pfIG')&&!$('#pfIG').value)$('#pfIG').value=soc.instagram||'';
+      if($('#pfSite')&&!$('#pfSite').value)$('#pfSite').value=soc.site||'';
+      paintAvatars(data.avatar||AVATARS[0]);
+    }
   }catch(e){}
-  say('#acctBal',bal);
-  if(btn)btn.textContent=bal+' credits';
   loadMyWork();
+  renderLibrary();
 }
 
 async function loadMyWork(){
@@ -1341,6 +1416,28 @@ $('#btnGoogle')&&($('#btnGoogle').onclick=async()=>{
   if(error)say('#acctMsg','Google sign-in failed: '+error.message,true);
 });
 $('#btnSignOut')&&($('#btnSignOut').onclick=async()=>{await sb.auth.signOut();refreshAccount();});
+$('#btnAuth')&&($('#btnAuth').onclick=async e=>{
+  if(e.currentTarget.dataset.mode!=='out')return;      // signed out: just a link to the panel
+  e.preventDefault();
+  await sb.auth.signOut();
+  refreshAccount();
+});
+$('#btnSaveProfile')&&($('#btnSaveProfile').onclick=async()=>{
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session)return say('#pfMsg','Sign in first.',true);
+  const uname=($('#pfUser').value||'').trim().toLowerCase();
+  if(uname&&!/^[a-z0-9][a-z0-9_.]{2,23}$/.test(uname))
+    return say('#pfMsg','3–24 characters: letters, numbers, dot or underscore.',true);
+  say('#pfMsg','Saving…');
+  const{error}=await sb.from('m3ix_accounts').update({
+    username:uname||null,
+    avatar:$('#avatarPick').dataset.pick||null,
+    socials:{instagram:($('#pfIG').value||'').trim(),site:($('#pfSite').value||'').trim()}
+  }).eq('user_id',session.user.id);
+  if(error)return say('#pfMsg',/duplicate|unique/i.test(error.message)?'That username is taken.':error.message,true);
+  say('#pfMsg','Saved.');
+  renderLibrary();
+});
 $('#btnRedeem')&&($('#btnRedeem').onclick=async()=>{
   const code=($('#acctCode')&&$('#acctCode').value||'').trim();
   if(!code)return say('#acctMsg2','Paste a code first.',true);
@@ -1352,6 +1449,70 @@ $('#btnRedeem')&&($('#btnRedeem').onclick=async()=>{
   refreshAccount();
 });
 window.__refreshAccount=refreshAccount;
+paintAvatars(AVATARS[0]);
+/* ---------- the Library, with likes -------------------------------------------
+   Rendered from m3ix_library, which returns the like count, whether YOU have
+   liked it, and the maker's handle in one call — rather than a query per card.
+   Liking is optimistic: the count moves the instant you press it, because
+   waiting on a round trip to see your own tap register feels broken. If the
+   write fails it is put back.
+   ---------------------------------------------------------------------------- */
+async function renderLibrary(){
+  const grid=$('#libGrid'),empty=$('#libEmpty');
+  if(!grid)return;
+  try{
+    const{data,error}=await sb.rpc('m3ix_library',{p_limit:48});
+    if(error)throw error;
+    const ws=data||[];
+    if(!ws.length){if(empty)empty.style.display='';return;}
+    if(empty)empty.style.display='none';
+    const esc=t=>String(t==null?'':t).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+    grid.innerHTML='';
+    ws.forEach((w,i)=>{
+      const url='walkthrough.html?world='+encodeURIComponent(w.slug)+'&embed=1';
+      const d=document.createElement('div');
+      d.className='panel wcard'+(i%3===1?' tilt-r':i%3===2?' tilt-l':'');
+      const by=w.username?('@'+esc(w.username)):'M3XI Studio';
+      const soc=(w.socials&&(w.socials.instagram||w.socials.site))||'';
+      const socHref=w.socials&&w.socials.instagram
+        ? 'https://instagram.com/'+String(w.socials.instagram).replace(/^@/,'')
+        : (w.socials&&w.socials.site)||'';
+      d.innerHTML=
+        '<a class="cov" href="'+url+'" target="_blank" rel="noopener">'+
+          (w.cover?'<img loading="lazy" src="'+esc(w.cover)+'" alt="">':'<span class="ph">三X一</span>')+
+        '</a>'+
+        '<div class="meta">'+
+          '<span class="nm">'+esc(w.title||'Untitled')+'</span>'+
+          (socHref?'<a class="by" target="_blank" rel="noopener" href="'+esc(socHref)+'">'+(w.avatar?esc(w.avatar)+' ':'')+by+'</a>'
+                  :'<span class="by">'+(w.avatar?esc(w.avatar)+' ':'')+by+'</span>')+
+          '<button class="likeBtn'+(w.liked?' on':'')+'" data-slug="'+esc(w.slug)+'">♥ '+Number(w.likes||0)+'</button>'+
+          '<a class="btn sm ghost" href="'+url+'" target="_blank" rel="noopener">Walk</a>'+
+        '</div>';
+      grid.appendChild(d);
+    });
+    grid.querySelectorAll('.likeBtn').forEach(b=>b.onclick=()=>toggleLike(b));
+  }catch(e){ /* leave whatever the plain listing rendered */ }
+}
+window.__renderLibrary=renderLibrary;
+
+async function toggleLike(btn){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){
+    btn.textContent='sign in to like';
+    setTimeout(()=>renderLibrary(),1200);
+    return;
+  }
+  const slug=btn.dataset.slug;
+  const wasOn=btn.classList.contains('on');
+  const n=Number((btn.textContent.match(/\d+/)||[0])[0]);
+  btn.classList.toggle('on',!wasOn);
+  btn.textContent='♥ '+(wasOn?Math.max(0,n-1):n+1);
+  const q=wasOn
+    ? sb.from('m3ix_likes').delete().eq('slug',slug).eq('user_id',session.user.id)
+    : sb.from('m3ix_likes').insert({slug,user_id:session.user.id});
+  const{error}=await q;
+  if(error){ btn.classList.toggle('on',wasOn); btn.textContent='♥ '+n; }
+}
 sb.auth.onAuthStateChange(()=>refreshAccount());
 refreshAccount();
 window.__sb=sb;
