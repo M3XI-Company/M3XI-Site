@@ -540,6 +540,21 @@ function buildCollision(){
     }
     if(occupied<12){colDiag={ok:false,reason:'no continuous floor found in this scan'};return;}
 
+    // THE GROUND PLANE, measured by how many POINTS sit at each height rather
+    // than how many cells do. A floor is one enormous flat surface, so it owns
+    // more points than anything else in the scan. Counting cells instead put the
+    // office scan's spawn 9.5m above its own floor, because that capture carries
+    // a wide, sparse halo of outdoor noise whose cells outnumber the room's.
+    let groundY=NaN;
+    {
+      const g=new Float64Array(B);
+      for(let i=0;i<N;i++){if(cnt[i]<MIN_CELL)continue;
+        for(let b=0;b<B;b++)g[b]+=hist[i*B+b];}
+      let gb=-1,gv=-1;
+      for(let b=0;b<B;b++)if(g[b]>gv){gv=g[b];gb=b;}
+      if(gb>=0)groundY=miny+(gb+0.5)*ybin;
+    }
+
     const bandFrac=new Float32Array(N);
     for(let i=0;i<N;i++){
       const c=cnt[i]; const f=floorY[i];
@@ -578,6 +593,7 @@ function buildCollision(){
     // 2 m2 is about the size of a doorway landing: below that there is nowhere
     // to actually walk, so collision would only ever say no.
     colGrid.usable=best.reg.cells*cs*cs>=2;
+    colGrid.groundY=groundY;
     colDiag={ok:best.reg.cells>0,
       cells:best.reg.cells,
       areaM2:+(best.reg.cells*cs*cs).toFixed(1),
@@ -691,6 +707,30 @@ function ensureSpawn(force){
   // reliably the one you should stand on — on the office scan it put the visitor
   // 3.2m up, inside the furniture. The room's real floor is the height that the
   // most standable cells share, so bucket the floors and take the mode.
+  if(colGrid.groundY===colGrid.groundY){
+    const gy=colGrid.groundY;
+    const near=i=>{const f=F[i];return f===f&&Math.abs(f-gy)<=0.5;};
+    const here0=cellIndex(player.x,player.z);
+    if(!force&&here0>=0&&W[here0]&&near(here0)){player.feetY=F[here0];player.floor=gy;return;}
+    let sx=0,sz=0,n=0;
+    for(let i=0;i<N;i++){if(!W[i]||!near(i))continue;
+      sx+=colGrid.minx+((i%w)+0.5)*cs;sz+=colGrid.minz+(((i/w)|0)+0.5)*cs;n++;}
+    if(n){
+      const cx=sx/n,cz=sz/n;let bi=-1,bd=1e9;
+      for(let i=0;i<N;i++){
+        if(!W[i]||!near(i))continue;
+        const x=colGrid.minx+((i%w)+0.5)*cs,z=colGrid.minz+(((i/w)|0)+0.5)*cs;
+        const d=(x-cx)*(x-cx)+(z-cz)*(z-cz);
+        if(d<bd){bd=d;bi=i;}
+      }
+      if(bi>=0){
+        player.x=colGrid.minx+((bi%w)+0.5)*cs;
+        player.z=colGrid.minz+(((bi/w)|0)+0.5)*cs;
+        player.feetY=F[bi];player.floor=gy;player.vy=0;player.grounded=true;
+        return;
+      }
+    }
+  }
   const BUCKET=0.25;let lo=Infinity,hi=-Infinity;
   for(let i=0;i<N;i++){if(!W[i])continue;const f=F[i];if(f!==f)continue;
     if(f<lo)lo=f;if(f>hi)hi=f;}

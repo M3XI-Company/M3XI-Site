@@ -698,6 +698,9 @@ async function wapi(payload){
 }
 
 /* ================= world generation (Marble via M3XI Cloud) ================= */
+// The published demo world — somewhere to walk while a generation runs, and the
+// fallback when a visitor has nothing of their own yet.
+const DEMO_WORLD_SLUG='m3xi-demo-gallery-loft-zynt';
 async function genWorld(){
   const p=$('#genPrompt').value.trim();
   const imgs=attachments.map(a=>a.url);
@@ -709,6 +712,17 @@ async function genWorld(){
     const q=await backendCall({action:'world_submit',prompt:p,image_urls:imgs,model,code:creditCode()||undefined});
     if(q.credits_remaining!=null)glog('  credits left: '+q.credits_remaining);
     glog('   World generation started.');
+    // A world takes 3-10 minutes. Rather than leave the visitor watching a log
+    // scroll, hand them somewhere to go: the demo world walks right now, and the
+    // Library holds everything already published.
+    $('#genOut').innerHTML=
+      '<div class="empty" style="text-align:left">'+
+      '<p class="price-note" style="margin:0 0 10px"><b>Building your world.</b> This takes 3–10 minutes. '+
+      'You can leave this tab open — it publishes to your Library the moment it is ready.</p>'+
+      '<div class="srow" style="margin-top:0">'+
+      '<a class="btn sm red" href="walkthrough.html?world='+encodeURIComponent(DEMO_WORLD_SLUG)+'" target="_blank" rel="noopener">Walk the demo world meanwhile</a>'+
+      '<a class="btn sm ghost" href="#library">See the Library</a>'+
+      '</div></div>';
     let st=null;
     for(let i=0;i<120;i++){
       await new Promise(x=>setTimeout(x,6000));
