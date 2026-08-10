@@ -4,7 +4,15 @@
     { "source": "/takenote/", "destination": "/cornelia.html", "permanent": true },
     { "source": "/notetaker", "destination": "/cornelia.html", "permanent": true },
     { "source": "/notetaker/", "destination": "/cornelia.html", "permanent": true },
-    { "source": "/privacy.html", "destination": "/privacy/", "permanent": true }
+    { "source": "/privacy.html", "destination": "/privacy/", "permanent": true },
+
+    { "source": "/cornelia/privacy", "destination": "/privacy/#cornelia", "permanent": false },
+    { "source": "/cornelia/privacy/", "destination": "/privacy/#cornelia", "permanent": false },
+    { "source": "/callme/privacy", "destination": "/privacy/#callme", "permanent": false },
+    { "source": "/callme/privacy/", "destination": "/privacy/#callme", "permanent": false },
+    { "source": "/notetaker/privacy", "destination": "/privacy/#cornelia", "permanent": false },
+    { "source": "/cornelia/terms", "destination": "/terms/", "permanent": false },
+    { "source": "/callme/terms", "destination": "/terms/", "permanent": false }
   ],
   "rewrites": [
     { "source": "/home", "destination": "/" }
