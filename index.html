@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="M3XI is a studio building software that lowers barriers and gets things done. Explore our gallery: Cornelia, AutoUV and CallMe." />
+<meta name="description" content="M3XI Studio — our AI generation platform — plus the apps we build alongside it: Cornelia, CallMe and AutoUV. Software that lowers barriers and gets things done." />
 <title>M3XI — We build software that works</title>
 <meta name="msvalidate.01" content="194ECDA09D7B5CBE4E3E13235EFACE76" />
 <link rel="icon" type="image/png" href="/M.png" />
@@ -81,6 +81,49 @@ section{padding:64px 0;position:relative}
 .hero-cta{display:flex;gap:13px;flex-wrap:wrap;margin-top:26px}
 .hero-art{width:100%;height:auto;filter:drop-shadow(0 30px 50px rgba(43,66,87,.14))}
 @media(max-width:880px){.hero-grid{grid-template-columns:1fr;gap:18px}.hero-art{max-width:440px;margin:0 auto;order:-1}}
+
+/* ---------------------------------------------------------------------------
+   STUDIO FLAGSHIP BAND — carries M3XI Studio's own house style, not the site's.
+   Studio brand rules (apps/web/src/app/globals.css): off-white paper, near-black
+   ink, exactly ONE muted red, flat surfaces, hairline rules, catalogue plate
+   numbers. No gradients and no shadows — separation is a 1px rule, always.
+   Scoped to this block so the rest of the page keeps the M3XI site palette.
+   --------------------------------------------------------------------------- */
+.studio-feature{--s-paper:#F9F7F3;--s-paper2:#F1EEE7;--s-ink:#1A1714;--s-ink-muted:#77706A;
+  --s-ink-faint:#A9A29A;--s-rule:#E2DDD4;--s-red:#BC423B;
+  display:grid;grid-template-columns:1.08fr .92fr;gap:0;margin-top:34px;
+  background:var(--s-paper);border:1px solid var(--s-ink);border-radius:0;color:var(--s-ink)}
+.studio-feature .sf-body{padding:40px 42px;display:flex;flex-direction:column}
+.studio-feature .sf-plate{display:flex;align-items:baseline;justify-content:space-between;gap:14px;
+  border-bottom:1px solid var(--s-ink);padding-bottom:8px;margin-bottom:22px}
+.studio-feature .sf-fig{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--s-ink-faint)}
+.studio-feature .sf-status{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--s-red);border:1px solid currentColor;border-radius:999px;padding:3px 10px;
+  display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.studio-feature .sf-status::before{content:"";width:5px;height:5px;border-radius:999px;background:currentColor}
+.studio-feature .sf-kicker{font-family:'Playfair Display',serif;font-style:italic;color:var(--s-red);font-size:15px;margin:0 0 6px}
+.studio-feature h3{font-family:'Playfair Display',serif;font-size:clamp(30px,3.8vw,44px);line-height:1.04;
+  letter-spacing:-.025em;color:var(--s-ink);margin:0 0 14px;font-weight:600}
+.studio-feature h3 em{font-style:italic;color:var(--s-red);font-weight:500}
+.studio-feature p{color:var(--s-ink-muted);font-size:15.5px;max-width:54ch;margin:0 0 18px}
+.studio-feature .sf-engines{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--s-rule);margin-top:2px}
+.studio-feature .sf-engines div{padding:16px 20px 4px 0}
+.studio-feature .sf-engines div+div{padding-left:24px;border-left:1px solid var(--s-rule)}
+.studio-feature .sf-engines h4{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--s-ink);margin:0 0 6px;font-weight:600}
+.studio-feature .sf-engines p{font-size:13.5px;color:var(--s-ink-muted);margin:0}
+.studio-feature .sf-go{margin-top:22px;display:inline-flex;align-items:center;gap:9px;align-self:flex-start;
+  background:var(--s-red);color:var(--s-paper);font-weight:600;font-size:14.5px;padding:12px 22px;border-radius:0;border:1px solid var(--s-red)}
+.studio-feature:hover .sf-go{background:var(--s-ink);border-color:var(--s-ink)}
+.studio-feature .sf-visual{position:relative;background:var(--s-paper2);border-left:1px solid var(--s-rule);
+  display:flex;align-items:center;justify-content:center;padding:34px}
+.studio-feature .sf-visual svg{width:100%;max-width:360px;height:auto}
+@media(max-width:880px){.studio-feature{grid-template-columns:1fr}
+  .studio-feature .sf-body{padding:30px 24px}
+  .studio-feature .sf-visual{order:-1;border-left:none;border-bottom:1px solid var(--s-rule);padding:26px}
+  .studio-feature .sf-engines{grid-template-columns:1fr}
+  .studio-feature .sf-engines div+div{padding-left:0;border-left:none;border-top:1px solid var(--s-rule)}}
 
 /* app gallery */
 .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
@@ -160,76 +203,99 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
   <a class="brand" href="/"><img class="mk" src="/M.png" alt="M3XI"/> M3XI <span class="jp">三X一</span></a>
   <nav class="menu">
     <a class="lnk active" href="/">Home</a>
+    <a class="lnk" href="/studio/">Studio</a>
     <a class="lnk" href="#products">Apps</a>
     <a class="lnk" href="/projects/">Projects</a>
     <a class="lnk" href="/jobs/">Jobs</a>
     <a class="lnk" href="#contact">Contact</a>
-    <a class="cta" href="#products">Join a waitlist</a>
+    <a class="cta" href="/studio/">Enter the Studio</a>
   </nav>
 </div></header>
 
 <section class="hero"><div class="wrap hero-grid">
   <div>
-    <p class="eyebrow">M3XI &middot; 三X一</p>
-    <h1>We build software that <em>works.</em></h1>
-    <p class="lede">M3XI is a small studio making tools that lower barriers and quietly get things done &mdash; from lecture halls to everyday life. Less ornament, more intent.</p>
-    <div class="hero-cta"><a class="btn btn-primary" href="#products">See the gallery &rarr;</a><a class="btn btn-ghost" href="#vision">Our vision</a></div>
+    <p class="eyebrow">M3XI Studio &middot; 三X一</p>
+    <h1>Software that works. <em>Worlds</em> that sell.</h1>
+    <p class="lede">M3XI Studio is our platform and AI generation tool &mdash; one studio with two engines. Cinematic images, video and 3D assets from a single prompt, and real spaces scanned on a phone and published as walkable photoreal worlds. It powers everything we make.</p>
+    <div class="hero-cta"><a class="btn btn-gold" href="/studio/">Enter the Studio &rarr;</a><a class="btn btn-ghost" href="#products">See our apps</a></div>
   </div>
   <div>
-<svg class="hero-art" viewBox="0 0 470 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Blueprint sketch: a phone being lifted into place">
+<svg class="hero-art" viewBox="0 0 470 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Blueprint sketch: a storyboard becoming film frames under a director's crane">
   <defs>
-    <linearGradient id="scr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBF7EC"/><stop offset="1" stop-color="#EDE4D2"/></linearGradient>
+    <linearGradient id="scr0" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBF7EC"/><stop offset="1" stop-color="#EDE4D2"/></linearGradient>
   </defs>
   <!-- blueprint guides -->
   <g stroke="#2B4257" stroke-width="1" opacity=".35">
     <line x1="36" y1="24" x2="36" y2="476" stroke-dasharray="2 7"/>
     <line x1="434" y1="24" x2="434" y2="476" stroke-dasharray="2 7"/>
     <line x1="36" y1="250" x2="434" y2="250" stroke-dasharray="2 7"/>
-    <path d="M36 64 h10 M36 124 h10 M36 184 h10 M36 314 h10 M36 374 h10 M36 434 h10" />
-    <path d="M424 64 h10 M424 124 h10 M424 184 h10 M424 314 h10 M424 374 h10 M424 434 h10"/>
   </g>
-  <!-- scaffolding base -->
-  <g stroke="#2B4257" stroke-width="2" fill="none" opacity=".28" stroke-linecap="round">
-    <path d="M70 470 h330 M96 470 v-66 M186 470 v-66 M284 470 v-66 M374 470 v-66 M96 438 h288 M70 404 h330"/>
-    <path d="M96 404 l90 34 M186 404 l-90 34 M284 404 l90 34 M374 404 l-90 34"/>
+  <!-- film strip arcing through -->
+  <g transform="rotate(-6 235 250)">
+    <rect x="60" y="180" width="350" height="140" rx="10" fill="url(#scr0)" stroke="#2B4257" stroke-width="3"/>
+    <!-- sprocket holes -->
+    <g fill="none" stroke="#2B4257" stroke-width="1.6" opacity=".7">
+      <rect x="74" y="190" width="12" height="9" rx="2"/><rect x="104" y="190" width="12" height="9" rx="2"/>
+      <rect x="134" y="190" width="12" height="9" rx="2"/><rect x="164" y="190" width="12" height="9" rx="2"/>
+      <rect x="194" y="190" width="12" height="9" rx="2"/><rect x="224" y="190" width="12" height="9" rx="2"/>
+      <rect x="254" y="190" width="12" height="9" rx="2"/><rect x="284" y="190" width="12" height="9" rx="2"/>
+      <rect x="314" y="190" width="12" height="9" rx="2"/><rect x="344" y="190" width="12" height="9" rx="2"/>
+      <rect x="374" y="190" width="12" height="9" rx="2"/>
+      <rect x="74" y="301" width="12" height="9" rx="2"/><rect x="104" y="301" width="12" height="9" rx="2"/>
+      <rect x="134" y="301" width="12" height="9" rx="2"/><rect x="164" y="301" width="12" height="9" rx="2"/>
+      <rect x="194" y="301" width="12" height="9" rx="2"/><rect x="224" y="301" width="12" height="9" rx="2"/>
+      <rect x="254" y="301" width="12" height="9" rx="2"/><rect x="284" y="301" width="12" height="9" rx="2"/>
+      <rect x="314" y="301" width="12" height="9" rx="2"/><rect x="344" y="301" width="12" height="9" rx="2"/>
+      <rect x="374" y="301" width="12" height="9" rx="2"/>
+    </g>
+    <!-- three frames: sketch → lines → full colour -->
+    <rect x="76" y="208" width="98" height="84" rx="6" fill="#fff" stroke="#2B4257" stroke-width="2"/>
+    <g stroke="#2B4257" stroke-width="1.6" opacity=".55" stroke-linecap="round">
+      <path d="M92 270 q18 -34 34 -8 q12 18 30 4"/>
+      <circle cx="118" cy="234" r="10" fill="none"/>
+    </g>
+    <rect x="186" y="208" width="98" height="84" rx="6" fill="#fff" stroke="#2B4257" stroke-width="2"/>
+    <g stroke="#2B4257" stroke-width="2" fill="none" stroke-linecap="round">
+      <circle cx="228" cy="232" r="11"/>
+      <path d="M204 274 q22 -36 42 -10 q14 18 30 6"/>
+      <path d="M214 250 h44" opacity=".5"/>
+    </g>
+    <rect x="296" y="208" width="98" height="84" rx="6" fill="#2B4257" stroke="#2B4257" stroke-width="2"/>
+    <g stroke-linecap="round">
+      <circle cx="338" cy="232" r="11" fill="none" stroke="#E3C271" stroke-width="2.2"/>
+      <path d="M314 274 q22 -36 42 -10 q14 18 30 6" fill="none" stroke="#E3C271" stroke-width="2.4"/>
+      <circle cx="318" cy="222" r="2" fill="#CBA14A"/><circle cx="372" cy="218" r="2" fill="#CBA14A"/>
+      <circle cx="380" cy="262" r="2" fill="#CBA14A"/>
+    </g>
   </g>
-  <!-- crane hook + cable -->
+  <!-- director's crane + clapper above -->
   <g stroke="#2B4257" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <line x1="250" y1="14" x2="250" y2="92"/>
-    <path d="M250 92 v16 M236 116 a14 14 0 1 0 28 0 v-8"/>
-    <line x1="250" y1="120" x2="176" y2="176"/>
-    <line x1="250" y1="120" x2="322" y2="176"/>
+    <line x1="250" y1="14" x2="250" y2="78"/>
+    <path d="M250 78 v14 M236 100 a14 14 0 1 0 28 0 v-6"/>
   </g>
-  <!-- phone being lifted -->
-  <g transform="rotate(-7 250 286)">
-    <rect x="176" y="150" width="148" height="272" rx="26" fill="url(#scr)" stroke="#2B4257" stroke-width="3"/>
-    <rect x="188" y="166" width="124" height="240" rx="16" fill="#fff" stroke="#2B4257" stroke-width="1.4" opacity=".9"/>
-    <rect x="230" y="158" width="40" height="7" rx="3.5" fill="#2B4257"/>
-    <!-- cornell layout hint -->
-    <line x1="224" y1="182" x2="224" y2="356" stroke="#2B4257" stroke-width="1.2" opacity=".55"/>
-    <g stroke="#2B4257" stroke-width="2" opacity=".5" stroke-linecap="round">
-      <line x1="234" y1="196" x2="300" y2="196"/><line x1="234" y1="212" x2="296" y2="212"/>
-      <line x1="234" y1="228" x2="302" y2="228"/><line x1="234" y1="244" x2="288" y2="244"/>
-      <line x1="200" y1="196" x2="216" y2="196"/><line x1="200" y1="222" x2="216" y2="222"/>
-    </g>
-    <!-- waveform (lecture audio) -->
-    <g stroke="#B6892F" stroke-width="2.4" stroke-linecap="round">
-      <line x1="202" y1="330" x2="202" y2="342"/><line x1="210" y1="322" x2="210" y2="350"/>
-      <line x1="218" y1="334" x2="218" y2="338"/><line x1="226" y1="318" x2="226" y2="354"/>
-      <line x1="234" y1="328" x2="234" y2="344"/><line x1="242" y1="324" x2="242" y2="348"/>
-      <line x1="250" y1="332" x2="250" y2="340"/><line x1="258" y1="320" x2="258" y2="352"/>
-      <line x1="266" y1="330" x2="266" y2="342"/><line x1="274" y1="326" x2="274" y2="346"/>
-      <line x1="282" y1="334" x2="282" y2="338"/><line x1="290" y1="324" x2="290" y2="348"/>
-    </g>
-    <rect x="222" y="372" width="56" height="10" rx="5" fill="#B6892F" opacity=".85"/>
+  <g transform="rotate(-8 250 132)">
+    <rect x="212" y="118" width="76" height="34" rx="5" fill="#FBF7EC" stroke="#2B4257" stroke-width="2.6"/>
+    <path d="M212 118 l10 -14 h66 l-10 14 z" fill="#2B4257"/>
+    <path d="M222 104 l8 14 M238 104 l8 14 M254 104 l8 14 M270 104 l8 14" stroke="#E3C271" stroke-width="2"/>
+  </g>
+  <!-- soundwave under the strip -->
+  <g stroke="#B6892F" stroke-width="2.4" stroke-linecap="round">
+    <line x1="150" y1="372" x2="150" y2="384"/><line x1="162" y1="364" x2="162" y2="392"/>
+    <line x1="174" y1="374" x2="174" y2="382"/><line x1="186" y1="360" x2="186" y2="396"/>
+    <line x1="198" y1="370" x2="198" y2="386"/><line x1="210" y1="366" x2="210" y2="390"/>
+    <line x1="222" y1="374" x2="222" y2="382"/><line x1="234" y1="362" x2="234" y2="394"/>
+    <line x1="246" y1="372" x2="246" y2="384"/><line x1="258" y1="368" x2="258" y2="388"/>
+    <line x1="270" y1="374" x2="270" y2="382"/><line x1="282" y1="366" x2="282" y2="390"/>
+    <line x1="294" y1="372" x2="294" y2="384"/><line x1="306" y1="370" x2="306" y2="386"/>
   </g>
   <!-- dimension annotation -->
   <g stroke="#B6892F" stroke-width="1.6" opacity=".9">
     <line x1="350" y1="150" x2="386" y2="150"/><line x1="350" y1="422" x2="386" y2="422"/>
     <line x1="368" y1="150" x2="368" y2="422" stroke-dasharray="3 5"/>
   </g>
-  <text x="376" y="290" font-family="Inter,sans-serif" font-size="12" fill="#B6892F" transform="rotate(90 376 290)">BUILT TO WORK</text>
+  <text x="376" y="290" font-family="Inter,sans-serif" font-size="12" fill="#B6892F" transform="rotate(90 376 290)">PROMPT TO PICTURE</text>
 </svg>
+
 </div>
 </div></section>
 
@@ -239,12 +305,74 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
   <h2>What we&rsquo;re <em>building.</em></h2>
   <p class="lede" style="margin-bottom:6px">A small studio with a growing shelf of apps. Each one is its own world &mdash; step in to explore, or join a waitlist and be first through the door. <a href="/projects/" style="color:var(--blue);border-bottom:1px solid var(--line)">See the full project library &rarr;</a></p>
 
+  <a class="studio-feature" href="/studio/" aria-label="Open the M3XI Studio page">
+    <div class="sf-body">
+      <div class="sf-plate">
+        <span class="sf-fig">Fig. 00 — Flagship / main service</span>
+        <span class="sf-status">In pre-release</span>
+      </div>
+      <p class="sf-kicker">One studio, two engines.</p>
+      <h3>M3XI <em>Studio</em></h3>
+      <p>Our platform and AI generation tool. Cinematic images, video and 3D assets on prepaid credits &mdash; and real spaces, scanned on a phone, published as walkable photoreal worlds.</p>
+      <div class="sf-engines">
+        <div>
+          <h4>Studio engine</h4>
+          <p>Prompt to script to storyboard to finished film &mdash; character-locked, voiced and scored.</p>
+        </div>
+        <div>
+          <h4>World engine</h4>
+          <p>Scan a real room on a phone; get a photoreal twin anyone can walk through.</p>
+        </div>
+      </div>
+      <span class="sf-go">Enter the Studio &rarr;</span>
+    </div>
+    <div class="sf-visual">
+      <svg viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three storyboard frames resolving into a single finished film frame">
+        <!-- storyboard row: sketch, ink, final -->
+        <g fill="none" stroke="#1A1714" stroke-width="1.4">
+          <rect x="14" y="26" width="100" height="70"/>
+          <rect x="130" y="26" width="100" height="70"/>
+          <rect x="246" y="26" width="100" height="70"/>
+        </g>
+        <g fill="none" stroke="#1A1714" stroke-width="1.4" stroke-linecap="round" opacity=".45">
+          <circle cx="46" cy="52" r="9"/><path d="M26 86 q18 -26 34 -8 q12 14 26 6"/>
+        </g>
+        <g fill="none" stroke="#1A1714" stroke-width="1.6" stroke-linecap="round" opacity=".75">
+          <circle cx="162" cy="52" r="9"/><path d="M142 86 q18 -28 36 -8 q12 14 26 6"/><path d="M150 68 h34" opacity=".5"/>
+        </g>
+        <g fill="none" stroke="#1A1714" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="278" cy="52" r="9"/><path d="M258 86 q18 -30 38 -8 q12 14 26 6"/><path d="M266 68 h34"/>
+          <circle cx="300" cy="40" r="2.2" fill="#BC423B" stroke="none"/>
+        </g>
+        <!-- plate numbers under each frame -->
+        <g font-family="ui-monospace,Menlo,monospace" font-size="8" letter-spacing="1.6" fill="#A9A29A">
+          <text x="14" y="110">01 SCRIPT</text><text x="130" y="110">02 BOARD</text><text x="246" y="110">03 LOCK</text>
+        </g>
+        <!-- routing rules down to the render -->
+        <path d="M64 120 v16 M180 120 v16 M296 120 v16 M64 136 h232 M180 136 v18" stroke="#1A1714" stroke-width="1.2" fill="none" opacity=".55"/>
+        <!-- finished frame -->
+        <rect x="60" y="154" width="240" height="112" fill="none" stroke="#1A1714" stroke-width="1.8"/>
+        <path d="M60 176 h240 M60 244 h240" stroke="#1A1714" stroke-width="1" opacity=".35"/>
+        <g fill="none" stroke="#1A1714" stroke-width="1" opacity=".35">
+          <rect x="70" y="162" width="9" height="7"/><rect x="94" y="162" width="9" height="7"/><rect x="118" y="162" width="9" height="7"/>
+          <rect x="142" y="162" width="9" height="7"/><rect x="166" y="162" width="9" height="7"/><rect x="190" y="162" width="9" height="7"/>
+          <rect x="214" y="162" width="9" height="7"/><rect x="238" y="162" width="9" height="7"/><rect x="262" y="162" width="9" height="7"/>
+          <rect x="70" y="251" width="9" height="7"/><rect x="94" y="251" width="9" height="7"/><rect x="118" y="251" width="9" height="7"/>
+          <rect x="142" y="251" width="9" height="7"/><rect x="166" y="251" width="9" height="7"/><rect x="190" y="251" width="9" height="7"/>
+          <rect x="214" y="251" width="9" height="7"/><rect x="238" y="251" width="9" height="7"/><rect x="262" y="251" width="9" height="7"/>
+        </g>
+        <polygon points="170,198 170,222 194,210" fill="#BC423B"/>
+        <text x="60" y="284" font-family="ui-monospace,Menlo,monospace" font-size="8" letter-spacing="1.6" fill="#A9A29A">04 RENDER — VOICE, SCORE, EXPORT</text>
+      </svg>
+    </div>
+  </a>
+
   <div class="gallery">
 
     <!-- Cornelia -->
     <article class="app-card">
       <a class="app-visual" href="/cornelia.html" aria-label="Open the Cornelia page">
-        <span class="app-badge gold">Nearly ready</span>
+        <span class="app-badge gold">Production ready</span>
         <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cornelia blueprint sketch">
           <rect width="320" height="200" fill="#F6F0E3"/>
           <g stroke="#2B4257" opacity=".18" stroke-width="1">
@@ -272,7 +400,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
       </a>
       <div class="app-body">
         <div class="app-head"><h3>Cornelia</h3><span class="tag">Study notes</span></div>
-        <p>Our note-taking app for students &mdash; record lectures, transcribe, and organise everything into calm, Cornell-style notes. Android first, nearly ready.</p>
+        <p>Our note-taking app for students &mdash; record lectures, transcribe, and organise everything into calm, Cornell-style notes. Android first, production ready and heading to the store.</p>
         <div class="app-actions">
           <a class="btn btn-primary" href="/cornelia.html">Explore</a>
           <a class="app-link" href="/cornelia.html#waitlist">Join waitlist &rarr;</a>
@@ -317,7 +445,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
     <!-- CallMe -->
     <article class="app-card">
       <a class="app-visual" href="/callme.html" aria-label="Open the CallMe page">
-        <span class="app-badge">In development</span>
+        <span class="app-badge gold">Production ready</span>
         <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CallMe blueprint sketch">
           <rect width="320" height="200" fill="#F6F0E3"/>
           <g stroke="#2B4257" opacity=".18" stroke-width="1">
@@ -387,7 +515,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
       </div>
       <div class="hero-cta" style="margin-top:0">
         <a class="btn btn-gold" href="/jobs/">See open roles &rarr;</a>
-        <a class="btn btn-ghost" href="mailto:support@m3xi.com?subject=I'd like to join M3XI">Say hello</a>
+        <a class="btn btn-ghost" href="mailto:M3xiTeam@m3xi.com?subject=I'd like to join M3XI">Say hello</a>
       </div>
     </div>
     <aside class="honest">
@@ -403,10 +531,13 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
   <h2>Who&rsquo;s behind <em>M3XI.</em></h2>
   <div class="people">
     <article class="person">
-      <span class="av" style="overflow:hidden"><img src="/M.png" alt="M3XI" style="width:100%;height:100%;border-radius:14px;object-fit:cover" /></span>
-      <p class="role">Founder &amp; CEO</p>
-      <h3>Michael</h3>
-      <p>Started M3XI to build a long-term home for software, apps, and one day robotics &mdash; made with creativity and care.</p>
+      <a href="/michael/" aria-label="Meet Michael — CEO profile" style="display:block">
+        <span class="av" style="overflow:hidden"><img src="/M.png" alt="M3XI" style="width:100%;height:100%;border-radius:14px;object-fit:cover" /></span>
+        <p class="role">Founder &amp; CEO</p>
+        <h3>Michael</h3>
+        <p>Model, engineer and Creative Robotics student at UAL. Started M3XI to build a long-term home for software, apps, and one day robotics.</p>
+        <p style="margin-top:12px"><span class="app-link">Meet Michael &rarr;</span></p>
+      </a>
     </article>
     <article class="person">
       <span class="av" style="overflow:hidden"><img src="/M.png" alt="M3XI" style="width:100%;height:100%;border-radius:14px;object-fit:cover" /></span>
@@ -427,7 +558,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
   <p class="eyebrow">Say hello</p>
   <h2>Let&rsquo;s make something <em>together.</em></h2>
   <div class="contact-card">
-    <a class="email" href="mailto:support@m3xi.com">support@m3xi.com</a>
+    <a class="email" href="mailto:M3xiTeam@m3xi.com">M3xiTeam@m3xi.com</a>
     <div class="socials" aria-label="M3XI social media links">
       <a href="https://www.instagram.com/m3xicorp/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5a4.25 4.25 0 0 0 4.25 4.25h8.5a4.25 4.25 0 0 0 4.25-4.25v-8.5a4.25 4.25 0 0 0-4.25-4.25h-8.5Zm9.12 1.6a1.12 1.12 0 1 1 0 2.24 1.12 1.12 0 0 1 0-2.24ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/></svg>
@@ -445,8 +576,8 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 <footer class="site"><div class="wrap foot">
   <div>M3XI <span class="jp">三X一</span> · building software that works</div>
   <nav class="lnks">
-    <a href="/">Home</a><a href="/cornelia.html">Cornelia</a><a href="/autouv.html">AutoUV</a><a href="/callme.html">CallMe</a>
-    <a href="/projects/">Projects</a><a href="/jobs/">Jobs</a><a href="/privacy/">Policies</a><a href="/terms/">Terms</a>
+    <a href="/">Home</a><a href="/studio/">Studio</a><a href="/cornelia.html">Cornelia</a><a href="/autouv.html">AutoUV</a><a href="/callme.html">CallMe</a>
+    <a href="/michael/">Michael</a><a href="/projects/">Projects</a><a href="/jobs/">Jobs</a><a href="/privacy/">Policies</a><a href="/terms/">Terms</a>
   </nav>
   <div>© <span id="year">2026</span> M3XI</div>
 </div></footer>
