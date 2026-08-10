@@ -154,6 +154,25 @@ details.adv label{display:block;font-size:11px;font-weight:700;letter-spacing:.1
   padding:14px;height:150px;overflow:auto;white-space:pre-wrap;border:3px solid var(--line);box-shadow:6px 6px 0 rgba(208,64,43,.5)}
 .price-note{font-size:12.5px;color:var(--mut);margin-top:10px}
 
+/* ---------- composer ---------- */
+.composer{margin-top:16px;border-top:2px dashed rgba(22,21,18,.3);padding-top:14px}
+.cbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.intent{border:3px solid var(--line);background:var(--card);padding:8px 10px;font-family:var(--body);
+  font-weight:700;font-size:13.5px;color:var(--ink);cursor:pointer}
+.intent:focus{outline:3px solid rgba(208,64,43,.4)}
+.ihint{flex:1;min-width:140px;font-style:italic}
+.kbd{border:2px solid rgba(255,255,255,.5);padding:0 5px;font-size:11px;margin-left:2px}
+.manualRow{margin-top:12px;opacity:.85}
+/* Full-page drop target — dragging a file anywhere should attach it, the way a
+   chat window does, rather than hunting for a small upload rectangle. */
+#dropVeil{position:fixed;inset:0;z-index:900;display:none;align-items:center;justify-content:center;
+  background:rgba(22,21,18,.72);backdrop-filter:blur(2px)}
+#dropVeil.on{display:flex}
+#dropVeil .card{background:var(--card);border:4px dashed var(--red);padding:40px 54px;text-align:center;
+  box-shadow:10px 10px 0 rgba(22,21,18,.9);transform:rotate(-1deg)}
+#dropVeil h3{font-family:var(--disp);font-size:26px;letter-spacing:.04em;margin-bottom:6px}
+#dropVeil p{color:var(--mut);font-size:14px}
+
 /* ---------- worlds ---------- */
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-bottom:34px}
 @media(max-width:900px){.steps{grid-template-columns:1fr}}
@@ -339,13 +358,31 @@ footer a{color:var(--ink)}
         <div class="srow">
           <button class="btn sm ghost" id="btnAttach">Attach images</button>
           <input type="file" id="attachInput" accept="image/*" multiple style="display:none">
-          <span class="small">Up to 4 — first one steers image &amp; video, and is the base for 3D assets.</span>
+          <span class="small">Or drag them straight onto the page — up to 4. The first steers image &amp; video, and is the base for 3D assets.</span>
         </div>
-        <div class="srow" style="margin-top:20px">
-          <button class="btn red" id="btnGenImg">Generate image</button>
-          <button class="btn" id="btnGenVid">Generate video</button>
-          <button class="btn" id="btnGenAsset">Generate 3D asset</button>
-          <button class="btn" id="btnGenWorld">Generate world</button>
+
+        <!-- Composer: say what you want, press Enter. The engine is chosen from
+             what you wrote, and shown so it is never a guess you cannot see. -->
+        <div class="composer">
+          <div class="cbar">
+            <span class="small">Making</span>
+            <select id="intentSel" class="intent">
+              <option value="auto">Auto — read my prompt</option>
+              <option value="image">an image</option>
+              <option value="video">a video clip</option>
+              <option value="asset">a 3D asset</option>
+              <option value="world">a walkable world</option>
+            </select>
+            <span class="ihint small" id="intentHint">start typing…</span>
+            <button class="btn red" id="btnSend">Send <span class="kbd">⏎</span></button>
+          </div>
+        </div>
+        <div class="srow manualRow">
+          <span class="small">or run one directly:</span>
+          <button class="btn sm ghost" id="btnGenImg">Image</button>
+          <button class="btn sm ghost" id="btnGenVid">Video</button>
+          <button class="btn sm ghost" id="btnGenAsset">3D asset</button>
+          <button class="btn sm ghost" id="btnGenWorld">World</button>
         </div>
         <p class="price-note" style="margin-top:6px"><b>Generate world</b> builds a full walkable 3D space from your prompt, your attached photos (1–4 shots of a place, different sides help), or both — then publishes it straight to the Library.</p>
         <div class="srow">
@@ -732,7 +769,7 @@ function renderThumbs(){
   attachments.forEach((a,i)=>{
     const d=document.createElement('div');d.className='thumb';
     d.innerHTML='<img src="'+a.url+'" alt="ref '+(i+1)+'"><button title="Remove">×</button>';
-    d.querySelector('button').onclick=()=>{attachments.splice(i,1);renderThumbs();};
+    d.querySelector('button').onclick=()=>{attachments.splice(i,1);renderThumbs();if(window.__updateIntentHint)window.__updateIntentHint();};
     t.appendChild(d);
   });
 }
@@ -747,13 +784,99 @@ function addFiles(files){
       c.getContext('2d').drawImage(img,0,0,c.width,c.height);
       attachments.push({url:c.toDataURL('image/jpeg',0.9),name:f.name});
       renderThumbs();glog('+ Attached '+f.name+(s<1?' (resized for upload)':''));
+      if(window.__updateIntentHint)window.__updateIntentHint();
     };
     img.src=URL.createObjectURL(f);
   });
 }
 $('#btnAttach').onclick=()=>$('#attachInput').click();
 $('#attachInput').onchange=e=>{addFiles(e.target.files);e.target.value='';};
-$('#genPrompt').addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')$('#btnGenImg').click();});
+
+/* ---------- composer: one prompt, the engine picked from what you wrote -------
+   The four buttons are still there for anyone who wants them, but the primary
+   move is now to describe the thing and press Enter. Intent is read from the
+   words and DISPLAYED before you send — a router that silently guesses wrong is
+   worse than no router, because you pay credits for the wrong engine.
+   ---------------------------------------------------------------------------- */
+const INTENT_RULES=[
+  // Order matters: "3D world" is a world, not an asset; "video of a room" is video.
+  {k:'world',re:/\b(world|walk(able|through)?|explore|environment|3d\s*space|space i can|tour of|twin|scan)\b/i,
+   label:'a walkable world',btn:'#btnGenWorld'},
+  {k:'asset',re:/\b(3d\s*(asset|model|object|prop|mesh)|\bglb\b|\bmesh\b|printable|turntable)\b/i,
+   label:'a 3D asset',btn:'#btnGenAsset'},
+  {k:'video',re:/\b(video|clip|anima(te|tion)|moving|motion|footage|film|pan|dolly|zoom|cinemagraph|seconds?\b)\b/i,
+   label:'a video clip',btn:'#btnGenVid'},
+  {k:'image',re:/.*/,label:'an image',btn:'#btnGenImg'},
+];
+const COST={image:'1 credit',video:'60 credits',asset:'15 credits',world:'150 credits (draft 40)'};
+function detectIntent(text){
+  const t=(text||'').trim();
+  if(!t)return null;
+  for(const r of INTENT_RULES)if(r.re.test(t))return r;
+  return INTENT_RULES[INTENT_RULES.length-1];
+}
+function currentIntent(){
+  const sel=$('#intentSel').value;
+  if(sel!=='auto')return INTENT_RULES.find(r=>r.k===sel);
+  return detectIntent($('#genPrompt').value);
+}
+function updateIntentHint(){
+  const el=$('#intentHint');if(!el)return;
+  const txt=$('#genPrompt').value.trim();
+  const r=currentIntent();
+  const refs=attachments.length?attachments.length+' reference'+(attachments.length>1?'s':'')+' attached · ':'';
+  if(!txt&&!attachments.length){el.textContent='start typing…';return;}
+  if(!r){el.textContent=refs+'describe it and press Enter';return;}
+  const auto=$('#intentSel').value==='auto';
+  el.textContent=(auto?'reading your prompt as ':'')+r.label+' · '+COST[r.k]
+    +(attachments.length?' · '+attachments.length+' reference'+(attachments.length>1?'s':''):'');
+}
+$('#genPrompt').addEventListener('input',updateIntentHint);
+window.__updateIntentHint=updateIntentHint;
+window.__detectIntent=detectIntent;
+$('#intentSel').addEventListener('change',updateIntentHint);
+function sendPromptNow(){
+  const r=currentIntent();
+  if(!r){glog('✗ Write what you want first — or attach a photo and describe the change.');return;}
+  const btn=$(r.btn);
+  if(!btn){glog('✗ That engine is not available.');return;}
+  glog('▸ '+r.label.replace(/^an? /,'')+' — sending…');
+  btn.click();
+}
+$('#btnSend').onclick=sendPromptNow;
+// Enter sends, Shift+Enter makes a new line — the convention every chat box uses.
+$('#genPrompt').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendPromptNow();}
+  else if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();sendPromptNow();}
+});
+
+/* Drag a file anywhere onto the page to attach it, and paste from the clipboard.
+   dragenter/dragleave fire for every child element, so the veil is reference
+   counted — otherwise it flickers off the moment the cursor crosses a border. */
+(function dropAnywhere(){
+  const veil=document.createElement('div');
+  veil.id='dropVeil';
+  veil.innerHTML='<div class="card"><h3>Drop to attach</h3><p>Up to 4 images — they become the reference for what you make next.</p></div>';
+  document.body.appendChild(veil);
+  let depth=0;
+  const hasFiles=e=>e.dataTransfer&&[...(e.dataTransfer.types||[])].includes('Files');
+  addEventListener('dragenter',e=>{if(!hasFiles(e))return;e.preventDefault();depth++;veil.classList.add('on');});
+  addEventListener('dragover',e=>{if(hasFiles(e))e.preventDefault();});
+  addEventListener('dragleave',e=>{if(!hasFiles(e))return;depth=Math.max(0,depth-1);if(!depth)veil.classList.remove('on');});
+  addEventListener('drop',e=>{
+    if(!hasFiles(e))return;
+    e.preventDefault();depth=0;veil.classList.remove('on');
+    const files=[...(e.dataTransfer.files||[])];
+    const imgs=files.filter(f=>f.type.startsWith('image/'));
+    if(!imgs.length){glog('✗ Only images can be attached here. For a scan file, use the World Viewer.');return;}
+    addFiles(imgs);
+    const box=$('#genPrompt');if(box)box.focus();
+  });
+  addEventListener('paste',e=>{
+    const items=[...((e.clipboardData&&e.clipboardData.files)||[])].filter(f=>f.type.startsWith('image/'));
+    if(items.length){addFiles(items);glog('+ Pasted '+items.length+' image'+(items.length>1?'s':''));}
+  });
+})();
 const genMode=()=>{const s=$('#genMode');return s?s.value:'backend';};
 $('#genMode').onchange=()=>{$('#directBox').style.display=genMode()==='direct'?'':'none';};
 
