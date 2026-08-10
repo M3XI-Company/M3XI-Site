@@ -556,8 +556,12 @@ function canStand(x,z,feetY){
   if(!collideOn||!colGrid)return true;
   const i=cellIndex(x,z);
   if(i<0)return false;
-  if(colGrid.reach&&!colGrid.reach[i])return false;
-  if(!colGrid.reach&&!colGrid.walk[i])return false;
+  // Any ground a body fits on is walkable — NOT only the largest connected
+  // region. Gating on `reach` locked visitors out of every side room whose
+  // doorway the clearance test judged a shade too narrow: a whole space in
+  // their own scan, present on screen and permanently unreachable. `reach` now
+  // only decides where to SPAWN and what to report, never where you may go.
+  if(!colGrid.walk[i])return false;
   const f=colGrid.floorY[i];
   if(f!==f)return false;
   if(f-feetY>STEP_UP)return false;   // stairs are climbed one tread at a time
@@ -600,8 +604,11 @@ window.__colInfo=()=>{
     if(colGrid.floorY[i]===colGrid.floorY[i])fl++;
     if(colGrid.reach&&colGrid.reach[i])rc++;
   }
+  let wk=0;for(let i=0;i<colGrid.walk.length;i++)if(colGrid.walk[i])wk++;
   return{built:true,w:colGrid.w,h:colGrid.h,cell:colGrid.cs,solid:s,floor:fl,
-    walkable:rc,areaM2:colDiag.areaM2,threshold:colDiag.threshold};
+    walkable:wk,largestRegion:rc,
+    areaM2:+(wk*colGrid.cs*colGrid.cs).toFixed(1),
+    mainAreaM2:colDiag.areaM2,threshold:colDiag.threshold};
 };
 window.__canStand=(x,z)=>{const f=cellFloor(x,z);return canStand(x,z,f===null?player.feetY:f);};
 window.__colDiag=()=>colDiag;
@@ -1196,7 +1203,13 @@ function reportClean(){
   if(cs&&cs.error)bits.push('cleanup failed: '+cs.error);
   else if(cs&&cs.removed)bits.push(cs.pct+'% of splats hidden');
   else bits.push('showing every splat');
-  if(ci&&ci.built)bits.push(ci.areaM2+' m² walkable');
+  if(ci&&ci.built){
+    bits.push(ci.areaM2+' m² walkable');
+    // If the biggest room is much smaller than the total, some of the scan can
+    // be stood on but not reached on foot. Say so rather than hide it.
+    if(ci.mainAreaM2&&ci.areaM2-ci.mainAreaM2>1.5)
+      bits.push(ci.mainAreaM2+' m² of it in one piece — fly mode reaches the rest');
+  }
   else if(ci&&ci.reason)bits.push(ci.reason);
   el.textContent=bits.join(' · ');
 }
