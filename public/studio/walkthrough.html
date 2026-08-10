@@ -253,6 +253,105 @@ scene.add(spark);
 const splatRoot=new THREE.Group();scene.add(splatRoot);
 let splat=null,splatCount=0;
 
+/* ---------- auto-level: work out which way is up in this scan -----------------
+   Capture tools do not agree on an up-axis. A Marble-generated world comes out
+   Y-up; a phone scan exported as PLY (Scaniverse, COLMAP and friends) is almost
+   always Z-up. This viewer assumes Y-up, so a Z-up scan arrives lying on its
+   side, and everything downstream goes wrong at once:
+
+     - you spawn inside a desk, so the room renders as an orange smear
+     - "knee to head" is measured along an axis that runs HORIZONTALLY through
+       the room, so no cell ever shows a wall's signature. Measured on the
+       office scan: ZERO solid cells out of 3,894 — no walls at all, which is
+       why you could drift through furniture
+     - the floor lands metres away from the player's feet (feet at +3.05 while
+       the scan's floor sat at -3.72)
+
+   The floor gives the answer away. Along the true up-axis a room's points pile
+   into one thin, very dense slab; along the other two the spread is broad. So
+   histogram all three axes, take the sharpest peak, and rotate that axis to +Y.
+   The office scan scores z=0.058 against y=0.031 and x=0.027 — Z-up, decisively.
+
+   Only applied when the world has no saved transform: a world someone has
+   calibrated by hand must never be silently re-rotated underneath them.
+   ---------------------------------------------------------------------------- */
+function axisProfile(vals){
+  vals.sort((a,b)=>a-b);
+  const lo=vals[Math.floor(vals.length*0.01)],hi=vals[Math.floor(vals.length*0.99)];
+  const span=(hi-lo)||1,B=100,h=new Float64Array(B);
+  for(const v of vals){let b=Math.floor((v-lo)/span*B);if(b<0)b=0;if(b>=B)b=B-1;h[b]++;}
+  let peak=0,peakBin=0;
+  for(let b=0;b<B;b++)if(h[b]>peak){peak=h[b];peakBin=b;}
+  return{peakFrac:peak/vals.length,peakAt:peakBin/B,span};
+}
+
+/* Returns e.g. {axis:'z',sign:-1} meaning "-Z is up in this file". */
+function detectUp(){
+  if(!splat)return null;
+  const src=splat.packedSplats||splat.splats;
+  if(!src||!src.forEachSplat)return null;
+  const n=src.getNumSplats?src.getNumSplats():0;
+  if(n<3000)return null;
+  const st=Math.max(1,Math.floor(n/80000));
+  const X=[],Y=[],Z=[];
+  src.forEachSplat((i,c)=>{if(i%st)return;
+    if(cleanMask&&cleanMask[i])return;
+    X.push(c.x);Y.push(c.y);Z.push(c.z);});
+  if(X.length<500)return null;
+  const p={x:axisProfile(X),y:axisProfile(Y),z:axisProfile(Z)};
+  let axis='y',best=-1;
+  for(const k of ['x','y','z'])if(p[k].peakFrac>best){best=p[k].peakFrac;axis=k;}
+  // A floor sits at one END of the up-axis. If the dense slab is at the top of
+  // the range then that axis points DOWN, and the scan needs flipping.
+  const sign=p[axis].peakAt>0.5?-1:1;
+  // Only act when one axis is meaningfully sharper than the others; an ambiguous
+  // reading means a scan with no clear floor, and guessing would make it worse.
+  const others=['x','y','z'].filter(k=>k!==axis).map(k=>p[axis].peakFrac/Math.max(1e-9,p[k].peakFrac));
+  const confidence=Math.min.apply(null,others);
+  return{axis,sign,confidence,profiles:p};
+}
+
+let autoLevelInfo=null;
+function autoLevel(){
+  autoLevelInfo=null;
+  if(!splat)return;
+  splatRoot.rotation.set(0,0,0);           // detect in the file's own frame
+  const up=detectUp();
+  if(!up){autoLevelInfo={applied:false,reason:'not enough geometry to find a floor'};return;}
+  if(up.confidence<1.25){
+    autoLevelInfo={applied:false,axis:up.axis,confidence:+up.confidence.toFixed(2),
+      reason:'no obvious floor — left as captured'};
+    return;
+  }
+  const H=Math.PI/2;
+  // Rotate the detected up-axis onto +Y.
+  if(up.axis==='z')      splatRoot.rotation.x = up.sign>0 ? -H :  H;
+  else if(up.axis==='x') splatRoot.rotation.z = up.sign>0 ?  H : -H;
+  else if(up.sign<0)     splatRoot.rotation.x = Math.PI;   // Y-up but upside down
+  autoLevelInfo={applied:up.axis!=='y'||up.sign<0,axis:up.axis,sign:up.sign,
+    confidence:+up.confidence.toFixed(2)};
+}
+window.__autoLevel=()=>autoLevelInfo;
+window.__detectUp=detectUp;
+
+/* After levelling, stand the player ON the floor rather than at whatever height
+   y=0 happens to be in this file — that alone is the difference between opening
+   inside a desk and opening in the room. */
+function dropToFloor(){
+  if(!colGrid)return;
+  let lo=Infinity,n=0,sum=0;
+  for(let i=0;i<colGrid.floorY.length;i++){
+    const f=colGrid.floorY[i];
+    if(f!==f)continue;
+    if(!colGrid.walk[i])continue;
+    if(f<lo)lo=f;
+    sum+=f;n++;
+  }
+  if(!n)return;
+  player.floor=sum/n;          // typical floor height, not the lowest stray cell
+  if(!isFinite(player.floor))player.floor=0;
+}
+
 /* ---------- scan cleanup: the spikes, the haze, and the invisible walls -------
    A photogrammetry scan carries three kinds of rubbish, and they are the same
    rubbish wearing different hats:
@@ -300,7 +399,7 @@ function cleanScan(level){
       }
       cleanMask=null;
     }
-    if(!p||!cleanOn){cleanStats={removed:0,pct:0};ps.needsUpdate=true;buildCollision();ensureSpawn();return;}
+    if(!p||!cleanOn){cleanStats={removed:0,pct:0};ps.needsUpdate=true;buildCollision();dropToFloor();ensureSpawn(true);return;}
 
     const samp=[];const st=Math.max(1,Math.floor(n/50000));
     ps.forEachSplat((i,c,s)=>{if(i%st)return;
@@ -325,7 +424,7 @@ function cleanScan(level){
     cleanMask=mask;
     cleanStats={removed,pct:+(100*removed/n).toFixed(1),median:med,big:BIG,level:cleanLevel};
   }catch(e){cleanStats={error:String(e&&e.message||e)};}
-  buildCollision();ensureSpawn();
+  buildCollision();dropToFloor();ensureSpawn(true);
 }
 window.__cleanScan=cleanScan;
 window.__cleanStats=()=>cleanStats;
@@ -463,16 +562,29 @@ function buildCollision(){
       for(let i=0;i<N;i++)
         if(!solid[i]&&cnt[i]>=MIN_CELL&&floorY[i]===floorY[i]&&clear[i]>=need)walk[i]=1;
       const reg=largestRegion(walk,floorY,w,h);
-      if(!best||reg.cells>best.reg.cells)best={thr,solid,walk,reg};
-      if(reg.cells*cs*cs>=8&&reg.cells>=occupied*0.25)break; // enough room to explore
+      let nSolid=0;for(let i=0;i<N;i++)if(solid[i])nSolid++;
+      // "Largest walkable area" is trivially maximised by having NO walls, which
+      // is exactly the degenerate answer this picked on the office scan: 0 solid
+      // cells and a 99.7 m2 field you could drift straight through. A room has
+      // structure, so a candidate with no structure cannot win.
+      const hasStructure=nSolid>=Math.max(4,occupied*0.01);
+      const better=!best||(hasStructure&&!best.hasStructure)||
+        (hasStructure===best.hasStructure&&reg.cells>best.reg.cells);
+      if(better)best={thr,solid,walk,reg,hasStructure,nSolid};
+      if(hasStructure&&reg.cells*cs*cs>=8&&reg.cells>=occupied*0.25)break;
     }
 
     colGrid={minx,minz,cs,w,h,solid:best.solid,walk:best.walk,reach:best.reg.mask,floorY,cnt};
+    // 2 m2 is about the size of a doorway landing: below that there is nowhere
+    // to actually walk, so collision would only ever say no.
+    colGrid.usable=best.reg.cells*cs*cs>=2;
     colDiag={ok:best.reg.cells>0,
       cells:best.reg.cells,
       areaM2:+(best.reg.cells*cs*cs).toFixed(1),
       threshold:best.thr,grid:w+'x'+h,cell:+cs.toFixed(2),
-      reason:best.reg.cells>0?'ok':'this scan has no ground a person could stand on'};
+      walls:best.nSolid,
+      reason:best.reg.cells>0?(best.hasStructure?'ok':'no walls found — the scan may not be level'):
+        'this scan has no ground a person could stand on'};
   }catch(e){colGrid=null;colDiag={ok:false,reason:'collision build failed: '+(e&&e.message||e)};}
 }
 
@@ -554,6 +666,10 @@ function cellFloor(x,z){
    target cell part of the walkable region, and is the step up to it a step. */
 function canStand(x,z,feetY){
   if(!collideOn||!colGrid)return true;
+  // A collision grid that found almost nowhere to stand must not become a cage.
+  // Refusing every step is indistinguishable from the app hanging, so below a
+  // usable floor area we stand down and let the visitor move freely.
+  if(!colGrid.usable)return true;
   const i=cellIndex(x,z);
   if(i<0)return false;
   // Any ground a body fits on is walkable — NOT only the largest connected
@@ -567,33 +683,52 @@ function canStand(x,z,feetY){
   if(f-feetY>STEP_UP)return false;   // stairs are climbed one tread at a time
   return true;
 }
-function ensureSpawn(){
+function ensureSpawn(force){
   if(!colGrid||!collideOn)return;
-  const R=colGrid.reach;
+  const W=colGrid.walk,F=colGrid.floorY,cs=colGrid.cs,w=colGrid.w,N=w*colGrid.h;
+  // Which height IS the floor? A scan often contains a desk top, a windowsill
+  // and a roof as well as the ground, and the biggest connected patch is not
+  // reliably the one you should stand on — on the office scan it put the visitor
+  // 3.2m up, inside the furniture. The room's real floor is the height that the
+  // most standable cells share, so bucket the floors and take the mode.
+  const BUCKET=0.25;let lo=Infinity,hi=-Infinity;
+  for(let i=0;i<N;i++){if(!W[i])continue;const f=F[i];if(f!==f)continue;
+    if(f<lo)lo=f;if(f>hi)hi=f;}
+  if(!isFinite(lo))return;
+  const nb=Math.max(1,Math.ceil((hi-lo)/BUCKET)+1),hist=new Uint32Array(nb);
+  for(let i=0;i<N;i++){if(!W[i])continue;const f=F[i];if(f!==f)continue;
+    hist[Math.min(nb-1,Math.floor((f-lo)/BUCKET))]++;}
+  let mb=0,mv=0;for(let b=0;b<nb;b++)if(hist[b]>mv){mv=hist[b];mb=b;}
+  const groundY=lo+(mb+0.5)*BUCKET;
+
+  const onGround=i=>{const f=F[i];return f===f&&Math.abs(f-groundY)<=0.45;};
+  // Keep the visitor where they are only if they are already standing on that
+  // floor — otherwise place them on it.
   const here=cellIndex(player.x,player.z);
-  if(here>=0&&R&&R[here]){player.feetY=colGrid.floorY[here];return;}
-  // Land in the middle of the walkable region, not the nearest free cell — the
-  // nearest one is usually a sliver on the far side of a wall.
+  if(!force&&here>=0&&W[here]&&onGround(here)){player.feetY=F[here];return;}
+
   let sx=0,sz=0,n=0;
-  for(let i=0;i<colGrid.w*colGrid.h;i++){
-    if(!R||!R[i])continue;
-    sx+=colGrid.minx+((i%colGrid.w)+0.5)*colGrid.cs;
-    sz+=colGrid.minz+(((i/colGrid.w)|0)+0.5)*colGrid.cs;n++;
+  for(let i=0;i<N;i++){if(!W[i]||!onGround(i))continue;
+    sx+=colGrid.minx+((i%w)+0.5)*cs;sz+=colGrid.minz+(((i/w)|0)+0.5)*cs;n++;}
+  if(!n){ // no clear ground plane: fall back to the largest connected patch
+    const R=colGrid.reach;
+    for(let i=0;i<N;i++){if(!R||!R[i])continue;
+      sx+=colGrid.minx+((i%w)+0.5)*cs;sz+=colGrid.minz+(((i/w)|0)+0.5)*cs;n++;}
+    if(!n)return;
   }
-  if(!n)return;
   const cx=sx/n,cz=sz/n;
   let bi=-1,bd=1e9;
-  for(let i=0;i<colGrid.w*colGrid.h;i++){
-    if(!R||!R[i])continue;
-    const x=colGrid.minx+((i%colGrid.w)+0.5)*colGrid.cs;
-    const z=colGrid.minz+(((i/colGrid.w)|0)+0.5)*colGrid.cs;
+  for(let i=0;i<N;i++){
+    if(!W[i])continue;
+    if(n&&!onGround(i)&&colGrid.reach&&!colGrid.reach[i])continue;
+    const x=colGrid.minx+((i%w)+0.5)*cs,z=colGrid.minz+(((i/w)|0)+0.5)*cs;
     const d=(x-cx)*(x-cx)+(z-cz)*(z-cz);
     if(d<bd){bd=d;bi=i;}
   }
   if(bi>=0){
-    player.x=colGrid.minx+((bi%colGrid.w)+0.5)*colGrid.cs;
-    player.z=colGrid.minz+(((bi/colGrid.w)|0)+0.5)*colGrid.cs;
-    player.feetY=colGrid.floorY[bi];player.vy=0;player.grounded=true;
+    player.x=colGrid.minx+((bi%w)+0.5)*cs;
+    player.z=colGrid.minz+(((bi/w)|0)+0.5)*cs;
+    player.feetY=F[bi];player.floor=groundY;player.vy=0;player.grounded=true;
   }
 }
 window.__colInfo=()=>{
@@ -705,6 +840,7 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
   player.x=0;player.z=authored?2.2:0.01;player.yaw=0;player.pitch=0;
   orbit.target.set(0,player.floor+1,0);orbit.dist=authored?5:4;
   if(fromDoc)docExtras(fromDoc);
+  autoLevel();   // stand the scan the right way up BEFORE anything measures height
   cleanScan();   // hides spikes/haze/ghosts, then builds collision from what is left
   if(window.__reportClean)window.__reportClean();
   setStatus((splatCount?splatCount.toLocaleString()+' splats \u00b7 ':'')+(mode==='walk'?'drag to look \u00b7 WASD / joystick to move':'drag to orbit \u00b7 pinch or scroll to zoom'));
@@ -1203,6 +1339,9 @@ function reportClean(){
   if(cs&&cs.error)bits.push('cleanup failed: '+cs.error);
   else if(cs&&cs.removed)bits.push(cs.pct+'% of splats hidden');
   else bits.push('showing every splat');
+  const al=window.__autoLevel&&window.__autoLevel();
+  if(al&&al.applied)bits.push('levelled from '+al.axis.toUpperCase()+'-up');
+  else if(al&&al.reason)bits.push(al.reason);
   if(ci&&ci.built){
     bits.push(ci.areaM2+' m² walkable');
     // If the biggest room is much smaller than the total, some of the scan can
