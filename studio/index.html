@@ -1433,8 +1433,12 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
    one holder, seven waiters. A per-page serial queue keeps writes ordered
    within the tab, and the server's refresh-token reuse window absorbs the rare
    cross-tab refresh race. */
-let _authQ=Promise.resolve();
-function tabLock(_name,_timeout,fn){const r=_authQ.then(()=>fn());_authQ=r.catch(()=>{});return r;}
+/* And no in-page queue either: the client re-enters the lock during its own
+   initialisation (a queued op awaiting an op queued behind it), so a serial
+   queue deadlocks against itself. A plain passthrough is exactly what
+   supabase-js runs on browsers without navigator.locks — years of production
+   use, and refresh races are absorbed by the server's reuse window. */
+const tabLock=(_name,_timeout,fn)=>fn();
 const sb=createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,lock:tabLock}});
 const $=s=>document.querySelector(s);
 const say=(el,t,bad)=>{const e=$(el);if(e){e.textContent=t;e.style.color=bad?'var(--red)':'';}};

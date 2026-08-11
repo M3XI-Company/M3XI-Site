@@ -1831,8 +1831,7 @@ import { createClient as __cc } from 'https://cdn.jsdelivr.net/npm/@supabase/sup
 /* Per-page auth lock — never navigator.locks. This page is exactly the tab
    Chrome freezes (heavy WebGL, left in the background), and a frozen holder of
    the cross-tab lock wedges sign-in on every other m3xi.com tab. */
-let _authQ=Promise.resolve();
-const tabLock=(_n,_t,fn)=>{const r=_authQ.then(()=>fn());_authQ=r.catch(()=>{});return r;};
+const tabLock=(_n,_t,fn)=>fn();   // passthrough — see studio/index.html
 const sbAuth=__cc('https://tnlcuptfldwxtxajudoq.supabase.co',M3IX_W.key,
   {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,lock:tabLock}});
 async function userToken(){

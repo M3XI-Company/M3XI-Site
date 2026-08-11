@@ -425,8 +425,7 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 /* Per-page auth lock — never navigator.locks. A frozen background tab holding
    the cross-tab lock wedges auth on every m3xi.com page; see studio/index.html
    for the full story. */
-let _authQ=Promise.resolve();
-function tabLock(_name,_timeout,fn){const r=_authQ.then(()=>fn());_authQ=r.catch(()=>{});return r;}
+const tabLock=(_name,_timeout,fn)=>fn();   // passthrough — see studio/index.html
 const sb=createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,lock:tabLock}});
 window.__sb=sb;
 
