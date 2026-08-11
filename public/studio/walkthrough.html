@@ -1320,7 +1320,13 @@ function applyRememberedFix(fromDoc){
   const remembered=(fromDoc&&fromDoc.fix)||loadFixLocal();
   if(!remembered)return false;
   if(remembered.wall!=null)wallThreshold=Number(remembered.wall);
-  if(remembered.clean)cleanLevel=remembered.clean;
+  if(remembered.clean&&remembered.clean!==cleanLevel){
+    // The saved clean level must actually scrub, not just sit in a variable —
+    // afterLoad's own cleanScan has already run by the time we get here.
+    cleanLevel=remembered.clean;
+    const sel=document.getElementById('cleanLevel');if(sel)sel.value=cleanLevel;
+    if(splat)cleanScan(cleanLevel);
+  }
   const s=document.getElementById('wallSense');
   if(s&&wallThreshold!=null){s.value=wallThreshold;const v=document.getElementById('wallSenseVal');if(v)v.textContent=Number(wallThreshold).toFixed(2);}
   if(remembered.up)applyUp(remembered.up.axis,remembered.up.sign,{rebuild:false});
