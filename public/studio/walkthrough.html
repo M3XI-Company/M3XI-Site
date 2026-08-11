@@ -87,6 +87,7 @@ a{color:var(--gold)}
 </div>
 
 <div class="status" id="status">No scan loaded</div>
+<div id="fixHint" style="display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:74px;z-index:30;background:rgba(22,21,18,.92);color:#f4eedf;border:2px solid var(--red);padding:9px 14px;font-size:13px;max-width:520px;text-align:center">Room look wrong? Open <b>Calibrate</b> and try the &ldquo;which way is up&rdquo; buttons &mdash; the numbers jump on the right one.</div>
 <div class="hint" id="hint"></div>
 
 <div class="panel" id="calPanel">
@@ -113,6 +114,7 @@ a{color:var(--gold)}
 
   <div class="rowb" style="margin-top:12px">
     <button class="btn" id="btnSaveFix">Keep this fix</button>
+    <button class="btn" id="btnResetFix">Reset to automatic</button>
   </div>
   <div id="fixSaveMsg" style="font-size:11px;opacity:.75;margin-top:5px">&nbsp;</div>
 
@@ -138,6 +140,12 @@ a{color:var(--gold)}
       <option value="heavy">Heavy — aggressive, for messy scans</option>
     </select>
     <div id="cleanStat" style="font-size:11px;opacity:.7;margin-top:4px">&nbsp;</div>
+    <label style="display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.75;margin:10px 0 4px">Backdrop</label>
+    <select id="backdropSel" style="width:100%">
+      <option value="dim" selected>Dim sky — best for rooms</option>
+      <option value="dark">Dark — cleanest</option>
+      <option value="sky">Full sky — for outdoor scans</option>
+    </select>
     <label style="display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.75;margin:10px 0 4px">
       Sharpness <span id="sharpVal" class="small">0.82</span>
     </label>
@@ -316,8 +324,23 @@ function skyColours(hour){
   return{top:mix(a.top,b.top),bot:mix(a.bot,b.bot)};
 }
 let skyTex=null,skyCanvas=null;
+/* Backdrop modes. A Gaussian splat is semi-transparent at its edges, so
+   whatever sits behind the cloud shows through EVERY surface, not just through
+   gaps. A bright sky therefore speckles the walls and floor blue and the scan
+   reads as dirty — which is exactly what the daylight sky did. 'dim' keeps the
+   time-of-day colour but crushes it toward black so nothing bleeds through;
+   'dark' is flat near-black, the cleanest read for an interior; 'sky' is the
+   full brightness, which suits an exterior scan and ruins an interior. */
+let backdrop='dim';
+function dimRGB(c,f){
+  const m=/rgb\((\d+),(\d+),(\d+)\)/.exec(c);
+  if(!m)return c;
+  return 'rgb('+[1,2,3].map(i=>Math.round(+m[i]*f)).join(',')+')';
+}
 function updateSky(){
-  const{top,bot}=skyColours(ukHour());
+  let{top,bot}=skyColours(ukHour());
+  if(backdrop==='dark'){top='rgb(14,13,12)';bot='rgb(22,21,18)';}
+  else if(backdrop==='dim'){top=dimRGB(top,0.34);bot=dimRGB(bot,0.34);}
   if(!skyCanvas){skyCanvas=document.createElement('canvas');skyCanvas.width=8;skyCanvas.height=256;}
   const g=skyCanvas.getContext('2d');
   const grd=g.createLinearGradient(0,0,0,256);
@@ -333,7 +356,8 @@ function updateSky(){
 }
 updateSky();
 setInterval(updateSky,4*60*1000);
-window.__sky=()=>({ukHour:+ukHour().toFixed(2),...skyColours(ukHour())});
+window.__sky=()=>({ukHour:+ukHour().toFixed(2),backdrop,...skyColours(ukHour())});
+window.__setBackdrop=m=>{backdrop=m;updateSky();};
 
 let splat=null,splatCount=0;
 
@@ -474,30 +498,98 @@ function detectUp(){
     confidence:identity.score>0?win.score/identity.score:99,
     candidates:cands.slice(0,3)};
 }
+/* Which side of that flat plane is the FLOOR?
+   Area alone cannot tell: a ceiling is every bit as flat and open as a floor,
+   and on the bedroom the upside-down orientation actually scored MORE open
+   space (7.1 m2 against 4.4) because a ceiling has no furniture on it. Picking
+   by area therefore hung the room from its own ceiling.
+
+   Gravity settles it. Things REST on a floor and hang from nothing, so the
+   half-metre above a real floor is full of furniture while the half-metre below
+   a ceiling is air. Measured on the bedroom: upright carries 34.6% of its mass
+   just above the floor against 15.9% near the ceiling, a ratio of 2.2, while
+   inverted comes out 24.3 against 23.3 — a ratio of 1.0, which is the
+   signature of having guessed. */
+function floorLikeness(){
+  if(!splat||!colGrid)return 0;
+  const src=splat.packedSplats||splat.splats;
+  if(!src||!src.forEachSplat)return 0;
+  splatRoot.updateMatrixWorld(true);splat.updateMatrixWorld(true);
+  const M=splat.matrixWorld,v=new THREE.Vector3();
+  const n=src.getNumSplats?src.getNumSplats():0;
+  const st=Math.max(1,Math.floor(n/60000));
+  const g=(colGrid.groundY===colGrid.groundY)?colGrid.groundY:player.floor;
+  let near=0,head=0;
+  src.forEachSplat((i,c)=>{if(i%st)return;
+    if(cleanMask&&cleanMask[i])return;
+    v.copy(c).applyMatrix4(M);
+    const d=v.y-g;
+    if(d>0.05&&d<0.7)near++;      // where furniture lives
+    else if(d>1.9&&d<2.6)head++;  // where air lives
+  });
+  return near/Math.max(1,head);
+}
+
 let autoLevelInfo=null;
+/* Decide which way is up by OUTCOME, not by reading histograms.
+   The histogram heuristic kept getting it wrong in the way that matters most:
+   on the Gallery Loft it rotated a perfectly upright room 90 degrees, which is
+   the slant people were looking at. Guessing from the shape of a point
+   distribution is indirect. Building the collision for each candidate and
+   asking "which one produces a room" is direct, and a room is unmistakable:
+
+     - collision is USABLE (there is somewhere to stand at all). A scan on its
+       side produces so little standable ground that collision stands down
+       entirely, and the visitor then drifts through everything — which is how
+       a tipped loft measured 921 m2 of "reachable" floor.
+     - the walkable area is LARGE. Among orientations that produce a real room,
+       the correct one exposes the most of it: upright 24.8 m2 against 11 m2
+       lying on its side.
+
+   Six collision builds on load is a fraction of a second and it removes the
+   entire class of "why is my room sideways". */
 function autoLevel(){
   autoLevelInfo=null;
   if(!splat)return;
-  splatRoot.rotation.set(0,0,0);           // detect in the file's own frame
-  const up=detectUp();
-  if(!up){autoLevelInfo={applied:false,reason:'not enough geometry to find a floor'};return;}
-  if(!(up.score>0)){
-    autoLevelInfo={applied:false,reason:'no room-shaped floor found — left as captured'};
-    return;
-  }
-  if(!up.decisive){
-    autoLevelInfo={applied:false,axis:up.axis,margin:up.margin,
-      reason:'already upright (no clear reason to rotate)'};
-    return;
-  }
-  const H=Math.PI/2;
-  // Rotate the detected up-axis onto +Y.
-  if(up.axis==='z')      splatRoot.rotation.x = up.sign>0 ? -H :  H;
-  else if(up.axis==='x') splatRoot.rotation.z = up.sign>0 ?  H : -H;
-  else if(up.sign<0)     splatRoot.rotation.x = Math.PI;   // Y-up but upside down
-  autoLevelInfo={applied:up.axis!=='y'||up.sign<0,axis:up.axis,sign:up.sign,
-    confidence:+up.confidence.toFixed(2)};
+  /* AUTOMATIC ROTATION IS OFF, deliberately.
+     Three successive versions of the floor test each fixed one world and broke
+     the other — density, then room-shape, then mass-above-floor: 2.18 vs 1.55
+     said upright, 3.09 vs 2.18 said tipped. A heuristic that keeps swapping its
+     answer is not close to right, and every wrong answer put a visitor inside a
+     room lying on its side with no idea why.
+
+     A world is now shown exactly as it was authored. Marble worlds arrive
+     upright and stay upright. A scan that genuinely needs turning is one click
+     in the fix panel, that click is remembered for the visitor, and the owner
+     can save it into the world for everyone. Detection is still available
+     behind "Reset to automatic" for anyone who wants to try it, but it no
+     longer overrides a world that nobody asked it to touch. */
+  splatRoot.rotation.set(0,0,0);
+  splatRoot.updateMatrixWorld(true);
+  fixUp={axis:'y',sign:1};
+  autoLevelInfo={applied:false,axis:'y',sign:1,reason:'shown as authored'};
 }
+/* The measured version, kept for the panel's automatic option. */
+function autoLevelDetect(){
+  if(!splat)return null;
+  const CANDS=[['y',1],['z',1],['z',-1],['x',1],['x',-1],['y',-1]];
+  let best=null;
+  for(const [axis,sign] of CANDS){
+    applyUp(axis,sign,{rebuild:false});
+    buildCollision();
+    const usable=!!(colGrid&&colGrid.usable);
+    const area=(colGrid&&colDiag&&colDiag.areaM2)||0;
+    const ratio=usable?floorLikeness():0;
+    const cand={axis,sign,usable,area,ratio};
+    if(!best||(usable&&!best.usable)||(usable===best.usable&&ratio>best.ratio))best=cand;
+  }
+  if(best)applyUp(best.axis,best.sign,{rebuild:false});
+  autoLevelInfo={applied:!!best&&!(best.axis==='y'&&best.sign===1),
+    axis:best?best.axis:'y',sign:best?best.sign:1,
+    floorRatio:best?+best.ratio.toFixed(2):0,reason:'measured'};
+  return best;
+}
+window.__autoLevelDetect=autoLevelDetect;
 window.__autoLevel=()=>autoLevelInfo;
 window.__detectUp=detectUp;
 
@@ -801,6 +893,7 @@ function buildCollision(){
       const solid=new Uint8Array(N);
       for(let i=0;i<N;i++)if(cnt[i]>=MIN_CELL&&floorY[i]===floorY[i]&&bandFrac[i]>=thr)solid[i]=1;
       despeckle(solid,w,h);
+      keepWallRuns(solid,w,h,6);     // a wall is a run of cells, not a speck
       const clear=clearanceCells(solid,w,h);
       const need=BODY_R/cs;
       const walk=new Uint8Array(N);
@@ -818,15 +911,16 @@ function buildCollision(){
       // why walls could be walked through: on the bedroom it chose 20 walls and
       // 6.7 m2 over 103 walls and 3.9 m2. A room you can cross but not leave is
       // a room; an open plain with a bed in it is not.
-      const roomy=reg.cells*cs*cs>=2.5;
-      const bestRoomy=best?best.reg.cells*cs*cs>=2.5:false;
+      // Once the walls that survive are real runs, "more walls" stops being the
+      // goal — it was, and it walled people in. Take enough structure to enclose
+      // the space, then as much room to explore as possible.
+      const enough=nSolid>=Math.max(12,occupied*0.02);
+      const bestEnough=best?best.enough:false;
       let better;
       if(!best)better=true;
-      else if(hasStructure!==best.hasStructure)better=hasStructure;
-      else if(roomy!==bestRoomy)better=roomy;
-      else if(roomy)better=nSolid>best.nSolid;          // both walkable: more walls wins
-      else better=reg.cells>best.reg.cells;             // neither: take the roomier
-      if(better)best={thr,solid,walk,reg,hasStructure,nSolid};
+      else if(enough!==bestEnough)better=enough;        // structure first
+      else better=reg.cells>best.reg.cells;             // then room to walk
+      if(better)best={thr,solid,walk,reg,hasStructure,nSolid,enough};
       // no early exit: the whole ladder is compared, since the best answer is
       // usually not the first one that merely clears the area bar.
     }
@@ -844,6 +938,31 @@ function buildCollision(){
       reason:best.reg.cells>0?(best.hasStructure?'ok':'no walls found — the scan may not be level'):
         'this scan has no ground a person could stand on'};
   }catch(e){colGrid=null;colDiag={ok:false,reason:'collision build failed: '+(e&&e.message||e)};}
+}
+
+/* A real wall is a RUN, not a speck. Furniture and walls occupy long connected
+   groups of cells; scan noise occupies two or three. Dropping the small groups
+   is what removes invisible barriers — the ones that stop you in open floor
+   with nothing on screen to explain why — while leaving every actual wall
+   standing. This matters more than the wall COUNT: 103 walls made of specks is
+   a minefield, 60 walls made of runs is a room. */
+function keepWallRuns(solid,w,h,minRun){
+  const N=w*h,seen=new Uint8Array(N),stack=[];
+  for(let s0=0;s0<N;s0++){
+    if(seen[s0]||!solid[s0])continue;
+    const comp=[];stack.length=0;stack.push(s0);seen[s0]=1;
+    while(stack.length){
+      const i=stack.pop();comp.push(i);
+      const x=i%w,z=(i/w)|0;
+      for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){
+        if(!dx&&!dz)continue;
+        const X=x+dx,Z=z+dz;if(X<0||Z<0||X>=w||Z>=h)continue;
+        const j=Z*w+X;if(seen[j]||!solid[j])continue;
+        seen[j]=1;stack.push(j);
+      }
+    }
+    if(comp.length<minRun)for(const i of comp)solid[i]=0;
+  }
 }
 
 /* Remove lone solid cells (scan speckle) and close one-cell holes in walls. */
@@ -1101,6 +1220,19 @@ function reportFix(){
 }
 window.__reportFix=reportFix;
 
+/* If a world still looks wrong, say where the fix is. Auto-levelling now leaves
+   worlds alone unless the evidence is overwhelming, which means the occasional
+   crooked scan reaches a visitor — and a visitor who does not know the panel
+   exists just leaves. */
+function offerFix(){
+  const el=document.getElementById('fixHint');
+  if(!el)return;
+  const ci=window.__colInfo?window.__colInfo():null;
+  const poor=!ci||!ci.built||ci.solid<12||(ci.areaM2||0)<2.5;
+  el.style.display=poor?'block':'none';
+}
+window.__offerFix=offerFix;
+
 /* Owners can bake the fix into the world itself. Everyone else keeps it locally,
    which still fixes their own visit. */
 async function saveFixToWorld(){
@@ -1263,7 +1395,7 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
   // beats anything auto-levelling decided a moment ago.
   if(applyRememberedFix(fromDoc)){buildCollision();dropToFloor();ensureSpawn(true);}
   if(window.__reportClean)window.__reportClean();
-  reportFix();
+  reportFix();offerFix();
   setStatus((splatCount?splatCount.toLocaleString()+' splats \u00b7 ':'')+(mode==='walk'?'drag to look \u00b7 WASD / joystick to move':'drag to orbit \u00b7 pinch or scroll to zoom'));
   overlay.style.display='none';
 }
@@ -1391,6 +1523,19 @@ function endTouch(e){for(const t of e.changedTouches){
   if(t.identifier===moveTouch){moveTouch=null;stickVec={x:0,y:0};stickEl.style.display='none';nub.style.left='50%';nub.style.top='50%';}
   if(t.identifier===lookTouch)lookTouch=null;}}
 cv.addEventListener('touchend',endTouch);cv.addEventListener('touchcancel',endTouch);
+/* Esc leaves for the Library, R reloads the scene. Both are ignored while
+   typing in a field, otherwise naming a world becomes impossible — press r in
+   the name box and the page would reload under you. */
+addEventListener('keydown',e=>{
+  const t=e.target,typing=t&&(/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||t.isContentEditable);
+  if(typing)return;
+  if(e.key==='Escape'){
+    // Esc also releases the pointer lock; only leave when we do not hold it.
+    if(document.pointerLockElement)return;
+    e.preventDefault();location.href='/studio/#library';return;
+  }
+  if(e.key==='r'||e.key==='R'){e.preventDefault();location.reload();return;}
+});
 addEventListener('keydown',e=>{const k=e.key.toLowerCase();keys[k]=true;keys.shift=e.shiftKey;
   if(k==='e')tryOpenNearHotspot();
   if(['w','a','s','d',' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();});
@@ -1746,6 +1891,7 @@ $('#btnShare').onclick=()=>{
 };
 document.querySelectorAll('[data-rot]').forEach(b=>b.onclick=()=>{
   const [ax,deg]=b.dataset.rot.split(',');splatRoot.rotation[ax]+=Number(deg)*Math.PI/180;buildCollision();ensureSpawn();});
+$('#backdropSel').onchange=e=>{window.__setBackdrop(e.target.value);};
 $('#sharp').oninput=e=>{$('#sharpVal').textContent=Number(e.target.value).toFixed(2);};
 $('#sharp').onchange=e=>{
   const v=Number(e.target.value)||0.82;
@@ -1769,6 +1915,14 @@ $('#btnWallAuto').onclick=()=>{
   buildCollision();dropToFloor();ensureSpawn(true);reportFix();saveFixLocal();
 };
 $('#btnSaveFix').onclick=()=>saveFixToWorld();
+$('#btnResetFix').onclick=()=>{
+  try{localStorage.removeItem(worldKey());}catch(e){}
+  wallThreshold=null;
+  const sl=$('#wallSense');if(sl){sl.value=0.6;$('#wallSenseVal').textContent='auto';}
+  autoLevelDetect();                 // the measured guess, on request only
+  buildCollision();dropToFloor();ensureSpawn(true);reportFix();
+  const m=$('#fixSaveMsg');if(m)m.textContent='Back to automatic for this world.';
+};
 $('#cleanLevel').onchange=e=>{
   const lvl=e.target.value;
   cleanOn=lvl!=='off';
