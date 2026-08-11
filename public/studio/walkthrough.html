@@ -29,6 +29,18 @@ button,input,textarea{font-family:inherit}
 #overlay{position:fixed;inset:0;z-index:40;background:var(--paper);background-image:radial-gradient(rgba(22,21,18,.055) 1px,transparent 1.3px);background-size:22px 22px;display:flex;align-items:flex-start;justify-content:center;text-align:center;overflow-y:auto}
 .ovScroll{position:relative;z-index:5;margin:5vh auto 70px;display:flex;flex-direction:column;align-items:center;gap:26px;width:min(960px,94vw)}
 #ovPrompt{width:100%;min-height:64px;border:2px solid var(--line);background:#fff;color:var(--ink);padding:10px;font-size:13.5px;font-family:var(--body);resize:vertical;margin-top:14px}
+/* The designed loading pass, in the house palette: a quiet cover with a big
+   numeral and a thin rule, then the overlay eases away instead of blinking. */
+#ovLoadWrap{position:absolute;inset:0;z-index:8;display:none;align-items:center;justify-content:center;background:var(--paper);background-image:radial-gradient(rgba(22,21,18,.055) 1px,transparent 1.3px);background-size:22px 22px}
+#ovLoadWrap .inner{width:min(400px,80vw);text-align:left}
+#ovLoadWrap .lbl{font-size:11px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--mut);margin-bottom:20px}
+#ovLoadWrap .pct{font-family:var(--disp);font-size:clamp(48px,8vw,72px);line-height:1;color:var(--ink)}
+#ovLoadWrap .pct b{font-size:.34em;color:var(--mut);font-weight:600;margin-left:4px}
+#ovLoadWrap .rule{margin-top:26px;height:3px;background:rgba(22,21,18,.12)}
+#ovLoadWrap .rule span{display:block;height:100%;width:0%;background:var(--ink);transition:width .25s linear}
+#ovLoadWrap .note{margin-top:14px;font-size:12px;color:var(--mut);min-height:1.3em}
+#overlay{transition:opacity .9s cubic-bezier(.22,1,.36,1)}
+#overlay.fading{opacity:0;pointer-events:none}
 #ovAttach .att{position:relative;width:74px;height:74px;border:2px solid var(--line);background:#fff;box-shadow:3px 3px 0 rgba(22,21,18,.8)}
 #ovAttach .att img{width:100%;height:100%;object-fit:cover;display:block}
 #ovAttach .att button{position:absolute;top:-9px;right:-9px;width:20px;height:20px;border:2px solid var(--line);background:var(--ink);color:var(--paper);font-size:11px;line-height:1;cursor:pointer;padding:0}
@@ -86,6 +98,7 @@ a{color:var(--gold)}
   <button class="btn" id="btnHs">World editor</button>
   <button class="btn gold" id="btnPublish">Publish</button>
   <span style="flex:1"></span>
+  <button class="btn" id="btnReset" title="Back to the start of this world">Reset view</button>
   <button class="btn" id="btnShare">Share</button>
   <button class="btn" id="btnFull">Fullscreen</button>
 </div>
@@ -217,6 +230,12 @@ a{color:var(--gold)}
   <div class="hand" style="left:3.5%;top:46%;transform:rotate(-3.5deg)">simulated walkthrough demos ↓</div>
   <div class="hand" style="right:4%;top:44%;transform:rotate(2.5deg)">scan it → walk it ★</div>
 </div>
+<div id="ovLoadWrap"><div class="inner">
+  <div class="lbl">Loading world</div>
+  <div class="pct"><span id="ovPct">0</span><b>%</b></div>
+  <div class="rule"><span id="ovRuleFill"></span></div>
+  <div class="note" id="ovLoadNote">&nbsp;</div>
+</div></div>
 <div class="ovScroll">
 <div class="card">
   <h3>M3<em style="color:var(--gold);font-style:normal">XI</em> WALKTHROUGH</h3>
@@ -1355,7 +1374,7 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
     const _s=mesh.packedSplats||mesh.splats;
     const _n=_s&&_s.getNumSplats?_s.getNumSplats():0;
     if(_n<500){
-      overlay.style.display='flex';
+      overlay.style.display='flex';loadUI(false);
       ovProg.textContent='This world is empty — it holds '+_n+' splat'+(_n===1?'':'s')+
         ', so there is nothing to render. It was most likely published as a test.';
       return;
@@ -1388,7 +1407,7 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
       if(window.__reportClean)window.__reportClean();
       reportFix();offerFix();   // and leave the escape hatch visible if it is still wrong
       setStatus((splatCount?splatCount.toLocaleString()+' splats \u00b7 ':'')+'world restored \u00b7 drag to look \u00b7 WASD / joystick to move');
-      overlay.style.display='none';
+      hideOverlay();
       return;
     }catch(e){/* fall through to normal load */}
   }
@@ -1427,7 +1446,7 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
   player.feetY=player.floor;player.vy=0;player.grounded=true;
   if(fromDoc&&splatCount>0&&splatCount<100){
     ovProg.textContent='This world\'s scan streamed only '+splatCount+' points — the file did not load correctly. If this is your world, open your editor link and press Save & publish to repair it.';
-    overlay.style.display='flex';
+    overlay.style.display='flex';loadUI(false);
     setStatus('world data incomplete');
     return;
   }
@@ -1443,47 +1462,84 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
   if(window.__reportClean)window.__reportClean();
   reportFix();offerFix();
   setStatus((splatCount?splatCount.toLocaleString()+' splats \u00b7 ':'')+(mode==='walk'?'drag to look \u00b7 WASD / joystick to move':'drag to orbit \u00b7 pinch or scroll to zoom'));
-  overlay.style.display='none';
+  hideOverlay();
+}
+/* Loading presentation: number + rule while bytes arrive, then the overlay
+   eases away over ~a second instead of blinking off. The number is eased so
+   lumpy chunk arrivals do not make it stutter backwards-looking jumps. */
+let _ldShown=0,_ldTarget=0,_ldRaf=null;
+function loadUI(on,note){
+  const w=document.getElementById('ovLoadWrap');if(!w)return;
+  if(!on){w.style.display='none';cancelAnimationFrame(_ldRaf);_ldRaf=null;return;}
+  w.style.display='flex';
+  _ldShown=0;_ldTarget=0.02;
+  if(note)document.getElementById('ovLoadNote').textContent=note;
+  if(!_ldRaf){
+    let last=performance.now();
+    const tick=(t)=>{
+      const dt=Math.min((t-last)/1000,0.1);last=t;
+      _ldShown+= (_ldTarget-_ldShown)*Math.min(1,dt*4.5);
+      const p=Math.min(100,Math.round(_ldShown*100));
+      const n=document.getElementById('ovPct'),r=document.getElementById('ovRuleFill');
+      if(n)n.textContent=String(p);
+      if(r)r.style.width=(_ldShown*100)+'%';
+      _ldRaf=requestAnimationFrame(tick);
+    };
+    _ldRaf=requestAnimationFrame(tick);
+  }
+}
+function loadUIProgress(frac,note){
+  _ldTarget=Math.max(_ldTarget,Math.min(1,frac));
+  if(note!==undefined)document.getElementById('ovLoadNote').textContent=note;
+}
+function hideOverlay(){
+  _ldTarget=1;
+  const ov=overlay;
+  setTimeout(()=>{
+    ov.classList.add('fading');
+    setTimeout(()=>{ov.style.display='none';ov.classList.remove('fading');loadUI(false);},950);
+  },250);
 }
 let srcInfo=null; // retained environment source for saving: {kind:'bytes'|'url', bytes?, name, url?}
 function loadFromFile(file){
-  ovProg.textContent='Loading '+file.name+' …';overlay.style.display='flex';
+  overlay.style.display='flex';loadUI(true,file.name);
   file.arrayBuffer().then(buf=>{
     clearSplat();
+    loadUIProgress(0.35,'Decoding '+file.name);
     srcInfo={kind:'bytes',bytes:new Uint8Array(buf),name:file.name};
     const mesh=new SplatMesh({fileBytes:new Uint8Array(buf),fileName:file.name,
-      onProgress:e=>{if(e.total)ovProg.textContent='Decoding '+Math.round(e.loaded/e.total*100)+'%';},
+      onProgress:e=>{if(e.total)loadUIProgress(0.35+0.6*(e.loaded/e.total));},
       onLoad:m=>afterLoad(m)});
     splatRoot.add(mesh);
-  }).catch(e=>{ovProg.textContent='Could not read that file: '+e.message;});
+  }).catch(e=>{loadUI(false);ovProg.textContent='Could not read that file: '+e.message;});
 }
 function loadFromUrl(url,opts){
-  ovProg.textContent='Loading scan …';overlay.style.display='flex';
+  overlay.style.display='flex';loadUI(true,'Fetching the capture');
   clearSplat();
   srcInfo={kind:'url',url,name:url.split('/').pop()||'scan'};
   const mesh=new SplatMesh({url,
-    onProgress:e=>{if(e.total)ovProg.textContent='Loading '+Math.round(e.loaded/e.total*100)+'%';},
+    onProgress:e=>{if(e.total)loadUIProgress(0.95*(e.loaded/e.total));},
     onLoad:m=>afterLoad(m,opts||{})});
   splatRoot.add(mesh);
 }
 async function loadFromParts(parts,nameHint,opts){
   try{
-    overlay.style.display='flex';
+    overlay.style.display='flex';loadUI(true,'Fetching world data');
     clearSplat();
     const bufs=[];let got=0;
     for(let i=0;i<parts.length;i++){
-      ovProg.textContent='Loading world data — part '+(i+1)+' of '+parts.length+' …';
+      loadUIProgress((i/parts.length)*0.8,'Part '+(i+1)+' of '+parts.length);
       const r=await fetch(parts[i]);
       if(!r.ok)throw new Error('part '+(i+1)+' HTTP '+r.status);
       const b=new Uint8Array(await r.arrayBuffer());bufs.push(b);got+=b.length;
     }
     const all=new Uint8Array(got);let o=0;for(const b of bufs){all.set(b,o);o+=b.length;}
     const fname=String(nameHint||'scan.ply').split('/').pop().split('?')[0].replace(/\.part\d+$/,'');
-    ovProg.textContent='Decoding '+Math.round(got/1048576)+' MB …';
+    loadUIProgress(0.88,'Decoding '+Math.round(got/1048576)+' MB');
     srcInfo={kind:'url',url:parts[0],name:fname,parts:parts.slice()};
     const mesh=new SplatMesh({fileBytes:all,fileName:fname,onLoad:m=>afterLoad(m,opts||{})});
     splatRoot.add(mesh);
-  }catch(e){ovProg.textContent='Could not load world data: '+(e&&e.message||'error');}
+  }catch(e){loadUI(false);ovProg.textContent='Could not load world data: '+(e&&e.message||'error');}
 }
 
 /* ---------- procedural demo room (.splat bytes generated live) ---------- */
@@ -2007,6 +2063,14 @@ function setMode(m){mode=m;
   $('#btnOrbitMode').classList.toggle('on',m==='orbit');
   setStatus((splatCount?splatCount.toLocaleString()+' splats · ':'')+(m==='walk'?'drag to look · WASD / joystick to move':'drag to orbit · pinch or scroll to zoom'));
 }
+/* Reset view: back to a sane start without reloading anything — the spawn
+   search re-runs, look levels out, and orbit returns to its opening framing. */
+$('#btnReset')&&($('#btnReset').onclick=()=>{
+  player.yaw=0;player.pitch=0;player.vy=0;player.grounded=true;
+  if(colGrid&&collideOn){ensureSpawn(true);}else{player.x=0;player.z=2.2;player.feetY=player.floor;}
+  orbit.theta=0.6;orbit.phi=1.15;orbit.dist=5;orbit.target.set(0,player.floor+1,0);
+  toast('Back to the start',1400);
+});
 $('#btnWalkMode').onclick=()=>setMode('walk');
 $('#btnOrbitMode').onclick=()=>setMode('orbit');
 $('#btnCal').onclick=()=>{const p=$('#calPanel');p.style.display=p.style.display==='block'?'none':'block';};
