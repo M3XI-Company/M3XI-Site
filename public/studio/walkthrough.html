@@ -204,7 +204,7 @@ a{color:var(--gold)}
 </div>
 
 <button class="btn gold" id="btnEnquire" style="position:fixed;right:14px;bottom:14px;z-index:22;display:none">Enquire</button>
-<a class="btn" id="btnLibrary" href="index.html#library" target="_blank" rel="noopener" style="position:fixed;left:14px;bottom:14px;z-index:22;display:none">M3XI Library</a>
+<a class="btn" id="btnLibrary" href="/studio/#library" style="position:fixed;left:14px;bottom:14px;z-index:22;display:none">M3XI Library&nbsp;<span style="border:2px solid var(--line);background:var(--paper);padding:1px 7px;font-size:11px;font-weight:800;letter-spacing:.05em">ESC</span></a>
 <a class="btn" id="btnBrandCta" target="_blank" rel="noopener" style="position:fixed;right:110px;bottom:14px;z-index:22;display:none"></a>
 <div id="leadPanel" style="position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:31;background:rgba(13,16,20,.97);border:1px solid rgba(232,193,90,.5);border-radius:14px;padding:16px;width:min(340px,92vw);display:none">
   <h4 style="color:var(--gold);font-size:13px;margin-bottom:8px">Enquire</h4>
@@ -699,7 +699,10 @@ window.__sharpness=()=>sharpAmt;
 let cleanMask=null;          // 1 = hidden, and skipped when building collision
 let cleanStats=null;
 let cleanOn=true;
-const CLEAN_PRESETS={off:null,light:{big:22,haze:0.03},normal:{big:9,haze:0.10},heavy:{big:5,haze:0.16}};
+/* shell: metres beyond the scan's dense hull at which a splat is a floater.
+   The speckle halo around every scan — the "splodges" — lives out there:
+   points the camera glimpsed once, hanging in the air outside the walls. */
+const CLEAN_PRESETS={off:null,light:{big:22,haze:0.03,shell:1.6},normal:{big:9,haze:0.10,shell:1.0},heavy:{big:5,haze:0.16,shell:0.55}};
 let cleanLevel='normal';
 
 function cleanScan(level){
@@ -723,18 +726,29 @@ function cleanScan(level){
     if(!p||!cleanOn){cleanStats={removed:0,pct:0};ps.needsUpdate=true;buildCollision();dropToFloor();ensureSpawn(true);return;}
 
     const samp=[];const st=Math.max(1,Math.floor(n/50000));
+    const px=[],py=[],pz=[];
     ps.forEachSplat((i,c,s)=>{if(i%st)return;
-      samp.push(Math.max(Math.abs(s.x),Math.abs(s.y),Math.abs(s.z)));});
+      samp.push(Math.max(Math.abs(s.x),Math.abs(s.y),Math.abs(s.z)));
+      px.push(c.x);py.push(c.y);pz.push(c.z);});
     if(!samp.length)return;
     samp.sort((a,b)=>a-b);
     const med=samp[samp.length>>1]||1e-4;
     const BIG=med*p.big;
 
+    // The dense hull: where 96% of the scan's mass actually lives, per axis.
+    // Anything hanging further than `shell` metres outside it was never part
+    // of the room — it is the halo of glimpsed-once floaters that reads as
+    // splodges and broken edges from any distance.
+    const q=(a,f)=>{const s2=[...a].sort((m,o)=>m-o);return s2[Math.floor((s2.length-1)*f)];};
+    const hx0=q(px,0.02),hx1=q(px,0.98),hy0=q(py,0.02),hy1=q(py,0.98),hz0=q(pz,0.02),hz1=q(pz,0.98);
+    const SH=p.shell??1.0;
+
     const mask=new Uint8Array(n);
-    let removed=0;
-    ps.forEachSplat((i,c,s,q,o)=>{
+    let removed=0,shellCut=0;
+    ps.forEachSplat((i,c,s,q2,o)=>{
       const M=Math.max(Math.abs(s.x),Math.abs(s.y),Math.abs(s.z));
-      if(M>BIG||o<p.haze){mask[i]=Math.max(1,Math.round(o*255));removed++;}
+      const off=c.x<hx0-SH||c.x>hx1+SH||c.y<hy0-SH||c.y>hy1+SH||c.z<hz0-SH||c.z>hz1+SH;
+      if(M>BIG||o<p.haze||off){mask[i]=Math.max(1,Math.round(o*255));removed++;if(off)shellCut++;}
     });
     // Safety cap. Cleanup decides what to hide from statistics of the scan
     // itself, and a file with unusual scale or opacity encoding could satisfy
@@ -755,7 +769,7 @@ function cleanScan(level){
     }
     ps.needsUpdate=true;
     cleanMask=mask;
-    cleanStats={removed,pct:+(100*removed/n).toFixed(1),median:med,big:BIG,level:cleanLevel};
+    cleanStats={removed,pct:+(100*removed/n).toFixed(1),shellCut,median:med,big:BIG,level:cleanLevel};
   }catch(e){cleanStats={error:String(e&&e.message||e)};}
   buildCollision();dropToFloor();ensureSpawn(true);
 }
@@ -1374,6 +1388,7 @@ function docExtras(fromDoc){
 }
 function afterLoad(mesh,{authored=false,fromDoc=null}={}){
   splat=mesh;
+  let detectedUp=null;   // the density heuristic's orientation verdict, if it runs
   // A world with almost no splats renders as a black screen, which is
   // indistinguishable from a crash. Name it instead.
   try{
@@ -1413,6 +1428,7 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
       if(window.__reportClean)window.__reportClean();
       reportFix();offerFix();   // and leave the escape hatch visible if it is still wrong
       setStatus((splatCount?splatCount.toLocaleString()+' splats \u00b7 ':'')+'world restored \u00b7 drag to look \u00b7 WASD / joystick to move');
+      const lb0=document.getElementById('btnLibrary');if(lb0)lb0.style.display='';
       hideOverlay();
       return;
     }catch(e){/* fall through to normal load */}
@@ -1440,9 +1456,11 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
       let low=0,high=0;
       for(const vv of vpick){if(vv<lo+third)low++;else if(vv>hi-third)high++;}
       const flipped=high>low*1.25; // the dense end is the floor \u2014 it belongs at the bottom
-      if(vert==='y')splatRoot.rotation.set(flipped?Math.PI:0,0,0);
-      else if(vert==='z')splatRoot.rotation.set(flipped?Math.PI/2:-Math.PI/2,0,0);
-      else splatRoot.rotation.set(0,0,flipped?-Math.PI/2:Math.PI/2);
+      // Remember the verdict as a fix, not just a rotation: autoLevel used to
+      // RESET rotation right after this block, silently undoing the flip \u2014
+      // which is exactly how a world published without a saved fix arrived
+      // upside down. detectedUp survives; autoLevel is skipped when it exists.
+      detectedUp={axis:vert,sign:flipped?-1:1};
       mesh.position.set(-cx,-cy,-cz); // centre the capture at the origin
       const mapv={y:v=>flipped?-(v-cy):(v-cy),z:v=>flipped?-(v-cz):(v-cz),x:v=>flipped?-(v-cx):(v-cx)}[vert];
       const fy=vpick.map(mapv).sort((m,n)=>m-n);
@@ -1459,7 +1477,8 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
   player.x=0;player.z=authored?2.2:0.01;player.yaw=0;player.pitch=0;
   orbit.target.set(0,player.floor+1,0);orbit.dist=authored?5:4;
   if(fromDoc)docExtras(fromDoc);
-  autoLevel();   // stand the scan the right way up BEFORE anything measures height
+  if(detectedUp)applyUp(detectedUp.axis,detectedUp.sign,{rebuild:false});
+  else autoLevel();   // nothing detected: show as authored
   cleanScan();   // hides spikes/haze/ghosts, then builds collision from what is left
   setSharpness(Number(($('#sharp')||{}).value)||0.82);
   // A fix the owner saved into the world, or one this visitor made last time,
@@ -1468,6 +1487,9 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
   if(window.__reportClean)window.__reportClean();
   reportFix();offerFix();
   setStatus((splatCount?splatCount.toLocaleString()+' splats \u00b7 ':'')+(mode==='walk'?'drag to look \u00b7 WASD / joystick to move':'drag to orbit \u00b7 pinch or scroll to zoom'));
+  // The way OUT is as important as the way in: the Library button with its
+  // Esc key printed on it appears whenever a world is open.
+  const lb=document.getElementById('btnLibrary');if(lb)lb.style.display='';
   hideOverlay();
 }
 /* Loading presentation: number + rule while bytes arrive, then the overlay

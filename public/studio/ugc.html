@@ -32,6 +32,8 @@ a{color:inherit}
 .chip .dot{width:8px;height:8px;border-radius:50%;background:var(--red)}
 .chip.pick{cursor:pointer;font-size:13px;padding:7px 14px}
 .chip.pick.sel{background:var(--red);color:#fff;border-color:var(--line)}
+.chip.pick2{cursor:pointer;font-size:13px;padding:7px 14px}
+.chip.pick2.sel{background:var(--ink);color:var(--paper);border-color:var(--line)}
 .hand{font-family:var(--hand);font-weight:700;color:var(--red)}
 .sfx{font-family:var(--disp);text-transform:uppercase;line-height:.95;text-shadow:4px 4px 0 rgba(208,64,43,.28)}
 .cap{position:absolute;top:-3px;left:-3px;background:var(--ink);color:var(--paper);font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;z-index:2}
@@ -140,7 +142,7 @@ footer a{color:var(--ink)}
         </div>
         <label class="lb">Product link (optional)</label>
         <input class="field" id="pLink" placeholder="https://…">
-        <label class="lb">Product screenshots / photos — up to 3</label>
+        <label class="lb">Product screenshots / photos — up to 5</label>
         <div class="srow" style="margin-top:2px">
           <button class="btn sm ghost" id="btnShots">Attach product images</button>
           <input type="file" id="shotInput" accept="image/*" multiple style="display:none">
@@ -153,6 +155,15 @@ footer a{color:var(--ink)}
           <video id="demoVidPrev" muted playsinline style="width:120px;border:2px solid var(--line);box-shadow:3px 3px 0 rgba(22,21,18,.8)"></video>
           <span class="small" id="demoVidName"></span>
           <button class="btn sm ghost" id="demoVidRemove">Remove</button>
+        </div>
+        <label class="lb">Inspiration — an ad you love (optional)</label>
+        <input class="field" id="inspLink" placeholder="Link to it (YouTube, TikTok …) — kept with your clip for reference">
+        <textarea class="field" id="inspNotes" rows="2" placeholder="What makes it work? e.g. 'a full musical; the brand never appears until the very last frame; nobody realises it's an ad — they're in the story'"></textarea>
+        <label class="lb">Ad style</label>
+        <div class="srow" style="margin-top:2px">
+          <span class="chip pick2" data-style="story" title="The whole video is a story built on a painpoint; the brand lands only at the end">Story-first</span>
+          <span class="chip pick2" data-style="pain-explicit" title="Open on the painpoint, then demo the product on camera, name it, call to action">Painpoint → demo</span>
+          <span class="chip pick2" data-style="pain-implicit" title="The product resolves the painpoint in-scene without ever being pitched">Painpoint, implicit</span>
         </div>
         <label class="lb">Script — what the creator says / does</label>
         <textarea class="field" id="pScript" rows="3" placeholder="Hook, one killer feature, call to action — or let the AI write it."></textarea>
@@ -306,7 +317,7 @@ $('#btnDemoVid').onclick=()=>$('#demoVidInput').click();
 $('#demoVidInput').onchange=e=>{
   const f=e.target.files[0];e.target.value='';
   if(!f||!f.type.startsWith('video/'))return;
-  if(shots.length>=3)return log('Three product shots is the limit — remove one first.');
+  if(shots.length>=5)return log('Five product shots is the limit — remove one first.');
   const url=URL.createObjectURL(f);
   const v=document.getElementById('demoVidPrev');
   v.src=url;
@@ -334,7 +345,7 @@ $('#demoVidRemove').onclick=()=>{
 $('#btnShots').onclick=()=>$('#shotInput').click();
 $('#shotInput').onchange=e=>{
   [...e.target.files].forEach(f=>{
-    if(shots.length>=3||!f.type.startsWith('image/'))return;
+    if(shots.length>=5||!f.type.startsWith('image/'))return;
     const img=new Image();
     img.onload=()=>{
       const mx=1280,s=Math.min(1,mx/Math.max(img.width,img.height));
@@ -347,16 +358,48 @@ $('#shotInput').onchange=e=>{
   e.target.value='';
 };
 
+/* Ad style. Every good ad opens on a PAINPOINT the viewer recognises from
+   their own life — the styles differ in how the product answers it. The
+   reference is the ad-that-does-not-feel-like-an-ad: a story that carries the
+   whole spot, the brand landing only in the final beat. */
+let adStyle='';
+$$('.chip.pick2').forEach(ch=>ch.onclick=()=>{
+  adStyle=(adStyle===ch.dataset.style)?'':ch.dataset.style;
+  $$('.chip.pick2').forEach(x=>x.classList.toggle('sel',x.dataset.style===adStyle));
+});
+const AD_STYLES={
+  'story':{
+    script:' STYLE: story-first. Open INSIDE a small human story built on a painpoint the audience knows from their own life. Do not name or pitch the product anywhere in the body — it may appear only as the thing that quietly resolves the story. The FINAL line lands the product name alone, like a signature; the viewer should only then realise this was an ad.',
+    video:' The presenter is living a genuine story moment; the product appears naturally, never pitched.'
+  },
+  'pain-explicit':{
+    script:' STYLE: painpoint then demo, explicit. Open on one painfully relatable moment. Then resolve it with the product ON CAMERA: name it, show the one concrete thing it does, end with a direct call to action.',
+    video:' The presenter demonstrates the product to camera, showing it clearly.'
+  },
+  'pain-implicit':{
+    script:' STYLE: painpoint then demo, implicit. Open on one relatable painpoint. The product resolves it in-scene by simply BEING USED — no pitch, no feature list, no hard sell. The product name is spoken once, softly, at the very end.',
+    video:' The presenter naturally uses the product mid-moment, no selling energy.'
+  }
+};
+function inspirationBrief(){
+  const link=$('#inspLink').value.trim(),notes=$('#inspNotes').value.trim();
+  if(!link&&!notes)return '';
+  return ' INSPIRATION REFERENCE'+(link?' ('+link+')':'')+': '+(notes||'the client loves this ad')+
+    '. Recreate its MECHANICS — structure, tone, reveal timing, how it earns attention — never its content or its brand.';
+}
+
 /* AI script */
 $('#btnScript').onclick=async()=>{
   const name=$('#pName').value.trim();
   if(!name)return log('Name the product first.');
   const b=$('#btnScript');b.classList.add('red');
   try{
-    log('Writing the script …');
-    const sys='You write 15-second UGC ad scripts for short vertical video. Output ONLY the spoken script, 2-3 punchy sentences: hook, one concrete benefit, call to action. No hashtags, no emoji, no stage directions.';
+    log('Writing the script …'+(adStyle?' ('+adStyle+' style)':''));
+    const sys='You write 15-second UGC ad scripts for short vertical video. Output ONLY the spoken script, 2-3 punchy sentences. Always open on a painpoint the audience can see themselves in.'
+      +(adStyle&&AD_STYLES[adStyle]?AD_STYLES[adStyle].script:' Hook, one concrete benefit, call to action.')
+      +' No hashtags, no emoji, no stage directions.';
     const j=await api({action:'refine',system:sys,
-      prompt:'Product: '+name+(mode?' ('+mode+')':'')+($('#pLink').value?' — '+$('#pLink').value:'')+'. Audience: social media shoppers.'});
+      prompt:'Product: '+name+(mode?' ('+mode+')':'')+($('#pLink').value?' — '+$('#pLink').value:'')+'. Audience: social media shoppers.'+inspirationBrief()});
     $('#pScript').value=String(j.output||'').trim();
     log('Script ready — edit it if you like.');
   }catch(e){log('Could not write the script: '+e.message);}
@@ -384,7 +427,8 @@ async function makeClip(idx,total){
   const comp=await api({action:'image',prompt:composePrompt,image_urls:[creator.u,...shots]});
   log('Shot ready — animating (about 1–3 minutes) …');
   const vidPrompt='UGC selfie-style video: the presenter talks to camera about '+name+
-    (script?', saying: "'+script.slice(0,180)+'"':'')+'. Natural hand gestures, subtle camera sway, authentic energy.';
+    (script?', saying: "'+script.slice(0,180)+'"':'')+'. Natural hand gestures, subtle camera sway, authentic energy.'+
+    (adStyle&&AD_STYLES[adStyle]?AD_STYLES[adStyle].video:'');
   const q=await api({action:'video_submit',prompt:vidPrompt,image_url:comp.url});
   let st=null;
   for(let i=0;i<80;i++){
