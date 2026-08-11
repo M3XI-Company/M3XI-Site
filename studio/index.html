@@ -1785,7 +1785,12 @@ $('#btnSaveSocial')&&($('#btnSaveSocial').onclick=async()=>{
   say('#socialMsg',error?('Could not save: '+error.message):'Saved.',!!error);
   paintSocial();paintQueue();
 });
-sb.auth.onAuthStateChange(()=>refreshAccount());
+/* DEFERRED, never direct: the auth client AWAITS these callbacks while it
+   initialises, and refreshAccount's first act is getSession(), which waits for
+   initialisation — a perfect deadlock. It hid for weeks because nobody ever
+   HAD a stored session (the fragment bug), and a hung refreshAccount paints
+   nothing, which looks exactly like being signed out. */
+sb.auth.onAuthStateChange(()=>{setTimeout(refreshAccount,0);});
 refreshAccount();
 /* The sign-in round trip lands with ?panel=account (never a fragment — see
    returnUrl). Take the visitor to their panel, then clean the address bar so

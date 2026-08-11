@@ -471,7 +471,9 @@ async function paintAccount(){
     }
   }catch(e){}
 }
-sb.auth.onAuthStateChange(()=>paintAccount());
+/* Deferred — the client awaits these callbacks during init, and paintAccount
+   calls getSession, which waits for init. See studio/index.html. */
+sb.auth.onAuthStateChange(()=>{setTimeout(paintAccount,0);});
 paintAccount();
 window.__paintAccount=paintAccount;
 window.__sessionToken=async()=>{
