@@ -778,11 +778,39 @@ const M3IX_BACKEND={
   fn:'https://tnlcuptfldwxtxajudoq.supabase.co/functions/v1/m3ix-generate',
   key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRubGN1cHRmbGR3eHR4YWp1ZG9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODcxNDEsImV4cCI6MjEwMDA2MzE0MX0.mgS1gDa7qeBsTCaXmefpogg02kw7tCzn0uEYPAAuC90'
 };
+/* Generation is charged to an ACCOUNT, so the call must carry that person's
+   token rather than the public anon key. Sending the anon key identifies nobody,
+   and the backend — correctly — refuses to generate for nobody. */
+async function sessionToken(){
+  try{
+    const sb=window.__sb;if(!sb)return null;
+    const{data:{session}}=await sb.auth.getSession();
+    return session&&session.access_token?session.access_token:null;
+  }catch(e){return null;}
+}
+function promptSignIn(){
+  glog('✗ Create a free account to generate — one tap with Google. It keeps every world you make in your own library.');
+  const a=document.querySelector('#account');
+  if(a)a.scrollIntoView({behavior:'smooth',block:'start'});
+  const e=document.querySelector('#acctEmail');
+  if(e)setTimeout(()=>e.focus(),450);
+}
 async function backendCall(payload){
-  const r=await fetch(M3IX_BACKEND.fn,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+M3IX_BACKEND.key,'apikey':M3IX_BACKEND.key},body:JSON.stringify(payload)});
+  const tok=await sessionToken();
+  if(!tok){promptSignIn();throw new Error('Sign in to generate.');}
+  const r=await fetch(M3IX_BACKEND.fn,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok,'apikey':M3IX_BACKEND.key},body:JSON.stringify(payload)});
   const j=await r.json().catch(()=>({error:'Unreadable response from backend'}));
   if(j&&j.credits_remaining!=null){const el=document.getElementById('topCreditsN');if(el)el.textContent=Number(j.credits_remaining).toLocaleString();}
-  if(!r.ok||j.error)throw new Error(j.error||('Backend HTTP '+r.status));
+  if(j&&j.code==='signup_required'){promptSignIn();throw new Error(j.error||'Sign in to generate.');}
+  if(!r.ok||j.error){
+    // Out of credits, or a limit reached — send them where they can fix it.
+    if(r.status===402||r.status===429){
+      const plans=document.querySelector('#plans');
+      if(plans&&r.status===402)plans.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+    throw new Error(j.error||('Backend HTTP '+r.status));
+  }
+  try{window.__refreshAccount&&window.__refreshAccount();}catch(e){}
   return j;
 }
 async function wapi(payload){
