@@ -293,6 +293,7 @@ footer a{color:var(--ink)}
       <a href="https://www.m3xi.com/#products">Apps</a>
     </nav>
     <span class="chip" id="topCredits" style="cursor:pointer" title="Credit balance — click for plans"><span class="dot"></span><b id="topCreditsN">—</b>&nbsp;credits</span>
+    <span id="avatarChip" title="" style="display:none;width:30px;height:30px;border:2px solid var(--line);background:var(--red);color:#fff;font-weight:800;font-size:12px;align-items:center;justify-content:center">&nbsp;</span>
     <a class="btn sm ghost" id="btnAuth" href="#account">Sign in</a>
     <a class="btn sm ghost" id="btnProfile" href="#account" style="display:none">Profile</a>
     <a class="btn red sm" href="#studio">Enter Studio</a>
@@ -1333,12 +1334,42 @@ $('#btnGenAsset').onclick=async()=>{
 // on this site, so it is the CDN known to be reachable here.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
 
+/* CANONICAL ORIGIN. m3xi.com 307-redirects to www.m3xi.com, and that redirect
+   lands in the middle of the sign-in round trip. Supabase's PKCE flow stores a
+   code verifier in localStorage before leaving for Google and reads it back on
+   return — but localStorage is per-ORIGIN, so a verifier written under
+   https://m3xi.com cannot be read under https://www.m3xi.com. The exchange then
+   fails with nothing to show for it and the visitor lands looking signed out,
+   which is exactly the symptom: sign in, come back, still signed out, credits
+   never load. Starting and finishing on the same canonical origin fixes it. */
+function canonicalOrigin(){
+  try{
+    if(location.hostname==='m3xi.com')return 'https://www.m3xi.com';
+  }catch(e){}
+  return location.origin;
+}
+function returnUrl(){ return canonicalOrigin()+location.pathname+'#account'; }
 const SB_URL='https://tnlcuptfldwxtxajudoq.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRubGN1cHRmbGR3eHR4YWp1ZG9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODcxNDEsImV4cCI6MjEwMDA2MzE0MX0.mgS1gDa7qeBsTCaXmefpogg02kw7tCzn0uEYPAAuC90';
 const sb=createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const $=s=>document.querySelector(s);
 const say=(el,t,bad)=>{const e=$(el);if(e){e.textContent=t;e.style.color=bad?'var(--red)':'';}};
 
+/* Initials from the email — two letters where the address gives two. It is the
+   cheapest way to see WHICH account you are working in, and that matters now
+   that the work and the credits are personal. */
+function initialsFor(email,meta){
+  const name=(meta&&(meta.full_name||meta.name))||'';
+  if(name.trim()){
+    const p=name.trim().split(/\s+/);
+    return ((p[0][0]||'')+(p.length>1?p[p.length-1][0]:'')).toUpperCase();
+  }
+  const local=String(email||'').split('@')[0]||'';
+  const parts=local.split(/[._\-+]/).filter(Boolean);
+  if(parts.length>1)return (parts[0][0]+parts[1][0]).toUpperCase();
+  return local.slice(0,2).toUpperCase()||'M3';
+}
+window.__initialsFor=initialsFor;
 const AVATARS=['◆','▲','●','✦','■','✦️','⚙','♟','☁','☀','☽','⚑'];
 function paintAvatars(chosen){
   const box=$('#avatarPick');if(!box)return;
@@ -1368,6 +1399,7 @@ async function refreshAccount(){
     if(outEl)outEl.style.display='';
     if(authBtn){authBtn.textContent='Sign in';authBtn.dataset.mode='in';authBtn.href='#account';}
     if(profBtn)profBtn.style.display='none';
+    const ch=$('#avatarChip');if(ch)ch.style.display='none';
     const w=$('#acctWorkList');if(w)w.innerHTML='<p class="price-note">Sign in to see the worlds you have made.</p>';
     renderLibrary();
     return;
@@ -1380,6 +1412,8 @@ async function refreshAccount(){
 
   const m=session.user.user_metadata||{};
   const who=m.full_name||m.name||session.user.email||'signed in';
+  const ch=$('#avatarChip');
+  if(ch){ch.textContent=initialsFor(session.user.email,m);ch.title=session.user.email||'';ch.style.display='inline-flex';}
   say('#acctWho',who+(m.full_name&&session.user.email?' · '+session.user.email:''));
 
   try{
@@ -1426,7 +1460,7 @@ $('#btnSignIn')&&($('#btnSignIn').onclick=async()=>{
   const email=($('#acctEmail')&&$('#acctEmail').value||'').trim();
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return say('#acctMsg','That does not look like an email address.',true);
   say('#acctMsg','Sending…');
-  const{error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname+'#account'}});
+  const{error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:returnUrl()}});
   say('#acctMsg',error?('Could not send: '+error.message):'Check your inbox — the link signs you straight in.',!!error);
 });
 /* Google is configured on the Supabase project already, so this only has to ask
@@ -1437,7 +1471,7 @@ $('#btnGoogle')&&($('#btnGoogle').onclick=async()=>{
   const{error}=await sb.auth.signInWithOAuth({
     provider:'google',
     options:{
-      redirectTo:location.origin+location.pathname+'#account',
+      redirectTo:returnUrl(),
       queryParams:{prompt:'select_account'}   // never silently reuse a signed-in Google account
     }
   });
@@ -1541,6 +1575,22 @@ async function toggleLike(btn){
   const{error}=await q;
   if(error){ btn.classList.toggle('on',wasOn); btn.textContent='♥ '+n; }
 }
+/* Say so when a sign-in round trip comes back empty, instead of silently
+   showing the signed-out page and leaving someone to guess. */
+(async function reportFailedReturn(){
+  const q=new URLSearchParams(location.search);
+  const h=new URLSearchParams(location.hash.replace(/^#/,''));
+  const came=q.has('code')||h.has('access_token')||q.has('error')||h.has('error');
+  if(!came)return;
+  const err=q.get('error_description')||h.get('error_description')||q.get('error')||h.get('error');
+  await new Promise(r=>setTimeout(r,900));           // give the exchange a moment
+  const{data:{session}}=await sb.auth.getSession();
+  if(session)return;
+  say('#acctMsg', err
+    ? ('Sign-in was refused: '+err)
+    : 'Signed in with Google, but the session did not come back. This is almost always the Supabase redirect settings — Site URL must be https://www.m3xi.com with https://www.m3xi.com/** allowed.',
+    true);
+})();
 sb.auth.onAuthStateChange(()=>refreshAccount());
 refreshAccount();
 window.__sb=sb;
