@@ -683,6 +683,7 @@ footer a{color:var(--ink)}
               <span class="small" id="socialMsg"></span>
             </div>
             <p class="price-note" id="socialNote" style="margin-top:8px"></p>
+            <div id="queueBox" style="margin-top:10px"></div>
           </div>
           <div style="border-top:2px dashed rgba(22,21,18,.3);margin-top:18px;padding-top:14px">
             <h3 style="font-size:15px">How you appear</h3>
@@ -1475,7 +1476,7 @@ async function refreshAccount(){
   loadMyWork();
   renderLibrary();
   claimRefIfAny().then(paintReferral);
-  paintSocial();
+  paintSocial();paintQueue();
 }
 
 async function loadMyWork(){
@@ -1676,6 +1677,26 @@ $('#btnCopyRef')&&($('#btnCopyRef').onclick=()=>{
    Saved even while nothing is connected, because the schedule is the part people
    want to decide up front. Posting itself stays inert until a platform app
    exists — see the note this paints under the form. */
+/* A schedule you cannot see is indistinguishable from one that is not running.
+   This is the proof that a clip went somewhere and when it goes out. */
+async function paintQueue(){
+  const box=$('#queueBox');if(!box)return;
+  try{
+    const{data,error}=await sb.rpc('m3ix_my_queue',{p_limit:12});
+    if(error)return;
+    if(!data||!data.length){box.innerHTML='<p class="small" style="opacity:.7">Nothing queued yet. Clips you make in UGC land here on your schedule.</p>';return;}
+    const esc=t=>String(t==null?'':t).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+    box.innerHTML='<div class="small" style="opacity:.75;margin-bottom:6px">Coming up</div>'+
+      data.map(q=>{
+        const when=new Date(q.scheduled_for);
+        const due=when<=new Date();
+        return '<div class="srow" style="justify-content:space-between;margin-top:4px;border-bottom:1px dashed rgba(22,21,18,.2);padding-bottom:4px">'+
+          '<span class="small"><b>'+esc(q.platform)+'</b> · '+esc(q.caption||'clip')+'</span>'+
+          '<span class="small" style="opacity:.75">'+when.toLocaleString()+(due?' · due':'')+
+          (q.last_error?' · <span style="color:var(--red)">held</span>':'')+'</span></div>';
+      }).join('');
+  }catch(e){}
+}
 async function paintSocial(){
   const box=$('#setAutoPost');if(!box)return;
   try{
@@ -1716,7 +1737,7 @@ $('#btnSaveSocial')&&($('#btnSaveSocial').onclick=async()=>{
   say('#socialMsg','Saving…');
   const{error}=await sb.from('m3ix_post_settings').upsert(row,{onConflict:'user_id'});
   say('#socialMsg',error?('Could not save: '+error.message):'Saved.',!!error);
-  paintSocial();
+  paintSocial();paintQueue();
 });
 sb.auth.onAuthStateChange(()=>refreshAccount());
 refreshAccount();

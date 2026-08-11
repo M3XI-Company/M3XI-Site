@@ -333,6 +333,28 @@ async function makeClip(idx,total){
   const a=wrap.querySelector('a');a.href=url;
   out.prepend(wrap);
   log('Clip '+(total>1?(idx+1)+' of '+total+' ':'')+'done.');
+
+  /* THE STREAMLINED BIT: a finished clip takes its own place in the queue,
+     spaced by the owner's settings, so a batch of five does not land on a feed
+     together. Nothing here decides the schedule — the database does, from the
+     settings — and a clip is never lost if posting is not set up: it simply is
+     not queued, and says why. */
+  try{
+    if(window.__sb){
+      const{data}=await window.__sb.rpc('m3ix_schedule_post',{
+        p_asset_url:url,
+        p_caption:($('#pName').value||'').trim()
+      });
+      if(data&&data.ok){
+        const when=new Date(data.scheduled_for);
+        log('  queued for '+when.toLocaleString()+' on '+(data.platforms||[]).join(', ')+'.');
+      }else if(data&&data.code==='not_configured'){
+        log('  not queued — set up posting in your profile and future clips schedule themselves.');
+      }else if(data&&data.code==='no_platforms'){
+        log('  not queued — no platforms chosen in your posting settings.');
+      }
+    }
+  }catch(e){ log('  could not queue this clip: '+e.message); }
 }
 async function generate(count){
   if(running)return log('Already working — one batch at a time.');
