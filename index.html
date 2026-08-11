@@ -639,7 +639,12 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 /* The homepage should show what people actually made this week, not a fixed
    picture. Anonymous read: the Library is public, so this needs no sign-in. */
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
-const sb=createClient('https://tnlcuptfldwxtxajudoq.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRubGN1cHRmbGR3eHR4YWp1ZG9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODcxNDEsImV4cCI6MjEwMDA2MzE0MX0.mgS1gDa7qeBsTCaXmefpogg02kw7tCzn0uEYPAAuC90');
+/* Anonymous read, but the client still initialises auth — and its default
+   cross-tab navigator.locks can wedge behind a frozen tab and stall this
+   module. Per-page lock, same as every other page; see studio/index.html. */
+let _authQ=Promise.resolve();
+const tabLock=(_n,_t,fn)=>{const r=_authQ.then(()=>fn());_authQ=r.catch(()=>{});return r;};
+const sb=createClient('https://tnlcuptfldwxtxajudoq.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRubGN1cHRmbGR3eHR4YWp1ZG9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODcxNDEsImV4cCI6MjEwMDA2MzE0MX0.mgS1gDa7qeBsTCaXmefpogg02kw7tCzn0uEYPAAuC90',{auth:{lock:tabLock}});
 try{
   const{data,error}=await sb.rpc('m3ix_featured_world');
   if(!error&&data&&data.slug){

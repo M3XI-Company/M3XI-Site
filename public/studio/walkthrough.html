@@ -1828,8 +1828,13 @@ $('#ovDemo').onclick=()=>openWorld(DEMO_WORLD,'');
    No session, no generation: the message says where to sign in rather than
    failing with a mystery. The old "credit code" box is gone with the codes. */
 import { createClient as __cc } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
+/* Per-page auth lock — never navigator.locks. This page is exactly the tab
+   Chrome freezes (heavy WebGL, left in the background), and a frozen holder of
+   the cross-tab lock wedges sign-in on every other m3xi.com tab. */
+let _authQ=Promise.resolve();
+const tabLock=(_n,_t,fn)=>{const r=_authQ.then(()=>fn());_authQ=r.catch(()=>{});return r;};
 const sbAuth=__cc('https://tnlcuptfldwxtxajudoq.supabase.co',M3IX_W.key,
-  {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+  {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,lock:tabLock}});
 async function userToken(){
   try{const{data:{session}}=await sbAuth.auth.getSession();return session&&session.access_token||null;}
   catch(e){return null;}

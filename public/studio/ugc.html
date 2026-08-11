@@ -422,7 +422,12 @@ $('#btnBatch5').onclick=()=>generate(5);
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
 const SB_URL='https://tnlcuptfldwxtxajudoq.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRubGN1cHRmbGR3eHR4YWp1ZG9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODcxNDEsImV4cCI6MjEwMDA2MzE0MX0.mgS1gDa7qeBsTCaXmefpogg02kw7tCzn0uEYPAAuC90';
-const sb=createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+/* Per-page auth lock — never navigator.locks. A frozen background tab holding
+   the cross-tab lock wedges auth on every m3xi.com page; see studio/index.html
+   for the full story. */
+let _authQ=Promise.resolve();
+function tabLock(_name,_timeout,fn){const r=_authQ.then(()=>fn());_authQ=r.catch(()=>{});return r;}
+const sb=createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,lock:tabLock}});
 window.__sb=sb;
 
 /* Initials from the email — two letters where the address gives two, one where

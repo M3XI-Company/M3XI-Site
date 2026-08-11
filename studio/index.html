@@ -1424,7 +1424,18 @@ function returnUrl(){ return canonicalOrigin()+location.pathname+'?panel=account
 })();
 const SB_URL='https://tnlcuptfldwxtxajudoq.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRubGN1cHRmbGR3eHR4YWp1ZG9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODcxNDEsImV4cCI6MjEwMDA2MzE0MX0.mgS1gDa7qeBsTCaXmefpogg02kw7tCzn0uEYPAAuC90';
-const sb=createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+/* NO cross-tab auth locks. supabase-js serialises auth work through
+   navigator.locks by default — and when Chrome freezes a background tab that
+   holds the lock (a WebGL world viewer tab qualifies within minutes), every
+   other m3xi.com tab queues behind it FOREVER. getSession never resolves, the
+   page paints its signed-out default, and a perfectly valid session sits in
+   storage unreachable: "signed in, reloaded, signed out again". Observed live:
+   one holder, seven waiters. A per-page serial queue keeps writes ordered
+   within the tab, and the server's refresh-token reuse window absorbs the rare
+   cross-tab refresh race. */
+let _authQ=Promise.resolve();
+function tabLock(_name,_timeout,fn){const r=_authQ.then(()=>fn());_authQ=r.catch(()=>{});return r;}
+const sb=createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,lock:tabLock}});
 const $=s=>document.querySelector(s);
 const say=(el,t,bad)=>{const e=$(el);if(e){e.textContent=t;e.style.color=bad?'var(--red)':'';}};
 
