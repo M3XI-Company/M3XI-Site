@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Cornelia Waitlist â€” Tracker</title>
+<title>Cornelia Waitlist — Tracker</title>
 <link rel="icon" type="image/png" href="/M.png" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/gridjs@5.0.2/dist/gridjs.umd.js" integrity="sha384-/XXDzxe4FsGiAe50i/u9pY/Vy/uX654MHB1xoc1BJNnH1WXHhqHga9g3q5tF4gj7" crossorigin="anonymous"></script>
@@ -55,18 +55,18 @@
     </svg>
     <div>
       <h1>Cornelia Waitlist</h1>
-      <p id="sub">Live from Supabase Â· NoteTaker project</p>
+      <p id="sub">Live from Supabase · NoteTaker project</p>
     </div>
   </div>
 
   <div class="err" id="err"></div>
-  <div id="loading" class="loading"><span class="dot"></span>Loading waitlistâ€¦</div>
+  <div id="loading" class="loading"><span class="dot"></span>Loading waitlist…</div>
 
   <div id="content" style="display:none">
     <div class="cards">
       <div class="card"><p class="k">Total signups</p><div class="v" id="m-total">0</div></div>
       <div class="card"><p class="k">Last 7 days</p><div class="v" id="m-week">0</div></div>
-      <div class="card"><p class="k">Most recent</p><div class="v" id="m-recent" style="font-size:18px;line-height:1.3">â€”</div></div>
+      <div class="card"><p class="k">Most recent</p><div class="v" id="m-recent" style="font-size:18px;line-height:1.3">—</div></div>
     </div>
 
     <div class="panel">
@@ -112,7 +112,7 @@
   }
 
   function fmt(dtIso){
-    if(!dtIso) return 'â€”';
+    if(!dtIso) return '—';
     const d = new Date(dtIso);
     if(isNaN(d)) return esc(dtIso);
     return d.toLocaleString(undefined,{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -128,8 +128,8 @@
     const week = ROWS.filter(r => (now - new Date(r.created_at).getTime()) <= 7*864e5).length;
     document.getElementById('m-total').textContent = total.toLocaleString();
     document.getElementById('m-week').innerHTML = week.toLocaleString() + ' <small>new</small>';
-    document.getElementById('m-recent').textContent = total ? fmt(ROWS[0].created_at) : 'â€”';
-    document.getElementById('sub').textContent = 'Live from Supabase Â· NoteTaker project Â· ' + total + ' on the list';
+    document.getElementById('m-recent').textContent = total ? fmt(ROWS[0].created_at) : '—';
+    document.getElementById('sub').textContent = 'Live from Supabase · NoteTaker project · ' + total + ' on the list';
 
     const byDay = {};
     ROWS.forEach(r => { const k = dayKey(r.created_at); if(k) byDay[k]=(byDay[k]||0)+1; });
@@ -167,7 +167,7 @@
           'Source',
           {name:'Status', formatter:(c)=>gridjs.html('<span class="status-pill">'+esc(c)+'</span>')}
         ],
-        data: ROWS.map(r => [r.created_at, r.email, r.name||'â€”', r.source||'â€”', r.status||'pending']),
+        data: ROWS.map(r => [r.created_at, r.email, r.name||'—', r.source||'—', r.status||'pending']),
         search:true, sort:true, pagination:{enabled:true, limit:12}
       }).render(document.getElementById('table'));
     }

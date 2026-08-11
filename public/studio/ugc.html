@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>M3XI â€” UGC Product Studio</title>
+<title>M3XI — UGC Product Studio</title>
 <link rel="icon" type="image/png" href="/M.png" />
-<meta name="description" content="Pick an AI creator, show your product, get UGC clips â€” batch-ready.">
+<meta name="description" content="Pick an AI creator, show your product, get UGC clips — batch-ready.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Caveat:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -99,7 +99,7 @@ footer a{color:var(--ink)}
 
 <div class="bar">
   <div class="in">
-    <a class="logo" href="index.html">M3XI <span class="jp">ä¸‰Xä¸€</span> <span class="st">UGC STUDIO</span></a>
+    <a class="logo" href="index.html">M3XI <span class="jp">三X一</span> <span class="st">UGC STUDIO</span></a>
     <nav class="links">
       <a href="index.html#work">Work</a>
       <a href="index.html#studio">Studio</a>
@@ -109,7 +109,7 @@ footer a{color:var(--ink)}
       <a href="index.html#plans">Credits</a>
       <a href="https://www.m3xi.com/">M3XI</a>
     </nav>
-    <span class="chip" id="topCredits" style="cursor:pointer" title="Credit balance â€” click for plans"><span class="dot"></span><b id="topCreditsN">â€”</b>&nbsp;credits</span>
+    <span class="chip" id="topCredits" style="cursor:pointer" title="Credit balance — click for plans"><span class="dot"></span><b id="topCreditsN">—</b>&nbsp;credits</span>
     <span id="avatarChip" title="" style="display:none;width:30px;height:30px;border:2px solid var(--line);background:var(--red);color:#fff;font-weight:800;font-size:12px;align-items:center;justify-content:center;letter-spacing:.02em"></span>
     <a class="btn sm ghost" id="ugcAuth" href="index.html#account">Sign in</a>
   </div>
@@ -117,8 +117,8 @@ footer a{color:var(--ink)}
 
 <section id="pick">
   <div class="wrap">
-    <div class="sechead"><h2 class="sfx">Pick your creator</h2><span class="note hand">this is the face of your brand â˜…</span></div>
-    <p class="subline">Every creator below was generated in the Studio â€” no real people, no licensing headaches. Click one to make them your presenter.</p>
+    <div class="sechead"><h2 class="sfx">Pick your creator</h2><span class="note hand">this is the face of your brand ★</span></div>
+    <p class="subline">Every creator below was generated in the Studio — no real people, no licensing headaches. Click one to make them your presenter.</p>
     <div class="avGrid" id="avGrid"></div>
   </div>
 </section>
@@ -131,7 +131,7 @@ footer a{color:var(--ink)}
         <span class="cap">Brief</span>
         <h3>Tell the creator what to sell</h3>
         <label class="lb">Product name</label>
-        <input class="field" id="pName" placeholder="e.g. FlowBottle â€” the smart water bottle">
+        <input class="field" id="pName" placeholder="e.g. FlowBottle — the smart water bottle">
         <label class="lb">What kind of product?</label>
         <div class="srow" style="margin-top:2px">
           <span class="chip pick" data-mode="software">Software</span>
@@ -139,35 +139,35 @@ footer a{color:var(--ink)}
           <span class="chip pick" data-mode="both">Both</span>
         </div>
         <label class="lb">Product link (optional)</label>
-        <input class="field" id="pLink" placeholder="https://â€¦">
-        <label class="lb">Product screenshots / photos â€” up to 3</label>
+        <input class="field" id="pLink" placeholder="https://…">
+        <label class="lb">Product screenshots / photos — up to 3</label>
         <div class="srow" style="margin-top:2px">
           <button class="btn sm ghost" id="btnShots">Attach product images</button>
           <input type="file" id="shotInput" accept="image/*" multiple style="display:none">
           <button class="btn sm ghost" disabled title="Coming soon">Attach demo video</button>
-          <span class="small">demo-video insert â€” in development</span>
+          <span class="small">demo-video insert — in development</span>
         </div>
         <div class="thumbs" id="shotThumbs"></div>
-        <label class="lb">Script â€” what the creator says / does</label>
-        <textarea class="field" id="pScript" rows="3" placeholder="Hook, one killer feature, call to action â€” or let the AI write it."></textarea>
+        <label class="lb">Script — what the creator says / does</label>
+        <textarea class="field" id="pScript" rows="3" placeholder="Hook, one killer feature, call to action — or let the AI write it."></textarea>
         <div class="srow">
           <button class="btn sm ghost" id="btnScript">Write the script (AI)</button>
-          <span class="small">2 credits â€” tuned to software / hardware / both</span>
+          <span class="small">2 credits — tuned to software / hardware / both</span>
         </div>
         <div class="srow" style="margin-top:18px">
           <button class="btn red" id="btnGen">Generate UGC clip</button>
-          <button class="btn" id="btnBatch3">Batch Ã—3</button>
-          <button class="btn" id="btnBatch5">Batch Ã—5</button>
+          <button class="btn" id="btnBatch3">Batch ×3</button>
+          <button class="btn" id="btnBatch5">Batch ×5</button>
         </div>
         <div class="srow">
-          <span class="small" id="ugcWho">Sign in to generate â€” clips are charged to your account and saved to your library.</span>
+          <span class="small" id="ugcWho">Sign in to generate — clips are charged to your account and saved to your library.</span>
         </div>
-        <p class="price-note">One clip = compose the shot (1) + animate (60) = <b>61 credits</b>. Batch Ã—3 = 183 Â· Batch Ã—5 = 305 â€” batches are deliberately premium: five angles of the same product, ready to test against each other. Packs in the <a href="index.html#plans">Developer Studio</a>.</p>
+        <p class="price-note">One clip = compose the shot (1) + animate (60) = <b>61 credits</b>. Batch ×3 = 183 · Batch ×5 = 305 — batches are deliberately premium: five angles of the same product, ready to test against each other. Packs in the <a href="index.html#plans">Developer Studio</a>.</p>
       </div>
       <div class="panel pad" style="transform:rotate(.6deg)">
         <span class="cap red">Output</span>
         <h3>Your clips</h3>
-        <div id="out"><div class="empty">Pick a creator, name the product, press Generate â€” clips land here.</div></div>
+        <div id="out"><div class="empty">Pick a creator, name the product, press Generate — clips land here.</div></div>
         <div id="log">M3XI UGC Studio ready.</div>
       </div>
     </div>
@@ -178,18 +178,18 @@ footer a{color:var(--ink)}
   <div class="wrap">
     <div class="sechead"><h2 class="sfx">The full line</h2><span class="note hand">what's being drawn next</span></div>
     <div class="roadGrid">
-      <div class="panel rc"><span class="stamp" style="top:-12px;right:10px">in development</span><h4>Face-mask onto real footage</h4><p>Upload an existing video â€” the creator's AI face replaces the original, the product swaps to yours, the script re-targets. Your ad, their proven format.</p></div>
-      <div class="panel rc"><span class="stamp" style="top:-12px;right:10px">in development</span><h4>Voice sync</h4><p>The creator speaks your script out loud â€” cloned voice styles, lip-synced delivery.</p></div>
-      <div class="panel rc"><span class="stamp" style="top:-12px;right:10px">in development</span><h4>Auto-schedule to socials</h4><p>Connect TikTok / Instagram. Batches generate on your schedule and post themselves every few hours â€” the whole line runs without you clicking.</p></div>
-      <div class="panel rc"><span class="stamp" style="top:-12px;right:10px">in development</span><h4>Performance dashboard</h4><p>Clicks, activity, which video hit â€” charts per clip, plus the AI's own summary of what sold and why.</p></div>
+      <div class="panel rc"><span class="stamp" style="top:-12px;right:10px">in development</span><h4>Face-mask onto real footage</h4><p>Upload an existing video — the creator's AI face replaces the original, the product swaps to yours, the script re-targets. Your ad, their proven format.</p></div>
+      <div class="panel rc"><span class="stamp" style="top:-12px;right:10px">in development</span><h4>Voice sync</h4><p>The creator speaks your script out loud — cloned voice styles, lip-synced delivery.</p></div>
+      <div class="panel rc"><span class="stamp" style="top:-12px;right:10px">in development</span><h4>Auto-schedule to socials</h4><p>Connect TikTok / Instagram. Batches generate on your schedule and post themselves every few hours — the whole line runs without you clicking.</p></div>
+      <div class="panel rc"><span class="stamp" style="top:-12px;right:10px">in development</span><h4>Performance dashboard</h4><p>Clicks, activity, which video hit — charts per clip, plus the AI's own summary of what sold and why.</p></div>
     </div>
     <p class="price-note" style="margin-top:16px">Register interest for any of these: <a href="mailto:m3xiteam@m3xi.com?subject=UGC%20roadmap%20early%20access">m3xiteam@m3xi.com</a></p>
   </div>
 </section>
 
 <footer><div class="in">
-  <span><b style="color:var(--ink)">M3XI</b> ä¸‰Xä¸€ UGC Product Studio</span>
-  <span><a href="index.html">Studio</a> Â· <a href="walkthrough.html">Walkthrough</a> Â· <a href="index.html#library">Library</a></span>
+  <span><b style="color:var(--ink)">M3XI</b> 三X一 UGC Product Studio</span>
+  <span><a href="index.html">Studio</a> · <a href="walkthrough.html">Walkthrough</a> · <a href="index.html#library">Library</a></span>
 </div></footer>
 <script>
 const $=s=>document.querySelector(s);const $$=s=>[...document.querySelectorAll(s)];
@@ -198,7 +198,7 @@ const M3IX={fn:'https://tnlcuptfldwxtxajudoq.supabase.co/functions/v1/m3ix-gener
 async function api(payload){
   const tok=window.__sessionToken?await window.__sessionToken():null;
   if(!tok){
-    log('âœ— Create a free account to generate â€” one tap with Google. Your clips are then saved to your own library.');
+    log('✗ Create a free account to generate — one tap with Google. Your clips are then saved to your own library.');
     location.href='index.html#account';
     throw new Error('Sign in to generate.');
   }
@@ -219,7 +219,7 @@ async function refreshCredits(){
 $('#topCredits').onclick=()=>location.href='index.html#plans';
 refreshCredits();
 
-/* creators â€” generated in the Studio (no real people) */
+/* creators — generated in the Studio (no real people) */
 const CREATORS=[
  {n:'Ava',u:'https://v3b.fal.media/files/b/0aa5bfcd/x11d8ZSCcFRPO48Yoy2xt.jpg'},
  {n:'Maya',u:'https://v3b.fal.media/files/b/0aa5bfdf/IqP6lPhsWKukzAUHrERk8.jpg'},
@@ -253,7 +253,7 @@ function renderShots(){
   const t=$('#shotThumbs');t.innerHTML='';
   shots.forEach((s,i)=>{
     const d=document.createElement('div');d.className='thumb';
-    d.innerHTML='<img alt="shot"><button title="Remove">Ã—</button>';
+    d.innerHTML='<img alt="shot"><button title="Remove">×</button>';
     d.querySelector('img').src=s;
     d.querySelector('button').onclick=()=>{shots.splice(i,1);renderShots();};
     t.appendChild(d);
@@ -281,17 +281,17 @@ $('#btnScript').onclick=async()=>{
   if(!name)return log('Name the product first.');
   const b=$('#btnScript');b.classList.add('red');
   try{
-    log('Writing the script â€¦');
+    log('Writing the script …');
     const sys='You write 15-second UGC ad scripts for short vertical video. Output ONLY the spoken script, 2-3 punchy sentences: hook, one concrete benefit, call to action. No hashtags, no emoji, no stage directions.';
     const j=await api({action:'refine',system:sys,
-      prompt:'Product: '+name+(mode?' ('+mode+')':'')+($('#pLink').value?' â€” '+$('#pLink').value:'')+'. Audience: social media shoppers.'});
+      prompt:'Product: '+name+(mode?' ('+mode+')':'')+($('#pLink').value?' — '+$('#pLink').value:'')+'. Audience: social media shoppers.'});
     $('#pScript').value=String(j.output||'').trim();
-    log('Script ready â€” edit it if you like.');
+    log('Script ready — edit it if you like.');
   }catch(e){log('Could not write the script: '+e.message);}
   b.classList.remove('red');
 };
 
-/* generate â€” compose the shot, then animate it */
+/* generate — compose the shot, then animate it */
 const ANGLES=[
  'holding the product up beside their face, presenting to camera',
  'pointing at the product excitedly, product in the foreground',
@@ -304,13 +304,13 @@ async function makeClip(idx,total){
   const name=$('#pName').value.trim();
   const script=$('#pScript').value.trim();
   const angle=ANGLES[idx%ANGLES.length];
-  log((total>1?('Clip '+(idx+1)+' of '+total+': '):'')+'composing the shot â€¦');
+  log((total>1?('Clip '+(idx+1)+' of '+total+': '):'')+'composing the shot …');
   const composePrompt='The person from the first image as a UGC creator '+angle+'. The product is '+name+
-    (mode==='software'?' â€” a software app; show it on a phone screen they hold.':mode==='hardware'?' â€” a physical product they hold.':mode==='both'?' â€” a physical product with its app visible on a phone.':'.')+
+    (mode==='software'?' — a software app; show it on a phone screen they hold.':mode==='hardware'?' — a physical product they hold.':mode==='both'?' — a physical product with its app visible on a phone.':'.')+
     (shots.length?' Use the product exactly as shown in the other image(s).':'')+
     ' Keep the person identical to the first image. Bright, clean, vertical social-video framing.';
   const comp=await api({action:'image',prompt:composePrompt,image_urls:[creator.u,...shots]});
-  log('Shot ready â€” animating (about 1â€“3 minutes) â€¦');
+  log('Shot ready — animating (about 1–3 minutes) …');
   const vidPrompt='UGC selfie-style video: the presenter talks to camera about '+name+
     (script?', saying: "'+script.slice(0,180)+'"':'')+'. Natural hand gestures, subtle camera sway, authentic energy.';
   const q=await api({action:'video_submit',prompt:vidPrompt,image_url:comp.url});
@@ -319,10 +319,10 @@ async function makeClip(idx,total){
     await new Promise(x=>setTimeout(x,3500));
     st=await api({action:'video_status',url:q.status_url});
     if(st.status==='COMPLETED')break;
-    if(st.status==='FAILED'||st.status==='ERROR')throw new Error('The video provider failed on this one â€” you were not charged for the failed step.');
-    if(i%6===0&&i>0)log('   still rendering â€¦ ('+Math.round(i*3.5)+'s)');
+    if(st.status==='FAILED'||st.status==='ERROR')throw new Error('The video provider failed on this one — you were not charged for the failed step.');
+    if(i%6===0&&i>0)log('   still rendering … ('+Math.round(i*3.5)+'s)');
   }
-  if(!st||st.status!=='COMPLETED')throw new Error('Taking longer than usual â€” it may still finish; try again shortly.');
+  if(!st||st.status!=='COMPLETED')throw new Error('Taking longer than usual — it may still finish; try again shortly.');
   const resp=await api({action:'video_result',url:q.response_url});
   const url=resp.video?.url||(resp.videos&&resp.videos[0]&&resp.videos[0].url);
   if(!url)throw new Error('No video came back.');
@@ -337,8 +337,8 @@ async function makeClip(idx,total){
 
   /* THE STREAMLINED BIT: a finished clip takes its own place in the queue,
      spaced by the owner's settings, so a batch of five does not land on a feed
-     together. Nothing here decides the schedule â€” the database does, from the
-     settings â€” and a clip is never lost if posting is not set up: it simply is
+     together. Nothing here decides the schedule — the database does, from the
+     settings — and a clip is never lost if posting is not set up: it simply is
      not queued, and says why. */
   try{
     if(window.__sb){
@@ -350,25 +350,25 @@ async function makeClip(idx,total){
         const when=new Date(data.scheduled_for);
         log('  queued for '+when.toLocaleString()+' on '+(data.platforms||[]).join(', ')+'.');
       }else if(data&&data.code==='not_configured'){
-        log('  not queued â€” set up posting in your profile and future clips schedule themselves.');
+        log('  not queued — set up posting in your profile and future clips schedule themselves.');
       }else if(data&&data.code==='no_platforms'){
-        log('  not queued â€” no platforms chosen in your posting settings.');
+        log('  not queued — no platforms chosen in your posting settings.');
       }
     }
   }catch(e){ log('  could not queue this clip: '+e.message); }
 }
 async function generate(count){
-  if(running)return log('Already working â€” one batch at a time.');
-  if(!creator)return log('Pick a creator first â€” click one of the faces above.');
+  if(running)return log('Already working — one batch at a time.');
+  if(!creator)return log('Pick a creator first — click one of the faces above.');
   if(!$('#pName').value.trim())return log('Name the product.');
   running=true;
   const btn=count===1?$('#btnGen'):count===3?$('#btnBatch3'):$('#btnBatch5');
   btn.classList.add('red');
   try{
     for(let i=0;i<count;i++)await makeClip(i,count);
-    log(count>1?'Batch finished â€” compare the angles and post the winner.':'Done.');
+    log(count>1?'Batch finished — compare the angles and post the winner.':'Done.');
     refreshCredits();
-  }catch(e){log('âœ— '+e.message);}
+  }catch(e){log('✗ '+e.message);}
   btn.classList.remove('red');
   running=false;
 }
@@ -417,7 +417,7 @@ $('#btnBatch5').onclick=()=>generate(5);
 
 <script type="module">
 /* UGC is part of the same account. Generation is charged to the signed-in
-   person, so this page has to carry their token exactly as the Studio does â€”
+   person, so this page has to carry their token exactly as the Studio does —
    sending the public anon key identifies nobody and the backend refuses. */
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
 const SB_URL='https://tnlcuptfldwxtxajudoq.supabase.co';
@@ -425,7 +425,7 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const sb=createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 window.__sb=sb;
 
-/* Initials from the email â€” two letters where the address gives two, one where
+/* Initials from the email — two letters where the address gives two, one where
    it does not. It is the cheapest way for someone to see WHICH account they are
    working in, which matters once the work and the credits are personal. */
 function initialsFor(email,meta){
@@ -450,8 +450,8 @@ async function paintAccount(){
   if(!session){
     if(chip)chip.style.display='none';
     if(auth){auth.textContent='Sign in';auth.setAttribute('href','index.html#account');}
-    if(who)who.textContent='Sign in to generate â€” clips are charged to your account and saved to your library.';
-    if(nEl)nEl.textContent='â€”';
+    if(who)who.textContent='Sign in to generate — clips are charged to your account and saved to your library.';
+    if(nEl)nEl.textContent='—';
     return;
   }
   const email=session.user.email||'';
@@ -463,7 +463,7 @@ async function paintAccount(){
     const{data}=await sb.rpc('m3ix_usage_status');
     if(data){
       if(nEl)nEl.textContent=Number(data.balance||0).toLocaleString();
-      if(who)who.textContent='Signed in as '+email+' â€” '+Number(data.balance||0).toLocaleString()+' credits. One clip costs 61.';
+      if(who)who.textContent='Signed in as '+email+' — '+Number(data.balance||0).toLocaleString()+' credits. One clip costs 61.';
     }
   }catch(e){}
 }
