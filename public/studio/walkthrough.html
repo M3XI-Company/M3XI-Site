@@ -1,9 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>M3XI — Walkthrough</title>
+<title>M3XI â€” Walkthrough</title>
+<link rel="icon" type="image/png" href="/M.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Caveat:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -28,6 +29,9 @@ button,input,textarea{font-family:inherit}
 #overlay{position:fixed;inset:0;z-index:40;background:var(--paper);background-image:radial-gradient(rgba(22,21,18,.055) 1px,transparent 1.3px);background-size:22px 22px;display:flex;align-items:flex-start;justify-content:center;text-align:center;overflow-y:auto}
 .ovScroll{position:relative;z-index:5;margin:5vh auto 70px;display:flex;flex-direction:column;align-items:center;gap:26px;width:min(960px,94vw)}
 #ovPrompt{width:100%;min-height:64px;border:2px solid var(--line);background:#fff;color:var(--ink);padding:10px;font-size:13.5px;font-family:var(--body);resize:vertical;margin-top:14px}
+#ovAttach .att{position:relative;width:74px;height:74px;border:2px solid var(--line);background:#fff;box-shadow:3px 3px 0 rgba(22,21,18,.8)}
+#ovAttach .att img{width:100%;height:100%;object-fit:cover;display:block}
+#ovAttach .att button{position:absolute;top:-9px;right:-9px;width:20px;height:20px;border:2px solid var(--line);background:var(--ink);color:var(--paper);font-size:11px;line-height:1;cursor:pointer;padding:0}
 #ovLibWrap{width:100%;background:var(--card);border:3px solid var(--line);box-shadow:8px 8px 0 rgba(22,21,18,.9);padding:18px;text-align:left}
 .ovLibHead{font-family:var(--disp);font-size:15px;letter-spacing:.04em;margin-bottom:12px}
 .ovLib{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
@@ -72,7 +76,7 @@ a{color:var(--gold)}
 <body>
 
 <div class="bar">
-  <a class="logo" href="index.html" title="M3XI Studio — home">M3<em>XI</em><span>Walkthrough</span></a>
+  <a class="logo" href="index.html" title="M3XI Studio â€” home">M3<em>XI</em><span>Walkthrough</span></a>
   <a class="btn" href="https://www.m3xi.com/" title="m3xi.com">M3XI.com</a>
   <button class="btn gold" id="btnLoad">Load scan</button>
   <input type="file" id="fileInput" accept=".ply,.spz,.splat,.ksplat" style="display:none">
@@ -92,7 +96,7 @@ a{color:var(--gold)}
 
 <div class="panel" id="calPanel">
   <h4>Calibrate scan</h4>
-  <div class="small">Room on its side, or walls you can walk through? Both come from the same thing — which way is up. Try each until the numbers below jump.</div>
+  <div class="small">Room on its side, or walls you can walk through? Both come from the same thing â€” which way is up. Try each until the numbers below jump.</div>
 
   <label>Which way is up?</label>
   <div class="rowb">
@@ -120,31 +124,31 @@ a{color:var(--gold)}
 
   <label style="margin-top:14px">Fine rotate</label>
   <div class="rowb">
-    <button class="btn" data-rot="y,90">Spin 90°</button>
+    <button class="btn" data-rot="y,90">Spin 90Â°</button>
     <button class="btn" data-rot="x,180">Flip</button>
   </div>
-  <label>Scale <span id="scaleVal" class="small">1.0×</span></label>
+  <label>Scale <span id="scaleVal" class="small">1.0Ã—</span></label>
   <input type="range" id="scale" min="-1" max="1" step="0.01" value="0">
   <label>Eye height <span id="eyeVal" class="small">1.6 m</span></label>
   <input type="range" id="eye" min="0.4" max="3" step="0.05" value="1.6">
   <label>Walk speed <span id="spdVal" class="small">1.35 m/s</span></label>
   <input type="range" id="spd" min="0.4" max="4" step="0.05" value="1.35">
   <label>Solid walls</label>
-  <div class="rowb"><button class="btn on" id="btnCollide">On — walk it like a real space</button></div>
+  <div class="rowb"><button class="btn on" id="btnCollide">On â€” walk it like a real space</button></div>
   <div class="rowb" style="margin-top:12px">
     <label style="display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.75;margin-bottom:4px">Clean the scan</label>
     <select id="cleanLevel" style="width:100%">
-      <option value="off">Off — show the raw capture</option>
-      <option value="light">Light — trim the worst spikes</option>
-      <option value="normal" selected>Normal — spikes, haze and ghosts</option>
-      <option value="heavy">Heavy — aggressive, for messy scans</option>
+      <option value="off">Off â€” show the raw capture</option>
+      <option value="light">Light â€” trim the worst spikes</option>
+      <option value="normal" selected>Normal â€” spikes, haze and ghosts</option>
+      <option value="heavy">Heavy â€” aggressive, for messy scans</option>
     </select>
     <div id="cleanStat" style="font-size:11px;opacity:.7;margin-top:4px">&nbsp;</div>
     <label style="display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.75;margin:10px 0 4px">Backdrop</label>
     <select id="backdropSel" style="width:100%">
-      <option value="dim" selected>Dim sky — best for rooms</option>
-      <option value="dark">Dark — cleanest</option>
-      <option value="sky">Full sky — for outdoor scans</option>
+      <option value="dim" selected>Dim sky â€” best for rooms</option>
+      <option value="dark">Dark â€” cleanest</option>
+      <option value="sky">Full sky â€” for outdoor scans</option>
     </select>
     <label style="display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.75;margin:10px 0 4px">
       Sharpness <span id="sharpVal" class="small">0.82</span>
@@ -162,12 +166,12 @@ a{color:var(--gold)}
   <div class="small" id="wStatus">Not saved yet. Saving uploads the scan, layout, assets and hotspots to M3XI and returns a share code that reopens this exact world anywhere.</div>
   <input type="text" id="bName" placeholder="Brand name shown to visitors" style="margin-top:8px">
   <div class="rowb" style="margin:6px 0"><input type="text" id="bCtaLabel" placeholder="CTA label (e.g. Book a viewing)" style="flex:1"><input type="color" id="bColor" value="#d0402b" style="width:44px;height:34px;padding:2px;border:2px solid var(--line);background:#fff"></div>
-  <input type="text" id="bCtaUrl" placeholder="CTA link (https://…)">
+  <input type="text" id="bCtaUrl" placeholder="CTA link (https://â€¦)">
   <input type="text" id="cName" placeholder="Creator name (shown in the Library)" style="margin-top:8px">
-  <input type="text" id="cUrl" placeholder="Creator link — portfolio or social (https://…)">
+  <input type="text" id="cUrl" placeholder="Creator link â€” portfolio or social (https://â€¦)">
   <textarea id="embedSnip" readonly spellcheck="false" style="display:none;margin-top:8px;height:64px"></textarea>
   <h4 style="color:var(--gold);font-size:13px;margin:14px 0 6px">3D assets</h4>
-  <div class="small" style="margin-bottom:6px">Interactive objects inside the scan — generate GLBs in the Studio, then place them here.</div>
+  <div class="small" style="margin-bottom:6px">Interactive objects inside the scan â€” generate GLBs in the Studio, then place them here.</div>
   <input type="text" id="assetUrl" placeholder="GLB URL">
   <div class="rowb" style="margin:8px 0 6px"><button class="btn" id="btnAssetUrl">Place from URL</button><button class="btn" id="btnAssetFile">Place from file</button><input type="file" id="assetFileInput" accept=".glb,.gltf" style="display:none"></div>
   <div id="assetList" class="small"></div>
@@ -182,7 +186,7 @@ a{color:var(--gold)}
   <input type="text" id="hsTitle" placeholder="Title">
   <textarea id="hsBody" rows="3" placeholder="What should visitors read here?"></textarea>
   <input type="text" id="hsPrice" placeholder="Price / label (optional)">
-  <input type="text" id="hsCta" placeholder="Link URL (optional — Visit button)">
+  <input type="text" id="hsCta" placeholder="Link URL (optional â€” Visit button)">
   <div class="rowb"><button class="btn gold" id="hsSave">Save</button><a class="btn" id="hsVisit" target="_blank" rel="noopener" style="display:none">Visit</a><button class="btn" id="hsDelete">Delete</button><button class="btn" id="hsClose">Close</button></div>
 </div>
 
@@ -210,24 +214,29 @@ a{color:var(--gold)}
   <div class="pp" style="right:4.5%;bottom:7%;width:24%;height:34%;transform:rotate(-1.7deg)"><span class="pcap">Gallery world</span><img src="https://v3b.fal.media/files/b/0aa5ae0f/P_5hymWZreaaKZH5-XX2j.jpg" alt=""></div>
   <div class="pp" style="left:28.5%;top:-5%;width:17%;height:23%;transform:rotate(1deg)"><span class="pcap">Home world</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/-W5THKxgRSpok6zaaPFsZ.jpg" alt=""></div>
   <div class="pp" style="right:29%;bottom:-6%;width:17%;height:24%;transform:rotate(-1.2deg)"><span class="pcap">Twilight listing</span><img src="https://v3b.fal.media/files/b/0aa5ae20/2LANjv1jCQUgpSwlujnHM.jpg" alt=""></div>
-  <div class="hand" style="left:3.5%;top:46%;transform:rotate(-3.5deg)">simulated walkthrough demos ↓</div>
-  <div class="hand" style="right:4%;top:44%;transform:rotate(2.5deg)">scan it → walk it ★</div>
+  <div class="hand" style="left:3.5%;top:46%;transform:rotate(-3.5deg)">simulated walkthrough demos â†“</div>
+  <div class="hand" style="right:4%;top:44%;transform:rotate(2.5deg)">scan it â†’ walk it â˜…</div>
 </div>
 <div class="ovScroll">
 <div class="card">
   <h3>M3<em style="color:var(--gold);font-style:normal">XI</em> WALKTHROUGH</h3>
   <p id="ovMsg">Real places and AI-invented worlds, walkable in the browser.<br><br>
-  <b>Have a scan?</b> Load a .spz / .ply / .splat file — the free <b>Scaniverse</b> app (iPhone &amp; Android) exports them: scan in Splat mode → Share → Export.</p>
+  <b>Have a scan?</b> Load a .spz / .ply / .splat file â€” the free <b>Scaniverse</b> app (iPhone &amp; Android) exports them: scan in Splat mode â†’ Share â†’ Export.</p>
   <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
     <button class="btn gold" id="ovLoad">Load scan</button>
     <button class="btn" id="ovDemo">Walk the demo world</button>
   </div>
   <div id="ovGen">
-    <textarea id="ovPrompt" placeholder="Or write a prompt and the AI builds the world — e.g. 'a sunlit Japanese bookshop, narrow aisles, paper lanterns, dust in the light'"></textarea>
+    <!-- Attached photos ride on top of the prompt, like chat attachments. Up to
+         four: Marble arranges them around the world by angle. -->
+    <div id="ovAttach" style="display:none;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px"></div>
+    <textarea id="ovPrompt" placeholder="Describe the world &mdash; e.g. 'a sunlit Japanese bookshop, narrow aisles, paper lanterns, dust in the light'. Attach photos of a real place and it builds from those."></textarea>
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px">
       <button class="btn gold" id="ovGenBtn">Generate world</button>
-      <input type="text" id="ovCode" placeholder="Credit code (optional)" style="max-width:190px;background:#fff;border:2px solid var(--line);color:var(--ink);padding:9px 11px;font-size:13px">
+      <button class="btn" id="ovAttachBtn" type="button">+ Photos</button>
+      <input type="file" id="ovAttachInput" accept="image/*" multiple style="display:none">
     </div>
+    <div id="ovGenNote" class="small" style="margin-top:8px">&nbsp;</div>
   </div>
   <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
     <input type="text" id="ovWorldCode" placeholder="World code (e.g. showroom-ab12)" style="max-width:230px;background:#fff;border:2px solid var(--line);color:var(--ink);padding:9px 11px;font-size:13px">
@@ -236,7 +245,7 @@ a{color:var(--gold)}
   <p class="small" id="ovProg" style="margin-top:14px"></p>
 </div>
 <div id="ovLibWrap">
-  <div class="ovLibHead">THE LIBRARY <span class="small">— published with the M3XI tool · click a world to walk it</span></div>
+  <div class="ovLibHead">THE LIBRARY <span class="small">â€” published with the M3XI tool Â· click a world to walk it</span></div>
   <div class="ovLib" id="ovLib"></div>
 </div>
 </div>
@@ -290,8 +299,8 @@ const splatRoot=new THREE.Group();scene.add(splatRoot);
    outside. A graded sky gives the space an outside to sit in, and windows
    something to look out at.
 
-   The gradient follows the clock in the UK — Europe/London via Intl, so British
-   Summer Time is handled without us tracking it — running night, dawn, day,
+   The gradient follows the clock in the UK â€” Europe/London via Intl, so British
+   Summer Time is handled without us tracking it â€” running night, dawn, day,
    dusk and back. Interpolated between keyframes so it drifts rather than jumps,
    and refreshed every few minutes, which is far more often than the eye needs.
    ---------------------------------------------------------------------------- */
@@ -327,7 +336,7 @@ let skyTex=null,skyCanvas=null;
 /* Backdrop modes. A Gaussian splat is semi-transparent at its edges, so
    whatever sits behind the cloud shows through EVERY surface, not just through
    gaps. A bright sky therefore speckles the walls and floor blue and the scan
-   reads as dirty — which is exactly what the daylight sky did. 'dim' keeps the
+   reads as dirty â€” which is exactly what the daylight sky did. 'dim' keeps the
    time-of-day colour but crushes it toward black so nothing bleeds through;
    'dark' is flat near-black, the cleanest read for an interior; 'sky' is the
    full brightness, which suits an exterior scan and ruins an interior. */
@@ -364,7 +373,7 @@ let splat=null,splatCount=0;
 /* ---------- which slab is the FLOOR, and which way is up ---------------------
    Picking the densest horizontal slab and calling it the floor is wrong, and
    both reported faults come from it. A ceiling is a large flat surface too, and
-   in a generated room it is often the DENSER of the two — so the bedroom was
+   in a generated room it is often the DENSER of the two â€” so the bedroom was
    levelled upside down, with the bed hanging above the camera. Outdoors, a roof
    outscores the floor, which is how the office scan put the visitor on top of
    the building.
@@ -373,7 +382,7 @@ let splat=null,splatCount=0;
    person could stand on, and that has a specific, checkable signature:
 
        ceiling slab      dense, roughly 2.0-3.6m above
-       headroom          EMPTY, from 0.45m to 1.65m above — this is where a
+       headroom          EMPTY, from 0.45m to 1.65m above â€” this is where a
                          standing body goes, and it is the part a roof fails
        floor slab        dense, at the height itself
 
@@ -402,7 +411,7 @@ function roomScore(hist,lo,bin){
     const ceil=peak(f+2.0,f+3.6);        // and a room has a lid
     // A ROOM HAS A CEILING, and requiring one is what keeps the visitor off the
     // roof. The old formula did the exact opposite: above a roof there is sky,
-    // sky is empty, and dividing by empty headroom made the score explode — so
+    // sky is empty, and dividing by empty headroom made the score explode â€” so
     // the roof outscored every real floor. That is precisely how the office scan
     // opened with the visitor standing on top of the building.
     if(ceil<Math.max(0.0015,floorD*0.10))continue;
@@ -410,8 +419,8 @@ function roomScore(hist,lo,bin){
     if(score>best.score)best={score,floorY:f,indoor:true};
   }
   if(best.indoor)return best;
-  // Nothing room-shaped in this scan. Stand on the LOWEST real surface — the
-  // ground — and never on the highest, which is the roof.
+  // Nothing room-shaped in this scan. Stand on the LOWEST real surface â€” the
+  // ground â€” and never on the highest, which is the roof.
   return{score:lowestSlab===lowestSlab?0.0005:0,floorY:lowestSlab,indoor:false};
 }
 /* Build a vertical histogram of a list of heights, then score it. */
@@ -436,7 +445,7 @@ function scoreHeights(vals){
      - you spawn inside a desk, so the room renders as an orange smear
      - "knee to head" is measured along an axis that runs HORIZONTALLY through
        the room, so no cell ever shows a wall's signature. Measured on the
-       office scan: ZERO solid cells out of 3,894 — no walls at all, which is
+       office scan: ZERO solid cells out of 3,894 â€” no walls at all, which is
        why you could drift through furniture
      - the floor lands metres away from the player's feet (feet at +3.05 while
        the scan's floor sat at -3.72)
@@ -444,7 +453,7 @@ function scoreHeights(vals){
    The floor gives the answer away. Along the true up-axis a room's points pile
    into one thin, very dense slab; along the other two the spread is broad. So
    histogram all three axes, take the sharpest peak, and rotate that axis to +Y.
-   The office scan scores z=0.058 against y=0.031 and x=0.027 — Z-up, decisively.
+   The office scan scores z=0.058 against y=0.031 and x=0.027 â€” Z-up, decisively.
 
    Only applied when the world has no saved transform: a world someone has
    calibrated by hand must never be silently re-rotated underneath them.
@@ -484,7 +493,7 @@ function detectUp(){
   cands.sort((a,b)=>b.score-a.score);
   const win=cands[0];
   // The costs here are wildly asymmetric. Leaving an already-upright world alone
-  // is free; rotating an upright world is catastrophic — the room hangs from the
+  // is free; rotating an upright world is catastrophic â€” the room hangs from the
   // ceiling. The viewer's own convention is Y-up, so identity is the incumbent
   // and only a decisive margin unseats it. On the Gallery Loft y- beat y+ by
   // 1.13x, which is a coin toss, and acting on it turned a good world upside
@@ -508,7 +517,7 @@ function detectUp(){
    half-metre above a real floor is full of furniture while the half-metre below
    a ceiling is air. Measured on the bedroom: upright carries 34.6% of its mass
    just above the floor against 15.9% near the ceiling, a ratio of 2.2, while
-   inverted comes out 24.3 against 23.3 — a ratio of 1.0, which is the
+   inverted comes out 24.3 against 23.3 â€” a ratio of 1.0, which is the
    signature of having guessed. */
 function floorLikeness(){
   if(!splat||!colGrid)return 0;
@@ -540,7 +549,7 @@ let autoLevelInfo=null;
 
      - collision is USABLE (there is somewhere to stand at all). A scan on its
        side produces so little standable ground that collision stands down
-       entirely, and the visitor then drifts through everything — which is how
+       entirely, and the visitor then drifts through everything â€” which is how
        a tipped loft measured 921 m2 of "reachable" floor.
      - the walkable area is LARGE. Among orientations that produce a real room,
        the correct one exposes the most of it: upright 24.8 m2 against 11 m2
@@ -553,7 +562,7 @@ function autoLevel(){
   if(!splat)return;
   /* AUTOMATIC ROTATION IS OFF, deliberately.
      Three successive versions of the floor test each fixed one world and broke
-     the other — density, then room-shape, then mass-above-floor: 2.18 vs 1.55
+     the other â€” density, then room-shape, then mass-above-floor: 2.18 vs 1.55
      said upright, 3.09 vs 2.18 said tipped. A heuristic that keeps swapping its
      answer is not close to right, and every wrong answer put a visitor inside a
      room lying on its side with no idea why.
@@ -594,7 +603,7 @@ window.__autoLevel=()=>autoLevelInfo;
 window.__detectUp=detectUp;
 
 /* After levelling, stand the player ON the floor rather than at whatever height
-   y=0 happens to be in this file — that alone is the difference between opening
+   y=0 happens to be in this file â€” that alone is the difference between opening
    inside a desk and opening in the room. */
 function dropToFloor(){
   if(!colGrid)return;
@@ -613,7 +622,7 @@ function dropToFloor(){
 
 /* ---------- sharpness: the blur that cleanup cannot reach ---------------------
    Removing oversized and near-transparent splats fixes artefact blur, and on a
-   capture full of them it does a lot — 18.8% of the Gallery Loft. But it can do
+   capture full of them it does a lot â€” 18.8% of the Gallery Loft. But it can do
    nothing for a world whose splats are all uniformly sized: the bedroom shed
    0.1%, because nothing in it is an outlier. That softness is not artefacts, it
    is the splats themselves overlapping.
@@ -651,7 +660,7 @@ window.__sharpness=()=>sharpAmt;
 
      SPIKES   Wildly oversized splats, usually anchored to a surface the camera
               only glimpsed once. On the demo capture the largest splat is 80x
-              the median — those are the translucent quills sticking out of the
+              the median â€” those are the translucent quills sticking out of the
               walls.
      HAZE     Near-transparent splats filling the air. Individually invisible,
               collectively a fog that makes everything read as blurred, and they
@@ -664,7 +673,7 @@ window.__sharpness=()=>sharpAmt;
    same cloud. Splats are hidden (opacity 0) rather than deleted, so the cleanup
    is reversible and the original file is never modified.
 
-   Threshold is a multiple of the MEDIAN splat size, not an absolute — captures
+   Threshold is a multiple of the MEDIAN splat size, not an absolute â€” captures
    arrive at wildly different scales and a fixed number would either destroy a
    small scan or do nothing to a large one.
    ---------------------------------------------------------------------------- */
@@ -710,7 +719,7 @@ function cleanScan(level){
     });
     // Safety cap. Cleanup decides what to hide from statistics of the scan
     // itself, and a file with unusual scale or opacity encoding could satisfy
-    // those rules almost everywhere — which would hide the world and leave a
+    // those rules almost everywhere â€” which would hide the world and leave a
     // black screen that looks exactly like a crash. Past 45% we are no longer
     // trimming artefacts, we are deleting the scan, so we stand down.
     const CAP=Math.floor(n*0.45);
@@ -736,12 +745,12 @@ window.__cleanStats=()=>cleanStats;
 
 /* ---------- game geometry: a walkable heightfield derived from the scan ----------
    A Gaussian splat cloud has no surfaces. It is a haze of coloured points, so a
-   camera moving through it passes through everything — which is why an untreated
+   camera moving through it passes through everything â€” which is why an untreated
    scan can only ever be flown through, never walked. Walking needs geometry, and
    the only place to get it is the cloud itself. Four steps:
 
    1. FLOOR      Per grid cell, the 15th percentile of point heights. Not the
-                 minimum — every scan carries a few stray points below the real
+                 minimum â€” every scan carries a few stray points below the real
                  floor and one of them would drop the floor through the ground.
 
    2. BLOCKED    What FRACTION of a cell's points sit between knee and head
@@ -749,15 +758,15 @@ window.__cleanStats=()=>cleanStats;
                  solid at 5 points in that band, which on a 500k-splat room is
                  almost every cell. Measured: 42% of the map solid and the player
                  could not move one step from spawn in any direction. The only
-                 escape was switching collision off — which is precisely the
+                 escape was switching collision off â€” which is precisely the
                  "flying through a scan" this is meant to replace.
 
    3. CLEARANCE  A distance transform from the blocked cells, so we know how much
                  room a body actually has. Testing a few points around the player
                  against raw cells is not enough: a single speck of scan noise
                  inside an open room reads as a pillar and pins the player in
-                 place. Clearance asks the honest question — can a shoulder-width
-                 body stand here — and answers it once, for every cell.
+                 place. Clearance asks the honest question â€” can a shoulder-width
+                 body stand here â€” and answers it once, for every cell.
 
    4. REACHABLE  Flood fill the largest region of cells that a body fits in and
                  whose floors connect by steps rather than cliffs. That region is
@@ -786,7 +795,7 @@ function buildCollision(){
 
     // Update from the GROUP down, not the mesh. updateMatrixWorld on the child
     // composes with whatever the parent's matrix currently holds, and rotating
-    // splatRoot does not refresh that until the next render — so a rebuild
+    // splatRoot does not refresh that until the next render â€” so a rebuild
     // triggered straight after a rotation was silently measuring the OLD
     // orientation. Every "which way is up" option returned identical numbers.
     splatRoot.updateMatrixWorld(true);
@@ -812,7 +821,7 @@ function buildCollision(){
     if(w<4||h<4){colDiag={ok:false,reason:'scan covers too little ground'};return;}
     const N=w*h;
 
-    // Vertical histogram per cell — a percentile without keeping every point.
+    // Vertical histogram per cell â€” a percentile without keeping every point.
     const yspan=Math.max(0.5,maxy-miny);
     const B=Math.max(8,Math.min(48,Math.ceil(yspan/0.10)));
     const ybin=yspan/B;
@@ -828,8 +837,8 @@ function buildCollision(){
     }
 
     // Reject haze cells before they become invisible walls. A real surface leaves
-    // a dense column of points; a floater — the wispy spike hanging in the air
-    // around the edge of a capture — leaves two or three. Those were being
+    // a dense column of points; a floater â€” the wispy spike hanging in the air
+    // around the edge of a capture â€” leaves two or three. Those were being
     // promoted to solid geometry, which is where "invisible collider" comes from:
     // something blocks you, and there is nothing there to see.
     let med=0;
@@ -912,7 +921,7 @@ function buildCollision(){
       // 6.7 m2 over 103 walls and 3.9 m2. A room you can cross but not leave is
       // a room; an open plain with a bed in it is not.
       // Once the walls that survive are real runs, "more walls" stops being the
-      // goal — it was, and it walled people in. Take enough structure to enclose
+      // goal â€” it was, and it walled people in. Take enough structure to enclose
       // the space, then as much room to explore as possible.
       const enough=nSolid>=Math.max(12,occupied*0.02);
       const bestEnough=best?best.enough:false;
@@ -925,7 +934,24 @@ function buildCollision(){
       // usually not the first one that merely clears the area bar.
     }
 
-    colGrid={minx,minz,cs,w,h,solid:best.solid,walk:best.walk,reach:best.reg.mask,floorY,cnt};
+    /* THE CEILING, per cell. Jumping had a floor to land on but nothing above:
+       in a room with a 2 m ceiling, Space put your head straight through the
+       roof and out into the sky, which reads as the world being fake. The same
+       histogram that found the floor knows where the mass above head height
+       starts — the first meaningfully occupied band above the floor's head
+       band is the underside of the ceiling. Cells with nothing overhead
+       (courtyards, outdoor scans) stay NaN and jumping is unrestricted there. */
+    const ceilY=new Float32Array(N).fill(NaN);
+    for(let i=0;i<N;i++){
+      const c=cnt[i],f=floorY[i];
+      if(c<MIN_CELL||f!==f)continue;
+      const from=Math.max(0,Math.min(B-1,((f+HEAD+0.30-miny)/ybin)|0));
+      const need=Math.max(2,Math.floor(c*0.02));   // a shelf edge is not a ceiling
+      for(let b=from;b<B;b++){
+        if(hist[i*B+b]>=need){ceilY[i]=miny+b*ybin;break;}
+      }
+    }
+    colGrid={minx,minz,cs,w,h,solid:best.solid,walk:best.walk,reach:best.reg.mask,floorY,ceilY,cnt};
     // 2 m2 is about the size of a doorway landing: below that there is nowhere
     // to actually walk, so collision would only ever say no.
     colGrid.usable=best.reg.cells*cs*cs>=2;
@@ -935,15 +961,15 @@ function buildCollision(){
       areaM2:+(best.reg.cells*cs*cs).toFixed(1),
       threshold:best.thr,grid:w+'x'+h,cell:+cs.toFixed(2),
       walls:best.nSolid,
-      reason:best.reg.cells>0?(best.hasStructure?'ok':'no walls found — the scan may not be level'):
+      reason:best.reg.cells>0?(best.hasStructure?'ok':'no walls found â€” the scan may not be level'):
         'this scan has no ground a person could stand on'};
   }catch(e){colGrid=null;colDiag={ok:false,reason:'collision build failed: '+(e&&e.message||e)};}
 }
 
 /* A real wall is a RUN, not a speck. Furniture and walls occupy long connected
    groups of cells; scan noise occupies two or three. Dropping the small groups
-   is what removes invisible barriers — the ones that stop you in open floor
-   with nothing on screen to explain why — while leaving every actual wall
+   is what removes invisible barriers â€” the ones that stop you in open floor
+   with nothing on screen to explain why â€” while leaving every actual wall
    standing. This matters more than the wall COUNT: 103 walls made of specks is
    a minefield, 60 walls made of runs is a room. */
 function keepWallRuns(solid,w,h,minRun){
@@ -1039,6 +1065,12 @@ function cellFloor(x,z){
   const f=colGrid.floorY[i];
   return f!==f?null:f;
 }
+function cellCeil(x,z){
+  const i=cellIndex(x,z);
+  if(i<0||!colGrid||!colGrid.ceilY)return null;
+  const c=colGrid.ceilY[i];
+  return c!==c?null:c;
+}
 /* Clearance already accounts for body width, so this is a single lookup: is the
    target cell part of the walkable region, and is the step up to it a step. */
 function canStand(x,z,feetY){
@@ -1049,7 +1081,7 @@ function canStand(x,z,feetY){
   if(!colGrid.usable)return true;
   const i=cellIndex(x,z);
   if(i<0)return false;
-  // Any ground a body fits on is walkable — NOT only the largest connected
+  // Any ground a body fits on is walkable â€” NOT only the largest connected
   // region. Gating on `reach` locked visitors out of every side room whose
   // doorway the clearance test judged a shade too narrow: a whole space in
   // their own scan, present on screen and permanently unreachable. `reach` now
@@ -1065,7 +1097,7 @@ function ensureSpawn(force){
   const W=colGrid.walk,F=colGrid.floorY,cs=colGrid.cs,w=colGrid.w,N=w*colGrid.h;
   // Which height IS the floor? A scan often contains a desk top, a windowsill
   // and a roof as well as the ground, and the biggest connected patch is not
-  // reliably the one you should stand on — on the office scan it put the visitor
+  // reliably the one you should stand on â€” on the office scan it put the visitor
   // 3.2m up, inside the furniture. The room's real floor is the height that the
   // most standable cells share, so bucket the floors and take the mode.
   if(colGrid.groundY===colGrid.groundY){
@@ -1104,7 +1136,7 @@ function ensureSpawn(force){
 
   const onGround=i=>{const f=F[i];return f===f&&Math.abs(f-groundY)<=0.45;};
   // Keep the visitor where they are only if they are already standing on that
-  // floor — otherwise place them on it.
+  // floor â€” otherwise place them on it.
   const here=cellIndex(player.x,player.z);
   if(!force&&here>=0&&W[here]&&onGround(here)){player.feetY=F[here];return;}
 
@@ -1151,7 +1183,7 @@ window.__colDiag=()=>colDiag;
 
 /* ---------- Fix this world: correcting what detection gets wrong -------------
    Auto-levelling reads the shape of a room out of a point cloud, and it will
-   never be right every time — a scan with a mezzanine, a mirrored wall, a room
+   never be right every time â€” a scan with a mezzanine, a mirrored wall, a room
    captured through a doorway, and it guesses wrong. When it does, the visitor
    is stuck: the room is on its side and walls they can see do not stop them,
    because "which way is up" is what decides where walls are. Every wall is
@@ -1214,15 +1246,15 @@ function reportFix(){
   if(!el)return;
   const ci=window.__colInfo?window.__colInfo():null;
   if(!ci||!ci.built){el.textContent=(ci&&ci.reason)||'no scan loaded';return;}
-  const bits=[ci.solid+' walls',ci.areaM2+' m² to walk'];
-  if(ci.solid<25)bits.push('— too few walls: try another “up”');
-  el.textContent=bits.join(' · ');
+  const bits=[ci.solid+' walls',ci.areaM2+' mÂ² to walk'];
+  if(ci.solid<25)bits.push('â€” too few walls: try another â€œupâ€');
+  el.textContent=bits.join(' Â· ');
 }
 window.__reportFix=reportFix;
 
 /* If a world still looks wrong, say where the fix is. Auto-levelling now leaves
    worlds alone unless the evidence is overwhelming, which means the occasional
-   crooked scan reaches a visitor — and a visitor who does not know the panel
+   crooked scan reaches a visitor â€” and a visitor who does not know the panel
    exists just leaves. */
 function offerFix(){
   const el=document.getElementById('fixHint');
@@ -1240,11 +1272,11 @@ async function saveFixToWorld(){
   const set=(t)=>{if(st)st.textContent=t;};
   saveFixLocal();
   if(!worldState.slug||!worldState.edit_key){
-    set('Saved for you on this device. Only the world’s owner can save it for everyone.');
+    set('Saved for you on this device. Only the worldâ€™s owner can save it for everyone.');
     return;
   }
   try{
-    set('Saving to the world…');
+    set('Saving to the worldâ€¦');
     const l=await wcall({action:'load',slug:worldState.slug,edit_key:worldState.edit_key});
     const doc=(l&&l.world)||{};
     doc.environment=doc.environment||{};
@@ -1259,7 +1291,7 @@ async function saveFixToWorld(){
     await wcall({action:'save',slug:worldState.slug,edit_key:worldState.edit_key,world:doc});
     set('Saved. Everyone who opens this world now gets the fix.');
   }catch(e){
-    set('Could not save to the world: '+(e&&e.message||e)+' — kept on this device instead.');
+    set('Could not save to the world: '+(e&&e.message||e)+' â€” kept on this device instead.');
   }
 }
 window.__saveFixToWorld=saveFixToWorld;
@@ -1294,7 +1326,7 @@ function clearSplat(){
 function docExtras(fromDoc){
   if(fromDoc.eye){player.eye=fromDoc.eye;$('#eye').value=fromDoc.eye;$('#eyeVal').textContent=fromDoc.eye.toFixed(2)+' m';}
   // Worlds published before the speed was reconsidered carry the old 2.6 m/s,
-  // which is a jog. Restore what was saved, but never faster than a brisk walk —
+  // which is a jog. Restore what was saved, but never faster than a brisk walk â€”
   // a visitor should arrive walking, and can still turn it up on the slider.
   if(fromDoc.speed){
     const sp=Math.min(Math.max(Number(fromDoc.speed)||1.35,0.4),1.8);
@@ -1324,7 +1356,7 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
     const _n=_s&&_s.getNumSplats?_s.getNumSplats():0;
     if(_n<500){
       overlay.style.display='flex';
-      ovProg.textContent='This world is empty — it holds '+_n+' splat'+(_n===1?'':'s')+
+      ovProg.textContent='This world is empty â€” it holds '+_n+' splat'+(_n===1?'':'s')+
         ', so there is nothing to render. It was most likely published as a test.';
       return;
     }
@@ -1341,6 +1373,20 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
       docExtras(fromDoc);
       try{const src2=mesh.packedSplats||mesh.splats;splatCount=src2&&src2.getNumSplats?src2.getNumSplats():0;}catch(e){}
       cleanScan();   // hides spikes/haze/ghosts, then builds collision from what is left
+      /* A saved fix outranks the stored transform. The transform records how the
+         world happened to be sitting when it was last published; the fix records
+         what someone actually decided was upright. This path used to return
+         before applyRememberedFix ever ran, so for any world that had been
+         calibrated once, both the owner's saved orientation and the visitor's
+         own correction were silently discarded \u2014 the calibrate panel appeared to
+         work, then reverted on the next visit. */
+      const rotBefore=splatRoot.rotation.clone();
+      if(applyRememberedFix(fromDoc)&&!splatRoot.rotation.equals(rotBefore)){
+        splatRoot.updateMatrixWorld(true);
+        buildCollision();dropToFloor();ensureSpawn(true);
+      }
+      if(window.__reportClean)window.__reportClean();
+      reportFix();offerFix();   // and leave the escape hatch visible if it is still wrong
       setStatus((splatCount?splatCount.toLocaleString()+' splats \u00b7 ':'')+'world restored \u00b7 drag to look \u00b7 WASD / joystick to move');
       overlay.style.display='none';
       return;
@@ -1380,7 +1426,7 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
   }catch(e){player.floor=0;}
   player.feetY=player.floor;player.vy=0;player.grounded=true;
   if(fromDoc&&splatCount>0&&splatCount<100){
-    ovProg.textContent='This world\'s scan streamed only '+splatCount+' points — the file did not load correctly. If this is your world, open your editor link and press Save & publish to repair it.';
+    ovProg.textContent='This world\'s scan streamed only '+splatCount+' points â€” the file did not load correctly. If this is your world, open your editor link and press Save & publish to repair it.';
     overlay.style.display='flex';
     setStatus('world data incomplete');
     return;
@@ -1401,7 +1447,7 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
 }
 let srcInfo=null; // retained environment source for saving: {kind:'bytes'|'url', bytes?, name, url?}
 function loadFromFile(file){
-  ovProg.textContent='Loading '+file.name+' …';overlay.style.display='flex';
+  ovProg.textContent='Loading '+file.name+' â€¦';overlay.style.display='flex';
   file.arrayBuffer().then(buf=>{
     clearSplat();
     srcInfo={kind:'bytes',bytes:new Uint8Array(buf),name:file.name};
@@ -1412,7 +1458,7 @@ function loadFromFile(file){
   }).catch(e=>{ovProg.textContent='Could not read that file: '+e.message;});
 }
 function loadFromUrl(url,opts){
-  ovProg.textContent='Loading scan …';overlay.style.display='flex';
+  ovProg.textContent='Loading scan â€¦';overlay.style.display='flex';
   clearSplat();
   srcInfo={kind:'url',url,name:url.split('/').pop()||'scan'};
   const mesh=new SplatMesh({url,
@@ -1426,14 +1472,14 @@ async function loadFromParts(parts,nameHint,opts){
     clearSplat();
     const bufs=[];let got=0;
     for(let i=0;i<parts.length;i++){
-      ovProg.textContent='Loading world data — part '+(i+1)+' of '+parts.length+' …';
+      ovProg.textContent='Loading world data â€” part '+(i+1)+' of '+parts.length+' â€¦';
       const r=await fetch(parts[i]);
       if(!r.ok)throw new Error('part '+(i+1)+' HTTP '+r.status);
       const b=new Uint8Array(await r.arrayBuffer());bufs.push(b);got+=b.length;
     }
     const all=new Uint8Array(got);let o=0;for(const b of bufs){all.set(b,o);o+=b.length;}
     const fname=String(nameHint||'scan.ply').split('/').pop().split('?')[0].replace(/\.part\d+$/,'');
-    ovProg.textContent='Decoding '+Math.round(got/1048576)+' MB …';
+    ovProg.textContent='Decoding '+Math.round(got/1048576)+' MB â€¦';
     srcInfo={kind:'url',url:parts[0],name:fname,parts:parts.slice()};
     const mesh=new SplatMesh({fileBytes:all,fileName:fname,onLoad:m=>afterLoad(m,opts||{})});
     splatRoot.add(mesh);
@@ -1524,7 +1570,7 @@ function endTouch(e){for(const t of e.changedTouches){
   if(t.identifier===lookTouch)lookTouch=null;}}
 cv.addEventListener('touchend',endTouch);cv.addEventListener('touchcancel',endTouch);
 /* Esc leaves for the Library, R reloads the scene. Both are ignored while
-   typing in a field, otherwise naming a world becomes impossible — press r in
+   typing in a field, otherwise naming a world becomes impossible â€” press r in
    the name box and the page would reload under you. */
 addEventListener('keydown',e=>{
   const t=e.target,typing=t&&(/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||t.isContentEditable);
@@ -1556,7 +1602,7 @@ function renderMarkers(){
 function dropHotspot(){
   const dir=new THREE.Vector3(-Math.sin(player.yaw),0,-Math.cos(player.yaw));
   const p=[player.x+dir.x*1.2,player.floor+1.15,player.z+dir.z*1.2];
-  hotspots.push({pos:p,title:'Info point '+(hotspots.length+1),body:'Describe this spot — rent, features, sizes, anything a viewer should know.'});
+  hotspots.push({pos:p,title:'Info point '+(hotspots.length+1),body:'Describe this spot â€” rent, features, sizes, anything a viewer should know.'});
   renderMarkers();openHotspot(hotspots.length-1);
 }
 /* ---------- interactive 3D assets (hybrid representation) ---------- */
@@ -1582,7 +1628,7 @@ async function attachAsset(a){
 function placeNewAsset(srcKind,srcOrBytes,name){
   const dir=new THREE.Vector3(-Math.sin(player.yaw),0,-Math.cos(player.yaw));
   const a={srcKind,src:srcKind==='url'?srcOrBytes:'',bytes:srcKind==='bytes'?srcOrBytes:undefined,name:name||'asset',
-    title:name||'Asset',body:'Describe this object — model, features, availability.',price:'',cta:'',
+    title:name||'Asset',body:'Describe this object â€” model, features, availability.',price:'',cta:'',
     pos:[player.x+dir.x*2,player.floor,player.z+dir.z*2],rotY:player.yaw+Math.PI,scale:1};
   assets.push(a);attachAsset(a);
 }
@@ -1595,7 +1641,7 @@ function renderAssetList(){
     d.innerHTML='<span style="flex:1">'+(a.title||a.name)+'</span>'+
       '<button class="btn" data-a="here" style="padding:3px 8px;font-size:11px">Move here</button>'+
       '<button class="btn" data-a="edit" style="padding:3px 8px;font-size:11px">Edit</button>'+
-      '<button class="btn" data-a="del" style="padding:3px 8px;font-size:11px">✕</button>';
+      '<button class="btn" data-a="del" style="padding:3px 8px;font-size:11px">âœ•</button>';
     d.querySelector('[data-a=here]').onclick=()=>{const dir=new THREE.Vector3(-Math.sin(player.yaw),0,-Math.cos(player.yaw));
       a.pos=[player.x+dir.x*2,player.floor,player.z+dir.z*2];if(a._group)a._group.position.fromArray(a.pos);};
     d.querySelector('[data-a=edit]').onclick=()=>openAsset(i);
@@ -1714,16 +1760,16 @@ async function saveWorld(){
   try{
     if(!splat)return wStatus('Load a scan (or the demo room) before saving.');
     const name=($('#wName').value.trim()||'Untitled world');
-    wStatus('Saving …');
+    wStatus('Saving â€¦');
     if(!worldState.slug){const c=await wcall({action:'create',name});worldState.slug=c.slug;worldState.edit_key=c.edit_key;}
     // environment file
     let envSrc;
-    if(srcInfo&&srcInfo.kind==='bytes'){wStatus('Uploading scan ('+Math.round(srcInfo.bytes.length/1048576*10)/10+' MB) …');envSrc=await uploadBytes(srcInfo.name,srcInfo.bytes);srcInfo={kind:'url',url:envSrc,name:srcInfo.name};}
+    if(srcInfo&&srcInfo.kind==='bytes'){wStatus('Uploading scan ('+Math.round(srcInfo.bytes.length/1048576*10)/10+' MB) â€¦');envSrc=await uploadBytes(srcInfo.name,srcInfo.bytes);srcInfo={kind:'url',url:envSrc,name:srcInfo.name};}
     else if(srcInfo&&srcInfo.kind==='url')envSrc=srcInfo.url;
-    else return wStatus('Nothing to save — no environment source.');
+    else return wStatus('Nothing to save â€” no environment source.');
     // asset files
     for(const a of assets){
-      if(a.srcKind==='bytes'&&a.bytes){wStatus('Uploading asset '+a.name+' …');a.src=await uploadBytes(a.name.endsWith('.glb')?a.name:a.name+'.glb',a.bytes);a.srcKind='url';a.bytes=undefined;}
+      if(a.srcKind==='bytes'&&a.bytes){wStatus('Uploading asset '+a.name+' â€¦');a.src=await uploadBytes(a.name.endsWith('.glb')?a.name:a.name+'.glb',a.bytes);a.srcKind='url';a.bytes=undefined;}
       if(a._group){a.pos=[a._group.position.x,a._group.position.y,a._group.position.z];a.rotY=a._group.rotation.y;a.scale=a._group.scale.x;}
     }
     // capture a cover image for the Library from the current view
@@ -1734,7 +1780,7 @@ async function saveWorld(){
       const cc=document.createElement('canvas');cc.width=cw;cc.height=ch;
       cc.getContext('2d').drawImage(full,0,0,cw,ch);
       const blob=await new Promise(res=>cc.toBlob(res,'image/jpeg',0.85));
-      if(blob){wStatus('Uploading cover image …');coverUrl=await uploadBytes('cover.jpg',new Uint8Array(await blob.arrayBuffer()));}
+      if(blob){wStatus('Uploading cover image â€¦');coverUrl=await uploadBytes('cover.jpg',new Uint8Array(await blob.arrayBuffer()));}
     }catch(e){/* cover is optional */}
     const doc={
       name,published:true,unit:'m',
@@ -1749,11 +1795,11 @@ async function saveWorld(){
       cover:coverUrl||undefined
     };
     if(srcInfo&&srcInfo.parts&&srcInfo.parts.length){doc.environment.parts=srcInfo.parts;doc.environment.file=srcInfo.name;}
-    wStatus('Publishing …');
+    wStatus('Publishing â€¦');
     await wcall({action:'save',slug:worldState.slug,edit_key:worldState.edit_key,world:doc});
-    wStatus('Published to the M3XI Library. World code: '+worldState.slug+' — open anywhere with ?world='+worldState.slug+' · Edit key (keep safe): '+worldState.edit_key);
+    wStatus('Published to the M3XI Library. World code: '+worldState.slug+' â€” open anywhere with ?world='+worldState.slug+' Â· Edit key (keep safe): '+worldState.edit_key);
     const b=$('#btnCopyShare');b.style.display='';
-    b.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(worldState.slug);b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy share code',1400);};
+    b.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(worldState.slug);b.textContent='Copied âœ“';setTimeout(()=>b.textContent='Copy share code',1400);};
     const base=location.href.split('?')[0];
     const snip=$('#embedSnip');snip.style.display='';
     snip.value='<iframe src="'+base+'?world='+worldState.slug+'&embed=1" style="width:100%;height:620px;border:0;border-radius:12px" allow="fullscreen"></iframe>';
@@ -1761,7 +1807,7 @@ async function saveWorld(){
 }
 async function openWorld(slug,key){
   try{
-    ovProg.textContent='Opening world '+slug+' …';overlay.style.display='flex';
+    ovProg.textContent='Opening world '+slug+' â€¦';overlay.style.display='flex';
     const l=await wcall({action:'load',slug,edit_key:key||''});
     worldState.slug=slug;if(l.owner&&key)worldState.edit_key=key;
     const doc=l.world;
@@ -1776,12 +1822,63 @@ $('#ovOpenWorld').onclick=()=>{const c=$('#ovWorldCode').value.trim();if(c)openW
 /* ---------- the demo world + prompt-to-world + library archive ---------- */
 const DEMO_WORLD='m3xi-demo-gallery-loft-zynt';
 $('#ovDemo').onclick=()=>openWorld(DEMO_WORLD,'');
+
+/* Generation charges an ACCOUNT, so the call must carry the visitor's session
+   — the same one the Studio page stores, shared through this origin's storage.
+   No session, no generation: the message says where to sign in rather than
+   failing with a mystery. The old "credit code" box is gone with the codes. */
+import { createClient as __cc } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
+const sbAuth=__cc('https://tnlcuptfldwxtxajudoq.supabase.co',M3IX_W.key,
+  {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+async function userToken(){
+  try{const{data:{session}}=await sbAuth.auth.getSession();return session&&session.access_token||null;}
+  catch(e){return null;}
+}
 async function gcall(payload){
-  const r=await fetch(M3IX_W.fn.replace('m3ix-worlds','m3ix-generate'),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+M3IX_W.key,'apikey':M3IX_W.key},body:JSON.stringify(payload)});
+  const tok=await userToken();
+  const bearer=tok||M3IX_W.key;
+  const r=await fetch(M3IX_W.fn.replace('m3ix-worlds','m3ix-generate'),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+bearer,'apikey':M3IX_W.key},body:JSON.stringify(payload)});
   const j=await r.json().catch(()=>({error:'Unreadable response'}));
+  if(j&&j.code==='signup_required')throw Object.assign(new Error(j.error),{signup:true});
   if(!r.ok||j.error)throw new Error(j.error||('HTTP '+r.status));
   return j;
 }
+
+/* ---------- photo attachments on the prompt ----------
+   Downscaled to 1600px and carried as data URIs — Marble accepts those
+   directly, and it spares a visitor's 12MB phone photos from the request. */
+const ovAtt=[];
+function drawAtt(){
+  const row=$('#ovAttach');if(!row)return;
+  row.style.display=ovAtt.length?'flex':'none';
+  row.innerHTML='';
+  ovAtt.forEach((a,i)=>{
+    const d=document.createElement('div');d.className='att';
+    d.innerHTML='<img alt="attachment"><button type="button" aria-label="Remove">×</button>';
+    d.querySelector('img').src=a;
+    d.querySelector('button').onclick=()=>{ovAtt.splice(i,1);drawAtt();};
+    row.appendChild(d);
+  });
+  const n=$('#ovGenNote');
+  if(n)n.textContent=ovAtt.length?(ovAtt.length+' photo'+(ovAtt.length>1?'s':'')+' attached — the world is built from these'+(ovAtt.length>1?', arranged around you':'')+'.'):' ';
+}
+function addAttFile(file){
+  if(!file||!/^image\//.test(file.type))return;
+  if(ovAtt.length>=4){const n=$('#ovGenNote');if(n)n.textContent='Four photos is the most a world can take.';return;}
+  const img=new Image();
+  img.onload=()=>{
+    const MAX=1600,k=Math.min(1,MAX/Math.max(img.width,img.height));
+    const c=document.createElement('canvas');
+    c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    ovAtt.push(c.toDataURL('image/jpeg',0.86));
+    URL.revokeObjectURL(img.src);
+    drawAtt();
+  };
+  img.src=URL.createObjectURL(file);
+}
+$('#ovAttachBtn')&&($('#ovAttachBtn').onclick=()=>$('#ovAttachInput').click());
+$('#ovAttachInput')&&($('#ovAttachInput').onchange=e=>{[...e.target.files].forEach(addAttFile);e.target.value='';});
 async function loadOvLibrary(){
   const grid=$('#ovLib');if(!grid)return;
   try{
@@ -1790,25 +1887,43 @@ async function loadOvLibrary(){
     grid.innerHTML='';
     ws.forEach(w=>{
       const d=document.createElement('div');d.className='wc';
-      d.innerHTML=(w.cover?'<div class="cv"><img loading="lazy" alt=""></div>':'<div class="cv"><span>\u4e09X\u4e00</span></div>')+'<div class="m"><span class="nm"></span></div>';
+      d.innerHTML=(w.cover?'<div class="cv"><img loading="lazy" alt=""></div>':'<div class="cv"><span>\u4e09X\u4e00</span></div>')+'<div class="m"><span class="nm"></span><span class="lk" style="float:right;color:var(--gold);font-weight:700"></span></div>';
       if(w.cover)d.querySelector('img').src=w.cover;
       d.querySelector('.nm').textContent=w.name||'World';
+      d.querySelector('.lk').dataset.slug=w.slug;
       if(w.creator&&w.creator.name){const by=document.createElement('div');by.className='by';by.textContent='by '+w.creator.name;d.querySelector('.m').appendChild(by);}
       d.onclick=()=>{openWorld(w.slug,'');};
       grid.appendChild(d);
     });
     if(!ws.length)grid.innerHTML='<div class="small">Nothing published yet \u2014 yours can be first.</div>';
+    paintOvLikes(ws.map(w=>w.slug));
   }catch(e){grid.innerHTML='<div class="small">The Library could not load \u2014 check your connection and refresh.</div>';}
+}
+/* Hearts on the library cards \u2014 the same likes the Studio page counts. Liking
+   itself lives on the Studio library (it needs an account); here they show. */
+async function paintOvLikes(slugs){
+  if(!slugs||!slugs.length)return;
+  try{
+    const q=slugs.map(s=>'"'+String(s).replace(/[^a-z0-9-]/gi,'')+'"').join(',');
+    const r=await fetch('https://tnlcuptfldwxtxajudoq.supabase.co/rest/v1/m3ix_likes?select=slug&slug=in.('+encodeURIComponent(q.replace(/"/g,''))+')',
+      {headers:{apikey:M3IX_W.key,Authorization:'Bearer '+M3IX_W.key}});
+    if(!r.ok)return;
+    const rows=await r.json();
+    const n={};rows.forEach(x=>{n[x.slug]=(n[x.slug]||0)+1;});
+    document.querySelectorAll('#ovLibWrap .lk').forEach(el=>{
+      const c=n[el.dataset.slug]||0;
+      el.textContent=c?('\u2665 '+c):'';
+    });
+  }catch(e){/* hearts are decoration, never an error */}
 }
 if(!EMBED)loadOvLibrary();
 async function ovGenerate(){
   const p=($('#ovPrompt').value||'').trim();
-  if(!p){ovProg.textContent='Describe the world first \u2014 a sentence or two is enough.';return;}
-  const code=($('#ovCode').value||'').trim().toUpperCase();
+  if(!p&&!ovAtt.length){ovProg.textContent='Describe the world, attach photos of a real place, or both.';return;}
   const btn=$('#ovGenBtn');btn.disabled=true;
   try{
     ovProg.textContent='Generating your world \u2014 typically 2\u20136 minutes. Keep this page open.';
-    const q=await gcall({action:'world_submit',prompt:p,model:'marble-1.1',code:code||undefined});
+    const q=await gcall({action:'world_submit',prompt:p,model:'marble-1.1',image_urls:ovAtt.length?ovAtt.slice(0,4):undefined});
     let st=null;
     for(let i=0;i<130;i++){
       await new Promise(x=>setTimeout(x,6000));
@@ -1818,12 +1933,17 @@ async function ovGenerate(){
       ovProg.textContent='Generating \u2026 '+(Math.round((i+1)*6/6)/10)+' min elapsed';
     }
     if(!st||!st.done)throw new Error('Still generating \u2014 try again in a few minutes.');
-    ovProg.textContent='Importing into the Library \u2026';
+    ovProg.textContent='Importing into your library \u2026';
     const im=await gcall({action:'world_import',operation_id:q.operation_id});
-    ovProg.textContent='Done \u2014 opening '+(im.name||'your world')+' \u2026';
+    ovProg.innerHTML='Done \u2014 <b>'+String(im.name||'your world').replace(/</g,'&lt;')+'</b> is saved in your library and published to the M3XI Library, where people can walk it and like it. Opening \u2026';
+    ovAtt.length=0;drawAtt();
     loadOvLibrary();
     openWorld(im.slug,im.edit_key||'');
-  }catch(e){ovProg.textContent='\u2717 '+(e&&e.message||'Generation failed');}
+  }catch(e){
+    if(e&&e.signup){
+      ovProg.innerHTML='Sign in to generate \u2014 it keeps every world in your own library. <a href="/studio/?panel=account" style="color:var(--gold);font-weight:700">Create a free account or sign in</a>, then come back here.';
+    }else ovProg.textContent='\u2717 '+(e&&e.message||'Generation failed');
+  }
   btn.disabled=false;
 }
 $('#ovGenBtn').onclick=ovGenerate;
@@ -1838,7 +1958,7 @@ function applyBranding(b){
 }
 window.__applyBranding=applyBranding;
 if(EMBED){
-  // Visitors get the experience, not the workshop: world name, share, fullscreen — settings are the creator's.
+  // Visitors get the experience, not the workshop: world name, share, fullscreen â€” settings are the creator's.
   ['btnLoad','btnCal','btnHs','btnPublish','btnWalkMode','btnOrbitMode','ovLoad','ovDemo','ovGen','ovLibWrap','ovArt'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   status.style.display='none';
   const lb=document.getElementById('btnLibrary');if(lb)lb.style.display='';
@@ -1853,9 +1973,9 @@ $('#leadSend').onclick=async()=>{
   const st=$('#leadStatus');
   if(!worldState.slug)return st.textContent='No world loaded.';
   if(!$('#leadContact').value.trim())return st.textContent='Add an email or phone so they can reach you.';
-  try{st.textContent='Sending …';
+  try{st.textContent='Sending â€¦';
     await wcall({action:'lead',slug:worldState.slug,name:$('#leadName').value,contact:$('#leadContact').value,message:$('#leadMsg').value});
-    st.textContent='Sent — thank you. They will be in touch.';
+    st.textContent='Sent â€” thank you. They will be in touch.';
     setTimeout(()=>{$('#leadPanel').style.display='none';st.textContent='';},1800);
   }catch(e){st.textContent='Could not send: '+e.message;}
 };
@@ -1865,11 +1985,21 @@ $('#btnLoad').onclick=()=>$('#fileInput').click();
 $('#ovLoad').onclick=()=>$('#fileInput').click();
 $('#fileInput').onchange=e=>{if(e.target.files[0])loadFromFile(e.target.files[0]);e.target.value='';};
 addEventListener('dragover',e=>e.preventDefault());
-addEventListener('drop',e=>{e.preventDefault();if(e.dataTransfer.files[0])loadFromFile(e.dataTransfer.files[0]);});
+addEventListener('drop',e=>{
+  e.preventDefault();
+  const files=[...(e.dataTransfer.files||[])];
+  if(!files.length)return;
+  // With the start screen open, dropped PHOTOS are prompt attachments; a
+  // dropped SCAN still loads as the world either way.
+  const overlayOpen=overlay.style.display!=='none';
+  const imgs=files.filter(f=>/^image\//.test(f.type));
+  if(overlayOpen&&imgs.length){imgs.forEach(addAttFile);return;}
+  loadFromFile(files[0]);
+});
 function setMode(m){mode=m;
   $('#btnWalkMode').classList.toggle('on',m==='walk');
   $('#btnOrbitMode').classList.toggle('on',m==='orbit');
-  setStatus((splatCount?splatCount.toLocaleString()+' splats · ':'')+(m==='walk'?'drag to look · WASD / joystick to move':'drag to orbit · pinch or scroll to zoom'));
+  setStatus((splatCount?splatCount.toLocaleString()+' splats Â· ':'')+(m==='walk'?'drag to look Â· WASD / joystick to move':'drag to orbit Â· pinch or scroll to zoom'));
 }
 $('#btnWalkMode').onclick=()=>setMode('walk');
 $('#btnOrbitMode').onclick=()=>setMode('orbit');
@@ -1878,7 +2008,7 @@ $('#btnHs').onclick=()=>{const d=$('#drawer');d.style.display=d.style.display===
 $('#btnFull').onclick=()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();};
 $('#btnPublish').onclick=()=>{
   const d=$('#drawer');d.style.display='block';
-  if(!splat){wStatus('Load a scan (or the demo room) first — then name it and publish.');return;}
+  if(!splat){wStatus('Load a scan (or the demo room) first â€” then name it and publish.');return;}
   if(!$('#wName').value.trim()){$('#wName').focus();wStatus('Name your world, then press Save & publish.');return;}
   saveWorld();
 };
@@ -1887,7 +2017,7 @@ $('#btnShare').onclick=()=>{
   const base=location.href.split('?')[0];
   const url=slug?base+'?world='+encodeURIComponent(slug)+'&embed=1':location.href;
   if(navigator.clipboard)navigator.clipboard.writeText(url);
-  toast(slug?'Visitor link copied':'Link copied — publish to get a world link');
+  toast(slug?'Visitor link copied':'Link copied â€” publish to get a world link');
 };
 document.querySelectorAll('[data-rot]').forEach(b=>b.onclick=()=>{
   const [ax,deg]=b.dataset.rot.split(',');splatRoot.rotation[ax]+=Number(deg)*Math.PI/180;buildCollision();ensureSpawn();});
@@ -1926,7 +2056,7 @@ $('#btnResetFix').onclick=()=>{
 $('#cleanLevel').onchange=e=>{
   const lvl=e.target.value;
   cleanOn=lvl!=='off';
-  $('#cleanStat').textContent='Cleaning…';
+  $('#cleanStat').textContent='Cleaningâ€¦';
   // let the label paint before a ~1s synchronous pass over half a million splats
   setTimeout(()=>{cleanScan(lvl);reportClean();},16);
 };
@@ -1935,28 +2065,28 @@ function reportClean(){
   const cs=cleanStats,ci=(window.__colInfo?window.__colInfo():null);
   const bits=[];
   if(cs&&cs.error)bits.push('cleanup failed: '+cs.error);
-  else if(cs&&cs.skipped)bits.push('cleanup stood down — it would have hidden '+cs.wouldHave+'% of this scan');
+  else if(cs&&cs.skipped)bits.push('cleanup stood down â€” it would have hidden '+cs.wouldHave+'% of this scan');
   else if(cs&&cs.removed)bits.push(cs.pct+'% of splats hidden');
   else bits.push('showing every splat');
   const al=window.__autoLevel&&window.__autoLevel();
   if(al&&al.applied)bits.push('levelled from '+al.axis.toUpperCase()+'-up');
   else if(al&&al.reason)bits.push(al.reason);
   if(ci&&ci.built){
-    bits.push(ci.areaM2+' m² walkable');
+    bits.push(ci.areaM2+' mÂ² walkable');
     // If the biggest room is much smaller than the total, some of the scan can
     // be stood on but not reached on foot. Say so rather than hide it.
     if(ci.mainAreaM2&&ci.areaM2-ci.mainAreaM2>1.5)
-      bits.push(ci.mainAreaM2+' m² of it in one piece — fly mode reaches the rest');
+      bits.push(ci.mainAreaM2+' mÂ² of it in one piece â€” fly mode reaches the rest');
   }
   else if(ci&&ci.reason)bits.push(ci.reason);
-  el.textContent=bits.join(' · ');
+  el.textContent=bits.join(' Â· ');
 }
 window.__reportClean=reportClean;
 $('#btnCollide').onclick=()=>{collideOn=!collideOn;
   $('#btnCollide').textContent=collideOn?'On \u2014 walk it like a real space':'Off \u2014 free fly-through';
   $('#btnCollide').classList.toggle('on',collideOn);if(collideOn)ensureSpawn();};
 $('#scale').onchange=()=>{buildCollision();ensureSpawn();};
-$('#scale').oninput=e=>{const s=Math.pow(10,Number(e.target.value));splatRoot.scale.setScalar(s);$('#scaleVal').textContent=s.toFixed(2)+'×';};
+$('#scale').oninput=e=>{const s=Math.pow(10,Number(e.target.value));splatRoot.scale.setScalar(s);$('#scaleVal').textContent=s.toFixed(2)+'Ã—';};
 $('#eye').oninput=e=>{player.eye=Number(e.target.value);$('#eyeVal').textContent=player.eye.toFixed(2)+' m';};
 $('#spd').oninput=e=>{player.speed=Number(e.target.value);$('#spdVal').textContent=player.speed.toFixed(2)+' m/s';};
 $('#btnRecenter').onclick=()=>{player.x=0;player.z=0.01;player.yaw=0;player.pitch=0;player.feetY=player.floor;player.vy=0;player.grounded=true;ensureSpawn();orbit.target.set(0,player.floor+1,0);orbit.dist=4;};
@@ -1992,11 +2122,20 @@ function loop(){
       player.vy-=9.8*dt;player.feetY+=player.vy*dt;
       if(player.vy<=0&&player.feetY<=ground){player.feetY=ground;player.vy=0;player.grounded=true;}
     }
+    // The ceiling is a surface, not a suggestion: a jump stops at it instead of
+    // carrying your head through the roof into the sky.
+    if(collideOn){
+      const ceil=cellCeil(player.x,player.z);
+      if(ceil!==null&&player.feetY+player.eye+0.12>ceil){
+        player.feetY=ceil-player.eye-0.12;
+        if(player.vy>0)player.vy=0;
+      }
+    }
     camera.position.set(player.x,player.feetY+player.eye,player.z);
     camera.rotation.order='YXZ';camera.rotation.y=player.yaw;camera.rotation.x=player.pitch;camera.rotation.z=0;
     // hotspot proximity hint
     let near=-1,nd=2.2;hotspots.forEach((h,i)=>{const d=Math.hypot(h.pos[0]-player.x,h.pos[2]-player.z);if(d<nd){nd=d;near=i;}});
-    if(near>=0&&$('#hsPanel').style.display!=='block'){hint.style.display='block';hint.textContent=(('ontouchstart' in window)?'Tap marker':'Press E')+' — '+hotspots[near].title;}
+    if(near>=0&&$('#hsPanel').style.display!=='block'){hint.style.display='block';hint.textContent=(('ontouchstart' in window)?'Tap marker':'Press E')+' â€” '+hotspots[near].title;}
     else if(now>toastUntil)hint.style.display='none';
   }else{
     camera.position.set(
@@ -2007,7 +2146,7 @@ function loop(){
   }
   hsGroup.children.forEach((sp,i)=>{sp.position.y=hotspots[i]?hotspots[i].pos[1]+Math.sin(now/500+i)*0.03:sp.position.y;});
   renderer.render(scene,camera);
-  if((now|0)%30===0)status.textContent=(splatCount?splatCount.toLocaleString()+' splats · ':'')+Math.round(fpsE)+' fps';
+  if((now|0)%30===0)status.textContent=(splatCount?splatCount.toLocaleString()+' splats Â· ':'')+Math.round(fpsE)+' fps';
 }
 loop();
 addEventListener('resize',()=>{renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();});
