@@ -849,19 +849,43 @@ function promptSignIn(){
   const e=document.querySelector('#acctEmail');
   if(e)setTimeout(()=>e.focus(),450);
 }
+/* The out-of-credits moment gets a real pop-up, not a log line: balance,
+   what happened, and the one useful button. Shown when a charge is refused
+   (402) and when a successful generation drains the balance to exactly zero. */
+let _topupShownAtZero=false;
+function showTopUp(balance,message){
+  if(balance===0){if(_topupShownAtZero)return;_topupShownAtZero=true;}
+  const m=document.getElementById('topupModal');if(!m)return;
+  const line=document.getElementById('topupLine');
+  if(line)line.textContent=message
+    ? message
+    : 'That was your last credit. Top up to keep generating — everything you have made stays in your library.';
+  m.style.display='flex';
+}
+addEventListener('DOMContentLoaded',function wireTopUp(){
+  const m=document.getElementById('topupModal');if(!m)return;
+  document.getElementById('topupClose').onclick=()=>{m.style.display='none';};
+  document.getElementById('topupGo').onclick=()=>{
+    m.style.display='none';
+    const plans=document.querySelector('#plans');
+    if(plans)plans.scrollIntoView({behavior:'smooth',block:'start'});
+  };
+  m.addEventListener('click',e=>{if(e.target===m)m.style.display='none';});
+});
 async function backendCall(payload){
   const tok=await sessionToken();
   if(!tok){promptSignIn();throw new Error('Sign in to generate.');}
   const r=await fetch(M3IX_BACKEND.fn,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok,'apikey':M3IX_BACKEND.key},body:JSON.stringify(payload)});
   const j=await r.json().catch(()=>({error:'Unreadable response from backend'}));
-  if(j&&j.credits_remaining!=null){const el=document.getElementById('topCreditsN');if(el)el.textContent=Number(j.credits_remaining).toLocaleString();}
+  if(j&&j.credits_remaining!=null){
+    const el=document.getElementById('topCreditsN');if(el)el.textContent=Number(j.credits_remaining).toLocaleString();
+    // The generation that lands you on zero is the moment to talk about
+    // topping up — not the next one, which fails.
+    if(Number(j.credits_remaining)===0)showTopUp(0);
+  }
   if(j&&j.code==='signup_required'){promptSignIn();throw new Error(j.error||'Sign in to generate.');}
   if(!r.ok||j.error){
-    // Out of credits, or a limit reached — send them where they can fix it.
-    if(r.status===402||r.status===429){
-      const plans=document.querySelector('#plans');
-      if(plans&&r.status===402)plans.scrollIntoView({behavior:'smooth',block:'start'});
-    }
+    if(r.status===402)showTopUp(null,j.error);
     throw new Error(j.error||('Backend HTTP '+r.status));
   }
   try{window.__refreshAccount&&window.__refreshAccount();}catch(e){}
@@ -1806,6 +1830,19 @@ refreshAccount();
 })();
 window.__sb=sb;
 </script>
+
+<!-- Out-of-credits pop-up. House style: ink on paper, hard shadow, one job. -->
+<div id="topupModal" style="display:none;position:fixed;inset:0;z-index:90;background:rgba(22,21,18,.55);align-items:center;justify-content:center;padding:20px">
+  <div style="position:relative;width:min(430px,94vw);background:var(--card);border:3px solid var(--line);box-shadow:10px 10px 0 rgba(22,21,18,.9);padding:26px 28px;text-align:left">
+    <button id="topupClose" aria-label="Close" style="position:absolute;top:8px;right:10px;width:30px;height:30px;border:2px solid var(--line);background:var(--paper);font-size:15px;font-weight:800;cursor:pointer;line-height:1">×</button>
+    <div style="font-family:var(--disp);font-size:19px;letter-spacing:.02em;margin-bottom:10px">Out of credits</div>
+    <p id="topupLine" style="font-size:14px;line-height:1.65;color:var(--mut);margin:0 0 18px"></p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button id="topupGo" class="btn red sm" style="border:3px solid var(--line)">See credit packs</button>
+      <button class="btn sm ghost" onclick="document.getElementById('topupModal').style.display='none'">Not now</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>

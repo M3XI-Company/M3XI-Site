@@ -144,10 +144,16 @@ footer a{color:var(--ink)}
         <div class="srow" style="margin-top:2px">
           <button class="btn sm ghost" id="btnShots">Attach product images</button>
           <input type="file" id="shotInput" accept="image/*" multiple style="display:none">
-          <button class="btn sm ghost" disabled title="Coming soon">Attach demo video</button>
-          <span class="small">demo-video insert — in development</span>
+          <button class="btn sm ghost" id="btnDemoVid">Attach demo video</button>
+          <input type="file" id="demoVidInput" accept="video/*" style="display:none">
+          <span class="small">a clean frame from your clip becomes a product shot for the composer</span>
         </div>
         <div class="thumbs" id="shotThumbs"></div>
+        <div id="demoVidRow" style="display:none;margin-top:8px;align-items:center;gap:10px">
+          <video id="demoVidPrev" muted playsinline style="width:120px;border:2px solid var(--line);box-shadow:3px 3px 0 rgba(22,21,18,.8)"></video>
+          <span class="small" id="demoVidName"></span>
+          <button class="btn sm ghost" id="demoVidRemove">Remove</button>
+        </div>
         <label class="lb">Script — what the creator says / does</label>
         <textarea class="field" id="pScript" rows="3" placeholder="Hook, one killer feature, call to action — or let the AI write it."></textarea>
         <div class="srow">
@@ -204,9 +210,36 @@ async function api(payload){
   }
   const r=await fetch(M3IX.fn,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok,'apikey':M3IX.key},body:JSON.stringify(payload)});
   const j=await r.json().catch(()=>({error:'Unreadable response'}));
-  if(j&&j.credits_remaining!=null){const el=$('#topCreditsN');if(el)el.textContent=Number(j.credits_remaining).toLocaleString();}
-  if(!r.ok||j.error)throw new Error(j.error||('HTTP '+r.status));
+  if(j&&j.credits_remaining!=null){
+    const el=$('#topCreditsN');if(el)el.textContent=Number(j.credits_remaining).toLocaleString();
+    if(Number(j.credits_remaining)===0)showTopUp('That was your last credit.');
+  }
+  if(!r.ok||j.error){
+    if(r.status===402)showTopUp(j.error);
+    throw new Error(j.error||('HTTP '+r.status));
+  }
   return j;
+}
+/* Out of coins: a real pop-up with the one useful button, not a log line. */
+let _topupOnce=false;
+function showTopUp(msg){
+  let m=document.getElementById('topupModal');
+  if(!m){
+    m=document.createElement('div');m.id='topupModal';
+    m.style.cssText='display:flex;position:fixed;inset:0;z-index:90;background:rgba(22,21,18,.55);align-items:center;justify-content:center;padding:20px';
+    m.innerHTML='<div style="position:relative;width:min(430px,94vw);background:var(--card);border:3px solid var(--line);box-shadow:10px 10px 0 rgba(22,21,18,.9);padding:26px 28px;text-align:left">'
+      +'<div style="font-family:var(--disp);font-size:19px;margin-bottom:10px">Out of credits</div>'
+      +'<p id="topupLine" style="font-size:14px;line-height:1.65;color:var(--mut);margin:0 0 18px"></p>'
+      +'<div style="display:flex;gap:10px;flex-wrap:wrap">'
+      +'<a class="btn red sm" href="index.html#plans" style="border:3px solid var(--line)">See credit packs</a>'
+      +'<button class="btn sm ghost" id="topupNo">Not now</button></div></div>';
+    document.body.appendChild(m);
+    m.querySelector('#topupNo').onclick=()=>{m.style.display='none';};
+    m.addEventListener('click',e=>{if(e.target===m)m.style.display='none';});
+  }
+  if(msg&&msg.startsWith('That was')){if(_topupOnce)return;_topupOnce=true;}
+  m.querySelector('#topupLine').textContent=(msg||'Not enough credits for that.')+' Top up and every clip you have made stays in your library.';
+  m.style.display='flex';
 }
 const log=m=>{const l=$('#log');l.textContent+='\n'+m;l.scrollTop=l.scrollHeight;};
 
@@ -259,6 +292,40 @@ function renderShots(){
     t.appendChild(d);
   });
 }
+/* Demo video: the pipeline composes from IMAGES, so the honest version of
+   "attach a demo video" is pulling a clean frame out of it — a quarter of the
+   way in, past any hand entering shot — and feeding that frame to the composer
+   like any other product photo. The preview keeps the clip visible so it is
+   obvious where the frame came from. */
+$('#btnDemoVid').onclick=()=>$('#demoVidInput').click();
+$('#demoVidInput').onchange=e=>{
+  const f=e.target.files[0];e.target.value='';
+  if(!f||!f.type.startsWith('video/'))return;
+  if(shots.length>=3)return log('Three product shots is the limit — remove one first.');
+  const url=URL.createObjectURL(f);
+  const v=document.getElementById('demoVidPrev');
+  v.src=url;
+  v.onloadedmetadata=()=>{v.currentTime=Math.min(v.duration*0.25,v.duration-0.1);};
+  v.onseeked=()=>{
+    if(v.dataset.captured)return; v.dataset.captured='1';
+    const mx=1280,s=Math.min(1,mx/Math.max(v.videoWidth,v.videoHeight));
+    const c=document.createElement('canvas');
+    c.width=Math.round(v.videoWidth*s);c.height=Math.round(v.videoHeight*s);
+    c.getContext('2d').drawImage(v,0,0,c.width,c.height);
+    shots.push(c.toDataURL('image/jpeg',0.9));renderShots();
+    document.getElementById('demoVidRow').style.display='flex';
+    document.getElementById('demoVidName').textContent=f.name+' — frame captured as a product shot';
+    log('Demo video attached — one frame captured into your product shots.');
+  };
+  v.onerror=()=>log('That video could not be read — try an MP4 or WebM.');
+};
+$('#demoVidRemove').onclick=()=>{
+  const v=document.getElementById('demoVidPrev');
+  try{URL.revokeObjectURL(v.src);}catch(e){}
+  v.removeAttribute('src');delete v.dataset.captured;
+  document.getElementById('demoVidRow').style.display='none';
+  log('Demo video removed — the captured frame stays in your shots unless you × it.');
+};
 $('#btnShots').onclick=()=>$('#shotInput').click();
 $('#shotInput').onchange=e=>{
   [...e.target.files].forEach(f=>{

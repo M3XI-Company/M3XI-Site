@@ -1844,7 +1844,7 @@ async function gcall(payload){
   const r=await fetch(M3IX_W.fn.replace('m3ix-worlds','m3ix-generate'),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+bearer,'apikey':M3IX_W.key},body:JSON.stringify(payload)});
   const j=await r.json().catch(()=>({error:'Unreadable response'}));
   if(j&&j.code==='signup_required')throw Object.assign(new Error(j.error),{signup:true});
-  if(!r.ok||j.error)throw new Error(j.error||('HTTP '+r.status));
+  if(!r.ok||j.error)throw Object.assign(new Error(j.error||('HTTP '+r.status)),{status:r.status});
   return j;
 }
 
@@ -1946,6 +1946,8 @@ async function ovGenerate(){
   }catch(e){
     if(e&&e.signup){
       ovProg.innerHTML='Sign in to generate \u2014 it keeps every world in your own library. <a href="/studio/?panel=account" style="color:var(--gold);font-weight:700">Create a free account or sign in</a>, then come back here.';
+    }else if(e&&e.status===402){
+      ovProg.innerHTML=String(e.message||'Not enough credits.').replace(/</g,'&lt;')+' <a href="/studio/#plans" style="color:var(--gold);font-weight:700">Top up your credits</a> and come back \u2014 this page keeps your prompt.';
     }else ovProg.textContent='\u2717 '+(e&&e.message||'Generation failed');
   }
   btn.disabled=false;
