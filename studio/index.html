@@ -643,6 +643,47 @@ footer a{color:var(--ink)}
             <p class="price-note" style="margin-top:8px">Heavier work costs more of the allowance: an image is 1, a video clip 60, a world 150. Limits reset on a rolling window, not at midnight.</p>
           </div>
 
+
+          <div style="border-top:2px dashed rgba(22,21,18,.3);margin-top:18px;padding-top:14px">
+            <h3 style="font-size:15px">Invite people, pay less</h3>
+            <p class="small" style="opacity:.75;margin-bottom:8px">Share your link. When someone you invited makes their first purchase, <b>15% comes off your next one</b> — up to 50%.</p>
+            <div class="srow">
+              <input type="text" class="field" id="refLink" readonly style="max-width:330px" value="">
+              <button class="btn sm ghost" id="btnCopyRef">Copy</button>
+            </div>
+            <p class="small" id="refStat" style="margin-top:8px">—</p>
+          </div>
+
+          <div style="border-top:2px dashed rgba(22,21,18,.3);margin-top:18px;padding-top:14px">
+            <h3 style="font-size:15px">Posting to socials</h3>
+            <p class="small" style="opacity:.75;margin-bottom:8px">Clips can be released on a schedule instead of all at once — a batch of five landing on a feed together reads as spam.</p>
+            <label class="small" style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+              <input type="checkbox" id="setAutoPost"> Post automatically when a clip is ready
+            </label>
+            <div class="srow" style="gap:14px;flex-wrap:wrap">
+              <label class="small">Platforms
+                <span style="display:flex;gap:10px;margin-top:4px">
+                  <label><input type="checkbox" class="plat" value="tiktok"> TikTok</label>
+                  <label><input type="checkbox" class="plat" value="instagram"> Instagram</label>
+                  <label><input type="checkbox" class="plat" value="youtube"> YouTube</label>
+                </span>
+              </label>
+            </div>
+            <div class="srow" style="gap:14px;flex-wrap:wrap;margin-top:10px">
+              <label class="small">Per batch<br><input type="number" class="field" id="setBatch" min="1" max="10" value="1" style="max-width:90px"></label>
+              <label class="small">Hours apart<br><input type="number" class="field" id="setSpacing" min="0.25" max="24" step="0.25" value="3" style="max-width:110px"></label>
+              <label class="small">Start hour<br><input type="number" class="field" id="setStart" min="0" max="23" value="9" style="max-width:90px"></label>
+            </div>
+            <label class="small" style="display:flex;gap:8px;align-items:center;margin-top:10px">
+              <input type="checkbox" id="setAutoGen"> Auto-generate
+              <input type="number" class="field" id="setAutoGenN" min="0" max="20" value="0" style="max-width:80px"> clips a week
+            </label>
+            <div class="srow" style="margin-top:10px">
+              <button class="btn" id="btnSaveSocial">Save posting settings</button>
+              <span class="small" id="socialMsg"></span>
+            </div>
+            <p class="price-note" id="socialNote" style="margin-top:8px"></p>
+          </div>
           <div style="border-top:2px dashed rgba(22,21,18,.3);margin-top:18px;padding-top:14px">
             <h3 style="font-size:15px">How you appear</h3>
             <p class="small" style="opacity:.75;margin-bottom:8px">Shown on anything of yours featured in the Library.</p>
@@ -1433,6 +1474,8 @@ async function refreshAccount(){
   }catch(e){}
   loadMyWork();
   renderLibrary();
+  claimRefIfAny().then(paintReferral);
+  paintSocial();
 }
 
 async function loadMyWork(){
@@ -1591,6 +1634,90 @@ async function toggleLike(btn){
     : 'Signed in with Google, but the session did not come back. This is almost always the Supabase redirect settings — Site URL must be https://www.m3xi.com with https://www.m3xi.com/** allowed.',
     true);
 })();
+/* ---------- affiliate ---------------------------------------------------------
+   The code arrives in the link, but the person is usually not signed in yet when
+   they click it — so hold it and claim it the moment an account exists. */
+const REF_KEY='m3xi.ref';
+(function captureRef(){
+  const r=new URLSearchParams(location.search).get('ref');
+  if(r&&/^[A-Z0-9]{4,10}$/i.test(r)){try{localStorage.setItem(REF_KEY,r.toUpperCase());}catch(e){}}
+})();
+async function claimRefIfAny(){
+  let r=null;try{r=localStorage.getItem(REF_KEY);}catch(e){}
+  if(!r)return;
+  try{
+    const{data}=await sb.rpc('m3ix_claim_referral',{p_code:r});
+    // Clear on any settled outcome — retrying a rejected code forever is noise.
+    if(data&&(data.ok||['already_referred','self_referral','unknown_code'].includes(data.code))){
+      try{localStorage.removeItem(REF_KEY);}catch(e){}
+    }
+  }catch(e){}
+}
+async function paintReferral(){
+  const link=$('#refLink'),stat=$('#refStat');
+  if(!link)return;
+  try{
+    const{data,error}=await sb.rpc('m3ix_my_referral');
+    if(error||!data||data.error)return;
+    link.value=canonicalOrigin()+'/studio/?ref='+data.code;
+    const d=Number(data.discount_pct||0);
+    stat.textContent=(data.signed_up||0)+' signed up · '+(data.rewarded||0)+' have paid'+
+      (d>0?(' · '+d+'% waiting on your next purchase'):' · no discount yet');
+  }catch(e){}
+}
+$('#btnCopyRef')&&($('#btnCopyRef').onclick=()=>{
+  const el=$('#refLink');if(!el||!el.value)return;
+  el.select();
+  try{navigator.clipboard.writeText(el.value);}catch(e){document.execCommand('copy');}
+  say('#refStat','Link copied.');setTimeout(paintReferral,1400);
+});
+
+/* ---------- posting settings --------------------------------------------------
+   Saved even while nothing is connected, because the schedule is the part people
+   want to decide up front. Posting itself stays inert until a platform app
+   exists — see the note this paints under the form. */
+async function paintSocial(){
+  const box=$('#setAutoPost');if(!box)return;
+  try{
+    const{data}=await sb.from('m3ix_post_settings').select('*').maybeSingle();
+    if(data){
+      box.checked=!!data.auto_post;
+      $('#setBatch').value=data.batch_size||1;
+      $('#setSpacing').value=((data.spacing_minutes||180)/60).toFixed(2).replace(/\.?0+$/,'');
+      $('#setStart').value=data.daily_start_hour||9;
+      $('#setAutoGen').checked=!!data.auto_generate;
+      $('#setAutoGenN').value=data.auto_generate_n||0;
+      document.querySelectorAll('.plat').forEach(c=>{c.checked=(data.platforms||[]).includes(c.value);});
+    }
+    const{data:conns}=await sb.from('m3ix_social_accounts').select('platform,status');
+    const live=(conns||[]).filter(c=>c.status==='connected').map(c=>c.platform);
+    const note=$('#socialNote');
+    if(note)note.innerHTML=live.length
+      ? ('Connected: <b>'+live.join(', ')+'</b>. Clips will be released on the schedule above.')
+      : 'No account is connected yet, so nothing will actually be posted — the schedule is saved and clips queue up ready. Connecting TikTok, Instagram or YouTube needs a developer app registered under your own business account; tell M3XI and we will wire it to your settings.';
+  }catch(e){}
+}
+$('#btnSaveSocial')&&($('#btnSaveSocial').onclick=async()=>{
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session)return say('#socialMsg','Sign in first.',true);
+  const platforms=[...document.querySelectorAll('.plat')].filter(c=>c.checked).map(c=>c.value);
+  const hours=Math.max(0.25,Math.min(24,Number($('#setSpacing').value)||3));
+  const row={
+    user_id:session.user.id,
+    auto_post:$('#setAutoPost').checked,
+    platforms,
+    batch_size:Math.max(1,Math.min(10,Number($('#setBatch').value)||1)),
+    spacing_minutes:Math.round(hours*60),
+    daily_start_hour:Math.max(0,Math.min(23,Number($('#setStart').value)||9)),
+    auto_generate:$('#setAutoGen').checked,
+    auto_generate_n:Math.max(0,Math.min(20,Number($('#setAutoGenN').value)||0)),
+    updated_at:new Date().toISOString()
+  };
+  say('#socialMsg','Saving…');
+  const{error}=await sb.from('m3ix_post_settings').upsert(row,{onConflict:'user_id'});
+  say('#socialMsg',error?('Could not save: '+error.message):'Saved.',!!error);
+  paintSocial();
+});
 sb.auth.onAuthStateChange(()=>refreshAccount());
 refreshAccount();
 window.__sb=sb;
