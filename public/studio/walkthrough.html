@@ -256,7 +256,7 @@ a{color:var(--gold)}
     <textarea id="ovPrompt" placeholder="Describe the world &mdash; e.g. 'a sunlit Japanese bookshop, narrow aisles, paper lanterns, dust in the light'. Attach photos of a real place and it builds from those."></textarea>
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px">
       <button class="btn gold" id="ovGenBtn">Generate world</button>
-      <button class="btn" id="ovAttachBtn" type="button">+ Photos / scan</button>
+      <button class="btn" id="ovAttachBtn" type="button">+ Photos</button>
       <button class="btn" id="ovQuality" type="button" title="Generates up to two takes, scans each for missing patches and depth loss, keeps the better one. Costs up to 240 credits.">Best quality: off</button>
       <input type="file" id="ovAttachInput" accept="image/*,.spz,.ply,.splat,.ksplat,.sog" multiple style="display:none">
     </div>
@@ -2182,7 +2182,8 @@ function genSay(html,bad){
   if(n){n.innerHTML=html;n.style.color=bad?'#e06c5c':'var(--gold)';}
   if(ovProg)ovProg.textContent='';
 }
-let qualityOn=false;
+let qualityOn=localStorage.getItem('m3xi.bestq')==='1';   // the toggle remembers itself
+try{if(qualityOn){const b=document.getElementById('ovQuality');if(b){b.textContent='Best quality: ON';b.classList.add('gold');}}}catch(e){}
 $('#ovQuality')&&($('#ovQuality').onclick=()=>{qualityOn=!qualityOn;
   $('#ovQuality').textContent='Best quality: '+(qualityOn?'ON':'off');
   $('#ovQuality').classList.toggle('gold',qualityOn);
@@ -2243,10 +2244,17 @@ async function ovGenerate(){
   const t0=Date.now();
   const elapsed=()=>{const s=((Date.now()-t0)/1000)|0;return ((s/60)|0)+':'+String(s%60).padStart(2,'0');};
   btn.textContent='Generating \u2026';
+  // Raw pasted listing details still read as a property, not a prompt — give
+  // Marble the framing the reasoning pass would have: an interior, rooms
+  // connected as described, camera starting inside the entrance.
+  const looksRaw=p.length>350&&!/walkable|interior|ground-level|street scene/i.test(p);
+  const pSend=looksRaw
+    ?('A walkable interior of the real property described in these listing details — every room present and connected exactly as described, starting inside the front entrance: '+p)
+    :p;
   let imgs=ovAtt.length?ovAtt.slice(0,4):undefined;
   const takes=qualityOn?2:1;
   const genOnce=async(label)=>{
-    const q=await gcall({action:'world_submit',prompt:p,model:'marble-1.1',image_urls:imgs});
+    const q=await gcall({action:'world_submit',prompt:pSend,model:'marble-1.1',image_urls:imgs});
     let st=null;
     for(let i=0;i<130;i++){
       await new Promise(x=>setTimeout(x,6000));
@@ -2257,7 +2265,7 @@ async function ovGenerate(){
     }
     if(!st||!st.done)throw new Error('Still generating after '+elapsed()+' \u2014 it may yet finish; check your library in a few minutes.');
     genSay(label+'Importing into your library \u2026');
-    return await gcall({action:'world_import',operation_id:q.operation_id,prompt:p});
+    return await gcall({action:'world_import',operation_id:q.operation_id,prompt:pSend});
   };
   try{
     if(imgs)imgs=await attachmentsToUrls(imgs);
@@ -2345,6 +2353,51 @@ $('#leadSend').onclick=async()=>{
 /* ---------- UI wiring ---------- */
 $('#btnLoad').onclick=()=>$('#fileInput').click();
 $('#fileInput').onchange=e=>{if(e.target.files[0])loadFromFile(e.target.files[0]);e.target.value='';};
+/* Paste is an input too: a copied photo attaches, a copied image link
+   attaches, a copied LISTING link is read server-side — its photos attach
+   and its text is distilled by the reasoning pass into a spatial build brief
+   (rooms in order from the entrance, proportions, materials, light) that
+   lands in the prompt box, editable. Copied plain text joins the prompt. */
+async function ingestLink(url){
+  genSay('Reading the page …');
+  try{
+    const pg=await gcall({action:'fetch_page',url});
+    const room=4-ovAtt.length;
+    (pg.images||[]).slice(0,Math.max(0,room)).forEach(u=>ovAtt.push(u));
+    drawAtt();
+    if(pg.text&&pg.text.length>200){
+      genSay('Distilling the listing into a build brief …');
+      const j=await gcall({action:'refine',
+        system:'You turn raw property-listing text into a build brief for a walkable 3D interior. Output ONLY the brief: the rooms in walking order from the front entrance and how they connect, their proportions, floor and wall materials, window positions and the light they give, era and condition of the finish. Concrete and spatial. No marketing language, no prices, no agent details.',
+        prompt:pg.text.slice(0,5000)});
+      const brief=String(j.output||'').trim();
+      if(brief){const t=$('#ovPrompt');t.value=brief;}
+    }
+    genSay(((pg.images&&pg.images.length)?Math.min(pg.images.length,Math.max(0,room))+' photos attached from the page — ':'')+'build brief in the box. Edit anything, then Generate.');
+  }catch(e){genSay('Could not read that page: '+(e&&e.message||e),true);}
+}
+addEventListener('paste',e=>{
+  if(overlay.style.display==='none')return;
+  const items=[...((e.clipboardData&&e.clipboardData.items)||[])];
+  let tookFile=false;
+  items.forEach(it=>{
+    if(it.kind==='file'){const f=it.getAsFile();
+      if(f&&/^image\//.test(f.type)){addAttFile(f);tookFile=true;}}
+  });
+  if(tookFile){e.preventDefault();return;}
+  const txt=((e.clipboardData&&e.clipboardData.getData('text'))||'').trim();
+  if(!txt)return;
+  const inBox=document.activeElement===$('#ovPrompt');
+  if(/^https?:\S+\.(jpe?g|png|webp)(\?\S*)?$/i.test(txt)){
+    e.preventDefault();ovAtt.push(txt);drawAtt();genSay('Image link attached.');
+  }else if(/^https?:\/\/\S+$/i.test(txt)){
+    e.preventDefault();ingestLink(txt);
+  }else if(!inBox&&txt.length>40){
+    e.preventDefault();
+    const t=$('#ovPrompt');t.value=(t.value?t.value+'\n':'')+txt;
+    genSay('Details added to the prompt.');
+  }
+});
 addEventListener('dragover',e=>e.preventDefault());
 addEventListener('drop',e=>{
   e.preventDefault();
