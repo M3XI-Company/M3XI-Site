@@ -1770,9 +1770,17 @@ addEventListener('keydown',e=>{
   }
   if(e.key==='r'||e.key==='R'){e.preventDefault();location.reload();return;}
 });
-addEventListener('keydown',e=>{const k=e.key.toLowerCase();keys[k]=true;keys.shift=e.shiftKey;
+addEventListener('keydown',e=>{
+  // Typing beats walking: with a field focused, W A S D and Space are LETTERS
+  // and a SPACE — swallowing them here made the prompt box impossible to type
+  // a world description into.
+  const t=e.target;
+  if(t&&(/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||t.isContentEditable))return;
+  const k=e.key.toLowerCase();keys[k]=true;keys.shift=e.shiftKey;
   if(k==='e')tryOpenNearHotspot();
   if(['w','a','s','d',' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();});
+// keyup is NEVER guarded: a key released while a field has focus must still
+// clear, or the player runs on forever after a mid-walk click into the box.
 addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;keys.shift=e.shiftKey;});
 
 /* ---------- hotspots ---------- */
