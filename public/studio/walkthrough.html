@@ -289,7 +289,6 @@ setTimeout(()=>{ if(!window.__M3IX_READY){
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { SparkRenderer, SplatMesh, SplatFileType } from '@sparkjsdev/spark';
 window.__M3IX_READY=true;
 
 const $=s=>document.querySelector(s);
@@ -297,21 +296,46 @@ const status=$('#status'),hint=$('#hint'),overlay=$('#overlay'),ovProg=$('#ovPro
 const Q=new URLSearchParams(location.search);
 const EMBED=Q.get('embed')==='1';
 
-/* ---------- renderer / scene ---------- */
-const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio*1.25,2.5));
-renderer.setSize(innerWidth,innerHeight);
-document.body.appendChild(renderer.domElement);
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x161512);
-// lights: splats ignore them; placed GLB assets need them
-scene.add(new THREE.HemisphereLight(0xf2f4f8,0x6b6258,1.0));
-const sunL=new THREE.DirectionalLight(0xfff2df,0.85);sunL.position.set(12,20,8);scene.add(sunL);
-scene.add(new THREE.AmbientLight(0xffffff,0.35));
-const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.02,600);
-const spark=new SparkRenderer({renderer});
-scene.add(spark);
-const splatRoot=new THREE.Group();scene.add(splatRoot);
+/* ---------- renderer / scene ----------
+   Spark probes the GPU the moment its module evaluates, so a browser with
+   WebGL2 switched off (Chrome quietly disables graphics acceleration after a
+   GPU crash) used to kill the ENTIRE page at the import statement — no
+   composer, no attach button, no library, and a misleading "check your
+   connection" message. The engine is now optional: it loads dynamically, and
+   when it cannot, everything that is not literally 3D keeps working. */
+let ENGINE=true,SparkRenderer,SplatMesh,SplatFileType;
+let renderer,scene,camera,spark,splatRoot,sunL;
+try{
+  ({SparkRenderer,SplatMesh,SplatFileType}=await import('@sparkjsdev/spark'));
+  renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+  renderer.setPixelRatio(Math.min(devicePixelRatio*1.25,2.5));
+  renderer.setSize(innerWidth,innerHeight);
+  document.body.appendChild(renderer.domElement);
+  scene=new THREE.Scene();
+  scene.background=new THREE.Color(0x161512);
+  // lights: splats ignore them; placed GLB assets need them
+  scene.add(new THREE.HemisphereLight(0xf2f4f8,0x6b6258,1.0));
+  sunL=new THREE.DirectionalLight(0xfff2df,0.85);sunL.position.set(12,20,8);scene.add(sunL);
+  scene.add(new THREE.AmbientLight(0xffffff,0.35));
+  camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.02,600);
+  spark=new SparkRenderer({renderer});
+  scene.add(spark);
+  splatRoot=new THREE.Group();scene.add(splatRoot);
+}catch(engErr){
+  ENGINE=false;
+  // Inert stand-ins so the rest of the module wires up untouched.
+  renderer={domElement:document.createElement('canvas'),setPixelRatio(){},setSize(){},render(){},
+    setAnimationLoop(){},dispose(){},outputColorSpace:null,toneMapping:null};
+  scene={add(){},remove(){},background:null};
+  camera=new THREE.PerspectiveCamera(70,innerWidth/Math.max(1,innerHeight),0.02,600);
+  spark={};splatRoot=new THREE.Group();sunL={position:{set(){}}};
+  const p=document.getElementById('ovMsg');
+  if(p)p.innerHTML='<b style="color:#e06c5c">3D is switched off in this browser.</b><br>'+
+    'Chrome sometimes turns graphics acceleration off after a hiccup. Open <b>chrome://settings/system</b>, '+
+    'switch <b>Use graphics acceleration</b> on and relaunch — then this page can walk worlds again.<br>'+
+    '<span class="small">Generating worlds and browsing the Library still work below.</span>';
+  console.warn('[m3xi] 3D engine unavailable:',engErr);
+}
 /* ---------- sky: London time, not a black void --------------------------------
    A scan is a bubble of captured points with nothing behind it, and "nothing"
    was being drawn as flat near-black, which reads as broken rather than as
@@ -1549,7 +1573,16 @@ function hideOverlay(){
   },250);
 }
 let srcInfo=null; // retained environment source for saving: {kind:'bytes'|'url', bytes?, name, url?}
+/* Walking needs the GPU; nothing else does. Every load path passes through
+   here so an engine-less browser gets one honest sentence instead of a hang. */
+function needEngine(){
+  if(ENGINE)return false;
+  overlay.style.display='flex';loadUI(false);
+  ovProg.textContent='This world needs 3D, which is switched off in this browser — see the note above for the one-toggle fix. Your worlds are safe in the Library meanwhile.';
+  return true;
+}
 function loadFromFile(file){
+  if(needEngine())return;
   overlay.style.display='flex';loadUI(true,file.name);
   file.arrayBuffer().then(buf=>{
     clearSplat();
@@ -1562,6 +1595,7 @@ function loadFromFile(file){
   }).catch(e=>{loadUI(false);ovProg.textContent='Could not read that file: '+e.message;});
 }
 function loadFromUrl(url,opts){
+  if(needEngine())return;
   overlay.style.display='flex';loadUI(true,'Fetching the capture');
   clearSplat();
   srcInfo={kind:'url',url,name:url.split('/').pop()||'scan'};
@@ -1571,6 +1605,7 @@ function loadFromUrl(url,opts){
   splatRoot.add(mesh);
 }
 async function loadFromParts(parts,nameHint,opts){
+  if(needEngine())return;
   try{
     overlay.style.display='flex';loadUI(true,'Fetching world data');
     clearSplat();
