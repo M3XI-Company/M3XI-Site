@@ -270,12 +270,31 @@ a{color:var(--gold)}
 </div>
 
 <script>
-// Visible failure if the renderer can't load (offline / very old browser)
+// Visible failure if the renderer can't load — and a DIAGNOSIS, not a shrug.
+// Two different things die here and they have different fixes: the CDN that
+// serves the 3D libraries being unreachable (network, adblock, flaky QUIC),
+// or WebGL2 being off (Chrome silently disables graphics acceleration after
+// a GPU crash). Probe both and say which one it was.
 window.__M3IX_READY=false;
-setTimeout(()=>{ if(!window.__M3IX_READY){
-  const p=document.getElementById('ovMsg');
-  if(p) p.innerHTML='<b style="color:#e06c5c">Could not start the 3D engine.</b><br>This viewer needs an internet connection on first load (it fetches the renderer), and a browser with WebGL2. Check your connection and refresh.';
-}},9000);
+setTimeout(async()=>{ if(window.__M3IX_READY)return;
+  const p=document.getElementById('ovMsg');if(!p)return;
+  let gpu=false,net=false;
+  try{gpu=!!document.createElement('canvas').getContext('webgl2');}catch(e){}
+  try{const r=await fetch('https://cdn.jsdelivr.net/npm/three@0.180.0/package.json',{cache:'no-store'});net=r.ok;}catch(e){}
+  if(!net){
+    p.innerHTML='<b style="color:#e06c5c">The 3D libraries could not be downloaded.</b><br>'+
+      'This page fetches its renderer from cdn.jsdelivr.net and that connection is failing right now — '+
+      'a network hiccup, a firewall, or an ad-blocker. Check the connection (or pause blockers for this site) and refresh.';
+  }else if(!gpu){
+    p.innerHTML='<b style="color:#e06c5c">3D is switched off in this browser.</b><br>'+
+      'Chrome turns graphics acceleration off after a GPU hiccup. Open <b>chrome://settings/system</b>, switch '+
+      '<b>Use graphics acceleration</b> on, and relaunch the browser.';
+  }else{
+    p.innerHTML='<b style="color:#e06c5c">The 3D engine did not start.</b><br>'+
+      'Connection and graphics both look fine, so this is likely transient — refresh the page. '+
+      'If it persists, a browser extension may be blocking module scripts.';
+  }
+},9000);
 </script>
 
 <script type="importmap">
