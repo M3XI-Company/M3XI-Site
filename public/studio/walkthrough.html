@@ -952,10 +952,16 @@ function buildCollision(){
         for(let b=0;b<B;b++)g[b]+=hist[i*B+b];}
       const r=roomScore(g,miny+ybin*0.5,ybin);
       if(r.score>0)groundY=r.floorY;
-      else{ // no room signature: fall back to the densest slab
-        let gb=-1,gv=-1;
-        for(let b=0;b<B;b++)if(g[b]>gv){gv=g[b];gb=b;}
-        if(gb>=0)groundY=miny+(gb+0.5)*ybin;
+      else{
+        /* No indoor signature (an outdoor world). The densest slab is the
+           WRONG fallback here: a street lined with buildings has more mass in
+           its rooftops — dozens of flat roofs sharing one height — than in
+           the street itself, and picking density spawned the visitor on an
+           invisible roof-level floor, high above everything. The ground is
+           the LOWEST slab that carries real mass, never merely the densest. */
+        let gv=-1;for(let b=0;b<B;b++)if(g[b]>gv)gv=g[b];
+        const bar=gv*0.30;
+        for(let b=0;b<B;b++)if(g[b]>=bar){groundY=miny+(b+0.5)*ybin;break;}
       }
     }
 
@@ -1241,7 +1247,10 @@ function ensureSpawn(force){
   const nb=Math.max(1,Math.ceil((hi-lo)/BUCKET)+1),hist=new Uint32Array(nb);
   for(let i=0;i<N;i++){if(!W[i])continue;const f=F[i];if(f!==f)continue;
     hist[Math.min(nb-1,Math.floor((f-lo)/BUCKET))]++;}
-  let mb=0,mv=0;for(let b=0;b<nb;b++)if(hist[b]>mv){mv=hist[b];mb=b;}
+  // Lowest substantial floor, not the most common one: flat rooftops can
+  // outnumber street cells, and the mode put the spawn a storey up.
+  let mv=0;for(let b=0;b<nb;b++)if(hist[b]>mv)mv=hist[b];
+  let mb=0;for(let b=0;b<nb;b++)if(hist[b]>=mv*0.4){mb=b;break;}
   const groundY=lo+(mb+0.5)*BUCKET;
 
   const onGround=i=>{const f=F[i];return f===f&&Math.abs(f-groundY)<=0.45;};
