@@ -2046,7 +2046,18 @@ async function userToken(){
 async function gcall(payload){
   const tok=await userToken();
   const bearer=tok||M3IX_W.key;
-  const r=await fetch(M3IX_W.fn.replace('m3ix-worlds','m3ix-generate'),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+bearer,'apikey':M3IX_W.key},body:JSON.stringify(payload)});
+  // A generation runs for minutes over home wifi; one dropped packet used to
+  // surface as a bare "Failed to fetch" and kill the whole run. Network-level
+  // failures retry three times with backoff — server ANSWERS (errors included)
+  // never retry, because a charge must not be resubmitted on a real response.
+  let r=null,lastNet=null;
+  for(let a=0;a<3;a++){
+    try{
+      r=await fetch(M3IX_W.fn.replace('m3ix-worlds','m3ix-generate'),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+bearer,'apikey':M3IX_W.key},body:JSON.stringify(payload)});
+      lastNet=null;break;
+    }catch(e){lastNet=e;await new Promise(x=>setTimeout(x,1500*(a+1)));}
+  }
+  if(lastNet)throw new Error('Connection dropped mid-request (tried 3 times) — check your network and press Generate again; you are only charged when the server hears you.');
   const j=await r.json().catch(()=>({error:'Unreadable response'}));
   if(j&&j.code==='signup_required')throw Object.assign(new Error(j.error),{signup:true});
   if(!r.ok||j.error)throw Object.assign(new Error(j.error||('HTTP '+r.status)),{status:r.status});
