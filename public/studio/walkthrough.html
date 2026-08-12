@@ -239,27 +239,20 @@ a{color:var(--gold)}
 <div class="ovScroll">
 <div class="card">
   <h3>M3<em style="color:var(--gold);font-style:normal">XI</em> WALKTHROUGH</h3>
-  <p id="ovMsg">Real places and AI-invented worlds, walkable in the browser.<br><br>
-  <b>Have a scan?</b> Load a .spz / .ply / .splat file — the free <b>Scaniverse</b> app (iPhone &amp; Android) exports them: scan in Splat mode → Share → Export.</p>
-  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-    <button class="btn gold" id="ovLoad">Load scan</button>
-    <button class="btn" id="ovDemo">Walk the demo world</button>
-  </div>
+  <p id="ovMsg">Real places and AI-invented worlds, walkable in the browser.</p>
   <div id="ovGen">
-    <!-- Attached photos ride on top of the prompt, like chat attachments. Up to
-         four: Marble arranges them around the world by angle. -->
+    <!-- ONE box, everything through it: describe a world, attach photos of a
+         real place (they ride on top of the prompt like chat attachments, up
+         to four — Marble arranges them around you), or drop a scan file
+         (.spz / .ply / .splat) and it opens directly. -->
     <div id="ovAttach" style="display:none;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px"></div>
     <textarea id="ovPrompt" placeholder="Describe the world &mdash; e.g. 'a sunlit Japanese bookshop, narrow aisles, paper lanterns, dust in the light'. Attach photos of a real place and it builds from those."></textarea>
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px">
       <button class="btn gold" id="ovGenBtn">Generate world</button>
-      <button class="btn" id="ovAttachBtn" type="button">+ Photos</button>
-      <input type="file" id="ovAttachInput" accept="image/*" multiple style="display:none">
+      <button class="btn" id="ovAttachBtn" type="button">+ Photos / scan</button>
+      <input type="file" id="ovAttachInput" accept="image/*,.spz,.ply,.splat,.ksplat,.sog" multiple style="display:none">
     </div>
-    <div id="ovGenNote" class="small" style="margin-top:8px">&nbsp;</div>
-  </div>
-  <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
-    <input type="text" id="ovWorldCode" placeholder="World code (e.g. showroom-ab12)" style="max-width:230px;background:#fff;border:2px solid var(--line);color:var(--ink);padding:9px 11px;font-size:13px">
-    <button class="btn" id="ovOpenWorld">Open</button>
+    <div id="ovGenNote" class="small" style="margin-top:8px">Drop photos or a scan file anywhere on this page — photos build the world, a .spz / .ply / .splat scan opens directly. The free <b>Scaniverse</b> app exports scans: Splat mode → Share → Export.</div>
   </div>
   <p class="small" id="ovProg" style="margin-top:14px"></p>
 </div>
@@ -1976,10 +1969,10 @@ async function openWorld(slug,key){
   }catch(e){ovProg.textContent='Could not open world: '+e.message;}
 }
 $('#btnSaveWorld').onclick=saveWorld;
-$('#ovOpenWorld').onclick=()=>{const c=$('#ovWorldCode').value.trim();if(c)openWorld(c,'');};
-/* ---------- the demo world + prompt-to-world + library archive ---------- */
-const DEMO_WORLD='m3xi-demo-gallery-loft-zynt';
-$('#ovDemo').onclick=()=>openWorld(DEMO_WORLD,'');
+/* The start screen has ONE way in now — the composer. The demo button, the
+   separate Load scan button and the world-code box all competed with it and
+   none of them explained themselves; scans go through the composer (attach or
+   drop), and worlds open from the Library cards or a shared link. */
 
 /* Generation charges an ACCOUNT, so the call must carry the visitor's session
    — the same one the Studio page stores, shared through this origin's storage.
@@ -2022,10 +2015,19 @@ function drawAtt(){
     row.appendChild(d);
   });
   const n=$('#ovGenNote');
-  if(n)n.textContent=ovAtt.length?(ovAtt.length+' photo'+(ovAtt.length>1?'s':'')+' attached — the world is built from these'+(ovAtt.length>1?', arranged around you':'')+'.'):' ';
+  if(n){
+    n.style.color='';
+    n.innerHTML=ovAtt.length
+      ?(ovAtt.length+' photo'+(ovAtt.length>1?'s':'')+' attached — the world is built from these'+(ovAtt.length>1?', arranged around you':'')+'.')
+      :'Drop photos or a scan file anywhere on this page — photos build the world, a .spz / .ply / .splat scan opens directly. The free <b>Scaniverse</b> app exports scans: Splat mode → Share → Export.';
+  }
 }
+const SCAN_RE=/\.(spz|ply|splat|ksplat|sog)$/i;
 function addAttFile(file){
-  if(!file||!/^image\//.test(file.type))return;
+  if(!file)return;
+  // The composer is the front door for scans too: a splat file opens directly.
+  if(SCAN_RE.test(file.name||'')){loadFromFile(file);return;}
+  if(!/^image\//.test(file.type))return;
   if(ovAtt.length>=4){const n=$('#ovGenNote');if(n)n.textContent='Four photos is the most a world can take.';return;}
   const img=new Image();
   img.onload=()=>{
@@ -2079,36 +2081,48 @@ async function paintOvLikes(slugs){
   }catch(e){/* hearts are decoration, never an error */}
 }
 if(!EMBED)loadOvLibrary();
+/* Generation status lands directly UNDER the Generate button. It used to go
+   to a small line at the bottom of the overlay \u2014 below the fold on most
+   windows \u2014 so pressing Generate looked like pressing nothing, including the
+   sign-in message, which is the one a new visitor most needs to see. */
+function genSay(html,bad){
+  const n=$('#ovGenNote');
+  if(n){n.innerHTML=html;n.style.color=bad?'#e06c5c':'var(--gold)';}
+  if(ovProg)ovProg.textContent='';
+}
 async function ovGenerate(){
   const p=($('#ovPrompt').value||'').trim();
-  if(!p&&!ovAtt.length){ovProg.textContent='Describe the world, attach photos of a real place, or both.';return;}
+  if(!p&&!ovAtt.length){genSay('Describe the world, attach photos of a real place, or both.',true);return;}
   const btn=$('#ovGenBtn');btn.disabled=true;
+  const t0=Date.now();
+  const elapsed=()=>{const s=((Date.now()-t0)/1000)|0;return ((s/60)|0)+':'+String(s%60).padStart(2,'0');};
+  btn.textContent='Generating \u2026';
   try{
-    ovProg.textContent='Generating your world \u2014 typically 2\u20136 minutes. Keep this page open.';
+    genSay('Submitting \u2014 a world costs <b>120 credits</b> and usually takes <b>2\u20136 minutes</b>. Keep this page open.');
     const q=await gcall({action:'world_submit',prompt:p,model:'marble-1.1',image_urls:ovAtt.length?ovAtt.slice(0,4):undefined});
     let st=null;
     for(let i=0;i<130;i++){
       await new Promise(x=>setTimeout(x,6000));
       st=await gcall({action:'world_status',operation_id:q.operation_id});
       if(st.done)break;
-      if(st.error)throw new Error('Generation failed on the provider side.');
-      ovProg.textContent='Generating \u2026 '+(Math.round((i+1)*6/6)/10)+' min elapsed';
+      if(st.error)throw new Error('Generation failed on the provider side \u2014 the world step was refunded.');
+      genSay('Building your world \u2014 <b>'+elapsed()+'</b> elapsed \u00b7 usually 2\u20136 minutes. Keep this page open.');
     }
-    if(!st||!st.done)throw new Error('Still generating \u2014 try again in a few minutes.');
-    ovProg.textContent='Importing into your library \u2026';
+    if(!st||!st.done)throw new Error('Still generating after '+elapsed()+' \u2014 it may yet finish; check your library in a few minutes.');
+    genSay('Done in '+elapsed()+' \u2014 importing into your library \u2026');
     const im=await gcall({action:'world_import',operation_id:q.operation_id});
-    ovProg.innerHTML='Done \u2014 <b>'+String(im.name||'your world').replace(/</g,'&lt;')+'</b> is saved in your library and published to the M3XI Library, where people can walk it and like it. Opening \u2026';
+    genSay('<b>'+String(im.name||'Your world').replace(/</g,'&lt;')+'</b> is saved in your library and published to the M3XI Library. Opening \u2026');
     ovAtt.length=0;drawAtt();
     loadOvLibrary();
     openWorld(im.slug,im.edit_key||'');
   }catch(e){
     if(e&&e.signup){
-      ovProg.innerHTML='Sign in to generate \u2014 it keeps every world in your own library. <a href="/studio/?panel=account" style="color:var(--gold);font-weight:700">Create a free account or sign in</a>, then come back here.';
+      genSay('Sign in to generate \u2014 it keeps every world in your own library. <a href="/studio/?panel=account" style="color:var(--gold);font-weight:700">Create a free account or sign in</a>, then come back here.',true);
     }else if(e&&e.status===402){
-      ovProg.innerHTML=String(e.message||'Not enough credits.').replace(/</g,'&lt;')+' <a href="/studio/#plans" style="color:var(--gold);font-weight:700">Top up your credits</a> and come back \u2014 this page keeps your prompt.';
-    }else ovProg.textContent='\u2717 '+(e&&e.message||'Generation failed');
+      genSay(String(e.message||'Not enough credits.').replace(/</g,'&lt;')+' <a href="/studio/#plans" style="color:var(--gold);font-weight:700">Top up your credits</a> and come back \u2014 this page keeps your prompt.',true);
+    }else genSay('\u2717 '+String(e&&e.message||'Generation failed').replace(/</g,'&lt;'),true);
   }
-  btn.disabled=false;
+  btn.disabled=false;btn.textContent='Generate world';
 }
 $('#ovGenBtn').onclick=ovGenerate;
 window.__demoRoom=demoRoom;
@@ -2146,7 +2160,6 @@ $('#leadSend').onclick=async()=>{
 
 /* ---------- UI wiring ---------- */
 $('#btnLoad').onclick=()=>$('#fileInput').click();
-$('#ovLoad').onclick=()=>$('#fileInput').click();
 $('#fileInput').onchange=e=>{if(e.target.files[0])loadFromFile(e.target.files[0]);e.target.value='';};
 addEventListener('dragover',e=>e.preventDefault());
 addEventListener('drop',e=>{
