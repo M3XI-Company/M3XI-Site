@@ -984,7 +984,20 @@ function buildCollision(){
         if(hist[i*B+b]>=need){ceilY[i]=miny+b*ybin;break;}
       }
     }
-    colGrid={minx,minz,cs,w,h,solid:best.solid,walk:best.walk,reach:best.reg.mask,floorY,ceilY,cnt};
+    /* EYE CLUTTER, per cell: what fraction of a cell's points sit at eye level
+       above its own floor. Standing room and seeing room are different things —
+       the meadow spawn proved it, placing the visitor legally inside two metres
+       of grass. The spawner reads this to put people somewhere with a view. */
+    const eye=new Float32Array(N);
+    for(let i=0;i<N;i++){
+      const c=cnt[i],f=floorY[i];
+      if(c<MIN_CELL||f!==f)continue;
+      const e0=Math.max(0,Math.min(B-1,((f+1.25-miny)/ybin)|0));
+      const e1=Math.max(0,Math.min(B-1,((f+1.85-miny)/ybin)|0));
+      let e=0;for(let b=e0;b<=e1;b++)e+=hist[i*B+b];
+      eye[i]=e/c;
+    }
+    colGrid={minx,minz,cs,w,h,solid:best.solid,walk:best.walk,reach:best.reg.mask,floorY,ceilY,cnt,eye};
     // 2 m2 is about the size of a doorway landing: below that there is nowhere
     // to actually walk, so collision would only ever say no.
     colGrid.usable=best.reg.cells*cs*cs>=2;
@@ -1142,12 +1155,17 @@ function ensureSpawn(force){
     for(let i=0;i<N;i++){if(!W[i]||!near(i))continue;
       sx+=colGrid.minx+((i%w)+0.5)*cs;sz+=colGrid.minz+(((i/w)|0)+0.5)*cs;n++;}
     if(n){
-      const cx=sx/n,cz=sz/n;let bi=-1,bd=1e9;
+      // Central AND clear-sighted: a cell in the middle of two metres of grass
+      // is legal to stand in and useless to spawn in. Distance is normalised
+      // by the grid diagonal so the clutter term can genuinely outvote it.
+      const cx=sx/n,cz=sz/n;let bi=-1,bs=1e9;
+      const diag2=(w*cs)*(w*cs)+(colGrid.h*cs)*(colGrid.h*cs);
       for(let i=0;i<N;i++){
         if(!W[i]||!near(i))continue;
         const x=colGrid.minx+((i%w)+0.5)*cs,z=colGrid.minz+(((i/w)|0)+0.5)*cs;
-        const d=(x-cx)*(x-cx)+(z-cz)*(z-cz);
-        if(d<bd){bd=d;bi=i;}
+        const d=((x-cx)*(x-cx)+(z-cz)*(z-cz))/diag2;
+        const s=d+(colGrid.eye?colGrid.eye[i]*3:0);
+        if(s<bs){bs=s;bi=i;}
       }
       if(bi>=0){
         player.x=colGrid.minx+((bi%w)+0.5)*cs;
@@ -1183,13 +1201,15 @@ function ensureSpawn(force){
     if(!n)return;
   }
   const cx=sx/n,cz=sz/n;
-  let bi=-1,bd=1e9;
+  let bi=-1,bs=1e9;
+  const diag2=(w*cs)*(w*cs)+(colGrid.h*cs)*(colGrid.h*cs);
   for(let i=0;i<N;i++){
     if(!W[i])continue;
     if(n&&!onGround(i)&&colGrid.reach&&!colGrid.reach[i])continue;
     const x=colGrid.minx+((i%w)+0.5)*cs,z=colGrid.minz+(((i/w)|0)+0.5)*cs;
-    const d=(x-cx)*(x-cx)+(z-cz)*(z-cz);
-    if(d<bd){bd=d;bi=i;}
+    const d=((x-cx)*(x-cx)+(z-cz)*(z-cz))/diag2;
+    const s=d+(colGrid.eye?colGrid.eye[i]*3:0);
+    if(s<bs){bs=s;bi=i;}
   }
   if(bi>=0){
     player.x=colGrid.minx+((bi%w)+0.5)*cs;
