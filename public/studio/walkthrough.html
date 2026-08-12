@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>M3XI — Walkthrough</title>
+<title>M3XI — Create your AI world</title>
 <link rel="icon" type="image/png" href="/M.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -238,9 +238,13 @@ a{color:var(--gold)}
 </div></div>
 <div class="ovScroll">
 <div class="card">
-  <h3>M3<em style="color:var(--gold);font-style:normal">XI</em> WALKTHROUGH</h3>
-  <p id="ovMsg">Real places and AI-invented worlds, walkable in the browser.</p>
+  <h3>CREATE YOUR <em style="color:var(--gold);font-style:normal">AI WORLD</em></h3>
+  <p id="ovMsg">Describe it. Walk it. Publish it. Every world here was imagined into being — pick a style or write your own.</p>
   <div id="ovGen">
+    <!-- Style presets: the craft of a strong world prompt, one click. Each is a
+         complete scene with an anchored ground-level camera — the two things
+         Marble rewards — and stays editable in the box after insertion. -->
+    <div id="ovStyles" style="display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin:10px 0 2px"></div>
     <!-- ONE box, everything through it: describe a world, attach photos of a
          real place (they ride on top of the prompt like chat attachments, up
          to four — Marble arranges them around you), or drop a scan file
@@ -2021,6 +2025,30 @@ function drawAtt(){
       ?(ovAtt.length+' photo'+(ovAtt.length>1?'s':'')+' attached — the world is built from these'+(ovAtt.length>1?', arranged around you':'')+'.')
       :'Drop photos or a scan file anywhere on this page — photos build the world, a .spz / .ply / .splat scan opens directly. The free <b>Scaniverse</b> app exports scans: Splat mode → Share → Export.';
   }
+}
+/* ---------- style presets ----------
+   OpenArt's architecture, applied to worlds: creation leads, and a preset is a
+   finished piece of prompt-craft, not a keyword. Every one anchors the camera
+   at ground level in a single coherent space and describes surfaces and light
+   rather than franchises — the difference between a world and a blur. */
+const WORLD_STYLES=[
+  {n:'Hidden village',p:'A hidden ninja village at golden hour, seen from the middle of its main street. Wooden buildings with red and green tiled roofs, paper lanterns strung between carved balconies, hand-painted shop signs, market stalls with fruit crates. A cliff face carved with giant stone faces rises behind the rooftops. Dusty warm light, drifting leaves. Ground-level, walkable street scene.'},
+  {n:'Neon alley',p:'A narrow neon-lit alley at night after rain, wet stone reflecting pink and cyan signs, steam rising from a ramen stall, tangled power lines overhead, glowing vending machines, warm lit windows in stacked concrete facades. Ground-level walkable alley.'},
+  {n:'Cozy loft',p:'A sunlit artist loft, seen from the doorway. Tall industrial windows with afternoon light, worn oak floors, a paint-splattered easel, plants trailing from high shelves, a velvet sofa under a brick wall of sketches. Dust drifting in the light. Ground-level, walkable interior.'},
+  {n:'Ancient temple',p:'A moss-covered stone temple courtyard at dawn, seen from its entrance gate. Cracked pillars wrapped in vines, a shallow reflecting pool, incense smoke curling through shafts of pale light, carved guardian statues, fallen petals on wet flagstones. Ground-level, walkable courtyard.'},
+  {n:'Alien meadow',p:'A bioluminescent alien meadow at dusk, seen from a winding path through it. Glowing teal grass, giant translucent flowers pulsing with soft light, floating spores like fireflies, twin moons above violet hills. Ground-level, walkable path scene.'},
+  {n:'Showroom',p:'A minimalist gallery showroom with polished concrete floors, seen from the entrance. White walls with framed artwork under warm track lighting, a sculptural centrepiece on a plinth, floor-to-ceiling windows onto a city dusk. Ground-level, walkable interior.'},
+];
+{
+  const row=document.getElementById('ovStyles');
+  if(row)WORLD_STYLES.forEach(s=>{
+    const b=document.createElement('button');
+    b.type='button';b.className='btn';b.textContent=s.n;
+    b.style.cssText='padding:6px 12px;font-size:12px;box-shadow:3px 3px 0 rgba(22,21,18,.85)';
+    b.onclick=()=>{const t=$('#ovPrompt');t.value=s.p;t.focus();
+      genSay('The <b>'+s.n+'</b> prompt is in the box — edit anything, then Generate.');};
+    row.appendChild(b);
+  });
 }
 const SCAN_RE=/\.(spz|ply|splat|ksplat|sog)$/i;
 function addAttFile(file){
