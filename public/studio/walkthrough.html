@@ -99,6 +99,7 @@ a{color:var(--gold)}
   <button class="btn gold" id="btnPublish">Publish</button>
   <span style="flex:1"></span>
   <button class="btn" id="btnReset" title="Back to the start of this world">Reset view</button>
+  <button class="btn" id="btnRefine" style="display:none" title="Regenerate this world from your current view and prompt — a new take, 120 credits">Refine</button>
   <button class="btn" id="btnShare">Share</button>
   <button class="btn" id="btnFull">Fullscreen</button>
 </div>
@@ -256,6 +257,7 @@ a{color:var(--gold)}
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px">
       <button class="btn gold" id="ovGenBtn">Generate world</button>
       <button class="btn" id="ovAttachBtn" type="button">+ Photos / scan</button>
+      <button class="btn" id="ovQuality" type="button" title="Generates up to two takes, scans each for missing patches and depth loss, keeps the better one. Costs up to 240 credits.">Best quality: off</button>
       <input type="file" id="ovAttachInput" accept="image/*,.spz,.ply,.splat,.ksplat,.sog" multiple style="display:none">
     </div>
     <div id="ovGenNote" class="small" style="margin-top:8px">Drop photos or a scan file anywhere on this page — photos build the world, a .spz / .ply / .splat scan opens directly. The free <b>Scaniverse</b> app exports scans: Splat mode → Share → Export.</div>
@@ -1039,12 +1041,27 @@ function buildCollision(){
       let e=0;for(let b=e0;b<=e1;b++)e+=hist[i*B+b];
       eye[i]=e/c;
     }
+    /* DEPTH-LOSS QC: inside the box the walkable region spans, how much is
+       simply MISSING — cells with no splats at all, the navy erasures the
+       backdrop shows through. The refine loop generates again when this is
+       high, because no cleanup can invent geometry that was never made. */
+    let holePct=0;
+    {
+      let x0=w,x1=-1,z0=h,z1=-1;
+      for(let i=0;i<N;i++){if(!best.reg.mask[i])continue;const gx=i%w,gz=(i/w)|0;
+        if(gx<x0)x0=gx;if(gx>x1)x1=gx;if(gz<z0)z0=gz;if(gz>z1)z1=gz;}
+      if(x1>=x0){let tot=0,hole=0;
+        for(let gz=z0;gz<=z1;gz++)for(let gx=x0;gx<=x1;gx++){tot++;if(cnt[gz*w+gx]<MIN_CELL)hole++;}
+        holePct=tot?+(100*hole/tot).toFixed(1):0;}
+    }
     colGrid={minx,minz,cs,w,h,solid:best.solid,walk:best.walk,reach:best.reg.mask,floorY,ceilY,cnt,eye};
+    colGrid.holePct=holePct;
     // 2 m2 is about the size of a doorway landing: below that there is nowhere
     // to actually walk, so collision would only ever say no.
     colGrid.usable=best.reg.cells*cs*cs>=2;
     colGrid.groundY=groundY;
     colDiag={ok:best.reg.cells>0,
+      holePct,
       cells:best.reg.cells,
       areaM2:+(best.reg.cells*cs*cs).toFixed(1),
       threshold:best.thr,grid:w+'x'+h,cell:+cs.toFixed(2),
@@ -1381,7 +1398,8 @@ async function saveFixToWorld(){
       meshPos:splat?splat.position.toArray():[0,0,0]
     });
     doc.environment.floor=player.floor;
-    doc.fix={up:fixUp,wall:wallThreshold,sharp:sharpAmt,clean:cleanLevel};
+    doc.fix={up:fixUp,wall:wallThreshold,sharp:sharpAmt,clean:cleanLevel,eye:player.eye};
+    doc.eye=player.eye;   // capsule height: feet on the floor, eyes at THIS height for every visitor
     doc.spawn={pos:[player.x,player.feetY,player.z],yaw:player.yaw};
     await wcall({action:'save',slug:worldState.slug,edit_key:worldState.edit_key,world:doc});
     set('Saved. Everyone who opens this world now gets the fix.');
@@ -1425,6 +1443,11 @@ function clearSplat(){
   splat=null;splatCount=0;
 }
 function docExtras(fromDoc){
+  worldState.prompt=fromDoc.prompt||'';
+  worldState.name=fromDoc.name||'';
+  if(!EMBED&&worldState.slug){const rb=$('#btnRefine');if(rb)rb.style.display='';}
+  const fx=fromDoc.fix||{};
+  if(fx.eye&&!fromDoc.eye)fromDoc.eye=fx.eye;
   if(fromDoc.eye){player.eye=fromDoc.eye;$('#eye').value=fromDoc.eye;$('#eyeVal').textContent=fromDoc.eye.toFixed(2)+' m';}
   // Worlds published before the speed was reconsidered carry the old 2.6 m/s,
   // which is a jog. Restore what was saved, but never faster than a brisk walk —
@@ -1548,6 +1571,14 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
   if(applyRememberedFix(fromDoc)){buildCollision();dropToFloor();ensureSpawn(true);}
   if(window.__reportClean)window.__reportClean();
   reportFix();offerFix();
+  // Generated and outdoor worlds get SKY behind them: their gaps then read as
+  // sky between buildings instead of navy erasures. Indoor scans keep dim.
+  if(fromDoc&&colGrid&&colGrid.reach){
+    let tot=0,ceil=0;
+    for(let i=0;i<colGrid.reach.length;i++){if(!colGrid.reach[i])continue;tot++;
+      if(colGrid.ceilY[i]===colGrid.ceilY[i])ceil++;}
+    if(tot&&ceil/tot<0.25)window.__setBackdrop('sky');
+  }
   setStatus((splatCount?splatCount.toLocaleString()+' splats \u00b7 ':'')+(mode==='walk'?'drag to look \u00b7 WASD / joystick to move':'drag to orbit \u00b7 pinch or scroll to zoom'));
   // The way OUT is as important as the way in: the Library button with its
   // Esc key printed on it appears whenever a world is open.
@@ -1965,7 +1996,7 @@ async function saveWorld(){
 async function openWorld(slug,key){
   try{
     ovProg.textContent='Opening world '+slug+' …';overlay.style.display='flex';
-    const l=await wcall({action:'load',slug,edit_key:key||''});
+    const l=await wcall({action:'load',slug,edit_key:key||'',view_key:Q.get('vk')||''});
     worldState.slug=slug;if(l.owner&&key)worldState.edit_key=key;
     const doc=l.world;
     const env=doc&&doc.environment;
@@ -2120,6 +2151,34 @@ function genSay(html,bad){
   if(n){n.innerHTML=html;n.style.color=bad?'#e06c5c':'var(--gold)';}
   if(ovProg)ovProg.textContent='';
 }
+let qualityOn=false;
+$('#ovQuality')&&($('#ovQuality').onclick=()=>{qualityOn=!qualityOn;
+  $('#ovQuality').textContent='Best quality: '+(qualityOn?'ON':'off');
+  $('#ovQuality').classList.toggle('gold',qualityOn);
+  genSay(qualityOn
+    ?'Best quality: up to <b>two takes</b> \u2014 each is scanned for missing patches and depth loss, the better one is kept and the other retired. Up to 240 credits, up to ~12 minutes.'
+    :'Standard: one take, 120 credits, 2\u20136 minutes.');});
+
+/* Score a just-opened world by what the collision scan measured: the missing-
+   patch percentage. Waits for the build; 999 means it never became walkable. */
+function scoreWorld(timeoutMs){
+  return new Promise(res=>{
+    const t0=Date.now();
+    (function poll(){
+      const c=window.__colInfo?window.__colInfo():null;
+      if(c&&c.built)return res(typeof c.holePct==='number'?c.holePct:999);
+      if(Date.now()-t0>timeoutMs)return res(999);
+      setTimeout(poll,1500);
+    })();
+  });
+}
+async function retireWorld(slug,editKey){
+  try{
+    const l=await wcall({action:'load',slug,edit_key:editKey});
+    const doc=(l&&l.world)||{};doc.published=false;
+    await wcall({action:'save',slug,edit_key:editKey,world:doc});
+  }catch(e){/* a stray extra take in the library is not worth failing over */}
+}
 async function ovGenerate(){
   const p=($('#ovPrompt').value||'').trim();
   if(!p&&!ovAtt.length){genSay('Describe the world, attach photos of a real place, or both.',true);return;}
@@ -2127,24 +2186,43 @@ async function ovGenerate(){
   const t0=Date.now();
   const elapsed=()=>{const s=((Date.now()-t0)/1000)|0;return ((s/60)|0)+':'+String(s%60).padStart(2,'0');};
   btn.textContent='Generating \u2026';
-  try{
-    genSay('Submitting \u2014 a world costs <b>120 credits</b> and usually takes <b>2\u20136 minutes</b>. Keep this page open.');
-    const q=await gcall({action:'world_submit',prompt:p,model:'marble-1.1',image_urls:ovAtt.length?ovAtt.slice(0,4):undefined});
+  const imgs=ovAtt.length?ovAtt.slice(0,4):undefined;
+  const takes=qualityOn?2:1;
+  const genOnce=async(label)=>{
+    const q=await gcall({action:'world_submit',prompt:p,model:'marble-1.1',image_urls:imgs});
     let st=null;
     for(let i=0;i<130;i++){
       await new Promise(x=>setTimeout(x,6000));
       st=await gcall({action:'world_status',operation_id:q.operation_id});
       if(st.done)break;
       if(st.error)throw new Error('Generation failed on the provider side \u2014 the world step was refunded.');
-      genSay('Building your world \u2014 <b>'+elapsed()+'</b> elapsed \u00b7 usually 2\u20136 minutes. Keep this page open.');
+      genSay(label+'Building your world \u2014 <b>'+elapsed()+'</b> elapsed. Keep this page open.');
     }
     if(!st||!st.done)throw new Error('Still generating after '+elapsed()+' \u2014 it may yet finish; check your library in a few minutes.');
-    genSay('Done in '+elapsed()+' \u2014 importing into your library \u2026');
-    const im=await gcall({action:'world_import',operation_id:q.operation_id});
-    genSay('<b>'+String(im.name||'Your world').replace(/</g,'&lt;')+'</b> is saved in your library and published to the M3XI Library. Opening \u2026');
+    genSay(label+'Importing into your library \u2026');
+    return await gcall({action:'world_import',operation_id:q.operation_id,prompt:p});
+  };
+  try{
+    genSay(takes>1
+      ?'Take 1 of 2 \u2014 a world costs <b>120 credits per take</b>; the better take is kept.'
+      :'Submitting \u2014 a world costs <b>120 credits</b> and usually takes <b>2\u20136 minutes</b>. Keep this page open.');
+    let best=null;
+    for(let t=1;t<=takes;t++){
+      const label=takes>1?('Take '+t+' of '+takes+': '):'';
+      const im=await genOnce(label);
+      openWorld(im.slug,im.edit_key||'');
+      const score=await scoreWorld(60000);
+      if(!best||score<best.score)
+        {if(best)retireWorld(best.slug,best.editKey);best={slug:im.slug,editKey:im.edit_key||'',name:im.name,score};}
+      else retireWorld(im.slug,im.edit_key||'');
+      if(score<=6)break;   // near-complete coverage: no second take needed
+      if(t<takes)genSay(label+'This take is missing <b>'+score+'%</b> of its ground \u2014 generating a fuller one \u2026');
+    }
+    genSay('<b>'+String(best.name||'Your world').replace(/</g,'&lt;')+'</b> is in your library and published to the M3XI Library'+
+      (takes>1?' (best of '+takes+', '+best.score+'% unfilled)':'')+'. Opening \u2026');
     ovAtt.length=0;drawAtt();
     loadOvLibrary();
-    openWorld(im.slug,im.edit_key||'');
+    if(best.slug!==worldState.slug)openWorld(best.slug,best.editKey);
   }catch(e){
     if(e&&e.signup){
       genSay('Sign in to generate \u2014 it keeps every world in your own library. <a href="/studio/?panel=account" style="color:var(--gold);font-weight:700">Create a free account or sign in</a>, then come back here.',true);
@@ -2227,13 +2305,42 @@ $('#btnPublish').onclick=()=>{
   if(!$('#wName').value.trim()){$('#wName').focus();wStatus('Name your world, then press Save & publish.');return;}
   saveWorld();
 };
-$('#btnShare').onclick=()=>{
+/* Share never requires publishing. A published world shares its public link;
+   a draft shares a PRIVATE VIEW LINK carrying a view key — it lets people
+   walk the world, never edit it, and dies if the world is later re-keyed. */
+$('#btnShare').onclick=async()=>{
   const slug=worldState.slug||Q.get('world');
   const base=location.href.split('?')[0];
-  const url=slug?base+'?world='+encodeURIComponent(slug)+'&embed=1':location.href;
+  if(!slug){if(navigator.clipboard)navigator.clipboard.writeText(location.href);toast('Link copied');return;}
+  let url=base+'?world='+encodeURIComponent(slug)+'&embed=1';
+  try{
+    if(worldState.edit_key){
+      const l=await wcall({action:'load',slug,edit_key:worldState.edit_key});
+      if(l&&l.world&&!l.published){
+        const doc=l.world;
+        if(!doc.view_key){
+          doc.view_key=(crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2)).replace(/-/g,'').slice(0,20);
+          await wcall({action:'save',slug,edit_key:worldState.edit_key,world:doc});
+        }
+        url+='&vk='+encodeURIComponent(doc.view_key);
+        if(navigator.clipboard)navigator.clipboard.writeText(url);
+        toast('Private link copied — viewers can walk it, not edit it. Publish to list it in the Library.');
+        return;
+      }
+    }
+  }catch(e){/* fall through to the public link */}
   if(navigator.clipboard)navigator.clipboard.writeText(url);
-  toast(slug?'Visitor link copied':'Link copied — publish to get a world link');
+  toast('Visitor link copied');
 };
+$('#btnRefine')&&($('#btnRefine').onclick=()=>{
+  let shot=null;
+  try{renderer.render(scene,camera);shot=renderer.domElement.toDataURL('image/jpeg',0.85);}catch(e){}
+  ovAtt.length=0;if(shot&&shot.length>2000)ovAtt.push(shot);drawAtt();
+  const t=$('#ovPrompt');
+  t.value=(worldState.prompt||worldState.name||'')+' — refined: fill every missing patch, consistent depth throughout, no floating artefacts, complete ground and walls.';
+  overlay.style.display='flex';loadUI(false);
+  genSay('Refining regenerates the whole world from your current view + this prompt (120 credits, or Best quality for two takes). Edit the prompt to steer what changes.');
+});
 document.querySelectorAll('[data-rot]').forEach(b=>b.onclick=()=>{
   const [ax,deg]=b.dataset.rot.split(',');splatRoot.rotation[ax]+=Number(deg)*Math.PI/180;buildCollision();ensureSpawn();});
 $('#backdropSel').onchange=e=>{window.__setBackdrop(e.target.value);};
