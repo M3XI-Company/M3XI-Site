@@ -2210,6 +2210,32 @@ async function retireWorld(slug,editKey){
     await wcall({action:'save',slug,edit_key:editKey,world:doc});
   }catch(e){/* a stray extra take in the library is not worth failing over */}
 }
+/* Attachments leave the request body. A data-URL photo inside the JSON made
+   the generate call the heaviest request this site sends — and heavy uploads
+   are exactly what antivirus scanners, VPNs and weak wifi kill, which read
+   back as "Failed to fetch" with no world and no charge. Photos now PUT to
+   storage as raw binary — smaller, separate, retried — and every generation
+   call carries only links. */
+async function attachmentsToUrls(list){
+  const out=[];
+  for(let i=0;i<list.length;i++){
+    const d=list[i];
+    if(!/^data:/.test(d)){out.push(d);continue;}
+    genSay('Uploading photo '+(i+1)+' of '+list.length+' …');
+    if(!window.__attSpace)window.__attSpace=await wcall({action:'create',name:'attachments'});
+    const sp=window.__attSpace;
+    const bytes=Uint8Array.from(atob(d.slice(d.indexOf(',')+1)),c=>c.charCodeAt(0));
+    const u=await wcall({action:'upload_url',slug:sp.slug,edit_key:sp.edit_key,filename:'att-'+Date.now()+'-'+i+'.jpg'});
+    let ok=false;
+    for(let a=0;a<3&&!ok;a++){
+      try{const r=await fetch(u.upload_url,{method:'PUT',headers:{'Content-Type':'image/jpeg'},body:bytes});ok=r.ok;}
+      catch(e){await new Promise(x=>setTimeout(x,1200*(a+1)));}
+    }
+    if(!ok)throw new Error('Photo '+(i+1)+' would not upload — check your connection and try again. Nothing was charged.');
+    out.push(u.public_url);
+  }
+  return out;
+}
 async function ovGenerate(){
   const p=($('#ovPrompt').value||'').trim();
   if(!p&&!ovAtt.length){genSay('Describe the world, attach photos of a real place, or both.',true);return;}
@@ -2219,24 +2245,6 @@ async function ovGenerate(){
   btn.textContent='Generating \u2026';
   let imgs=ovAtt.length?ovAtt.slice(0,4):undefined;
   const takes=qualityOn?2:1;
-  /* VIEW EXPANSION. One reference image gives Marble evidence for one
-     direction and guesses for the rest — which is exactly where the erasures
-     live. Best quality first paints the other three compass views in the
-     same art style, so the world is built from evidence all the way round,
-     like a game map rather than a diorama. 1 credit per extra view. */
-  if(qualityOn&&imgs&&imgs.length===1){
-    const views=[
-      'the same place, camera turned 90 degrees to the left, seamless continuation of the scene',
-      'the same place, camera turned 90 degrees to the right, seamless continuation of the scene',
-      'the same place, the view directly behind the camera, seamless continuation of the scene'];
-    for(let v=0;v<views.length;v++){
-      genSay('Expanding your reference into a full scene — view '+(v+2)+' of 4 …');
-      try{
-        const r=await gcall({action:'image',prompt:'Identical art style, palette and lighting. '+views[v],image_urls:[imgs[0]]});
-        if(r&&r.url)imgs.push(r.url);
-      }catch(e){break;}   // expansion is a bonus, never a blocker
-    }
-  }
   const genOnce=async(label)=>{
     const q=await gcall({action:'world_submit',prompt:p,model:'marble-1.1',image_urls:imgs});
     let st=null;
@@ -2252,6 +2260,25 @@ async function ovGenerate(){
     return await gcall({action:'world_import',operation_id:q.operation_id,prompt:p});
   };
   try{
+    if(imgs)imgs=await attachmentsToUrls(imgs);
+    /* VIEW EXPANSION. One reference image gives Marble evidence for one
+       direction and guesses for the rest \u2014 which is exactly where the
+       erasures live. Best quality first paints the other three compass views
+       in the same style, so the world is built from evidence all the way
+       round, like a game map rather than a diorama. 1 credit per view. */
+    if(qualityOn&&imgs&&imgs.length===1){
+      const views=[
+        'the same place, camera turned 90 degrees to the left, seamless continuation of the scene',
+        'the same place, camera turned 90 degrees to the right, seamless continuation of the scene',
+        'the same place, the view directly behind the camera, seamless continuation of the scene'];
+      for(let v=0;v<views.length;v++){
+        genSay('Expanding your reference into a full scene \u2014 view '+(v+2)+' of 4 \u2026');
+        try{
+          const r=await gcall({action:'image',prompt:'Identical art style, palette and lighting. '+views[v],image_urls:[imgs[0]]});
+          if(r&&r.url)imgs.push(r.url);
+        }catch(e){break;}   // expansion is a bonus, never a blocker
+      }
+    }
     genSay(takes>1
       ?'Take 1 of 2 \u2014 a world costs <b>120 credits per take</b>; the better take is kept.'
       :'Submitting \u2014 a world costs <b>120 credits</b> and usually takes <b>2\u20136 minutes</b>. Keep this page open.');
