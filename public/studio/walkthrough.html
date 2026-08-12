@@ -2203,8 +2203,26 @@ async function ovGenerate(){
   const t0=Date.now();
   const elapsed=()=>{const s=((Date.now()-t0)/1000)|0;return ((s/60)|0)+':'+String(s%60).padStart(2,'0');};
   btn.textContent='Generating \u2026';
-  const imgs=ovAtt.length?ovAtt.slice(0,4):undefined;
+  let imgs=ovAtt.length?ovAtt.slice(0,4):undefined;
   const takes=qualityOn?2:1;
+  /* VIEW EXPANSION. One reference image gives Marble evidence for one
+     direction and guesses for the rest — which is exactly where the erasures
+     live. Best quality first paints the other three compass views in the
+     same art style, so the world is built from evidence all the way round,
+     like a game map rather than a diorama. 1 credit per extra view. */
+  if(qualityOn&&imgs&&imgs.length===1){
+    const views=[
+      'the same place, camera turned 90 degrees to the left, seamless continuation of the scene',
+      'the same place, camera turned 90 degrees to the right, seamless continuation of the scene',
+      'the same place, the view directly behind the camera, seamless continuation of the scene'];
+    for(let v=0;v<views.length;v++){
+      genSay('Expanding your reference into a full scene — view '+(v+2)+' of 4 …');
+      try{
+        const r=await gcall({action:'image',prompt:'Identical art style, palette and lighting. '+views[v],image_urls:[imgs[0]]});
+        if(r&&r.url)imgs.push(r.url);
+      }catch(e){break;}   // expansion is a bonus, never a blocker
+    }
+  }
   const genOnce=async(label)=>{
     const q=await gcall({action:'world_submit',prompt:p,model:'marble-1.1',image_urls:imgs});
     let st=null;
