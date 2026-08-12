@@ -2120,11 +2120,14 @@ function addAttFile(file){
   if(ovAtt.length>=4){const n=$('#ovGenNote');if(n)n.textContent='Four photos is the most a world can take.';return;}
   const img=new Image();
   img.onload=()=>{
-    const MAX=1600,k=Math.min(1,MAX/Math.max(img.width,img.height));
+    // 1280px/q0.78 halves the request weight of 1600/q0.86 with no visible
+    // cost to Marble — and big request bodies are precisely what fragile
+    // connections (AV scanners, VPNs, weak wifi) kill first.
+    const MAX=1280,k=Math.min(1,MAX/Math.max(img.width,img.height));
     const c=document.createElement('canvas');
     c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
     c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-    ovAtt.push(c.toDataURL('image/jpeg',0.86));
+    ovAtt.push(c.toDataURL('image/jpeg',0.78));
     URL.revokeObjectURL(img.src);
     drawAtt();
   };
