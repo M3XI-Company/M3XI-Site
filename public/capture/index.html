@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>M3XI Capture</title>
+<link rel="icon" type="image/png" href="/M.png">
+<meta name="description" content="Capture a property as a walkable tour, from a phone browser. No app to install.">
+<style>
+/* Built for one hand, in a hallway, in someone else's house. Big targets,
+   high contrast, nothing that needs a second look. */
+:root{--paper:#f5f2e9;--card:#fffdf6;--ink:#161512;--mut:#5f5b50;--red:#d0402b;--green:#2e7d4f;--line:#161512}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--ink);color:var(--paper);
+  display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+button{font:inherit;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:16px;
+  padding:15px 22px;border:3px solid var(--line);background:var(--paper);color:var(--ink);
+  box-shadow:4px 4px 0 rgba(0,0,0,.6);text-decoration:none}
+.btn.red{background:var(--red);color:#fff;border-color:#000}
+.btn.big{width:100%;font-size:18px;padding:18px}
+.btn:disabled{opacity:.45}
+.pad{padding:20px;max-width:560px;margin:0 auto;width:100%}
+h1{font-family:'Arial Black',sans-serif;font-size:22px;text-transform:uppercase;letter-spacing:-.02em}
+h1 em{color:var(--red);font-style:normal}
+p.lead{color:#cfc9bb;font-size:14.5px;line-height:1.6;margin:10px 0 18px}
+label{display:block;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#9a9384;margin:16px 0 6px}
+input[type=text]{width:100%;border:3px solid var(--line);background:#fff;color:var(--ink);padding:14px;font-size:17px;font-weight:600}
+.screen{display:none;flex:1;min-height:0;flex-direction:column}
+.screen.on{display:flex}
+
+/* --- capture view --- */
+#stage{position:relative;flex:1;min-height:0;background:#000;overflow:hidden}
+#cam{width:100%;height:100%;object-fit:cover;display:block}
+#ring{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
+#hud{position:absolute;left:0;right:0;top:0;padding:14px;display:flex;justify-content:space-between;align-items:flex-start;
+  background:linear-gradient(rgba(0,0,0,.65),transparent);font-size:13px;font-weight:700}
+#coach{position:absolute;left:50%;bottom:96px;transform:translateX(-50%);background:rgba(22,21,18,.92);
+  border:2px solid var(--red);padding:10px 16px;font-size:15px;font-weight:700;text-align:center;
+  max-width:88%;display:none}
+#bottom{padding:12px;background:var(--ink);border-top:3px solid #3a362e}
+.roomchip{display:inline-block;border:2px solid #6b6559;padding:4px 10px;font-size:12px;font-weight:700;margin:3px 3px 0 0}
+.roomchip.done{background:var(--green);border-color:var(--green);color:#fff}
+.small{font-size:12.5px;color:#9a9384;line-height:1.55}
+#plan{width:100%;border:3px solid var(--line);background:#fff;display:none}
+#pins{position:relative;display:none}
+#pins img{width:100%;display:block;border:3px solid var(--line)}
+.pin{position:absolute;transform:translate(-50%,-100%);background:var(--red);color:#fff;font-size:11px;
+  font-weight:800;padding:3px 7px;border:2px solid #000;white-space:nowrap}
+.bar{height:8px;background:#3a362e;border:2px solid var(--line);margin-top:8px}
+.bar span{display:block;height:100%;background:var(--red);width:0}
+</style>
+</head>
+<body>
+
+<!-- 1 ─ start ─────────────────────────────────────────────────────────── -->
+<section class="screen on" id="s1"><div class="pad">
+  <h1>M3<em>XI</em> CAPTURE</h1>
+  <p class="lead">Turn a property into a walkable tour from this phone. No app to install.
+  You will stand in the middle of each room and turn slowly on the spot &mdash; about a minute a room.</p>
+  <label>Property address</label>
+  <input type="text" id="addr" placeholder="14 Example Street, SW1A 1AA" autocomplete="off">
+  <div style="margin-top:20px"></div>
+  <button class="btn red big" id="go">Start</button>
+  <p class="small" style="margin-top:16px">Works best in daylight with the lights on. You can stop and come back to any room.</p>
+  <p class="small" id="warn" style="color:var(--red);margin-top:10px"></p>
+</div></section>
+
+<!-- 2 ─ name the room ─────────────────────────────────────────────────── -->
+<section class="screen" id="s2"><div class="pad">
+  <h1>WHICH ROOM?</h1>
+  <p class="lead">Name it before you scan it &mdash; the tour uses these names, and so does the floorplan.</p>
+  <input type="text" id="roomName" placeholder="Kitchen" autocomplete="off">
+  <div style="margin-top:8px" id="quick"></div>
+  <div style="margin-top:22px"></div>
+  <button class="btn red big" id="startRoom">Scan this room</button>
+  <div style="margin-top:14px"></div>
+  <button class="btn big" id="doneAll">Finish &amp; upload</button>
+  <div id="doneList" style="margin-top:18px"></div>
+</div></section>
+
+<!-- 3 ─ the spin ──────────────────────────────────────────────────────── -->
+<section class="screen" id="s3">
+  <div id="stage">
+    <video id="cam" playsinline muted autoplay></video>
+    <svg id="ring" width="220" height="220" viewBox="0 0 220 220">
+      <circle cx="110" cy="110" r="92" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="14"/>
+      <g id="segs"></g>
+      <polygon id="needle" points="110,8 118,30 102,30" fill="#d0402b" stroke="#000" stroke-width="2"/>
+    </svg>
+    <div id="hud"><span id="roomLbl"></span><span id="pct">0%</span></div>
+    <div id="coach"></div>
+  </div>
+  <div id="bottom">
+    <div class="small" id="tip">Hold the phone upright and turn slowly on the spot.</div>
+    <div class="bar"><span id="prog"></span></div>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button class="btn" id="cancelRoom" style="flex:1">Back</button>
+      <button class="btn red" id="finishRoom" style="flex:2">Room done</button>
+    </div>
+  </div>
+</section>
+
+<!-- 4 ─ floorplan ─────────────────────────────────────────────────────── -->
+<section class="screen" id="s4"><div class="pad">
+  <h1>THE FLOORPLAN</h1>
+  <p class="lead">Add the floorplan you already have &mdash; the one on the listing. Then tap it once per room
+  to say where that room is. Buyers get the plan beside the tour and can jump straight into any room.</p>
+  <button class="btn big" id="pickPlan">Add floorplan image</button>
+  <input type="file" id="planFile" accept="image/*" style="display:none">
+  <div id="pins"><img id="planImg" alt="floorplan"></div>
+  <p class="small" id="pinHint" style="margin-top:10px"></p>
+  <div style="margin-top:18px"></div>
+  <button class="btn red big" id="upload">Upload the tour</button>
+  <button class="btn big" id="skipPlan" style="margin-top:12px">Skip the floorplan</button>
+  <div id="uplog" class="small" style="margin-top:16px"></div>
+</div></section>
+
+<!-- 5 ─ done ──────────────────────────────────────────────────────────── -->
+<section class="screen" id="s5"><div class="pad">
+  <h1>UPLOADED</h1>
+  <p class="lead" id="doneMsg"></p>
+  <a class="btn red big" id="openTour" target="_blank" rel="noopener">Open the tour</a>
+  <div style="margin-top:12px"></div>
+  <button class="btn big" onclick="location.reload()">Capture another property</button>
+</div></section>
+
+<script type="module">
+/* ===========================================================================
+   Web capture. No app store, no install, no review queue.
+
+   Standing still and turning means POSITION never changes — only heading. A
+   browser cannot give you position, but it gives heading and tilt on both
+   iOS and Android, which is all a room panorama needs. That single fact is
+   why this can be a link instead of an app.
+
+   The floorplan is the agent's own, off the listing: professionally drawn,
+   already carrying room names and dimensions, and not our measurement to be
+   liable for. Rooms are pinned to it by tapping.
+   =========================================================================== */
+
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
+
+const SB_URL = 'https://tnlcuptfldwxtxajudoq.supabase.co';
+const FN = SB_URL + '/functions/v1/m3ix-spatial';
+const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRubGN1cHRmbGR3eHR4YWp1ZG9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODcxNDEsImV4cCI6MjEwMDA2MzE0MX0.mgS1gDa7qeBsTCaXmefpogg02kw7tCzn0uEYPAAuC90';
+
+/* Per-page auth lock, never navigator.locks: a frozen background tab holding
+   the cross-tab lock wedges auth everywhere. Same rule as the Studio pages. */
+let _authQ = Promise.resolve();
+const tabLock = (_n, _t, fn) => { const r = _authQ.then(() => fn()); _authQ = r.catch(() => {}); return r; };
+const sb = createClient(SB_URL, KEY, {
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, lock: tabLock },
+});
+
+const $ = s => document.querySelector(s);
+const show = id => document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+
+/** A capture belongs to an agent. No token, no capture. */
+async function token(){
+  const { data: { session } } = await sb.auth.getSession();
+  return session?.access_token || null;
+}
+
+/* 24 buckets of 15°: a full turn is covered when every bucket has a frame.
+   Fewer looks gappy on a wide lens; more makes the spin tediously slow. */
+const SEG = 24, SEG_DEG = 360 / SEG;
+
+const state = {
+  address: '', rooms: [], captureId: null, prefix: null,
+  plan: null, planUrl: null, pins: {}, pinning: null,
+};
+
+/* ---------- permissions ---------- */
+async function askMotion(){
+  const DOE = window.DeviceOrientationEvent;
+  if (DOE && typeof DOE.requestPermission === 'function') {      // iOS 13+
+    try { return (await DOE.requestPermission()) === 'granted'; } catch { return false; }
+  }
+  return true;                                                    // Android / desktop
+}
+
+let heading = 0, tilt = 90, haveHeading = false;
+addEventListener('deviceorientation', e => {
+  // iOS gives true compass heading directly; Android reports alpha counter-clockwise.
+  const h = (e.webkitCompassHeading != null) ? e.webkitCompassHeading
+          : (e.alpha != null ? 360 - e.alpha : null);
+  if (h != null) { heading = (h + 360) % 360; haveHeading = true; }
+  if (e.beta != null) tilt = e.beta;
+}, true);
+
+/* ---------- room capture ---------- */
+let stream = null, room = null;
+
+async function openCamera(){
+  stream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+    audio: false,
+  });
+  $('#cam').srcObject = stream;
+  await $('#cam').play().catch(()=>{});
+}
+function closeCamera(){ if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; } }
+
+function drawSegs(){
+  const g = $('#segs'); g.innerHTML = '';
+  for (let i = 0; i < SEG; i++) {
+    const a0 = (i * SEG_DEG - 90) * Math.PI / 180, a1 = ((i + 1) * SEG_DEG - 92) * Math.PI / 180;
+    const x0 = 110 + 92 * Math.cos(a0), y0 = 110 + 92 * Math.sin(a0);
+    const x1 = 110 + 92 * Math.cos(a1), y1 = 110 + 92 * Math.sin(a1);
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', `M${x0} ${y0} A92 92 0 0 1 ${x1} ${y1}`);
+    p.setAttribute('stroke', room.shots[i] ? '#2e7d4f' : 'rgba(255,255,255,.10)');
+    p.setAttribute('stroke-width', '14'); p.setAttribute('fill', 'none');
+    g.appendChild(p);
+  }
+}
+function coach(msg){ const c = $('#coach'); if (!msg) { c.style.display='none'; return; } c.textContent = msg; c.style.display='block'; }
+
+/** Blur proxy: mean absolute difference of neighbouring pixels. Cheap, and it
+    catches the thing that actually ruins a frame — motion while grabbing. */
+function sharpness(cv){
+  const w = 64, h = 64, t = document.createElement('canvas');
+  t.width = w; t.height = h;
+  const c = t.getContext('2d', { willReadFrequently: true });
+  c.drawImage(cv, 0, 0, w, h);
+  const d = c.getImageData(0, 0, w, h).data;
+  let sum = 0, n = 0, lum = 0;
+  for (let y = 0; y < h; y++) for (let x = 1; x < w; x++) {
+    const i = (y * w + x) * 4, j = i - 4;
+    const a = d[i] * .299 + d[i+1] * .587 + d[i+2] * .114;
+    const b = d[j] * .299 + d[j+1] * .587 + d[j+2] * .114;
+    sum += Math.abs(a - b); lum += a; n++;
+  }
+  return { sharp: sum / n, luma: lum / n / 255 };
+}
+
+let lastGrab = 0;
+function tick(){
+  if (!room) return;
+  requestAnimationFrame(tick);
+  const seg = Math.floor(((heading % 360) + 360) % 360 / SEG_DEG);
+  $('#needle').setAttribute('transform', `rotate(${heading} 110 110)`);
+
+  if (!haveHeading) { coach('Turn slowly — finding the compass…'); return; }
+  if (tilt < 45 || tilt > 125) { coach('Hold the phone upright'); return; }
+  if (room.shots[seg]) { coach(''); return; }
+  if (performance.now() - lastGrab < 220) return;
+
+  const v = $('#cam');
+  if (!v.videoWidth) return;
+  const cv = document.createElement('canvas');
+  const W = 1600, s = Math.min(1, W / v.videoWidth);
+  cv.width = Math.round(v.videoWidth * s); cv.height = Math.round(v.videoHeight * s);
+  cv.getContext('2d').drawImage(v, 0, 0, cv.width, cv.height);
+
+  const q = sharpness(cv);
+  if (q.sharp < 3.0) { coach('Slow down — hold steady'); return; }
+  if (q.luma < 0.09) { coach('Too dark — turn a light on'); return; }
+  if (q.luma > 0.95) { coach('Facing the light — turn slightly away'); return; }
+  coach('');
+
+  lastGrab = performance.now();
+  cv.toBlob(b => {
+    if (!b) return;
+    room.shots[seg] = { blob: b, heading: Math.round(heading * 10) / 10, t: Date.now() };
+    const done = room.shots.filter(Boolean).length;
+    $('#pct').textContent = Math.round(100 * done / SEG) + '%';
+    $('#prog').style.width = (100 * done / SEG) + '%';
+    drawSegs();
+    if (done === SEG) { $('#tip').textContent = 'Room complete — tap Room done.'; coach('Room complete'); }
+  }, 'image/jpeg', 0.82);
+}
+
+/* ---------- screens ---------- */
+/* Check sign-in on load, not on upload. Finding out you were signed out AFTER
+   scanning six rooms in someone's house is the worst possible moment. */
+(async () => {
+  if (await token()) return;
+  $('#go').disabled = true;
+  $('#warn').innerHTML = 'You are signed out. <a href="/studio/?panel=account" style="color:#fff;font-weight:800">Sign in on m3xi.com</a>, then reopen this page — captures are saved to your account.';
+})();
+sb.auth.onAuthStateChange(() => { token().then(t => { if (t) { $('#go').disabled = false; $('#warn').textContent = ''; } }); });
+
+$('#go').onclick = async () => {
+  const a = $('#addr').value.trim();
+  if (!a) { $('#warn').textContent = 'Add the address first.'; return; }
+  if (!(await token())) { $('#warn').textContent = 'Sign in on m3xi.com first — captures are saved to your account.'; return; }
+  if (!navigator.mediaDevices?.getUserMedia) { $('#warn').textContent = 'This browser cannot open the camera. Use Safari or Chrome.'; return; }
+  if (!isSecureContext) { $('#warn').textContent = 'The camera needs a secure connection — open this page over https.'; return; }
+  if (!(await askMotion())) { $('#warn').textContent = 'Motion access was refused — without it the phone cannot tell which way it is pointing.'; return; }
+  state.address = a;
+  renderQuick(); renderDone();
+  show('s2');
+};
+
+const COMMON = ['Hallway','Living room','Kitchen','Dining room','Bedroom','Bathroom','En suite','Garden','Garage','Study'];
+function renderQuick(){
+  $('#quick').innerHTML = '';
+  COMMON.forEach(n => {
+    const b = document.createElement('span');
+    b.className = 'roomchip'; b.textContent = n;
+    b.onclick = () => { $('#roomName').value = n; };
+    $('#quick').appendChild(b);
+  });
+}
+function renderDone(){
+  const d = $('#doneList');
+  if (!state.rooms.length) { d.innerHTML = '<p class="small">No rooms captured yet.</p>'; return; }
+  d.innerHTML = '<p class="small">Captured:</p>' + state.rooms
+    .map(r => `<span class="roomchip done">${r.name} · ${r.shots.filter(Boolean).length}/${SEG}</span>`).join('');
+}
+
+$('#startRoom').onclick = async () => {
+  const name = $('#roomName').value.trim();
+  if (!name) return;
+  room = { name, shots: new Array(SEG).fill(null) };
+  $('#roomLbl').textContent = name;
+  $('#pct').textContent = '0%'; $('#prog').style.width = '0';
+  $('#tip').textContent = 'Hold the phone upright and turn slowly on the spot.';
+  show('s3'); drawSegs();
+  try { await openCamera(); } catch (e) { alert('Could not open the camera: ' + e.message); show('s2'); return; }
+  tick();
+};
+$('#cancelRoom').onclick = () => { room = null; closeCamera(); show('s2'); };
+$('#finishRoom').onclick = () => {
+  const done = room.shots.filter(Boolean).length;
+  if (done < SEG * 0.6) { coach(`Only ${Math.round(100*done/SEG)}% — keep turning`); return; }
+  state.rooms.push(room); room = null; closeCamera();
+  $('#roomName').value = ''; renderDone(); show('s2');
+};
+$('#doneAll').onclick = () => {
+  if (!state.rooms.length) { alert('Capture at least one room first.'); return; }
+  show('s4');
+};
+
+/* ---------- floorplan + pins ---------- */
+$('#pickPlan').onclick = () => $('#planFile').click();
+$('#planFile').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  state.plan = f;
+  $('#planImg').src = URL.createObjectURL(f);
+  $('#pins').style.display = 'block';
+  state.pinning = 0;
+  $('#pinHint').textContent = `Tap where "${state.rooms[0].name}" is on the plan.`;
+};
+$('#pins').onclick = e => {
+  if (state.pinning == null || state.pinning >= state.rooms.length) return;
+  const img = $('#planImg'), r = img.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+  const name = state.rooms[state.pinning].name;
+  state.pins[name] = { x, y };
+  const p = document.createElement('div');
+  p.className = 'pin'; p.textContent = name;
+  p.style.left = (x * 100) + '%'; p.style.top = (y * 100) + '%';
+  $('#pins').appendChild(p);
+  state.pinning++;
+  $('#pinHint').textContent = state.pinning < state.rooms.length
+    ? `Tap where "${state.rooms[state.pinning].name}" is.`
+    : 'All rooms pinned. Upload when ready.';
+};
+$('#skipPlan').onclick = () => { state.plan = null; $('#upload').click(); };
+
+/* ---------- upload ---------- */
+async function api(payload){
+  const tok = await token();
+  const r = await fetch(FN, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (tok || KEY), apikey: KEY },
+    body: JSON.stringify(payload),
+  });
+  const j = await r.json().catch(() => ({ error: 'unreadable' }));
+  if (!r.ok || j.error) throw new Error(j.error || ('HTTP ' + r.status));
+  return j;
+}
+/** Every PUT retried: a phone in a stranger's hallway has one bar of signal. */
+async function put(url, blob, type){
+  for (let a = 0; a < 4; a++) {
+    try { const r = await fetch(url, { method: 'PUT', headers: { 'Content-Type': type }, body: blob }); if (r.ok) return true; }
+    catch (e) { /* keep trying */ }
+    await new Promise(r => setTimeout(r, 900 * (a + 1)));
+  }
+  return false;
+}
+const log = m => { $('#uplog').textContent = m; };
+
+$('#upload').onclick = async () => {
+  $('#upload').disabled = true; $('#skipPlan').disabled = true;
+  try {
+    log('Preparing…');
+    const reg = await api({ action: 'register_capture', property_ref: null,
+      property_id: (await ensureProperty()), device: deviceInfo(), app_version: 'web-1.0.0' });
+    state.captureId = reg.capture_id;
+
+    const total = state.rooms.reduce((n, r) => n + r.shots.filter(Boolean).length, 0) + (state.plan ? 1 : 0);
+    let sent = 0;
+    const poses = [];
+
+    for (let ri = 0; ri < state.rooms.length; ri++) {
+      const r = state.rooms[ri];
+      for (let si = 0; si < r.shots.length; si++) {
+        const sh = r.shots[si]; if (!sh) continue;
+        const fname = `frames/r${ri}-${String(si).padStart(3,'0')}.jpg`;
+        const u = await api({ action: 'upload_url', capture_id: state.captureId, filename: fname.replace(/\//g,'-') });
+        if (!(await put(u.upload_url, sh.blob, 'image/jpeg'))) throw new Error('A photo would not upload — check the signal and try again.');
+        poses.push({ i: poses.length, room: ri, seg: si, heading: sh.heading, url: u.public_url });
+        log(`Uploading ${++sent} of ${total}…`);
+      }
+    }
+    if (state.plan) {
+      const u = await api({ action: 'upload_url', capture_id: state.captureId, filename: 'floorplan.jpg' });
+      if (await put(u.upload_url, state.plan, state.plan.type || 'image/jpeg')) { state.planUrl = u.public_url; }
+      log(`Uploading ${++sent} of ${total}…`);
+    }
+
+    log('Sealing the capture…');
+    const manifest = {
+      format_version: '1.0',
+      capture_id: state.captureId,
+      device: deviceInfo(),
+      app: { version: 'web-1.0.0' },
+      // A browser gives no camera intrinsics; the panorama viewer does not need
+      // them, and declaring a nominal value is honest about the method used.
+      intrinsics: { fx: 0, fy: 0, cx: 0, cy: 0, width: 1600, height: 900, per_frame: false, method: 'browser-unknown' },
+      gravity: { vector: [0, -9.81, 0], confidence: 0.95, source: 'deviceorientation' },
+      geo: null,
+      rooms_declared: state.rooms.map((r, i) => ({ idx: i, name: r.name })),
+      coverage: coverage(),
+      frame_count: poses.length,
+      duration_s: 0,
+      captured_at: new Date().toISOString(),
+      capture_method: 'web-panorama',
+      address: state.address,
+      poses,
+      floorplan: state.planUrl ? { url: state.planUrl, pins: state.pins } : null,
+    };
+    const done = await api({ action: 'complete_capture', capture_id: state.captureId, manifest });
+    log('Building the tour…');
+    const build = await api({ action: 'build', capture_id: done.capture_id, phase: 1 });
+    await api({ action: 'stage_result', build_id: build.build_id, stage: 'appearance',
+      artifacts: { panos: { uri: 'inline:manifest.poses', sha256: '', bytes: 0 },
+                   floorplan: state.planUrl ? { uri: state.planUrl, sha256: '', bytes: 0 } : undefined } });
+    await api({ action: 'stage_result', build_id: build.build_id, stage: 'package',
+      artifacts: { manifest: { uri: 'inline', sha256: '', bytes: 0 } },
+      metrics: { rooms: state.rooms.length, frames: poses.length }, done: true });
+    const pub = await api({ action: 'publish', build_id: build.build_id, slug: slugify(state.address) });
+
+    $('#doneMsg').textContent = `${state.rooms.length} rooms, ${poses.length} photos. The tour is live and the link is ready to share.`;
+    $('#openTour').href = `/tour/?t=${encodeURIComponent(pub.tour.slug)}`;
+    show('s5');
+  } catch (e) {
+    log('✗ ' + e.message);
+    $('#upload').disabled = false; $('#skipPlan').disabled = false;
+  }
+};
+
+function coverage(){
+  const per = {}; let sum = 0;
+  state.rooms.forEach((r, i) => { const s = r.shots.filter(Boolean).length / SEG; per[i] = s; sum += s; });
+  return { score: state.rooms.length ? sum / state.rooms.length : 0, per_room: per };
+}
+function deviceInfo(){
+  return { model: navigator.userAgent.slice(0, 90), os: navigator.platform || '', has_lidar: false, ar: 'web' };
+}
+function slugify(s){
+  return (s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'tour')
+    + '-' + Math.random().toString(36).slice(2, 6);
+}
+/* A property row per capture for now; the agent dashboard will let an existing
+   property be chosen so repeat visits stack up as versions of the same place. */
+async function ensureProperty(){
+  const { data, error } = await sb.rpc('m3ix_capture_property', { p_address: state.address });
+  if (error) throw new Error('Could not open a property record: ' + error.message);
+  return data;
+}
+</script>
+</body>
+</html>
