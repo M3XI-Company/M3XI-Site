@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Property tour</title>
+<link rel="icon" type="image/png" href="/M.png">
+<style>
+:root{--paper:#f5f2e9;--card:#fffdf6;--ink:#161512;--mut:#5f5b50;--red:#d0402b;--line:#161512}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--ink);color:var(--paper);
+  height:100dvh;overflow:hidden;display:flex;flex-direction:column}
+button{font:inherit;cursor:pointer}
+
+#view{position:relative;flex:1;min-height:0;background:#0b0a09;overflow:hidden;touch-action:none;cursor:grab}
+#view.drag{cursor:grabbing}
+#view img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  opacity:0;transition:opacity .18s linear;will-change:opacity;user-select:none;-webkit-user-drag:none}
+#view img.on{opacity:1}
+
+/* Everything floating over the photo stays out of the way until wanted. */
+#top{position:absolute;left:0;right:0;top:0;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;
+  justify-content:space-between;background:linear-gradient(rgba(0,0,0,.72),transparent);pointer-events:none}
+#top .who{pointer-events:auto}
+#addr{font-weight:800;font-size:15px;letter-spacing:-.01em}
+#roomNow{font-size:12.5px;color:#cfc9bb;margin-top:2px}
+.pill{pointer-events:auto;border:2px solid rgba(255,255,255,.5);background:rgba(22,21,18,.6);
+  color:#fff;font-size:12px;font-weight:700;padding:7px 12px;backdrop-filter:blur(6px)}
+#hint{position:absolute;left:50%;bottom:104px;transform:translateX(-50%);background:rgba(22,21,18,.86);
+  border:2px solid rgba(255,255,255,.35);padding:9px 15px;font-size:13.5px;font-weight:600;
+  transition:opacity .5s;pointer-events:none}
+
+#rooms{display:flex;gap:8px;padding:12px 14px;overflow-x:auto;background:var(--ink);border-top:3px solid #34302a;
+  scrollbar-width:none}
+#rooms::-webkit-scrollbar{display:none}
+.rm{flex:none;border:2px solid #6b6559;background:transparent;color:#e8e2d5;font-size:13px;font-weight:700;
+  padding:9px 14px;white-space:nowrap}
+.rm.on{background:var(--red);border-color:var(--red);color:#fff}
+
+/* floorplan sheet */
+#sheet{position:absolute;inset:0;background:rgba(11,10,9,.94);display:none;flex-direction:column;
+  align-items:center;justify-content:center;padding:18px;z-index:20}
+#sheet.on{display:flex}
+#planWrap{position:relative;max-width:min(92vw,620px);max-height:74vh}
+#planWrap img{display:block;width:100%;height:auto;max-height:74vh;object-fit:contain;background:#fff;border:3px solid var(--line)}
+.pin{position:absolute;transform:translate(-50%,-100%);background:var(--red);color:#fff;font-size:11px;
+  font-weight:800;padding:4px 8px;border:2px solid #000;white-space:nowrap;cursor:pointer}
+.pin.on{background:#fff;color:var(--ink)}
+#closeSheet{margin-top:16px}
+
+#load{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;
+  gap:14px;background:var(--ink);z-index:30}
+#load .n{font-family:'Arial Black',sans-serif;font-size:34px}
+#load .r{width:190px;height:4px;background:#34302a}
+#load .r span{display:block;height:100%;width:0;background:var(--red);transition:width .25s}
+#load .m{font-size:13px;color:#9a9384;max-width:80%;text-align:center;line-height:1.6}
+
+#enq{position:absolute;right:14px;bottom:14px;z-index:15;background:var(--red);color:#fff;border:3px solid #000;
+  font-weight:800;font-size:14px;padding:12px 18px;box-shadow:4px 4px 0 rgba(0,0,0,.5);display:none}
+#lead{position:absolute;right:14px;bottom:70px;z-index:16;width:min(320px,88vw);background:var(--card);color:var(--ink);
+  border:3px solid var(--line);box-shadow:6px 6px 0 rgba(0,0,0,.5);padding:16px;display:none}
+#lead h4{font-family:'Arial Black',sans-serif;font-size:14px;text-transform:uppercase;margin-bottom:10px}
+#lead input,#lead textarea{width:100%;border:2px solid var(--line);padding:9px;font:inherit;font-size:14px;margin-bottom:8px;background:#fff}
+#lead .row{display:flex;gap:8px}
+#lead button{flex:1;border:2px solid var(--line);padding:9px;font-weight:800;font-size:13px}
+#lead .send{background:var(--red);color:#fff}
+#gen{position:absolute;left:14px;bottom:14px;z-index:15;background:#1d1b17;border:2px solid #6b6559;
+  color:#e8e2d5;font-size:11px;font-weight:700;letter-spacing:.06em;padding:6px 10px;display:none}
+</style>
+</head>
+<body>
+
+<div id="view">
+  <div id="top">
+    <div class="who"><div id="addr"></div><div id="roomNow"></div></div>
+    <button class="pill" id="planBtn" style="display:none">Floorplan</button>
+  </div>
+  <div id="hint">Drag to look around</div>
+  <button id="enq">Enquire</button>
+  <div id="gen"></div>
+  <div id="lead">
+    <h4>Enquire</h4>
+    <input id="lname" placeholder="Your name">
+    <input id="lcontact" placeholder="Email or phone">
+    <textarea id="lmsg" rows="3" placeholder="Message (optional)"></textarea>
+    <div class="row"><button id="lcancel">Cancel</button><button class="send" id="lsend">Send</button></div>
+    <div id="lstatus" style="font-size:12px;color:var(--mut);margin-top:8px"></div>
+  </div>
+  <div id="load"><div class="n">M3<span style="color:var(--red)">XI</span></div>
+    <div class="r"><span id="loadBar"></span></div><div class="m" id="loadMsg">Opening the tour…</div></div>
+</div>
+<div id="rooms"></div>
+
+<div id="sheet">
+  <div id="planWrap"><img id="planImg" alt="Floorplan"></div>
+  <button class="pill" id="closeSheet">Close</button>
+</div>
+
+<script type="module">
+/* ===========================================================================
+   The tour a buyer sees.
+
+   A phase-1 capture is a set of photos taken standing still and turning, each
+   tagged with the heading it was shot at. So looking around is not a 3D
+   render: it is showing whichever photo was taken nearest the direction you
+   are facing, cross-faded. No WebGL, no stitching, no reconstruction — which
+   means it works on every phone, loads in a second, and cannot fail the way
+   the splat viewer could when a browser had 3D switched off.
+
+   Rooms are moved between by tapping the floorplan the agent already had.
+   =========================================================================== */
+
+const SB = 'https://tnlcuptfldwxtxajudoq.supabase.co';
+const FN = SB + '/functions/v1/m3ix-spatial';
+const WFN = SB + '/functions/v1/m3ix-worlds';
+const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRubGN1cHRmbGR3eHR4YWp1ZG9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODcxNDEsImV4cCI6MjEwMDA2MzE0MX0.mgS1gDa7qeBsTCaXmefpogg02kw7tCzn0uEYPAAuC90';
+
+const $ = s => document.querySelector(s);
+const Q = new URLSearchParams(location.search);
+const SLUG = Q.get('t') || Q.get('tour') || '';
+const VK = Q.get('vk') || '';
+const EMBED = Q.get('embed') === '1';
+
+let tour = null, rooms = [], room = null, heading = 0;
+const imgs = [];            // one <img> per node in the current room
+let shown = -1;
+
+const setLoad = (pct, msg) => { $('#loadBar').style.width = pct + '%'; if (msg) $('#loadMsg').textContent = msg; };
+
+async function api(payload){
+  const r = await fetch(FN, { method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + KEY, apikey: KEY },
+    body: JSON.stringify(payload) });
+  const j = await r.json().catch(() => ({ error: 'unreadable' }));
+  if (!r.ok || j.error) throw new Error(j.error || ('HTTP ' + r.status));
+  return j;
+}
+
+/* ---------- looking around ----------
+   Pick the photo whose heading is closest to where the viewer is facing.
+   Shortest angular distance, so 359° and 1° are neighbours. */
+function angDist(a, b){ const d = Math.abs(((a - b) % 360 + 540) % 360 - 180); return 180 - d; }
+function nearest(h){
+  if (!room?.nodes?.length) return -1;
+  let best = 0, bd = 1e9;
+  room.nodes.forEach((n, i) => { const d = angDist(h, n.heading); if (d < bd) { bd = d; best = i; } });
+  return best;
+}
+function face(h){
+  heading = ((h % 360) + 360) % 360;
+  const i = nearest(heading);
+  if (i < 0 || i === shown) return;
+  imgs.forEach((im, k) => im.classList.toggle('on', k === i));
+  shown = i;
+}
+
+/* ---------- rooms ---------- */
+function enterRoom(r){
+  room = r; shown = -1;
+  $('#view').querySelectorAll('img').forEach(n => n.remove());
+  imgs.length = 0;
+  (r.nodes || []).forEach((n, i) => {
+    const im = new Image();
+    im.src = n.url; im.alt = r.name || 'room'; im.decoding = 'async';
+    im.loading = i < 6 ? 'eager' : 'lazy';
+    $('#view').prepend(im); imgs.push(im);
+  });
+  $('#roomNow').textContent = (r.name || 'Room') + ((r.nodes || []).length ? '' : ' — no photos');
+  document.querySelectorAll('.rm').forEach(b => b.classList.toggle('on', b.dataset.id === r.id));
+  document.querySelectorAll('.pin').forEach(p => p.classList.toggle('on', p.dataset.id === r.id));
+  face(r.nodes?.length ? r.nodes[0].heading : 0);
+}
+
+/* ---------- input: drag, wheel, and the phone itself ---------- */
+let dragging = false, lastX = 0;
+const DEG_PER_PX = 0.22;
+const v = $('#view');
+v.addEventListener('pointerdown', e => { dragging = true; lastX = e.clientX; v.classList.add('drag'); v.setPointerCapture(e.pointerId); hideHint(); });
+v.addEventListener('pointermove', e => { if (!dragging) return; const dx = e.clientX - lastX; lastX = e.clientX; face(heading - dx * DEG_PER_PX); });
+addEventListener('pointerup', () => { dragging = false; v.classList.remove('drag'); });
+v.addEventListener('wheel', e => { e.preventDefault(); face(heading + e.deltaX * 0.15 + e.deltaY * 0.05); }, { passive: false });
+addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') face(heading - 6);
+  if (e.key === 'ArrowRight') face(heading + 6);
+  if (e.key === 'Escape' && $('#sheet').classList.contains('on')) $('#sheet').classList.remove('on');
+});
+let hintTimer = setTimeout(() => hideHint(), 5000);
+function hideHint(){ clearTimeout(hintTimer); const h = $('#hint'); h.style.opacity = '0'; setTimeout(() => h.remove(), 600); }
+
+/* ---------- floorplan ---------- */
+function buildPlan(planUrl){
+  if (!planUrl) return;
+  $('#planBtn').style.display = '';
+  $('#planImg').src = planUrl;
+  $('#planImg').onload = () => {
+    document.querySelectorAll('.pin').forEach(p => p.remove());
+    rooms.filter(r => r.pin).forEach(r => {
+      const p = document.createElement('div');
+      p.className = 'pin' + (room && r.id === room.id ? ' on' : '');
+      p.textContent = r.name || 'Room';
+      p.dataset.id = r.id;
+      p.style.left = (r.pin.x * 100) + '%';
+      p.style.top = (r.pin.y * 100) + '%';
+      p.onclick = () => { enterRoom(r); $('#sheet').classList.remove('on'); };
+      $('#planWrap').appendChild(p);
+    });
+  };
+}
+$('#planBtn').onclick = () => $('#sheet').classList.add('on');
+$('#closeSheet').onclick = () => $('#sheet').classList.remove('on');
+
+/* ---------- enquiries: the whole commercial point of an embed ---------- */
+$('#enq').onclick = () => { $('#lead').style.display = 'block'; };
+$('#lcancel').onclick = () => { $('#lead').style.display = 'none'; };
+$('#lsend').onclick = async () => {
+  const contact = $('#lcontact').value.trim();
+  if (!contact) { $('#lstatus').textContent = 'Add an email or phone so they can reach you.'; return; }
+  $('#lstatus').textContent = 'Sending…';
+  try {
+    await fetch(WFN, { method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + KEY, apikey: KEY },
+      body: JSON.stringify({ action: 'lead', slug: SLUG, name: $('#lname').value,
+        contact, message: $('#lmsg').value + ' [' + (room?.name || '') + ']' }) });
+    $('#lstatus').textContent = 'Sent — they will be in touch.';
+    setTimeout(() => { $('#lead').style.display = 'none'; $('#lstatus').textContent = ''; }, 1800);
+  } catch (e) { $('#lstatus').textContent = 'Could not send: ' + e.message; }
+};
+
+/* ---------- boot ---------- */
+(async () => {
+  if (!SLUG) { setLoad(100, 'This page opens from a tour link.'); return; }
+  try {
+    setLoad(25, 'Opening the tour…');
+    const m = await api({ action: 'manifest', slug: SLUG, view_key: VK });
+    tour = m.tour; rooms = (m.rooms || []).filter(r => (r.nodes || []).length);
+
+    $('#addr').textContent = m.property?.address || 'Property tour';
+    document.title = (m.property?.address || 'Property tour') + ' — M3XI';
+
+    if (!rooms.length) { setLoad(100, 'This tour has no rooms yet.'); return; }
+
+    setLoad(60, 'Loading the first room…');
+    const list = $('#rooms');
+    rooms.forEach(r => {
+      const b = document.createElement('button');
+      b.className = 'rm'; b.textContent = r.name || 'Room'; b.dataset.id = r.id;
+      b.onclick = () => enterRoom(r);
+      list.appendChild(b);
+    });
+    buildPlan(m.floorplan?.url);
+
+    // Hold the reveal until the first photo has actually decoded, so nobody
+    // ever sees an empty black frame and assumes it is broken.
+    enterRoom(rooms[0]);
+    const first = imgs[nearest(heading)] || imgs[0];
+    if (first && !first.complete) await new Promise(res => { first.onload = res; first.onerror = res; });
+    setLoad(100, '');
+    $('#load').style.opacity = '0';
+    setTimeout(() => $('#load').remove(), 400);
+
+    // A generated tour must say so, in the frame, always.
+    if (tour.provenance && tour.provenance !== 'captured') {
+      $('#gen').textContent = 'AI-GENERATED — NOT A RECORD OF A REAL PROPERTY';
+      $('#gen').style.display = '';
+    }
+    $('#enq').style.display = '';
+  } catch (e) {
+    setLoad(100, e.message === 'not published'
+      ? 'This tour is not published yet. Ask for a share link.'
+      : ('Could not open the tour: ' + e.message));
+  }
+})();
+</script>
+</body>
+</html>
