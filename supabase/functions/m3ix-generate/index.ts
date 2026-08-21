@@ -234,11 +234,51 @@ Deno.serve(async (req: Request) => {
       return json({ dataUri: `data:${ct};base64,${btoa(bin)}` });
     }
 
+    /* ---------- read a listing page for the world builder ----------
+       The browser cannot fetch another site (CORS); this can. Returns the
+       page's photos (og:image + the big UK portals' CDN patterns) and its
+       stripped text, so the client can distill a spatial build brief. Free:
+       it spends nothing but a fetch. */
+    if (action === "fetch_page") {
+      const url = String(body.url ?? "").trim();
+      if (!/^https?:\/\//i.test(url)) return json({ error: "Give a full http(s) link." }, 400);
+      const uid = await callerId(req);
+      if (!uid) return json(SIGNUP_REQUIRED, 401);
+      let pr: Response;
+      try {
+        pr = await fetch(url, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml",
+          },
+          redirect: "follow",
+        });
+      } catch (_e) { return json({ error: "That page would not load." }, 502); }
+      if (!pr.ok) return json({ error: `That page would not load (HTTP ${pr.status}).` }, 502);
+      const html = (await pr.text()).slice(0, 500_000);
+      const og = [...html.matchAll(/<meta[^>]+(?:property|name)=["']og:image[^"']*["'][^>]+content=["']([^"']+)["']/gi)].map((m) => m[1]);
+      const rm = [...html.matchAll(/https:\/\/media\.rightmove\.co\.uk\/[^"'\s\\]+\.jpe?g/gi)].map((m) => m[0]);
+      const zp = [...html.matchAll(/https:\/\/lc\.zoocdn\.com\/[^"'\s\\]+\.jpe?g/gi)].map((m) => m[0]);
+      const images = [...new Set([...og, ...rm, ...zp])].slice(0, 8);
+      const text = html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ")
+        .replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ").slice(0, 6000);
+      return json({ images, text });
+    }
+
     /* ---------- Marble world generation (World Labs World API) ---------- */
     if (action === "world_submit") {
       const model = String(body.model ?? "marble-1.1");
       if (!/^marble-1\.[01](-draft|-plus)?$/.test(model)) return json({ error: "Unknown Marble model — use marble-1.0-draft, marble-1.0, marble-1.1 or marble-1.1-plus" }, 400);
-      const prompt = String(body.prompt ?? "").trim();
+      let prompt = String(body.prompt ?? "").trim();
+      // The scene director. Marble renders what the prompt asks for and stops
+      // there; a game map needs asking for EVERYTHING. Appended to every
+      // world prompt so completeness is the default, not prompt-craft.
+      if (prompt && body.raw !== true) {
+        prompt = prompt.slice(0, 1200) +
+          " — a complete, coherent world in every direction: continuous ground with no missing patches or holes, " +
+          "every building closed on all sides, consistent art direction and lighting throughout, " +
+          "detail held from near to far, nothing floating or half-formed, game-environment completeness.";
+      }
       const imgs = Array.isArray(body.image_urls) ? (body.image_urls as string[]).filter((u) => typeof u === "string" && u).slice(0, 4) : [];
       if (!prompt && !imgs.length) return json({ error: "Give the world a text prompt, photo attachments, or both." }, 400);
       const isDraft = model.includes("draft");
@@ -325,9 +365,15 @@ Deno.serve(async (req: Request) => {
       const doc = {
         id: slug, name, published: true, unit: "m",
         environment: envObj,
-        eye: 1.6, speed: 2.6, hotspots: [], assets: [],
+        eye: 1.6, speed: 1.45, hotspots: [], assets: [],
         creator: { name: String(body.creator_name ?? "M3XI Studio").slice(0, 60), url: String(body.creator_url ?? "").slice(0, 200) },
         cover, marble_url: w.world_marble_url, generator: "marble",
+        // SPZ arrives Y-down by convention; every import so far needed this
+        // exact flip. Baked here so no fresh world can land upside down —
+        // the viewer's Calibrate panel still overrides it per world.
+        fix: { up: { axis: "y", sign: -1 } },
+        // The prompt rides with the world so Refine can start from it later.
+        prompt: String(body.prompt ?? "").slice(0, 1500),
         saved_at: new Date().toISOString(),
       };
       const ins = await fetch(`${BASE()}/rest/v1/m3ix_spaces`, {
@@ -343,7 +389,16 @@ Deno.serve(async (req: Request) => {
     const auth = { Authorization: `Key ${falKey()}`, "Content-Type": "application/json" };
 
     if (action === "refine") {
-      const prompt = String(body.prompt ?? "").trim();
+      let prompt = String(body.prompt ?? "").trim();
+      // The scene director. Marble renders what the prompt asks for and stops
+      // there; a game map needs asking for EVERYTHING. Appended to every
+      // world prompt so completeness is the default, not prompt-craft.
+      if (prompt && body.raw !== true) {
+        prompt = prompt.slice(0, 1200) +
+          " — a complete, coherent world in every direction: continuous ground with no missing patches or holes, " +
+          "every building closed on all sides, consistent art direction and lighting throughout, " +
+          "detail held from near to far, nothing floating or half-formed, game-environment completeness.";
+      }
       if (!prompt) return json({ error: "Missing prompt" }, 400);
       const uid = await callerId(req);
       if (!uid) return json(SIGNUP_REQUIRED, 401);
@@ -367,7 +422,16 @@ Deno.serve(async (req: Request) => {
       const ch = await charge(req, COST_IMAGE, "image");
       if (!ch.ok) return json({ error: ch.error }, ch.status);
       const remaining: number = ch.balance;
-      const prompt = String(body.prompt ?? "").trim();
+      let prompt = String(body.prompt ?? "").trim();
+      // The scene director. Marble renders what the prompt asks for and stops
+      // there; a game map needs asking for EVERYTHING. Appended to every
+      // world prompt so completeness is the default, not prompt-craft.
+      if (prompt && body.raw !== true) {
+        prompt = prompt.slice(0, 1200) +
+          " — a complete, coherent world in every direction: continuous ground with no missing patches or holes, " +
+          "every building closed on all sides, consistent art direction and lighting throughout, " +
+          "detail held from near to far, nothing floating or half-formed, game-environment completeness.";
+      }
       if (!prompt) { await refundUser(uid, COST_IMAGE, action); return json({ error: "Missing prompt" }, 400); }
       const multi = Array.isArray(body.image_urls) ? (body.image_urls as string[]).filter((u) => typeof u === "string" && u).slice(0, 6) : null;
       const ref = typeof body.image_url === "string" && body.image_url ? body.image_url : null;
@@ -413,7 +477,16 @@ Deno.serve(async (req: Request) => {
       const ch = await charge(req, COST_VIDEO, "video");
       if (!ch.ok) return json({ error: ch.error }, ch.status);
       const remaining: number = ch.balance;
-      const prompt = String(body.prompt ?? "").trim();
+      let prompt = String(body.prompt ?? "").trim();
+      // The scene director. Marble renders what the prompt asks for and stops
+      // there; a game map needs asking for EVERYTHING. Appended to every
+      // world prompt so completeness is the default, not prompt-craft.
+      if (prompt && body.raw !== true) {
+        prompt = prompt.slice(0, 1200) +
+          " — a complete, coherent world in every direction: continuous ground with no missing patches or holes, " +
+          "every building closed on all sides, consistent art direction and lighting throughout, " +
+          "detail held from near to far, nothing floating or half-formed, game-environment completeness.";
+      }
       if (!prompt) { await refundUser(uid, COST_VIDEO, action); return json({ error: "Missing prompt" }, 400); }
       const ref = typeof body.image_url === "string" && body.image_url ? body.image_url : null;
       let ep = String(body.endpoint ?? (ref ? DEFAULTS.vidI2V : DEFAULTS.vidT2V));
