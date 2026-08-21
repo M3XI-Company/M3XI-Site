@@ -1,6 +1,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 // M3XI Worlds API — world persistence, publishing, library, leads, events.
-// Actions: create | upload_url | save | load | list_published | rehost | lead | event
+// Actions: create | upload_url | save | load | list_published | rehost | unpublish | lead | event
+// `source` (marble | twin-viewer) travels with every world that leaves here, so a
+// viewer can say whether what it shows was generated or scanned.
 
 const CORS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
@@ -47,7 +49,7 @@ async function storeChunks(pathBase: string, bytes: Uint8Array): Promise<string[
 }
 
 async function getRow(slug: string) {
-  const r = await fetch(`${BASE()}/rest/v1/m3ix_spaces?embed_slug=eq.${encodeURIComponent(slug)}&select=id,embed_slug,edit_key,status,world,title`, { headers: svcHeaders() });
+  const r = await fetch(`${BASE()}/rest/v1/m3ix_spaces?embed_slug=eq.${encodeURIComponent(slug)}&select=id,embed_slug,edit_key,status,world,title,source`, { headers: svcHeaders() });
   const rows = await r.json().catch(() => []);
   return Array.isArray(rows) && rows[0] ? rows[0] : null;
 }
@@ -135,13 +137,13 @@ Deno.serve(async (req: Request) => {
         (vk && (row.world as Record<string, unknown> | null)?.["view_key"] === vk);
       if (!canView) return json({ error: "This world is not published" }, 403);
       if (!isOwner) logEvent(slug, "view");
-      return json({ slug, world: row.world, published: row.status === "published", owner: !!isOwner });
+      return json({ slug, world: row.world, published: row.status === "published", owner: !!isOwner, source: row.source ?? null });
     }
 
     if (action === "list_published") {
       const limit = Math.max(1, Math.min(60, Number(body.limit ?? 24)));
       const r = await fetch(
-        `${BASE()}/rest/v1/m3ix_spaces?status=eq.published&world=not.is.null&select=embed_slug,title,world,created_at&order=created_at.desc&limit=${limit}`,
+        `${BASE()}/rest/v1/m3ix_spaces?status=eq.published&world=not.is.null&select=embed_slug,title,world,created_at,source&order=created_at.desc&limit=${limit}`,
         { headers: svcHeaders() },
       );
       const rows = await r.json().catch(() => []);
@@ -156,6 +158,7 @@ Deno.serve(async (req: Request) => {
           cover: typeof w.cover === "string" ? w.cover : null,
           creator: { name: String(creator.name ?? "").slice(0, 80), url: String(creator.url ?? "").slice(0, 300) },
           env_type: (env.type as string) ?? "splat",
+          source: (x.source as string) ?? null,
           saved_at: (w.saved_at as string) ?? x.created_at,
         };
       });
@@ -190,10 +193,26 @@ Deno.serve(async (req: Request) => {
       return json({ ok: true, slug, src: urls[0], parts: urls.length, size_mb: Math.round(bytes.length / 1048576) });
     }
 
+    /* Take a world off the public Library. The doc keeps published:false so
+       a later save does not silently re-publish it. */
+    if (action === "unpublish") {
+      const slug = String(body.slug ?? "");
+      const key = String(body.edit_key ?? "");
+      const row = await getRow(slug);
+      if (!row || row.edit_key !== key) return json({ error: "Unknown world or wrong edit key" }, 403);
+      const doc = { ...((row.world ?? {}) as Record<string, unknown>), published: false, saved_at: new Date().toISOString() };
+      const upd = await fetch(`${BASE()}/rest/v1/m3ix_spaces?embed_slug=eq.${encodeURIComponent(slug)}`, {
+        method: "PATCH", headers: { ...svcHeaders(), Prefer: "return=minimal" }, body: JSON.stringify({ world: doc, status: "draft" }),
+      });
+      if (!upd.ok) return json({ error: "Unpublish failed" }, 500);
+      logEvent(slug, "unpublish");
+      return json({ ok: true, slug, published: false });
+    }
+
     if (action === "lead") {
       const slug = String(body.slug ?? "");
       const row = await getRow(slug);
-      if (!row) return json({ error: "Unknown world" }, 404);
+      if (!row) return json({ error: "Unknown world — property tours send enquiries to m3ix-spatial, not here" }, 404);
       const name = String(body.name ?? "").slice(0, 120);
       const contact = String(body.contact ?? "").slice(0, 200);
       const message = String(body.message ?? "").slice(0, 2000);
@@ -215,7 +234,7 @@ Deno.serve(async (req: Request) => {
       return json({ ok: true });
     }
 
-    return json({ error: "Unknown action. Use create | upload_url | save | load | list_published | rehost | lead | event" }, 400);
+    return json({ error: "Unknown action. Use create | upload_url | save | load | list_published | rehost | unpublish | lead | event" }, 400);
   } catch (e) {
     return json({ error: (e as Error).message }, 500);
   }
