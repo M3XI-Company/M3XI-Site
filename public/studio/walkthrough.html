@@ -25,6 +25,10 @@ button,input,textarea{font-family:inherit}
 .btn.gold{background:var(--gold);color:#fff}
 .btn.on{background:var(--ink);color:var(--paper)}
 .status{position:fixed;left:12px;bottom:12px;z-index:15;background:var(--card);border:2px solid var(--line);padding:6px 11px;font-size:12px;color:var(--mut);box-shadow:3px 3px 0 rgba(22,21,18,.55)}
+/* Honesty mark for generated worlds — same chip as the tour viewer's #gen. Sits
+   above the status chip / Library button so it is never covered, in every mode. */
+#aiMark{position:fixed;left:12px;bottom:58px;z-index:23;background:#1d1b17;border:2px solid #6b6559;color:#e8e2d5;font-size:11px;font-weight:700;letter-spacing:.06em;padding:6px 10px;display:none;pointer-events:none;max-width:calc(100vw - 24px)}
+.ovLib .wc .ai{display:inline-block;margin-left:6px;vertical-align:1px;background:#1d1b17;border:1px solid #6b6559;color:#e8e2d5;font-size:9px;font-weight:800;letter-spacing:.1em;padding:1px 5px}
 .hint{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);z-index:15;background:var(--ink);color:var(--paper);padding:8px 18px;font-size:14px;font-weight:600;display:none;box-shadow:4px 4px 0 rgba(208,64,43,.55);border:3px solid var(--ink)}
 #overlay{position:fixed;inset:0;z-index:40;background:var(--paper);background-image:radial-gradient(rgba(22,21,18,.055) 1px,transparent 1.3px);background-size:22px 22px;display:flex;align-items:flex-start;justify-content:center;text-align:center;overflow-y:auto}
 .ovScroll{position:relative;z-index:5;margin:5vh auto 70px;display:flex;flex-direction:column;align-items:center;gap:26px;width:min(960px,94vw)}
@@ -99,12 +103,13 @@ a{color:var(--gold)}
   <button class="btn gold" id="btnPublish">Publish</button>
   <span style="flex:1"></span>
   <button class="btn" id="btnReset" title="Back to the start of this world">Reset view</button>
-  <button class="btn" id="btnRefine" style="display:none" title="Regenerate this world from your current view and prompt — a new take, 120 credits">Refine</button>
+  <button class="btn" id="btnRefine" style="display:none" title="Regenerate this world from your current view and prompt — a new take, 150 credits">Refine</button>
   <button class="btn" id="btnShare">Share</button>
   <button class="btn" id="btnFull">Fullscreen</button>
 </div>
 
 <div class="status" id="status">No scan loaded</div>
+<div id="aiMark" role="note">AI-GENERATED — NOT A RECORD OF A REAL PLACE</div>
 <div id="fixHint" style="display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:74px;z-index:30;background:rgba(22,21,18,.92);color:#f4eedf;border:2px solid var(--red);padding:9px 14px;font-size:13px;max-width:520px;text-align:center">Room look wrong? Open <b>Calibrate</b> and try the &ldquo;which way is up&rdquo; buttons &mdash; the numbers jump on the right one.</div>
 <div class="hint" id="hint"></div>
 
@@ -176,8 +181,8 @@ a{color:var(--gold)}
 <div id="drawer">
   <h4 style="color:var(--gold);font-size:13px;margin-bottom:6px">World</h4>
   <input type="text" id="wName" placeholder="World name (e.g. Kings Road Showroom)">
-  <div class="rowb" style="margin:8px 0 6px"><button class="btn gold" id="btnSaveWorld">Save &amp; publish</button><button class="btn" id="btnCopyShare" style="display:none">Copy share code</button></div>
-  <div class="small" id="wStatus">Not saved yet. Saving uploads the scan, layout, assets and hotspots to M3XI and returns a share code that reopens this exact world anywhere.</div>
+  <div class="rowb" style="margin:8px 0 6px"><button class="btn" id="btnSaveWorld" title="Save your changes. A draft stays a draft; a published world stays published.">Save</button><button class="btn gold" id="btnPublishWorld" title="Save and list this world in the M3XI Library">Publish</button><button class="btn" id="btnUnpublish" style="display:none" title="Take this world off the M3XI Library. It still opens for you with the edit key.">Unpublish</button><button class="btn" id="btnCopyShare" style="display:none">Copy share code</button></div>
+  <div class="small" id="wStatus">Not saved yet. Save keeps a private draft; Publish lists it in the M3XI Library. Both upload the scan, layout, assets and hotspots to M3XI and return a share code that reopens this exact world anywhere.</div>
   <input type="text" id="bName" placeholder="Brand name shown to visitors" style="margin-top:8px">
   <div class="rowb" style="margin:6px 0"><input type="text" id="bCtaLabel" placeholder="CTA label (e.g. Book a viewing)" style="flex:1"><input type="color" id="bColor" value="#d0402b" style="width:44px;height:34px;padding:2px;border:2px solid var(--line);background:#fff"></div>
   <input type="text" id="bCtaUrl" placeholder="CTA link (https://…)">
@@ -257,7 +262,7 @@ a{color:var(--gold)}
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px">
       <button class="btn gold" id="ovGenBtn">Generate world</button>
       <button class="btn" id="ovAttachBtn" type="button">+ Photos</button>
-      <button class="btn" id="ovQuality" type="button" title="Generates up to two takes, scans each for missing patches and depth loss, keeps the better one. Costs up to 240 credits.">Best quality: off</button>
+      <button class="btn" id="ovQuality" type="button" title="Generates up to two takes, scans each for missing patches and depth loss, keeps the better one. Costs up to 300 credits.">Best quality: off</button>
       <input type="file" id="ovAttachInput" accept="image/*,.spz,.ply,.splat,.ksplat,.sog" multiple style="display:none">
     </div>
     <div id="ovGenNote" class="small" style="margin-top:8px">Drop photos or a scan file anywhere on this page — photos build the world, a .spz / .ply / .splat scan opens directly. The free <b>Scaniverse</b> app exports scans: Splat mode → Share → Export.</div>
@@ -1297,7 +1302,9 @@ window.__colInfo=()=>{
   return{built:true,w:colGrid.w,h:colGrid.h,cell:colGrid.cs,solid:s,floor:fl,
     walkable:wk,largestRegion:rc,
     areaM2:+(wk*colGrid.cs*colGrid.cs).toFixed(1),
-    mainAreaM2:colDiag.areaM2,threshold:colDiag.threshold};
+    mainAreaM2:colDiag.areaM2,threshold:colDiag.threshold,
+    // scoreWorld reads this: without it every take scored 999 and take 1 always won
+    holePct:typeof colGrid.holePct==='number'?colGrid.holePct:colDiag.holePct};
 };
 window.__canStand=(x,z)=>{const f=cellFloor(x,z);return canStand(x,z,f===null?player.feetY:f);};
 window.__colDiag=()=>colDiag;
@@ -1382,7 +1389,8 @@ function offerFix(){
   if(!el)return;
   const ci=window.__colInfo?window.__colInfo():null;
   const poor=!ci||!ci.built||ci.solid<12||(ci.areaM2||0)<2.5;
-  el.style.display=poor?'block':'none';
+  // Visitors have no Calibrate button, so never point them at one.
+  el.style.display=(poor&&!EMBED)?'block':'none';
 }
 window.__offerFix=offerFix;
 
@@ -1563,7 +1571,7 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
   }catch(e){player.floor=0;}
   player.feetY=player.floor;player.vy=0;player.grounded=true;
   if(fromDoc&&splatCount>0&&splatCount<100){
-    ovProg.textContent='This world\'s scan streamed only '+splatCount+' points — the file did not load correctly. If this is your world, open your editor link and press Save & publish to repair it.';
+    ovProg.textContent='This world\'s scan streamed only '+splatCount+' points — the file did not load correctly. If this is your world, open your editor link and press Save (or Publish) to repair it.';
     overlay.style.display='flex';loadUI(false);
     setStatus('world data incomplete');
     return;
@@ -1643,7 +1651,7 @@ function loadFromFile(file){
   if(needEngine())return;
   overlay.style.display='flex';loadUI(true,file.name);
   file.arrayBuffer().then(buf=>{
-    clearSplat();
+    clearSplat();markAi(false);
     loadUIProgress(0.35,'Decoding '+file.name);
     srcInfo={kind:'bytes',bytes:new Uint8Array(buf),name:file.name};
     const mesh=new SplatMesh({fileBytes:new Uint8Array(buf),fileName:file.name,
@@ -1712,7 +1720,7 @@ function demoRoom(){
     f32[o]=s[0];f32[o+1]=s[1];f32[o+2]=s[2];f32[o+3]=s[3];f32[o+4]=s[4];f32[o+5]=s[5];
     u8[b+24]=Math.max(0,Math.min(255,s[6]));u8[b+25]=Math.max(0,Math.min(255,s[7]));u8[b+26]=Math.max(0,Math.min(255,s[8]));u8[b+27]=s[9];
     u8[b+28]=255;u8[b+29]=128;u8[b+30]=128;u8[b+31]=128;}); // identity rotation
-  clearSplat();splatCount=S.length;
+  clearSplat();markAi(false);splatCount=S.length;
   srcInfo={kind:'bytes',bytes:new Uint8Array(buf),name:'demo-room.splat'};
   const mesh=new SplatMesh({fileBytes:new Uint8Array(buf),fileType:SplatFileType.SPLAT,
     onLoad:m=>afterLoad(m,{authored:true})});
@@ -1947,7 +1955,7 @@ const M3IX_W={
   fn:'https://tnlcuptfldwxtxajudoq.supabase.co/functions/v1/m3ix-worlds',
   key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRubGN1cHRmbGR3eHR4YWp1ZG9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODcxNDEsImV4cCI6MjEwMDA2MzE0MX0.mgS1gDa7qeBsTCaXmefpogg02kw7tCzn0uEYPAAuC90'
 };
-const worldState={slug:null,edit_key:null};
+const worldState={slug:null,edit_key:null,published:false,owner:false,ai:false};
 async function wcall(payload){
   const r=await fetch(M3IX_W.fn,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+M3IX_W.key,'apikey':M3IX_W.key},body:JSON.stringify(payload)});
   const j=await r.json().catch(()=>({error:'Unreadable response'}));
@@ -1961,7 +1969,17 @@ async function uploadBytes(filename,bytes){
   return u.public_url;
 }
 function wStatus(t){const el=$('#wStatus');if(el)el.textContent=t;}
-async function saveWorld(){
+/* A Marble world is a generated picture, not a record of anywhere real. The
+   mark stays on screen for as long as the world does, in every mode. */
+function markAi(on){worldState.ai=!!on;const el=document.getElementById('aiMark');if(el)el.style.display=on?'block':'none';}
+function updatePubButtons(){
+  const own=!!worldState.edit_key;
+  const u=$('#btnUnpublish');if(u)u.style.display=(own&&worldState.published)?'':'none';
+}
+/* Save keeps whatever listing state the world already has; Publish forces it
+   onto the Library. They used to be one handler that always published. */
+async function saveWorld({publish}={}){
+  const publishNow=publish===true?true:!!worldState.published;
   try{
     if(!splat)return wStatus('Load a scan (or the demo room) before saving.');
     const name=($('#wName').value.trim()||'Untitled world');
@@ -1988,7 +2006,7 @@ async function saveWorld(){
       if(blob){wStatus('Uploading cover image …');coverUrl=await uploadBytes('cover.jpg',new Uint8Array(await blob.arrayBuffer()));}
     }catch(e){/* cover is optional */}
     const doc={
-      name,published:true,unit:'m',
+      name,published:publishNow,unit:'m',
       environment:{type:'splat',src:envSrc,floor:player.floor,
         transform:{rot:[splatRoot.rotation.x,splatRoot.rotation.y,splatRoot.rotation.z],scale:splatRoot.scale.x,meshPos:[splat.position.x,splat.position.y,splat.position.z]}},
       eye:player.eye,speed:player.speed,
@@ -2000,9 +2018,10 @@ async function saveWorld(){
       cover:coverUrl||undefined
     };
     if(srcInfo&&srcInfo.parts&&srcInfo.parts.length){doc.environment.parts=srcInfo.parts;doc.environment.file=srcInfo.name;}
-    wStatus('Publishing …');
-    await wcall({action:'save',slug:worldState.slug,edit_key:worldState.edit_key,world:doc});
-    wStatus('Published to the M3XI Library. World code: '+worldState.slug+' — open anywhere with ?world='+worldState.slug+' · Edit key (keep safe): '+worldState.edit_key);
+    wStatus(publishNow?'Publishing …':'Saving …');
+    const sv=await wcall({action:'save',slug:worldState.slug,edit_key:worldState.edit_key,world:doc});
+    worldState.published=sv&&typeof sv.published==='boolean'?sv.published:publishNow;updatePubButtons();
+    wStatus((worldState.published?'Published to the M3XI Library.':'Saved as a private draft — not listed in the Library. Press Publish to list it.')+' World code: '+worldState.slug+' — open anywhere with ?world='+worldState.slug+' · Edit key (keep safe): '+worldState.edit_key);
     const b=$('#btnCopyShare');b.style.display='';
     b.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(worldState.slug);b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy share code',1400);};
     const base=location.href.split('?')[0];
@@ -2011,18 +2030,39 @@ async function saveWorld(){
   }catch(e){wStatus('Save failed: '+e.message);}
 }
 async function openWorld(slug,key){
+  // Drop the previous world's collision grid NOW, synchronously: scoreWorld
+  // starts polling the moment this is called, and must never read the last
+  // take's numbers as this one's.
+  colGrid=null;colDiag={ok:false,reason:'loading world'};
   try{
     ovProg.textContent='Opening world '+slug+' …';overlay.style.display='flex';
     const l=await wcall({action:'load',slug,edit_key:key||'',view_key:Q.get('vk')||''});
-    worldState.slug=slug;if(l.owner&&key)worldState.edit_key=key;
+    worldState.slug=slug;worldState.edit_key=(l.owner&&key)?key:null;
     const doc=l.world;
+    worldState.published=!!l.published;worldState.owner=!!l.owner;updatePubButtons();
+    // The backend says where a world came from (source); older docs say it
+    // themselves (generator). Either one means: generated, not photographed.
+    markAi(l.source==='marble'||!!(doc&&doc.generator==='marble'));
+    if(doc&&doc.name)document.title=String(doc.name)+' — M3XI';
     const env=doc&&doc.environment;
     if(!env||(!env.src&&!(env.parts&&env.parts.length)))throw new Error('World has no environment');
     if(env.parts&&env.parts.length)loadFromParts(env.parts,env.file||env.src||'scan.ply',{fromDoc:doc});
     else loadFromUrl(env.src,{fromDoc:doc});
   }catch(e){ovProg.textContent='Could not open world: '+e.message;}
 }
-$('#btnSaveWorld').onclick=saveWorld;
+$('#btnSaveWorld').onclick=()=>saveWorld();
+$('#btnPublishWorld').onclick=()=>saveWorld({publish:true});
+async function unpublishWorld(){
+  if(!worldState.slug||!worldState.edit_key)return wStatus('Only the owner can unpublish — open this world with its edit key first.');
+  try{
+    wStatus('Taking this world off the Library …');
+    await wcall({action:'unpublish',slug:worldState.slug,edit_key:worldState.edit_key});
+    worldState.published=false;updatePubButtons();
+    wStatus('Unpublished — no longer listed in the M3XI Library. It still opens for you with the edit key; press Publish to list it again. World code: '+worldState.slug);
+    loadOvLibrary();
+  }catch(e){wStatus('Could not unpublish: '+e.message);}
+}
+$('#btnUnpublish').onclick=unpublishWorld;
 /* The start screen has ONE way in now — the composer. The demo button, the
    separate Load scan button and the world-code box all competed with it and
    none of them explained themselves; scans go through the composer (attach or
@@ -2146,6 +2186,7 @@ async function loadOvLibrary(){
       d.innerHTML=(w.cover?'<div class="cv"><img loading="lazy" alt=""></div>':'<div class="cv"><span>\u4e09X\u4e00</span></div>')+'<div class="m"><span class="nm"></span><span class="lk" style="float:right;color:var(--gold);font-weight:700"></span></div>';
       if(w.cover)d.querySelector('img').src=w.cover;
       d.querySelector('.nm').textContent=w.name||'World';
+      if(w.source==='marble'){const ai=document.createElement('span');ai.className='ai';ai.title='AI-generated world — not a record of a real place';ai.textContent='AI';d.querySelector('.nm').appendChild(ai);}
       d.querySelector('.lk').dataset.slug=w.slug;
       if(w.creator&&w.creator.name){const by=document.createElement('div');by.className='by';by.textContent='by '+w.creator.name;d.querySelector('.m').appendChild(by);}
       d.onclick=()=>{openWorld(w.slug,'');};
@@ -2188,8 +2229,8 @@ $('#ovQuality')&&($('#ovQuality').onclick=()=>{qualityOn=!qualityOn;
   $('#ovQuality').textContent='Best quality: '+(qualityOn?'ON':'off');
   $('#ovQuality').classList.toggle('gold',qualityOn);
   genSay(qualityOn
-    ?'Best quality: up to <b>two takes</b> \u2014 each is scanned for missing patches and depth loss, the better one is kept and the other retired. Up to 240 credits, up to ~12 minutes.'
-    :'Standard: one take, 120 credits, 2\u20136 minutes.');});
+    ?'Best quality: up to <b>two takes</b> \u2014 each is scanned for missing patches and depth loss, the better one is kept and the other retired. Up to 300 credits, up to ~12 minutes.'
+    :'Standard: one take, 150 credits, 2\u20136 minutes.');});
 
 /* Score a just-opened world by what the collision scan measured: the missing-
    patch percentage. Waits for the build; 999 means it never became walkable. */
@@ -2288,8 +2329,8 @@ async function ovGenerate(){
       }
     }
     genSay(takes>1
-      ?'Take 1 of 2 \u2014 a world costs <b>120 credits per take</b>; the better take is kept.'
-      :'Submitting \u2014 a world costs <b>120 credits</b> and usually takes <b>2\u20136 minutes</b>. Keep this page open.');
+      ?'Take 1 of 2 \u2014 a world costs <b>150 credits per take</b>; the better take is kept.'
+      :'Submitting \u2014 a world costs <b>150 credits</b> and usually takes <b>2\u20136 minutes</b>. Keep this page open.');
     let best=null;
     for(let t=1;t<=takes;t++){
       const label=takes>1?('Take '+t+' of '+takes+': '):'';
@@ -2435,8 +2476,8 @@ $('#btnFull').onclick=()=>{document.fullscreenElement?document.exitFullscreen():
 $('#btnPublish').onclick=()=>{
   const d=$('#drawer');d.style.display='block';
   if(!splat){wStatus('Load a scan (or the demo room) first — then name it and publish.');return;}
-  if(!$('#wName').value.trim()){$('#wName').focus();wStatus('Name your world, then press Save & publish.');return;}
-  saveWorld();
+  if(!$('#wName').value.trim()){$('#wName').focus();wStatus('Name your world, then press Publish.');return;}
+  saveWorld({publish:true});
 };
 /* Share never requires publishing. A published world shares its public link;
    a draft shares a PRIVATE VIEW LINK carrying a view key — it lets people
@@ -2472,7 +2513,7 @@ $('#btnRefine')&&($('#btnRefine').onclick=()=>{
   const t=$('#ovPrompt');
   t.value=(worldState.prompt||worldState.name||'')+' — refined: fill every missing patch, consistent depth throughout, no floating artefacts, complete ground and walls.';
   overlay.style.display='flex';loadUI(false);
-  genSay('Refining regenerates the whole world from your current view + this prompt (120 credits, or Best quality for two takes). Edit the prompt to steer what changes.');
+  genSay('Refining regenerates the whole world from your current view + this prompt (150 credits, or Best quality for two takes). Edit the prompt to steer what changes.');
 });
 document.querySelectorAll('[data-rot]').forEach(b=>b.onclick=()=>{
   const [ax,deg]=b.dataset.rot.split(',');splatRoot.rotation[ax]+=Number(deg)*Math.PI/180;buildCollision();ensureSpawn();});

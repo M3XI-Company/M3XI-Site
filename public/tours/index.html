@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Your tours — M3XI</title>
+<link rel="icon" type="image/png" href="/M.png">
+<meta name="robots" content="noindex">
+<meta name="description" content="Preview, publish, embed and manage your M3XI property tours, and read every enquiry they bring in.">
+<style>
+/* The agent's desk. Paper and card, ink lines, hard shadows — the same
+   stationery as the Studio account panel, because it is the same company. */
+:root{
+  --paper:#f5f2e9; --paper2:#e9e6da; --card:#fffdf6; --ink:#161512; --mut:#5f5b50;
+  --red:#d0402b; --green:#2e7d4f; --line:#161512; --label:#9a9384;
+  --disp:'Arial Black',sans-serif;
+  --body:'Segoe UI',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--body);color:var(--ink);background:var(--paper);
+  background-image:radial-gradient(rgba(22,21,18,.055) 1px,transparent 1.3px);
+  background-size:22px 22px;-webkit-font-smoothing:antialiased;line-height:1.55;min-height:100vh;
+}
+img{display:block;max-width:100%}
+a{color:inherit}
+::selection{background:var(--ink);color:var(--paper)}
+button,input,select,textarea{font:inherit;color:inherit}
+[hidden]{display:none !important}
+
+/* ---------- focus: always visible, always the same ---------- */
+:focus-visible{outline:3px solid var(--red);outline-offset:3px}
+.btn:focus-visible,.pin:focus-visible{outline:3px solid var(--red);outline-offset:4px}
+
+/* ---------- type ---------- */
+h1,h2,h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:-.02em;line-height:1}
+h1{font-size:clamp(26px,4.4vw,40px)}
+h1 em{color:var(--red);font-style:normal}
+h2{font-size:20px}
+h3{font-size:14px;letter-spacing:.02em;margin-bottom:10px}
+.lbl{display:block;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--label);margin:0 0 5px}
+.small{font-size:12.5px;color:var(--mut);line-height:1.55}
+.lead{color:var(--mut);font-size:15px;line-height:1.65;max-width:62ch}
+.kicker{font-family:var(--disp);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--mut)}
+.err{color:var(--red);font-weight:600}
+.ok{color:var(--green);font-weight:600}
+
+/* ---------- ink primitives ---------- */
+.panel{background:var(--card);border:3px solid var(--line);box-shadow:7px 7px 0 rgba(22,21,18,.92);position:relative}
+.cap{position:absolute;top:-3px;left:-3px;background:var(--ink);color:var(--paper);font-size:10.5px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;z-index:2}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:14px;
+  padding:10px 18px;border:3px solid var(--line);background:var(--ink);color:var(--paper);cursor:pointer;
+  box-shadow:4px 4px 0 rgba(0,0,0,.6);text-decoration:none;transition:transform .08s,box-shadow .08s;user-select:none;
+  white-space:nowrap}
+.btn:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
+.btn:active{transform:translate(4px,4px);box-shadow:0 0 0 rgba(0,0,0,.6)}
+.btn.red{background:var(--red);color:#fff}
+.btn.ghost{background:var(--card);color:var(--ink)}
+.btn.green{background:var(--green);color:#fff}
+.btn.sm{padding:7px 12px;font-size:13px;box-shadow:3px 3px 0 rgba(0,0,0,.6)}
+.btn.big{font-size:18px;padding:16px 26px;box-shadow:6px 6px 0 rgba(0,0,0,.6)}
+.btn:disabled,.btn[aria-disabled=true]{opacity:.45;cursor:wait;transform:none;box-shadow:4px 4px 0 rgba(0,0,0,.6)}
+.btn.busy::after{content:'';width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;
+  border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.chip{display:inline-flex;align-items:center;gap:7px;border:2px solid var(--line);background:var(--card);
+  padding:3px 10px;font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--mut)}
+.chip.live{background:var(--green);color:#fff;border-color:var(--green)}
+.chip.live .dot{background:#fff}
+.chip.unlisted .dot{background:var(--red)}
+.chip.archived{color:var(--mut);border-style:dashed}
+.field{width:100%;border:3px solid var(--line);background:#fff;padding:9px 11px;font-size:14.5px;font-weight:500;color:var(--ink)}
+.field:disabled{opacity:.55}
+select.field{appearance:auto}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px 16px}
+.dash{border-top:2px dashed rgba(22,21,18,.3);margin-top:18px;padding-top:16px}
+code,.code{font-family:ui-monospace,Consolas,'Courier New',monospace;font-size:12.5px}
+textarea.code{width:100%;border:3px solid var(--line);background:#fff;padding:10px;resize:vertical;min-height:68px;white-space:pre;overflow-x:auto}
+
+/* ---------- layout ---------- */
+.bar{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:3px solid var(--line)}
+.bar .in{max-width:1100px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.brand{font-family:var(--disp);font-size:20px;letter-spacing:-.02em;text-decoration:none;display:flex;align-items:baseline;gap:10px}
+.brand em{color:var(--red);font-style:normal}
+.acct{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;min-width:0}
+.acct .who{color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:34vw}
+.wrap{max-width:1100px;margin:0 auto;padding:34px 20px 90px}
+.sechead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+
+/* ---------- sign-in gate ---------- */
+#gate .panel{max-width:560px;padding:30px 28px 26px;margin-top:22px}
+#gate .panel h2{margin-top:6px}
+.gbtn svg{flex:none}
+
+/* ---------- tour cards ---------- */
+.tour{margin:26px 0 0;padding:24px 22px 20px}
+.tour .head{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:flex-start}
+.tour .title{font-family:var(--disp);font-size:20px;text-transform:uppercase;letter-spacing:-.01em;line-height:1.1}
+.tour .addr{color:var(--mut);font-size:14px;margin-top:3px}
+.counts{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.counts b{font-family:var(--disp);font-size:22px;line-height:1;display:block}
+.counts span{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--label)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.msg{margin-top:12px;font-size:13.5px;min-height:1.4em}
+.strip{border:3px solid var(--line);background:var(--paper);padding:14px 16px;margin-top:14px}
+.strip.danger{border-color:var(--red)}
+.strip p{font-size:14px;margin-bottom:10px}
+
+/* ---------- editor ---------- */
+.editor{margin-top:18px;border-top:3px solid var(--line);padding-top:18px}
+.ed{margin-top:22px}
+.ed:first-child{margin-top:0}
+.room{border:2px solid var(--line);background:var(--paper);padding:14px;margin-top:12px}
+.room .rhead{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.room .rhead .field{max-width:260px}
+.node{display:grid;grid-template-columns:96px 1fr;gap:12px;margin-top:12px;padding-top:12px;border-top:2px dashed rgba(22,21,18,.3)}
+.node .thumb{width:96px;height:48px;border:2px solid var(--line);background:var(--paper2);object-fit:cover}
+.node .nlbl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.node .nlbl .field{max-width:240px}
+.links{display:flex;gap:8px 14px;flex-wrap:wrap;margin-top:8px}
+.links label{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer}
+.links input{width:16px;height:16px;accent-color:var(--red)}
+.planbox{position:relative;width:100%;max-width:720px;border:3px solid var(--line);background:#fff;overflow:hidden;touch-action:none}
+.planbox img{width:100%;height:100%;display:block;object-fit:fill;pointer-events:none;user-select:none}
+.planbox.placing{cursor:crosshair}
+.pin{position:absolute;transform:translate(-50%,-100%);background:var(--red);color:#fff;font-size:11px;
+  font-weight:800;padding:3px 7px;border:2px solid #000;white-space:nowrap;cursor:grab;touch-action:none;user-select:none;line-height:1.3}
+.pin::after{content:'';position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);border:5px solid transparent;border-top-color:#000;border-bottom:0}
+.pin.drag{cursor:grabbing;background:var(--ink)}
+.pin.saving{opacity:.6}
+.lead-item{border:2px solid var(--line);background:var(--paper);padding:12px 14px;margin-top:10px}
+.lead-item .lh{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.lead-item .lh b{font-size:15px}
+.lead-item .meta{font-size:12.5px;color:var(--mut)}
+.lead-item .body{margin-top:6px;white-space:pre-wrap;font-size:14px}
+.swatch{width:38px;height:38px;border:3px solid var(--line);padding:0;background:none;cursor:pointer}
+.empty{padding:40px 28px;text-align:center;margin-top:22px}
+.empty h2{font-size:24px}
+.empty p{margin:10px auto 20px;max-width:48ch}
+.mockbanner{background:var(--ink);color:var(--paper);font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 20px;text-align:center}
+
+@media (max-width:640px){
+  .wrap{padding:22px 14px 70px}
+  .tour{padding:20px 14px 16px}
+  .node{grid-template-columns:1fr}
+  .acct .who{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .btn{transition:none}
+  .btn.busy::after{animation:none;border-right-color:currentColor;opacity:.5}
+}
+</style>
+</head>
+<body>
+
+<div class="mockbanner" id="mockBanner" hidden>Dev mock — nothing here is saved</div>
+
+<header class="bar">
+  <div class="in">
+    <a class="brand" href="/"><span>M3<em>XI</em></span><span class="kicker">Property tours</span></a>
+    <div class="acct" id="acct" hidden>
+      <span class="who" id="who"></span>
+      <button class="btn sm ghost" id="btnSignOut" type="button">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- Loading -->
+  <section id="loading">
+    <p class="lead" role="status">Checking who you are…</p>
+  </section>
+
+  <!-- Signed out -->
+  <section id="gate" hidden>
+    <h1>Your <em>tours</em></h1>
+    <p class="lead" style="margin-top:10px">Preview a tour before anyone else sees it, put it live, embed it on the listing, and read every enquiry it brings in.</p>
+    <div class="panel">
+      <span class="cap">Sign in</span>
+      <h2>No password to remember</h2>
+      <p class="small" style="margin:10px 0 18px">Use the same account you capture with. We email you a link, or sign in with Google.</p>
+      <p class="small err" id="gateWhy" hidden></p>
+      <div class="row">
+        <button class="btn ghost gbtn" id="btnGoogle" type="button">
+          <svg viewBox="0 0 18 18" width="17" height="17" aria-hidden="true">
+            <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.91c1.7-1.57 2.69-3.88 2.69-6.62z"/>
+            <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.81.54-1.84.86-3.05.86-2.35 0-4.34-1.58-5.05-3.71H.92v2.33A9 9 0 0 0 9 18z"/>
+            <path fill="#FBBC05" d="M3.95 10.71a5.41 5.41 0 0 1 0-3.42V4.96H.92a9 9 0 0 0 0 8.08l3.03-2.33z"/>
+            <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .92 4.96l3.03 2.33C4.66 5.16 6.65 3.58 9 3.58z"/>
+          </svg>
+          Continue with Google
+        </button>
+      </div>
+      <p class="small" style="margin:16px 0 6px">or a one-time link by email</p>
+      <form class="row" id="otpForm" novalidate>
+        <label class="lbl" for="gateEmail" style="width:100%">Your email</label>
+        <input type="email" class="field" id="gateEmail" placeholder="you@agency.co.uk" autocomplete="email" style="max-width:320px" required>
+        <button class="btn red" id="btnOtp" type="submit">Email me a link</button>
+      </form>
+      <p class="small" id="gateMsg" style="margin-top:10px" role="status"></p>
+    </div>
+  </section>
+
+  <!-- Signed in -->
+  <section id="dash" hidden>
+    <div class="sechead">
+      <div>
+        <h1>Your <em>tours</em></h1>
+        <p class="lead" style="margin-top:8px">Every property you have captured. Preview first, then go live and embed it on the listing.</p>
+      </div>
+      <a class="btn red" href="/capture/">Capture a property</a>
+    </div>
+    <p class="msg" id="listMsg" role="status"></p>
+    <div id="list"></div>
+    <div class="panel empty" id="empty" hidden>
+      <span class="cap">Nothing here yet</span>
+      <h2>No tours yet</h2>
+      <p class="lead">Open the capture page on your phone, stand in the middle of each room and turn on the spot. The tour appears here the moment it uploads.</p>
+      <a class="btn red big" href="/capture/">Capture your first property</a>
+    </div>
+  </section>
+
+</main>
+
+<script type="module" src="/tours/tours.js"></script>
+</body>
+</html>

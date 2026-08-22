@@ -111,6 +111,13 @@ section{padding:64px 0;position:relative}
 .wcard .m b{display:block;font-size:14.5px}
 .wcard .m span{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
 .wcard.more{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--ink2);font-size:14.5px}
+/* A scanned world with no cover image yet: say what it is rather than borrow a render. */
+.wcard .nocov{display:flex;align-items:center;justify-content:center;aspect-ratio:3/2;border-bottom:1px solid var(--line);background:var(--paper2);color:var(--ink2);font-size:11px;letter-spacing:.18em;text-transform:uppercase;text-align:center;padding:16px}
+.tourRow{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;margin-top:28px;padding:22px 24px;border:1px solid var(--line);background:var(--panel);border-left:4px solid var(--gold)}
+.tourRow .kick{font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--blue);font-weight:600}
+.tourRow h3{font-size:20px;margin:6px 0 6px;font-weight:600}
+.tourRow p{font-size:14.5px;color:var(--ink2);margin:0;max-width:62ch}
+@media(max-width:720px){.tourRow{grid-template-columns:1fr}}
 .pipe{display:grid;grid-template-columns:repeat(4,1fr);margin-top:34px;border:1px solid var(--line);background:var(--panel)}
 @media(max-width:820px){.pipe{grid-template-columns:1fr 1fr}}
 .pipe>div{padding:20px 20px 22px;border-left:1px solid var(--line)}
@@ -418,7 +425,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
       </div>
     </div>
     <div class="eng">
-      <img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/m3xi-demo-gallery-loft-zynt/cover.jpg" alt="Generated gallery loft world" loading="lazy">
+      <img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/generated-bedroom-first-marble-world-a2td/cover.jpg" alt="AI-generated bedroom world" loading="lazy">
       <div class="in">
         <div class="kick">Engine B &mdash; Worlds</div>
         <h3>Real places, and places that never existed</h3>
@@ -443,17 +450,26 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
     <figure><img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/m3xi-site-assets-y53k/msn84bjx-twilight.jpg" alt="Twilight house exterior" loading="lazy"><figcaption><b>Twilight listing</b><span>Key art</span></figcaption></figure>
   </div>
 
-  <p class="subhead">Walk one now &mdash; published from the Studio</p>
+  <p class="subhead">Walk one now &mdash; published to the Library</p>
   <div class="wgrid">
-    <a class="wcard" href="/studio/walkthrough.html?world=m3xi-demo-gallery-loft-zynt&amp;embed=1">
-      <img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/m3xi-demo-gallery-loft-zynt/cover.jpg" alt="Gallery loft world" loading="lazy">
-      <div class="m"><b>Gallery Loft</b><span>Generated &middot; walkable</span></div>
+    <a class="wcard" href="/studio/walkthrough.html?world=meadow-valley-enq7&amp;embed=1">
+      <div class="nocov" aria-hidden="true">Phone scan &middot; real place</div>
+      <div class="m"><b>Meadow Valley</b><span>Real scan &middot; walkable</span></div>
     </a>
     <a class="wcard" href="/studio/walkthrough.html?world=generated-bedroom-first-marble-world-a2td&amp;embed=1">
-      <img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/generated-bedroom-first-marble-world-a2td/cover.jpg" alt="Generated sunlit bedroom world" loading="lazy">
-      <div class="m"><b>Sunlit Bedroom</b><span>Generated &middot; walkable</span></div>
+      <img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/generated-bedroom-first-marble-world-a2td/cover.jpg" alt="AI-generated sunlit bedroom world" loading="lazy">
+      <div class="m"><b>Sunlit Bedroom</b><span>AI-generated &middot; walkable</span></div>
     </a>
     <a class="wcard more" href="/studio/#library"><b>The Library &rarr;</b><span style="margin-top:6px">every world published with M3XI</span></a>
+  </div>
+
+  <div class="tourRow" id="property-tours">
+    <div>
+      <div class="kick">For estate agents</div>
+      <h3>Property tours</h3>
+      <p>Real 360&deg; photographs of the property, walkable on the floorplan, every enquiry kept in your dashboard. No AI imagery &mdash; a buyer only ever sees what the camera recorded.</p>
+    </div>
+    <div><a class="btn btn-gold" href="/studio/#spatial">Property tours &rarr;</a></div>
   </div>
 
   <div class="pipe">

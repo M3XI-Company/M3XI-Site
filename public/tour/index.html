@@ -5,272 +5,264 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Property tour</title>
 <link rel="icon" type="image/png" href="/M.png">
+<!-- og -->
 <style>
-:root{--paper:#f5f2e9;--card:#fffdf6;--ink:#161512;--mut:#5f5b50;--red:#d0402b;--line:#161512}
+/* The tour a buyer sees. Markup + CSS only; everything that moves lives in /tour/tour.js.
+   This file stays a thin shell because the share-preview function injects <meta> tags above. */
+:root{--paper:#f5f2e9;--card:#fffdf6;--ink:#161512;--mut:#5f5b50;--red:#d0402b;--green:#2e7d4f;--line:#161512;--dim:#9a9384;--brand:#d0402b}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--ink);color:var(--paper);
-  height:100dvh;overflow:hidden;display:flex;flex-direction:column}
-button{font:inherit;cursor:pointer}
+  height:100dvh;overflow:hidden}
+button{font:inherit;cursor:pointer;color:inherit;background:none;border:0}
+a{color:inherit}
+:focus-visible{outline:3px solid #ffd23f;outline-offset:2px}
+.sr{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;padding:0!important;margin:-1px!important;border:0!important}
+.lbl{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+h2,h3{font-family:'Arial Black',sans-serif;text-transform:uppercase;letter-spacing:-.02em}
 
-#view{position:relative;flex:1;min-height:0;background:#0b0a09;overflow:hidden;touch-action:none;cursor:grab}
-#view.drag{cursor:grabbing}
-#view img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  opacity:0;transition:opacity .18s linear;will-change:opacity;user-select:none;-webkit-user-drag:none}
-#view img.on{opacity:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:14px;
+  padding:11px 16px;border:3px solid var(--line);background:var(--paper);color:var(--ink);
+  box-shadow:4px 4px 0 rgba(0,0,0,.6);line-height:1.15;text-decoration:none}
+.btn.red{background:var(--red);color:#fff;border-color:#000}
+.btn.sm{font-size:13px;padding:8px 12px;box-shadow:3px 3px 0 rgba(0,0,0,.6)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.pill{border:2px solid rgba(255,255,255,.55);background:rgba(22,21,18,.65);color:#fff;font-size:12px;font-weight:700;
+  padding:7px 12px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);white-space:nowrap;line-height:1.2}
+.pill[aria-pressed="true"]{background:#fff;color:var(--ink)}
 
-/* Everything floating over the photo stays out of the way until wanted. */
-#top{position:absolute;left:0;right:0;top:0;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;
-  justify-content:space-between;background:linear-gradient(rgba(0,0,0,.72),transparent);pointer-events:none}
-#top .who{pointer-events:auto}
-#addr{font-weight:800;font-size:15px;letter-spacing:-.01em}
+#app{position:relative;width:100%;height:100%}
+
+/* ---- the picture ---- */
+#stage{position:absolute;inset:0;background:#0b0a09;touch-action:none;cursor:grab;overflow:hidden;user-select:none;-webkit-user-select:none}
+#stage.drag{cursor:grabbing}
+#stage.hot{cursor:pointer}
+#stage.moving{cursor:progress}
+#stage canvas{display:block;width:100%!important;height:100%!important}
+#flat{position:absolute;inset:0;display:none;background-repeat:repeat-x;background-color:#0b0a09}
+#flat.on{display:block}
+#flatMsg{position:absolute;left:50%;top:92px;transform:translateX(-50%);z-index:6;display:none;max-width:90%;
+  background:rgba(22,21,18,.88);border:2px solid rgba(255,255,255,.35);padding:8px 14px;font-size:13px;font-weight:600;text-align:center}
+#flatMsg.on{display:block}
+#hint{position:absolute;left:50%;bottom:110px;transform:translateX(-50%);z-index:6;background:rgba(22,21,18,.86);
+  border:2px solid rgba(255,255,255,.35);padding:9px 15px;font-size:13.5px;font-weight:600;transition:opacity .5s;pointer-events:none;white-space:nowrap}
+body.embed #hint{bottom:60px}
+
+/* ---- top bar: who, where, when ---- */
+#top{position:absolute;left:0;right:0;top:0;z-index:5;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;
+  justify-content:space-between;background:linear-gradient(rgba(0,0,0,.78),rgba(0,0,0,0));pointer-events:none}
+#top>*{pointer-events:auto}
+#brand{display:flex;flex-direction:column;gap:2px;min-width:0}
+#agency{font-family:'Arial Black',sans-serif;text-transform:uppercase;letter-spacing:-.02em;font-size:15px;line-height:1.15}
+#agency img{display:block;max-height:32px;max-width:170px;object-fit:contain}
+#contact{font-size:12px;color:#cfc9bb;display:flex;gap:12px;flex-wrap:wrap}
+#contact a{color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.45)}
+#addr{font-weight:800;font-size:15px;margin-top:6px;letter-spacing:-.01em}
+#shot{margin-top:2px}
 #roomNow{font-size:12.5px;color:#cfc9bb;margin-top:2px}
-.pill{pointer-events:auto;border:2px solid rgba(255,255,255,.5);background:rgba(22,21,18,.6);
-  color:#fff;font-size:12px;font-weight:700;padding:7px 12px;backdrop-filter:blur(6px)}
-#hint{position:absolute;left:50%;bottom:104px;transform:translateX(-50%);background:rgba(22,21,18,.86);
-  border:2px solid rgba(255,255,255,.35);padding:9px 15px;font-size:13.5px;font-weight:600;
-  transition:opacity .5s;pointer-events:none}
+#ctrl{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;flex:none}
+#planBtn,#gyroBtn{display:none}
+body.embed #top{padding:8px 10px}
+body.embed #agency{font-size:12px}
+body.embed #agency img{max-height:22px}
+body.embed #addr{font-size:13px;margin-top:2px}
+body.embed #contact,body.embed #shot{display:none}
 
-#rooms{display:flex;gap:8px;padding:12px 14px;overflow-x:auto;background:var(--ink);border-top:3px solid #34302a;
-  scrollbar-width:none}
+/* ---- rooms along the bottom ---- */
+#rooms{position:absolute;left:0;right:0;bottom:0;z-index:5;display:flex;gap:8px;padding:12px 14px;overflow-x:auto;
+  background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.82));scrollbar-width:none;pointer-events:none}
 #rooms::-webkit-scrollbar{display:none}
-.rm{flex:none;border:2px solid #6b6559;background:transparent;color:#e8e2d5;font-size:13px;font-weight:700;
-  padding:9px 14px;white-space:nowrap}
+#rooms button{pointer-events:auto}
+.rm{flex:none;border:2px solid #6b6559;background:rgba(22,21,18,.6);color:#e8e2d5;font-size:13px;font-weight:700;padding:9px 14px;white-space:nowrap}
 .rm.on{background:var(--red);border-color:var(--red);color:#fff}
+body.embed #rooms{display:none}
 
-/* floorplan sheet */
-#sheet{position:absolute;inset:0;background:rgba(11,10,9,.94);display:none;flex-direction:column;
-  align-items:center;justify-content:center;padding:18px;z-index:20}
-#sheet.on{display:flex}
-#planWrap{position:relative;max-width:min(92vw,620px);max-height:74vh}
-#planWrap img{display:block;width:100%;height:auto;max-height:74vh;object-fit:contain;background:#fff;border:3px solid var(--line)}
-.pin{position:absolute;transform:translate(-50%,-100%);background:var(--red);color:#fff;font-size:11px;
-  font-weight:800;padding:4px 8px;border:2px solid #000;white-space:nowrap;cursor:pointer}
-.pin.on{background:#fff;color:var(--ink)}
-#closeSheet{margin-top:16px}
+/* ---- the arrows, as buttons (keyboard / screen reader / flat mode) ---- */
+#arrowList{position:absolute;left:50%;bottom:70px;transform:translateX(-50%);z-index:6;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;list-style:none;max-width:94%}
+body.embed #arrowList{bottom:16px}
+#arrowList button{border:2px solid rgba(255,255,255,.6);background:rgba(22,21,18,.8);color:#fff;font-size:13px;font-weight:700;padding:8px 12px;white-space:nowrap}
+#arrowList button[aria-busy="true"]{opacity:.6}
+#arrowList.srmode li{position:absolute}
+#arrowList.srmode button:not(:focus-visible){position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;padding:0;margin:-1px;border:0}
+#arrowList.srmode button:focus-visible{position:relative}
 
-#load{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;
-  gap:14px;background:var(--ink);z-index:30}
-#load .n{font-family:'Arial Black',sans-serif;font-size:34px}
+/* ---- the plan ---- */
+#plan{position:absolute;left:14px;bottom:64px;z-index:6;width:260px;background:var(--card);color:var(--ink);
+  border:3px solid var(--line);box-shadow:6px 6px 0 rgba(0,0,0,.5);display:flex;flex-direction:column;max-height:min(60vh,520px)}
+body.embed #plan{bottom:14px}
+#plan header{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-bottom:2px solid var(--line);gap:8px}
+#plan header button{font-size:12px;font-weight:800;border:2px solid var(--line);padding:4px 8px;background:#fff}
+#closePlan{display:none}
+#planBody{overflow:auto;padding:10px}
+#plan.collapsed #planBody{display:none}
+#plan.collapsed{box-shadow:4px 4px 0 rgba(0,0,0,.5)}
+#planWrap{position:relative;width:100%;display:none}
+#planWrap.on{display:block}
+#planImg{display:block;width:100%;height:auto;background:#fff;border:2px solid var(--line)}
+.dot{position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--ink);transform:translate(-50%,-50%);padding:0;z-index:2}
+.dot.on{background:var(--red);border-color:#fff;box-shadow:0 0 0 2px var(--ink);width:17px;height:17px}
+#cone{position:absolute;width:96px;height:96px;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:1;display:none;
+  background:conic-gradient(from -32deg,rgba(208,64,43,.48) 0 64deg,transparent 64deg)}
+#cone.on{display:block}
+#planList{list-style:none;display:flex;flex-direction:column;gap:4px}
+#planWrap.on + #planList:not(:empty){margin-top:10px}
+#planList li.room{margin-top:6px}
+#planList li.room:first-child{margin-top:0}
+#planList button{text-align:left;width:100%;border:2px solid var(--line);background:#fff;padding:6px 9px;font-size:13px;font-weight:700;color:var(--ink)}
+#planList button.on{background:var(--red);color:#fff;border-color:#000}
+
+/* ---- bottom-right: enquire; dialogs; toasts ---- */
+#enqBtn{position:absolute;right:14px;bottom:64px;z-index:7}
+body.embed #enqBtn{bottom:14px}
+.dlg{position:absolute;right:14px;bottom:120px;z-index:20;width:min(340px,calc(100vw - 28px));background:var(--card);color:var(--ink);
+  border:3px solid var(--line);box-shadow:6px 6px 0 rgba(0,0,0,.5);padding:16px;display:none}
+body.embed .dlg{bottom:70px}
+.dlg.open{display:block}
+.dlg h3{font-size:14px;margin-bottom:10px}
+.dlg label{display:block;margin:8px 0 4px}
+.dlg input,.dlg textarea{width:100%;border:2px solid var(--line);padding:9px;font:inherit;font-size:14px;background:#fff;color:var(--ink)}
+.dlg textarea{resize:vertical;min-height:64px}
+.dlg .row{display:flex;gap:8px;margin-top:12px}
+.dlg .row .btn{flex:1}
+.dlg .status{font-size:13px;color:var(--mut);margin-top:10px;line-height:1.5;min-height:1em}
+.dlg .status.bad{color:var(--red);font-weight:700}
+.dlg .status.good{color:var(--green);font-weight:700}
+.dlg .copyrow{display:flex;gap:6px;margin-top:4px}
+.dlg .copyrow input,.dlg .copyrow textarea{font-size:12px;font-family:ui-monospace,Consolas,monospace;min-height:0}
+.dlg .copyrow .btn{flex:none}
+#shareBox{right:auto;left:14px;bottom:auto;top:92px}
+#toast{position:absolute;left:50%;bottom:80px;transform:translateX(-50%);z-index:25;background:rgba(22,21,18,.92);
+  border:2px solid rgba(255,255,255,.45);padding:9px 14px;font-size:13.5px;font-weight:600;display:none;max-width:90%;text-align:center}
+#toast.on{display:block}
+#gen{position:absolute;left:50%;bottom:70px;transform:translateX(-50%);z-index:8;background:#1d1b17;border:2px solid #ffd23f;
+  color:#ffd23f;font-size:11px;font-weight:800;letter-spacing:.08em;padding:6px 10px;display:none;white-space:nowrap}
+#gen.on{display:block}
+
+/* ---- loading / errors ---- */
+#load{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:var(--ink);z-index:30;padding:20px;text-align:center}
+#load.off{display:none}
+#load .n{font-family:'Arial Black',sans-serif;font-size:34px;letter-spacing:-.02em}
+#load .n span{color:var(--red)}
 #load .r{width:190px;height:4px;background:#34302a}
 #load .r span{display:block;height:100%;width:0;background:var(--red);transition:width .25s}
-#load .m{font-size:13px;color:#9a9384;max-width:80%;text-align:center;line-height:1.6}
+#load.err .r{display:none}
+#load .m{font-size:14px;color:#cfc9bb;max-width:420px;line-height:1.6}
+#retryBtn{display:none}
+#retryBtn.on{display:inline-flex}
 
-#enq{position:absolute;right:14px;bottom:14px;z-index:15;background:var(--red);color:#fff;border:3px solid #000;
-  font-weight:800;font-size:14px;padding:12px 18px;box-shadow:4px 4px 0 rgba(0,0,0,.5);display:none}
-#lead{position:absolute;right:14px;bottom:70px;z-index:16;width:min(320px,88vw);background:var(--card);color:var(--ink);
-  border:3px solid var(--line);box-shadow:6px 6px 0 rgba(0,0,0,.5);padding:16px;display:none}
-#lead h4{font-family:'Arial Black',sans-serif;font-size:14px;text-transform:uppercase;margin-bottom:10px}
-#lead input,#lead textarea{width:100%;border:2px solid var(--line);padding:9px;font:inherit;font-size:14px;margin-bottom:8px;background:#fff}
-#lead .row{display:flex;gap:8px}
-#lead button{flex:1;border:2px solid var(--line);padding:9px;font-weight:800;font-size:13px}
-#lead .send{background:var(--red);color:#fff}
-#gen{position:absolute;left:14px;bottom:14px;z-index:15;background:#1d1b17;border:2px solid #6b6559;
-  color:#e8e2d5;font-size:11px;font-weight:700;letter-spacing:.06em;padding:6px 10px;display:none}
+/* ---- phones ---- */
+@media (max-width:720px){
+  #planBtn{display:inline-block}
+  #gyroBtn.can{display:inline-block}
+  #plan{display:none;position:fixed;inset:0;width:auto;max-height:none;border:0;box-shadow:none;background:rgba(11,10,9,.96);color:var(--paper);padding:14px;padding-top:max(14px,env(safe-area-inset-top))}
+  #plan.open{display:flex}
+  #plan header{border-bottom-color:#34302a}
+  #plan header button{background:transparent;color:var(--paper);border-color:#6b6559}
+  #collapseBtn{display:none}
+  #closePlan{display:inline-block}
+  #planBody{padding:12px 0;flex:1}
+  #planImg{max-height:58vh;object-fit:contain}
+  #planList button{background:transparent;color:var(--paper);border-color:#6b6559}
+  #planList button.on{background:var(--red);color:#fff;border-color:var(--red)}
+  #addr{font-size:14px}
+  #contact{display:none}
+  .dlg{right:10px;left:10px;width:auto;bottom:116px}
+  #shareBox{top:auto;bottom:116px}
+  #top{padding:10px 10px}
+}
+@media (prefers-reduced-motion:reduce){
+  #hint,#load .r span{transition:none}
+}
 </style>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+}}
+</script>
 </head>
 <body>
+<div id="app">
 
-<div id="view">
-  <div id="top">
-    <div class="who"><div id="addr"></div><div id="roomNow"></div></div>
-    <button class="pill" id="planBtn" style="display:none">Floorplan</button>
+  <div id="stage" tabindex="0" role="application"
+       aria-label="Property tour. Drag, or use the arrow keys, to look around. Plus and minus zoom. Use the Go to buttons to move between standpoints.">
+    <div id="flat"></div>
   </div>
-  <div id="hint">Drag to look around</div>
-  <button id="enq">Enquire</button>
-  <div id="gen"></div>
-  <div id="lead">
-    <h4>Enquire</h4>
-    <input id="lname" placeholder="Your name">
-    <input id="lcontact" placeholder="Email or phone">
-    <textarea id="lmsg" rows="3" placeholder="Message (optional)"></textarea>
-    <div class="row"><button id="lcancel">Cancel</button><button class="send" id="lsend">Send</button></div>
-    <div id="lstatus" style="font-size:12px;color:var(--mut);margin-top:8px"></div>
+  <div id="flatMsg">3D is switched off in this browser — you can still look around.</div>
+  <div id="hint">Drag to look around · tap an arrow to move</div>
+
+  <header id="top">
+    <div id="brand">
+      <div id="agency"></div>
+      <div id="contact"></div>
+      <div id="addr"></div>
+      <div id="shot" class="lbl"></div>
+      <div id="roomNow"></div>
+    </div>
+    <div id="ctrl">
+      <button class="pill" id="gyroBtn" aria-pressed="false">Look with your phone</button>
+      <button class="pill" id="planBtn">Plan</button>
+      <button class="pill" id="shareBtn">Share</button>
+    </div>
+  </header>
+
+  <ul id="arrowList" class="srmode" aria-label="Move to"></ul>
+
+  <section id="plan" aria-label="Floorplan">
+    <header>
+      <span class="lbl" id="planTitle">Plan</span>
+      <button id="collapseBtn" aria-expanded="true" aria-controls="planBody">Hide</button>
+      <button id="closePlan">Close</button>
+    </header>
+    <div id="planBody">
+      <div id="planWrap">
+        <img id="planImg" alt="Floorplan of the property">
+        <div id="cone"></div>
+      </div>
+      <ul id="planList"></ul>
+    </div>
+  </section>
+
+  <nav id="rooms" aria-label="Rooms"></nav>
+
+  <div id="gen">AI-GENERATED — NOT A RECORD OF A REAL PROPERTY</div>
+  <button class="btn red" id="enqBtn">Enquire</button>
+
+  <div class="dlg" id="lead" role="dialog" aria-modal="true" aria-labelledby="leadTitle">
+    <h3 id="leadTitle">Enquire</h3>
+    <label class="lbl" for="lname">Your name</label>
+    <input id="lname" autocomplete="name">
+    <label class="lbl" for="lcontact">Email or phone</label>
+    <input id="lcontact" autocomplete="email" inputmode="email">
+    <label class="lbl" for="lmsg">Message</label>
+    <textarea id="lmsg" rows="3" placeholder="What would you like to know?"></textarea>
+    <div class="row"><button class="btn sm" id="lcancel">Cancel</button><button class="btn sm red" id="lsend">Send</button></div>
+    <div class="status" id="lstatus" aria-live="polite"></div>
   </div>
-  <div id="load"><div class="n">M3<span style="color:var(--red)">XI</span></div>
-    <div class="r"><span id="loadBar"></span></div><div class="m" id="loadMsg">Opening the tour…</div></div>
+
+  <div class="dlg" id="shareBox" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+    <h3 id="shareTitle">Share this tour</h3>
+    <label class="lbl" for="shareUrl">Link</label>
+    <div class="copyrow"><input id="shareUrl" readonly><button class="btn sm" id="copyUrl">Copy</button></div>
+    <div id="embedWrap">
+      <label class="lbl" for="embedCode">Embed on a listing page</label>
+      <div class="copyrow"><textarea id="embedCode" rows="3" readonly></textarea><button class="btn sm" id="copyEmbed">Copy</button></div>
+    </div>
+    <div class="row"><button class="btn sm" id="shareClose">Done</button></div>
+    <div class="status" id="shareStatus" aria-live="polite"></div>
+  </div>
+
+  <div id="toast" role="status"></div>
+  <div id="live" class="sr" aria-live="polite" aria-atomic="true"></div>
+
+  <div id="load">
+    <div class="n">M3<span>XI</span></div>
+    <div class="r"><span id="loadBar"></span></div>
+    <div class="m" id="loadMsg">Opening the tour…</div>
+    <button class="btn sm" id="retryBtn">Retry</button>
+  </div>
+
 </div>
-<div id="rooms"></div>
-
-<div id="sheet">
-  <div id="planWrap"><img id="planImg" alt="Floorplan"></div>
-  <button class="pill" id="closeSheet">Close</button>
-</div>
-
-<script type="module">
-/* ===========================================================================
-   The tour a buyer sees.
-
-   A phase-1 capture is a set of photos taken standing still and turning, each
-   tagged with the heading it was shot at. So looking around is not a 3D
-   render: it is showing whichever photo was taken nearest the direction you
-   are facing, cross-faded. No WebGL, no stitching, no reconstruction — which
-   means it works on every phone, loads in a second, and cannot fail the way
-   the splat viewer could when a browser had 3D switched off.
-
-   Rooms are moved between by tapping the floorplan the agent already had.
-   =========================================================================== */
-
-const SB = 'https://tnlcuptfldwxtxajudoq.supabase.co';
-const FN = SB + '/functions/v1/m3ix-spatial';
-const WFN = SB + '/functions/v1/m3ix-worlds';
-const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRubGN1cHRmbGR3eHR4YWp1ZG9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODcxNDEsImV4cCI6MjEwMDA2MzE0MX0.mgS1gDa7qeBsTCaXmefpogg02kw7tCzn0uEYPAAuC90';
-
-const $ = s => document.querySelector(s);
-const Q = new URLSearchParams(location.search);
-const SLUG = Q.get('t') || Q.get('tour') || '';
-const VK = Q.get('vk') || '';
-const EMBED = Q.get('embed') === '1';
-
-let tour = null, rooms = [], room = null, heading = 0;
-const imgs = [];            // one <img> per node in the current room
-let shown = -1;
-
-const setLoad = (pct, msg) => { $('#loadBar').style.width = pct + '%'; if (msg) $('#loadMsg').textContent = msg; };
-
-async function api(payload){
-  const r = await fetch(FN, { method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + KEY, apikey: KEY },
-    body: JSON.stringify(payload) });
-  const j = await r.json().catch(() => ({ error: 'unreadable' }));
-  if (!r.ok || j.error) throw new Error(j.error || ('HTTP ' + r.status));
-  return j;
-}
-
-/* ---------- looking around ----------
-   Pick the photo whose heading is closest to where the viewer is facing.
-   Shortest angular distance, so 359° and 1° are neighbours. */
-function angDist(a, b){ const d = Math.abs(((a - b) % 360 + 540) % 360 - 180); return 180 - d; }
-function nearest(h){
-  if (!room?.nodes?.length) return -1;
-  let best = 0, bd = 1e9;
-  room.nodes.forEach((n, i) => { const d = angDist(h, n.heading); if (d < bd) { bd = d; best = i; } });
-  return best;
-}
-function face(h){
-  heading = ((h % 360) + 360) % 360;
-  const i = nearest(heading);
-  if (i < 0 || i === shown) return;
-  imgs.forEach((im, k) => im.classList.toggle('on', k === i));
-  shown = i;
-}
-
-/* ---------- rooms ---------- */
-function enterRoom(r){
-  room = r; shown = -1;
-  $('#view').querySelectorAll('img').forEach(n => n.remove());
-  imgs.length = 0;
-  (r.nodes || []).forEach((n, i) => {
-    const im = new Image();
-    im.src = n.url; im.alt = r.name || 'room'; im.decoding = 'async';
-    im.loading = i < 6 ? 'eager' : 'lazy';
-    $('#view').prepend(im); imgs.push(im);
-  });
-  $('#roomNow').textContent = (r.name || 'Room') + ((r.nodes || []).length ? '' : ' — no photos');
-  document.querySelectorAll('.rm').forEach(b => b.classList.toggle('on', b.dataset.id === r.id));
-  document.querySelectorAll('.pin').forEach(p => p.classList.toggle('on', p.dataset.id === r.id));
-  face(r.nodes?.length ? r.nodes[0].heading : 0);
-}
-
-/* ---------- input: drag, wheel, and the phone itself ---------- */
-let dragging = false, lastX = 0;
-const DEG_PER_PX = 0.22;
-const v = $('#view');
-v.addEventListener('pointerdown', e => { dragging = true; lastX = e.clientX; v.classList.add('drag'); v.setPointerCapture(e.pointerId); hideHint(); });
-v.addEventListener('pointermove', e => { if (!dragging) return; const dx = e.clientX - lastX; lastX = e.clientX; face(heading - dx * DEG_PER_PX); });
-addEventListener('pointerup', () => { dragging = false; v.classList.remove('drag'); });
-v.addEventListener('wheel', e => { e.preventDefault(); face(heading + e.deltaX * 0.15 + e.deltaY * 0.05); }, { passive: false });
-addEventListener('keydown', e => {
-  if (e.key === 'ArrowLeft') face(heading - 6);
-  if (e.key === 'ArrowRight') face(heading + 6);
-  if (e.key === 'Escape' && $('#sheet').classList.contains('on')) $('#sheet').classList.remove('on');
-});
-let hintTimer = setTimeout(() => hideHint(), 5000);
-function hideHint(){ clearTimeout(hintTimer); const h = $('#hint'); h.style.opacity = '0'; setTimeout(() => h.remove(), 600); }
-
-/* ---------- floorplan ---------- */
-function buildPlan(planUrl){
-  if (!planUrl) return;
-  $('#planBtn').style.display = '';
-  $('#planImg').src = planUrl;
-  $('#planImg').onload = () => {
-    document.querySelectorAll('.pin').forEach(p => p.remove());
-    rooms.filter(r => r.pin).forEach(r => {
-      const p = document.createElement('div');
-      p.className = 'pin' + (room && r.id === room.id ? ' on' : '');
-      p.textContent = r.name || 'Room';
-      p.dataset.id = r.id;
-      p.style.left = (r.pin.x * 100) + '%';
-      p.style.top = (r.pin.y * 100) + '%';
-      p.onclick = () => { enterRoom(r); $('#sheet').classList.remove('on'); };
-      $('#planWrap').appendChild(p);
-    });
-  };
-}
-$('#planBtn').onclick = () => $('#sheet').classList.add('on');
-$('#closeSheet').onclick = () => $('#sheet').classList.remove('on');
-
-/* ---------- enquiries: the whole commercial point of an embed ---------- */
-$('#enq').onclick = () => { $('#lead').style.display = 'block'; };
-$('#lcancel').onclick = () => { $('#lead').style.display = 'none'; };
-$('#lsend').onclick = async () => {
-  const contact = $('#lcontact').value.trim();
-  if (!contact) { $('#lstatus').textContent = 'Add an email or phone so they can reach you.'; return; }
-  $('#lstatus').textContent = 'Sending…';
-  try {
-    await fetch(WFN, { method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + KEY, apikey: KEY },
-      body: JSON.stringify({ action: 'lead', slug: SLUG, name: $('#lname').value,
-        contact, message: $('#lmsg').value + ' [' + (room?.name || '') + ']' }) });
-    $('#lstatus').textContent = 'Sent — they will be in touch.';
-    setTimeout(() => { $('#lead').style.display = 'none'; $('#lstatus').textContent = ''; }, 1800);
-  } catch (e) { $('#lstatus').textContent = 'Could not send: ' + e.message; }
-};
-
-/* ---------- boot ---------- */
-(async () => {
-  if (!SLUG) { setLoad(100, 'This page opens from a tour link.'); return; }
-  try {
-    setLoad(25, 'Opening the tour…');
-    const m = await api({ action: 'manifest', slug: SLUG, view_key: VK });
-    tour = m.tour; rooms = (m.rooms || []).filter(r => (r.nodes || []).length);
-
-    $('#addr').textContent = m.property?.address || 'Property tour';
-    document.title = (m.property?.address || 'Property tour') + ' — M3XI';
-
-    if (!rooms.length) { setLoad(100, 'This tour has no rooms yet.'); return; }
-
-    setLoad(60, 'Loading the first room…');
-    const list = $('#rooms');
-    rooms.forEach(r => {
-      const b = document.createElement('button');
-      b.className = 'rm'; b.textContent = r.name || 'Room'; b.dataset.id = r.id;
-      b.onclick = () => enterRoom(r);
-      list.appendChild(b);
-    });
-    buildPlan(m.floorplan?.url);
-
-    // Hold the reveal until the first photo has actually decoded, so nobody
-    // ever sees an empty black frame and assumes it is broken.
-    enterRoom(rooms[0]);
-    const first = imgs[nearest(heading)] || imgs[0];
-    if (first && !first.complete) await new Promise(res => { first.onload = res; first.onerror = res; });
-    setLoad(100, '');
-    $('#load').style.opacity = '0';
-    setTimeout(() => $('#load').remove(), 400);
-
-    // A generated tour must say so, in the frame, always.
-    if (tour.provenance && tour.provenance !== 'captured') {
-      $('#gen').textContent = 'AI-GENERATED — NOT A RECORD OF A REAL PROPERTY';
-      $('#gen').style.display = '';
-    }
-    $('#enq').style.display = '';
-  } catch (e) {
-    setLoad(100, e.message === 'not published'
-      ? 'This tour is not published yet. Ask for a share link.'
-      : ('Could not open the tour: ' + e.message));
-  }
-})();
-</script>
+<script type="module" src="/tour/tour.js"></script>
 </body>
 </html>

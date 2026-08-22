@@ -409,7 +409,8 @@ Deno.serve(async (req) => {
         await db(`m3ix_node?id=eq.${id}`, { method: "PATCH", body: JSON.stringify({ links: [...(links[id] ?? [])] }) });
       }
       if (floorplan) {
-        await db(`m3ix_property?id=eq.${pid}`, { method: "PATCH", body: JSON.stringify({ floorplan: { path: floorplan.path, uploaded_at: nowIso() } }) });
+        const fw = Number(floorplan.width), fh = Number(floorplan.height);
+        await db(`m3ix_property?id=eq.${pid}`, { method: "PATCH", body: JSON.stringify({ floorplan: { path: floorplan.path, width: fw > 0 ? fw : null, height: fh > 0 ? fh : null, uploaded_at: nowIso() } }) });
       }
 
       // The tour: one per property. New tours start UNLISTED — the agent
@@ -495,7 +496,7 @@ Deno.serve(async (req) => {
       return json({
         tour: await tourSummary(tour), rooms,
         nodes: (nodes ?? []).map((n: Record<string, unknown>) => ({ ...n, preview_url: n.preview_path ? signed[n.preview_path as string] : null })),
-        floorplan: prop?.floorplan?.path ? { url: signed[prop.floorplan.path] } : null,
+        floorplan: prop?.floorplan?.path ? { url: signed[prop.floorplan.path], width: prop.floorplan.width ?? null, height: prop.floorplan.height ?? null } : null,
       });
     }
 
@@ -591,7 +592,7 @@ Deno.serve(async (req) => {
       return json({
         tour: { slug: t.slug, status: t.status, provenance: t.provenance, title: t.title, branding: { ...branding, logo_url: t.branding?.logo_path ? signed[t.branding.logo_path] : null }, spawn: t.spawn, published_at: t.published_at },
         property: { address: prop?.address_line ?? null },
-        floorplan: prop?.floorplan?.path ? { url: signed[prop.floorplan.path], uploaded_at: prop.floorplan.uploaded_at ?? null } : null,
+        floorplan: prop?.floorplan?.path ? { url: signed[prop.floorplan.path], width: prop.floorplan.width ?? null, height: prop.floorplan.height ?? null, uploaded_at: prop.floorplan.uploaded_at ?? null } : null,
         rooms: (rooms ?? []).map((r: Record<string, unknown>) => ({
           id: r.id, name: r.name, ordinal: r.ordinal,
           scan: (r.scan as { path?: string; format?: string; facts?: unknown; scanned_at?: string } | null)?.path

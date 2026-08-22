@@ -83,3 +83,19 @@ Inserts into `m3ix_leads` with `property_id` + `tour_id`; the `m3ix_lead_notify`
 - A node image is equirectangular. **Yaw 0° is the image centre** (where the camera's front faced); yaw increases turning right (clockwise seen from above), so the left edge is −180°/180° and the right edge +180°. `north_deg` is the yaw in the image that points to the floorplan's up direction; `null` means uncalibrated (arrows fall back to room order). `spawn.yaw` uses the same convention.
 - Floorplan pins are fractions of the plan image (`0..1`), origin top-left.
 - Bearing from node A to node B on the plan: `atan2(dx, -dy)` in degrees (0 = up/north, clockwise). The yaw to look at B from A in A's image is `north_deg_A + bearing` (normalised to −180..180).
+
+## Clean URLs
+
+A tour is shared as `https://www.m3xi.com/tour/<slug>` (preview links add `?vk=<view_key>`). That path is served by `api/tour.js`, a Vercel Node function: it calls `og` with the slug (and `view_key`), fetches the static viewer shell `public/tour/index.html` (cached in memory for five minutes), and injects into its `<head>` — at the `<!-- og -->` marker if the shell has one, otherwise right after `<meta charset>` — a `<title>`, `og:title` (address, else title), `og:description` ("Walk through N rooms from M standpoints — photographed <date>. Tour by <agency>."), `og:image` (omitted when null), `og:type`, `og:url`, `twitter:card`, and `<meta name="robots" content="noindex">` when `og` answered 403/404 or a `vk` is present. Responses carry `Cache-Control: public, max-age=60, s-maxage=300`. If `og` or the shell fetch fails, the unmodified shell (plus the slug script below) still goes out with `no-store`, and the viewer shows its own error.
+
+**Viewer note:** because the address bar stays at `/tour/<slug>`, there is no `?t=` to read. The function injects `<script>window.__M3IX_TOUR={slug:"<slug>",vk:"<vk>"}</script>` before anything else in `<head>`; the viewer should read `window.__M3IX_TOUR` as a fallback when `?t` is absent (`vk` is `""` when there is none).
+
+**Integrator:** add this rewrite to `vercel.json` (it is not there yet). The negative lookahead keeps the shell and the viewer's scripts on the static path; `vercel.json` rewrites are already evaluated after the filesystem, so `/tour/` and `/tour/index.html` keep serving the static file. The literal dots are written `[.]` so the line is valid JSON as-is (a bare `\.` is not a JSON escape; it would need doubling).
+
+```json
+{ "source": "/tour/:slug((?!index[.]html$|tour[.]js$|embed[.]js$)[a-z0-9-]+)", "destination": "/api/tour?slug=:slug" }
+```
+
+Checked against the regex path-to-regexp 6 (Vercel's version) compiles this to: `/tour/nope` and `/tour/12-elm-street` rewrite; `/tour/`, `/tour/index.html`, `/tour/tour.js`, `/tour/embed.js` and `/tour/a/b` do not. The query string (`?vk=`) is carried through to `/api/tour` by Vercel; the function reads `req.query.slug` and `req.query.vk`.
+
+Nothing in `api/tour.js` needs an environment variable; it reads `VERCEL_ENV` only to decide where to fetch the shell from (production: `https://www.m3xi.com/tour/index.html`; preview/local: the request's own origin first, then the live site).

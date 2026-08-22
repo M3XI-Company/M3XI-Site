@@ -235,11 +235,23 @@ details.adv label{display:block;font-size:11px;font-weight:700;letter-spacing:.1
 .directCard .lines a:hover{color:var(--red)}
 .directCard .lines svg{width:19px;height:19px;stroke:var(--red);fill:none;stroke-width:1.8;flex:0 0 auto}
 @media(max-width:820px){.directCard{grid-template-columns:1fr;gap:20px}}
+/* ---------- property tours (the estate-agent product) ---------- */
+.tourCard{display:grid;grid-template-columns:1.3fr 1fr;gap:30px;align-items:start;padding:28px;margin:4px 0 30px}
+.tourCard h3{font-family:var(--disp);font-size:20px;letter-spacing:.03em;margin:12px 0 8px}
+.tourCard p{font-size:14px;color:var(--mut);max-width:60ch}
+.tourCard ul{list-style:none;font-size:14px;color:var(--mut);margin-top:4px}
+.tourCard li{padding:8px 0;border-bottom:1px dashed rgba(22,21,18,.25)}
+.tourCard li b{color:var(--ink)}
+.tourCard .side h4{font-family:var(--disp);font-size:13px;letter-spacing:.08em;margin-bottom:6px}
+@media(max-width:820px){.tourCard{grid-template-columns:1fr;gap:18px}}
 
 /* ---------- library ---------- */
 .libGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:26px}
 .wcard{overflow:hidden}
-.wcard .cov{height:170px;border-bottom:3px solid var(--line);background:var(--paper2);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.wcard .cov{position:relative;height:170px;border-bottom:3px solid var(--line);background:var(--paper2);display:flex;align-items:center;justify-content:center;overflow:hidden}
+/* Generated worlds say so on the card, so nobody mistakes a Marble world for a scan. */
+.wcard .aiBadge{position:absolute;left:10px;top:10px;background:var(--ink);color:var(--paper);border:2px solid var(--paper);
+  font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;line-height:1.2;pointer-events:none}
 .wcard .cov img{width:100%;height:100%;object-fit:cover}
 .wcard .cov .ph{font-family:var(--disp);font-size:26px;color:rgba(22,21,18,.25);letter-spacing:.1em}
 .wcard .meta{padding:13px 15px;display:flex;align-items:center;gap:10px}
@@ -322,7 +334,7 @@ footer a{color:var(--ink)}
         <p class="lead">One studio, two engines. Cinematic AI images, video and 3D assets on prepaid credits — and real spaces, scanned on a phone, published as walkable photoreal twins.</p>
         <div class="cta">
           <a class="btn" href="#studio">Enter Studio</a>
-          <a class="btn ghost" href="walkthrough.html?world=e2e-test-room-btvm&amp;embed=1" target="_blank" rel="noopener">Walk a world</a>
+          <a class="btn ghost" href="walkthrough.html?world=generated-bedroom-first-marble-world-a2td&amp;embed=1" target="_blank" rel="noopener">Walk an AI-generated demo</a>
         </div>
         <div class="heroChips">
           <span class="chip"><span class="dot"></span>Studio — live</span>
@@ -471,11 +483,11 @@ footer a{color:var(--ink)}
       <h2 class="sfx">World Engine</h2>
       <span class="note hand">a floor plan you can walk through</span>
     </div>
-    <p class="subline">Real places, not renders. Scan a space with a free phone app, publish it as a photoreal walkable twin, and share it as one link or a tag on your own site. The capture is the truth — nothing is invented.</p>
+    <p class="subline">Two kinds of world, and each one says which it is. <b>Scanned</b> worlds come from a real place captured on a phone — the capture is the truth, nothing is invented. <b>Generated</b> worlds are AI-made from a prompt or reference photos, labelled “AI-generated” wherever they appear, and never passed off as a real space. Either kind publishes as one link or a tag on your own site.</p>
     <div class="steps" id="pipeline">
       <div class="panel step"><span class="num">01</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/-W5THKxgRSpok6zaaPFsZ.jpg" alt="A room being captured"><div class="txt"><h3>Scan</h3><p>Walk the space with Scaniverse (free, iPhone &amp; Android) in Splat mode. Five minutes, true scale in metres.</p></div></div>
       <div class="panel step"><span class="num">02</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/XomPDS-MR8YNysdErl4nm.jpg" alt="A staged penthouse interior"><div class="txt"><h3>Publish</h3><p>Drop the file into the World Viewer. Set the view, place info points and 3D assets, brand it, press Publish.</p></div></div>
-      <div class="panel step"><span class="num">03</span><img src="https://v3b.fal.media/files/b/0aa5ae0f/P_5hymWZreaaKZH5-XX2j.jpg" alt="A gallery space with daylight"><div class="txt"><h3>Walk</h3><p>Visitors open one link on any device and walk the real space — enquiries land straight in your inbox.</p></div></div>
+      <div class="panel step"><span class="num">03</span><img src="https://v3b.fal.media/files/b/0aa5ae0f/P_5hymWZreaaKZH5-XX2j.jpg" alt="A gallery space with daylight"><div class="txt"><h3>Walk</h3><p>Visitors open one link on any device and walk the real space — every enquiry is kept in your dashboard.</p></div></div>
     </div>
     <div class="showcase">
       <div class="panel shot tilt-l"><span class="cap">Twilight listing — generated key art</span><img src="https://v3b.fal.media/files/b/0aa5ae20/2LANjv1jCQUgpSwlujnHM.jpg" alt="Twilight house exterior"><div class="stamp" style="right:16px;bottom:16px">capture is truth</div></div>
@@ -511,6 +523,33 @@ footer a{color:var(--ink)}
     </div>
     <p class="subline">The World Engine as a business plan: your real spaces captured, published and hosted as walkable worlds, with the enquiries they generate landing in your systems. Monthly, on a rolling basis &mdash; scanning is quoted separately, per site.</p>
 
+    <div class="panel tourCard" id="property-tours">
+      <div>
+        <span class="chip"><span class="dot"></span>Property tours &mdash; live</span>
+        <h3>Property tours for estate agents</h3>
+        <p>A tour is built from <b>real 360&deg; photographs</b> of the property &mdash; one per standpoint, taken on one short visit with a 360 camera. A buyer opens a link on any phone or laptop, looks around freely from each standpoint, and walks between them on the floorplan. Nothing is invented: no AI imagery is ever part of a property tour.</p>
+        <ul>
+          <li><b>Preview before it goes live</b> &mdash; a private link for you and the vendor; nothing is public until you press Go live.</li>
+          <li><b>Enquiries in your dashboard</b> &mdash; every one is kept, with the buyer&rsquo;s name, how to reach them, and the room they were standing in.</li>
+          <li><b>Embed on the listing</b> &mdash; one tag on your own page, or share the link and QR.</li>
+          <li><b>Take it down any time</b> &mdash; unpublish or delete from the dashboard.</li>
+        </ul>
+        <div class="srow">
+          <a class="btn red" href="/capture/">Capture a property</a>
+          <a class="btn ghost" href="/tours/">Your tours</a>
+        </div>
+      </div>
+      <div class="side">
+        <h4>How it runs</h4>
+        <ul>
+          <li><b>1 &mdash; Capture</b> on your phone at <a href="/capture/" style="text-decoration:underline;text-underline-offset:3px">/capture/</a>: stand in each spot, take the 360 photo, pin it on the floorplan, upload.</li>
+          <li><b>2 &mdash; Check it</b> in the <a href="/tours/" style="text-decoration:underline;text-underline-offset:3px">dashboard</a>: preview, then Go live when it is right.</li>
+          <li><b>3 &mdash; Share</b> the link or the embed; read enquiries in the same dashboard; take the tour down whenever the property is gone.</li>
+        </ul>
+        <p class="small" style="margin-top:10px">Pricing for agencies is on the plans below &mdash; or <a href="#spatial-contact" style="text-decoration:underline;text-underline-offset:3px">ask Michael</a>.</p>
+      </div>
+    </div>
+
     <div class="plansGrid">
       <div class="panel bizplan tilt-l">
         <span class="cap">Starter</span>
@@ -539,7 +578,6 @@ footer a{color:var(--ink)}
           <li><b>6</b> new worlds / month</li>
           <li><b>6,000</b> credits</li>
           <li>White-label embed</li>
-          <li>Lead export + webhook</li>
           <li>Priority queue</li>
         </ul>
         <div class="srow"><a class="btn red" href="#spatial-contact">Enquire</a></div>
@@ -552,7 +590,7 @@ footer a{color:var(--ink)}
         <p class="who">Estates, chains and networks.</p>
         <ul>
           <li><b>Unlimited</b> worlds</li>
-          <li>API access</li>
+          <li>API access &mdash; on request</li>
           <li>Managed capture</li>
           <li>SLA</li>
         </ul>
@@ -644,6 +682,15 @@ footer a{color:var(--ink)}
           </div>
           <p class="small" id="acctMsg2" style="margin-top:10px"></p>
           <div class="srow"><button class="btn sm ghost" id="btnSignOut">Sign out</button></div>
+
+          <div style="border-top:2px dashed rgba(22,21,18,.3);margin-top:18px;padding-top:14px" id="acctTours">
+            <h3 style="font-size:15px">Property tours</h3>
+            <p class="small" style="opacity:.75;margin-bottom:8px">Tours you have captured, their live and preview links, and every enquiry a buyer has sent, all in one place.</p>
+            <div class="srow" style="margin-top:0">
+              <a class="btn sm ghost" href="/tours/">Your property tours and enquiries</a>
+              <a class="btn sm ghost" href="/capture/">Capture a property</a>
+            </div>
+          </div>
 
           <div style="border-top:2px dashed rgba(22,21,18,.3);margin-top:18px;padding-top:14px">
             <h3 style="font-size:15px">This hour</h3>
@@ -761,7 +808,7 @@ footer a{color:var(--ink)}
     <div class="roadGrid">
       <div class="panel rcard"><span class="stamp" style="top:12px;right:12px">in development</span><img src="https://v3b.fal.media/files/b/0aa5ae0f/ueiUaIJqI58-AWhodbd0C.jpg" alt="Storybook fox crossing a bridge"><div class="txt"><h3>AI Stories</h3><p>Paste a script, get a finished narrated film — consistent characters, panel-to-motion scenes, ready for YouTube. Zero manual editing.</p><a class="btn sm ghost" href="mailto:m3xiteam@m3xi.com?subject=AI%20Stories%20early%20access">Register interest</a></div></div>
       <div class="panel rcard"><span class="stamp" style="top:12px;right:12px">beta — live</span><img src="https://v3b.fal.media/files/b/0aa5ae0f/yowFMgeT752Y_rYwSyIP8.jpg" alt="Virtual presenter with a product"><div class="txt"><h3>Digital influencers</h3><p>Pick an AI creator, show your product, get UGC clips — singles or premium batches. Auto-posting and the performance dashboard are next.</p><a class="btn sm red" href="ugc.html" style="color:#fff">Open the UGC Studio (beta)</a></div></div>
-      <div class="panel rcard"><span class="stamp" style="top:12px;right:12px">in development</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/6eRIKA4lSd-zb93Iq1F1x.jpg" alt="Studio render of a lounge chair"><div class="txt"><h3>Guided capture app</h3><p>A phone app that coaches the scan — coverage hints, scale anchors, one-tap upload into the World Engine.</p><a class="btn sm ghost" href="mailto:m3xiteam@m3xi.com?subject=Capture%20app%20early%20access">Register interest</a></div></div>
+      <div class="panel rcard"><span class="stamp" style="top:12px;right:12px">live — on the web</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/6eRIKA4lSd-zb93Iq1F1x.jpg" alt="Studio render of a lounge chair"><div class="txt"><h3>Web capture</h3><p>Property capture already runs in the browser — open /capture/ on your phone, take one 360 photo per standpoint, pin it on the floorplan, upload. A native app with on-device coaching is the next step, not a prerequisite.</p><a class="btn sm ghost" href="/capture/">Open web capture</a></div></div>
     </div>
   </div>
 </section>
@@ -901,8 +948,9 @@ async function wapi(payload){
 
 /* ================= world generation (Marble via M3XI Cloud) ================= */
 // The published demo world — somewhere to walk while a generation runs, and the
-// fallback when a visitor has nothing of their own yet.
-const DEMO_WORLD_SLUG='m3xi-demo-gallery-loft-zynt';
+// fallback when a visitor has nothing of their own yet. It is AI-generated
+// (Marble, from a text prompt) and must be labelled as such wherever it is offered.
+const DEMO_WORLD_SLUG='generated-bedroom-first-marble-world-a2td';
 async function genWorld(){
   const p=$('#genPrompt').value.trim();
   const imgs=attachments.map(a=>a.url);
@@ -922,7 +970,7 @@ async function genWorld(){
       '<p class="price-note" style="margin:0 0 10px"><b>Building your world.</b> This takes 3–10 minutes. '+
       'You can leave this tab open — it publishes to your Library the moment it is ready.</p>'+
       '<div class="srow" style="margin-top:0">'+
-      '<a class="btn sm red" href="walkthrough.html?world='+encodeURIComponent(DEMO_WORLD_SLUG)+'" target="_blank" rel="noopener">Walk the demo world meanwhile</a>'+
+      '<a class="btn sm red" href="walkthrough.html?world='+encodeURIComponent(DEMO_WORLD_SLUG)+'" target="_blank" rel="noopener">Walk the AI-generated demo meanwhile</a>'+
       '<a class="btn sm ghost" href="#library">See the Library</a>'+
       '</div></div>';
     let st=null;
@@ -962,7 +1010,8 @@ async function loadLibrary(){
       const d=document.createElement('div');d.className='panel wcard'+(i%3===1?' tilt-r':i%3===2?' tilt-l':'');
       const url='walkthrough.html?world='+encodeURIComponent(w.slug)+'&embed=1';
       d.innerHTML='<a class="cov" href="'+url+'" target="_blank" rel="noopener">'+
-        (w.cover?'<img loading="lazy" src="'+esc(w.cover)+'" alt="'+esc(w.name)+' cover">':'<span class="ph">三X一</span>')+'</a>'+
+        (w.cover?'<img loading="lazy" src="'+esc(w.cover)+'" alt="'+esc(w.name)+' cover">':'<span class="ph">三X一</span>')+
+        (w.source==='marble'?'<span class="aiBadge">AI-generated</span>':'')+'</a>'+
         '<div class="meta"><span class="nm"></span><a class="by" target="_blank" rel="noopener" style="display:none"></a>'+
         '<a class="btn sm ghost" href="'+url+'" target="_blank" rel="noopener">Walk</a></div>';
       d.querySelector('.nm').textContent=w.name||'World';
@@ -1035,7 +1084,7 @@ function takeFiles(list){
     }
   }
   if(scans.length){
-    glog('ℹ '+scans.length+' scan file'+(scans.length>1?'s':'')+' ('+scans[0].name+') — scans are published through the World Viewer, not generated here. Open it from “Walk a world” and drop the file there.');
+    glog('ℹ '+scans.length+' scan file'+(scans.length>1?'s':'')+' ('+scans[0].name+') — scans are published through the World Viewer, not generated here. Open it from “Open World Viewer” in the World Engine section and drop the file there.');
   }
   if(!imgs.length&&!scans.length)glog('✗ Nothing usable in that drop — photos (jpg/png) or a folder of them.');
 }
@@ -1657,6 +1706,7 @@ async function renderLibrary(){
       d.innerHTML=
         '<a class="cov" href="'+url+'" target="_blank" rel="noopener">'+
           (w.cover?'<img loading="lazy" src="'+esc(w.cover)+'" alt="">':'<span class="ph">三X一</span>')+
+          (w.source==='marble'?'<span class="aiBadge">AI-generated</span>':'')+
         '</a>'+
         '<div class="meta">'+
           '<span class="nm">'+esc(w.title||'Untitled')+'</span>'+
