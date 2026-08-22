@@ -132,6 +132,25 @@ textarea.code{width:100%;border:3px solid var(--line);background:#fff;padding:10
 .pin::after{content:'';position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);border:5px solid transparent;border-top-color:#000;border-bottom:0}
 .pin.drag{cursor:grabbing;background:var(--ink)}
 .pin.saving{opacity:.6}
+/* ---------- room scan ---------- */
+.scan{border:2px dashed rgba(22,21,18,.35);background:var(--card);padding:12px 14px;margin-top:12px}
+.scan.on{border-style:solid}
+.scan.no{border-color:var(--red)}
+.scan .row{margin-top:10px}
+.scan .why{font-size:13px;font-weight:600;color:var(--red);margin-top:10px}
+.scan .note{font-size:12.5px;color:var(--mut);margin-top:8px}
+.scan input[type=file]{padding:7px 9px;max-width:340px;background:#fff}
+.scan input[type=date]{max-width:190px}
+.facts{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px}
+.facts div{min-width:74px}
+.facts b{font-family:var(--disp);font-size:19px;line-height:1.1;display:block}
+.facts span{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--label)}
+.prog{height:14px;border:2px solid var(--line);background:#fff;margin-top:9px;max-width:420px}
+.prog i{display:block;height:100%;background:var(--ink);width:0;transition:width .2s linear}
+.warns{margin:8px 0 0 17px;font-size:12.5px;color:var(--mut)}
+.warns li{margin-top:3px}
+.refuse{border:3px solid var(--red);background:#fff;padding:11px 13px;margin-top:10px;font-size:14px;font-weight:600}
+.refuse span{display:block;font-weight:400;color:var(--mut);font-size:13px;margin-top:5px}
 .lead-item{border:2px solid var(--line);background:var(--paper);padding:12px 14px;margin-top:10px}
 .lead-item .lh{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
 .lead-item .lh b{font-size:15px}
@@ -153,8 +172,18 @@ textarea.code{width:100%;border:3px solid var(--line);background:#fff;padding:10
   html{scroll-behavior:auto}
   .btn{transition:none}
   .btn.busy::after{animation:none;border-right-color:currentColor;opacity:.5}
+  .prog i{transition:none}
 }
 </style>
+<!-- Only the .spz / .ksplat fallback ever reaches for these: those two formats
+     have no reader of our own, so the splat renderer opens them in a hidden
+     canvas just long enough to read the centres out. Nothing here is fetched
+     until that fallback runs — an import map is only a map. -->
+<script type="importmap">{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
+  "@sparkjsdev/spark":"https://cdn.jsdelivr.net/npm/@sparkjsdev/spark@2.1.0/dist/spark.module.min.js"
+}}</script>
 </head>
 <body>
 

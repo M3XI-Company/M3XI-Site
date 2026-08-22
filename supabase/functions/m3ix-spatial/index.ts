@@ -21,6 +21,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
    Actions
      register_capture | upload_url | complete_capture
+     scan_upload_url | attach_scan | remove_scan
      go_live | unpublish | archive | delete_tour | rotate_view_key
      list_tours | get_tour | update_tour | update_room | update_node | list_leads
      manifest | og | lead
@@ -80,6 +81,7 @@ async function resolveCaller(req: Request): Promise<string | null> {
 /** Every action that changes or reveals an agency's data needs a person behind it. */
 const NEEDS_USER = new Set([
   "register_capture", "upload_url", "complete_capture",
+  "scan_upload_url", "attach_scan", "remove_scan",
   "go_live", "unpublish", "archive", "delete_tour", "rotate_view_key",
   "list_tours", "get_tour", "update_tour", "update_room", "update_node", "list_leads",
 ]);
@@ -156,7 +158,11 @@ async function purgePrefix(prefix: string): Promise<number> {
   const nested = (await Promise.all(
     (await listFolders(prefix)).map((f) => listObjects(`${prefix}/${f}`)),
   )).flat();
-  const all = [...direct, ...nested];
+  return await removeObjects([...direct, ...nested]);
+}
+/** Delete a known set of objects (exact paths, never a prefix sweep). */
+async function removeObjects(paths: (string | undefined | null)[]): Promise<number> {
+  const all = [...new Set(paths.filter(Boolean) as string[])];
   if (!all.length) return 0;
   for (let i = 0; i < all.length; i += 200) {
     await fetch(`${BASE()}/storage/v1/object/${BUCKET}`, {
@@ -210,6 +216,62 @@ function validateNode(n: NodeIn, prefix: string): string | null {
   if (Math.abs(w / h - 2) > 0.04) return `"${n.label || n.room}" is not a full 360 photo (${w}×${h} is not 2:1)`;
   if (n.source && !["360-camera", "phone-photosphere", "other"].includes(n.source)) return "unknown photo source";
   return null;
+}
+
+/* ---------- room scans (Phase 2) ---------- */
+
+/* A room may carry ONE real Gaussian-splat scan, plus the facts.json computed
+   from it at the moment the agent attached it — the floor, the up-axis, the
+   spawn point and the walkable grid, worked out once so no visitor's browser
+   has to guess. Both objects live under captures/<property_id>/scans/, which
+   `delete_tour`'s purge already sweeps. Nothing here reconstructs anything:
+   the scan is a recording, and the facts only describe it. */
+const SCAN_FORMATS = ["ply", "spz", "splat", "ksplat"];
+const SCAN_MAX_BYTES = 250 * 1024 * 1024;   // 262144000 — the `tours` bucket's own per-object cap
+const SCAN_WARN_BYTES = 120 * 1024 * 1024;  // above this it still works, but say .spz would be kinder
+const scansPrefix = (property_id: string) => `captures/${property_id}/scans`;
+const extOf = (name: string) => (name.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? "");
+const mb = (bytes: number) => Math.round(bytes / (1024 * 1024));
+
+type RoomScan = {
+  path?: string; facts_path?: string; format?: string; bytes?: number; sha256?: string | null;
+  splats?: number | null; summary?: unknown; scanned_at?: string | null; attached_at?: string;
+  facts?: unknown;   // legacy: facts inlined in the row instead of uploaded beside the scan
+};
+
+/** Resolve a room and confirm the caller belongs to the agency that owns it. */
+async function requireRoom(req: Request, room_id: unknown) {
+  if (!isUuid(room_id)) throw new Denied("room_id required", 400);
+  const room = await one(`m3ix_room?id=eq.${room_id}&select=id,property_id,name,scan`);
+  if (!room) throw new Denied("Room not found", 404);
+  const ctx = await requireProperty(req, room.property_id);
+  return { ...ctx, room };
+}
+
+/** The one-line digest a dashboard or a viewer shows before loading 90 MB.
+    The real numbers stay in facts.json. `up` is written "z-" for {axis:'z',sign:-1}. */
+function scanSummary(v: unknown) {
+  if (!v || typeof v !== "object") return null;
+  const s = v as Record<string, unknown>;
+  if (typeof s.usable !== "boolean") return null;   // a missing verdict is not a "yes"
+  const num = (x: unknown) => { const n = Number(x); return Number.isFinite(n) ? Math.round(n * 100) / 100 : null; };
+  const up = String(s.up ?? "").toLowerCase();
+  return { area_m2: num(s.area_m2), holes_pct: num(s.holes_pct), usable: s.usable, up: /^[xyz][+-]$/.test(up) ? up : null };
+}
+
+/** What a client is served for a room's scan: both objects signed, no paths. */
+function scanForViewer(s: RoomScan | null | undefined, signed: Record<string, string | null>) {
+  if (!s?.path) return null;
+  return {
+    url: signed[s.path] ?? null,
+    facts_url: s.facts_path ? (signed[s.facts_path] ?? null) : null,
+    format: s.format ?? (extOf(s.path) || null),
+    summary: s.summary ?? null,
+    scanned_at: s.scanned_at ?? null,
+    bytes: s.bytes ?? null,
+    splats: s.splats ?? null,
+    facts: s.facts ?? null,   // legacy inline facts; null for anything attach_scan wrote
+  };
 }
 
 /** Branding for a tour defaults to the agency record; the agent can edit it later. */
@@ -437,6 +499,115 @@ Deno.serve(async (req) => {
     }
 
     /* ------------------------------------------------------------------ */
+    /* ROOM SCANS (Phase 2)                                                */
+    /* ------------------------------------------------------------------ */
+
+    /* Two signed PUT slots at once: the scan itself, and the facts.json
+       computed from it. They share a base name inside the property's own
+       scans folder, so `delete_tour` already sweeps them and a room can
+       never point at another property's file. Nothing is attached to the
+       room here — the bytes have to arrive first (see `attach_scan`). */
+    if (action === "scan_upload_url") {
+      const { room } = await requireRoom(req, body.room_id);
+      const filename = String(body.filename ?? "").toLowerCase().replace(/[^a-z0-9\-_.]+/g, "-").slice(0, 80);
+      if (!SAFE_NAME.test(filename)) return json({ error: "A plain filename is required, e.g. living-room.spz" }, 400);
+      if (!SCAN_FORMATS.includes(extOf(filename))) {
+        return json({ error: `A scan has to be a .ply, .spz, .splat or .ksplat file — "${filename}" is not one.` }, 400);
+      }
+      const bytes = Number(body.bytes);
+      if (!Number.isFinite(bytes) || bytes <= 0) return json({ error: "bytes (the size of the file) is required" }, 400);
+      if (bytes > SCAN_MAX_BYTES) {
+        return json({
+          error: `That scan is ${Math.ceil(bytes / (1024 * 1024))} MB and one file can be at most ${mb(SCAN_MAX_BYTES)} MB. Export the same scan as .spz (in Scaniverse: Share → Splat → SPZ) — it is usually about a tenth of the size and looks the same.`,
+        }, 400);
+      }
+      const path = `${scansPrefix(String(room.property_id))}/${crypto.randomUUID().replace(/-/g, "").slice(0, 12)}-${filename}`;
+      const facts_path = `${path}.facts.json`;
+      return json({
+        upload_url: await signUpload(path), path,
+        facts_upload_url: await signUpload(facts_path), facts_path,
+        max_bytes: SCAN_MAX_BYTES,
+        warning: bytes > SCAN_WARN_BYTES
+          ? `${mb(bytes)} MB will work, but it is a long download for a buyer on a phone. A .spz export is usually about a tenth of the size.`
+          : null,
+      });
+    }
+
+    /* Point a room at an uploaded scan. Both objects must already be in
+       storage — the same check `complete_capture` makes for photos — and both
+       must sit inside this property's scans folder. The row is written first;
+       only once that has succeeded is the room's previous scan deleted, so a
+       failure leaves the old walk working rather than nothing at all, and a
+       successful swap never leaves orphaned objects behind. */
+    if (action === "attach_scan") {
+      const { room } = await requireRoom(req, body.room_id);
+      const prefix = scansPrefix(String(room.property_id));
+      const path = String(body.path ?? "");
+      const facts_path = String(body.facts_path ?? "");
+      if (!path.startsWith(prefix + "/") || !facts_path.startsWith(prefix + "/")) {
+        return json({ error: "That file is not in this property's scans folder — ask for a scan_upload_url first." }, 400);
+      }
+      // A scan is two different objects: the splats, and the facts about them.
+      if (path === facts_path || !facts_path.endsWith(".json")) {
+        return json({ error: "facts_path must be the .facts.json uploaded alongside the scan." }, 400);
+      }
+      const format = String(body.format ?? "").toLowerCase() || extOf(path);
+      if (!SCAN_FORMATS.includes(format)) return json({ error: "A scan has to be .ply, .spz, .splat or .ksplat." }, 400);
+      const bytes = Number(body.bytes);
+      if (!Number.isFinite(bytes) || bytes <= 0) return json({ error: "bytes (the size of the file) is required" }, 400);
+      if (bytes > SCAN_MAX_BYTES) return json({ error: `A scan can be at most ${mb(SCAN_MAX_BYTES)} MB.` }, 400);
+      const summary = scanSummary(body.summary);
+      if (!summary) {
+        return json({ error: "summary is required: { area_m2, holes_pct, usable, up } taken from the facts you computed." }, 400);
+      }
+
+      // One scan, one room. Two rooms sharing a file would mean removing the
+      // scan from one silently breaks the walk in the other.
+      const siblings = await db(`m3ix_room?property_id=eq.${room.property_id}&select=id,name,scan`);
+      const claimed = (siblings ?? []).find((r: { id: string; scan?: RoomScan | null }) =>
+        r.id !== room.id && (r.scan?.path === path || r.scan?.facts_path === facts_path));
+      if (claimed) {
+        return json({ error: `That scan is already attached to "${claimed.name}". Upload it again for this room.` }, 409);
+      }
+
+      // The bytes must really be there before a room points at them.
+      const present = new Set(await listObjects(prefix));
+      const missing = [present.has(path) ? "" : "the scan", present.has(facts_path) ? "" : "its facts.json"].filter(Boolean);
+      if (missing.length) return json({ error: `Not uploaded yet: ${missing.join(" and ")}. Upload both, then attach.` }, 422);
+
+      const prior = (room.scan ?? null) as RoomScan | null;
+      const scan: RoomScan = {
+        path, facts_path, format, bytes,
+        sha256: /^[0-9a-f]{64}$/i.test(String(body.sha256 ?? "")) ? String(body.sha256).toLowerCase() : null,
+        splats: Number.isFinite(Number(body.splats)) ? Math.max(0, Math.round(Number(body.splats))) : null,
+        summary,
+        scanned_at: String(body.scanned_at ?? "").slice(0, 40) || null,
+        attached_at: nowIso(),
+      };
+      const updated = (await db(`m3ix_room?id=eq.${room.id}`, {
+        method: "PATCH", headers: { Prefer: "return=representation" },
+        body: JSON.stringify({ scan, edited_at: nowIso() }),
+      }))?.[0] ?? null;
+
+      // The swap is on the record: now, and only now, the old pair can go.
+      const objects_removed = await removeObjects(
+        [prior?.path, prior?.facts_path].filter((p) => !!p && p !== path && p !== facts_path),
+      );
+      return json({ ok: true, room: updated, objects_removed });
+    }
+
+    /* Take the walk away again. The column is cleared first, so a failure
+       leaves a room pointing at objects that still exist rather than at
+       objects that are gone. */
+    if (action === "remove_scan") {
+      const { room } = await requireRoom(req, body.room_id);
+      const prior = (room.scan ?? null) as RoomScan | null;
+      if (!prior?.path) return json({ ok: true, objects_removed: 0 });
+      await db(`m3ix_room?id=eq.${room.id}`, { method: "PATCH", body: JSON.stringify({ scan: null, edited_at: nowIso() }) });
+      return json({ ok: true, objects_removed: await removeObjects([prior.path, prior.facts_path]) });
+    }
+
+    /* ------------------------------------------------------------------ */
     /* LIFECYCLE (org members)                                             */
     /* ------------------------------------------------------------------ */
 
@@ -492,9 +663,20 @@ Deno.serve(async (req) => {
       const rooms = await db(`m3ix_room?property_id=eq.${tour.property_id}&select=id,name,ordinal,stable_key,scan,edited_at&order=ordinal`);
       const nodes = await db(`m3ix_node?property_id=eq.${tour.property_id}&status=eq.active&select=id,room_id,stable_key,ordinal,label,pin,north_deg,links,source,captured_at,width,height,bytes,preview_path,pano_path&order=ordinal`);
       const prop = await one(`m3ix_property?id=eq.${tour.property_id}&select=floorplan`);
-      const signed = await signRead([...(nodes ?? []).map((n: { preview_path?: string }) => n.preview_path).filter(Boolean), prop?.floorplan?.path].filter(Boolean) as string[]);
+      const signed = await signRead([
+        ...(nodes ?? []).map((n: { preview_path?: string }) => n.preview_path).filter(Boolean),
+        ...(rooms ?? []).flatMap((r: { scan?: RoomScan | null }) => [r.scan?.path, r.scan?.facts_path]),
+        prop?.floorplan?.path,
+      ].filter(Boolean) as string[]);
       return json({
-        tour: await tourSummary(tour), rooms,
+        tour: await tourSummary(tour),
+        // A room keeps everything stored about its scan (paths, sha256,
+        // attached_at) and gains signed URLs for BOTH objects, so the
+        // dashboard can show — and open — exactly what is attached.
+        rooms: (rooms ?? []).map((r: Record<string, unknown>) => {
+          const s = r.scan as RoomScan | null;
+          return s?.path ? { ...r, scan: { ...s, ...scanForViewer(s, signed) } } : r;
+        }),
         nodes: (nodes ?? []).map((n: Record<string, unknown>) => ({ ...n, preview_url: n.preview_path ? signed[n.preview_path as string] : null })),
         floorplan: prop?.floorplan?.path ? { url: signed[prop.floorplan.path], width: prop.floorplan.width ?? null, height: prop.floorplan.height ?? null } : null,
       });
@@ -586,7 +768,8 @@ Deno.serve(async (req) => {
       const paths = [
         ...(nodes ?? []).flatMap((n: { pano_path: string; preview_path?: string }) => [n.pano_path, n.preview_path]),
         prop?.floorplan?.path, t.branding?.logo_path,
-        ...(rooms ?? []).map((r: { scan?: { path?: string } }) => r.scan?.path),
+        // A room's scan is two objects: the splats and the facts computed from them.
+        ...(rooms ?? []).flatMap((r: { scan?: RoomScan | null }) => [r.scan?.path, r.scan?.facts_path]),
       ].filter(Boolean) as string[];
       const signed = await signRead(paths);
       return json({
@@ -595,9 +778,7 @@ Deno.serve(async (req) => {
         floorplan: prop?.floorplan?.path ? { url: signed[prop.floorplan.path], width: prop.floorplan.width ?? null, height: prop.floorplan.height ?? null, uploaded_at: prop.floorplan.uploaded_at ?? null } : null,
         rooms: (rooms ?? []).map((r: Record<string, unknown>) => ({
           id: r.id, name: r.name, ordinal: r.ordinal,
-          scan: (r.scan as { path?: string; format?: string; facts?: unknown; scanned_at?: string } | null)?.path
-            ? { url: signed[(r.scan as { path: string }).path], format: (r.scan as { format?: string }).format, facts: (r.scan as { facts?: unknown }).facts ?? null, scanned_at: (r.scan as { scanned_at?: string }).scanned_at ?? null }
-            : null,
+          scan: scanForViewer(r.scan as RoomScan | null, signed),
         })),
         nodes: (nodes ?? []).map((n: Record<string, unknown>) => ({
           id: n.id, room_id: n.room_id, ordinal: n.ordinal, label: n.label,

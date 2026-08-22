@@ -119,6 +119,13 @@ function refreshManifest() {
   refreshing = fetchManifest().then(m => {
     const byId = new Map((m.nodes || []).map(n => [n.id, n]));
     for (const n of S.nodesById.values()) { const f = byId.get(n.id); if (f) { n.url = f.url; n.preview_url = f.preview_url; } }
+    // Room scans are signed the same way and expire the same way.
+    const rById = new Map((m.rooms || []).map(r => [r.id, r]));
+    for (const r of S.rooms) {
+      const f = rById.get(r.id);
+      if (f && f.scan && r.scan) { r.scan.url = f.scan.url; r.scan.facts_url = f.scan.facts_url; }
+      else if (f) r.scan = f.scan || null;
+    }
     if (m.floorplan && m.floorplan.url && S.manifest.floorplan) S.manifest.floorplan.url = m.floorplan.url;
     if (m.expires_in) S.manifest.expires_in = m.expires_in;
     scheduleRefresh();
@@ -592,6 +599,7 @@ function setFov(f) { if (S.mode !== '3d') return; S.fov = clamp(f, FOV_MIN, FOV_
 stage.addEventListener('wheel', e => { if (!S.ready) return; e.preventDefault(); setFov(S.fov + e.deltaY * 0.05); }, { passive: false });
 addEventListener('keydown', e => {
   if (!S.ready || isTyping(e.target) || openDialogs.length || e.altKey || e.ctrlKey || e.metaKey) return;
+  if (walkOpen()) return;                  // walk mode owns the keyboard while it is up
   const step = e.shiftKey ? 15 : 5;
   let used = true;
   switch (e.key) {
@@ -693,8 +701,9 @@ async function sendLead() {
   if (!contact) { show('Add an email or phone number so ' + agencyName() + ' can reply to you.', 'bad'); $('#lcontact').focus(); return; }
   const send = $('#lsend'); send.disabled = true; show('Sending…');
   const r0 = roomName(S.node), t0 = nodeTitle(S.node);
+  // Say where the buyer actually is: "Kitchen — walking the scan", not the standpoint they left.
   const body = { action: 'lead', slug: SLUG, view_key: VK || undefined, name, contact, message,
-    node_label: t0 === r0 ? r0 : r0 + ' — ' + t0 };
+    node_label: (walkOpen() && walk) ? walk.nodeLabel() : (t0 === r0 ? r0 : r0 + ' — ' + t0) };
   try {
     let r, j;
     if (MOCK) { await sleep(300); r = { ok: true, status: 200 }; j = { ok: true, lead_id: 'mock' }; console.debug('[tour] mock lead (not sent)', body); }
@@ -796,6 +805,9 @@ function buildPlan() {
 }
 function updateCone() {
   const n = S.node; if (!n) return;
+  // While walking, the yaw on screen belongs to the scan, not to this photo:
+  // pointing the cone with it would be a lie about where the buyer is looking.
+  if (walkOpen()) { coneEl.classList.remove('on'); return; }
   const on = !!(n.pin && n.north_deg !== null && n.north_deg !== undefined && $('#planWrap').classList.contains('on'));
   coneEl.classList.toggle('on', on);
   if (!on) return;
@@ -825,7 +837,8 @@ function buildChrome() {
   if (b.website) { const a = document.createElement('a'); a.href = b.website; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Website'; ct.appendChild(a); }
   $('#addr').textContent = address;
   const when = fmtDate(m.photographed_at);
-  $('#shot').textContent = when ? 'Photographed ' + when : '';
+  S.shotText = when ? 'Photographed ' + when : '';
+  $('#shot').textContent = S.shotText;
   document.title = address && b.name ? address + ' — tour by ' + b.name : (address ? address + ' — tour' : 'Property tour');
   $('#gen').classList.toggle('on', !!(m.tour && m.tour.provenance !== 'captured'));
 
@@ -835,6 +848,16 @@ function buildChrome() {
     const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'rm'; btn.textContent = r.name || 'Room'; btn.dataset.id = r.id;
     btn.addEventListener('click', () => goTo(nodes[0].id));
     strip.appendChild(btn);
+    // A room that carries a scan gets a second, narrower button beside its name.
+    if (r.scan) {
+      const wb = document.createElement('button'); wb.type = 'button'; wb.className = 'rm walk';
+      wb.textContent = 'Walk'; wb.dataset.walkRoom = r.id;
+      const why = walkBlockReason(r);
+      wb.setAttribute('aria-label', why ? 'Walk ' + (r.name || 'this room') + ' — ' + why : 'Walk ' + (r.name || 'this room'));
+      if (why) { wb.setAttribute('aria-disabled', 'true'); wb.title = why; }
+      wb.addEventListener('click', () => startWalk(r));
+      strip.appendChild(wb);
+    }
   }
   buildPlan();
   if (gyroPossible() && S.mode === '3d') gyroBtn.classList.add('can');
@@ -842,12 +865,100 @@ function buildChrome() {
 }
 function updateChrome() {
   const n = S.node, r = roomName(n), t = nodeTitle(n);
-  $('#roomNow').textContent = t === r ? r : r + ' — ' + t;
+  const room = S.roomsById.get(n.room_id);
+  const walking = walkOpen();
+  $('#roomNow').textContent = (t === r ? r : r + ' — ' + t) + (walking ? ' — walking the scan' : '');
+  // "Scanned <date>" sits beside "Photographed <date>" whenever this room has a scan.
+  const sd = room && room.scan ? fmtDate(room.scan.scanned_at) : '';
+  $('#shot').textContent = [S.shotText, sd ? 'Scanned ' + sd : ''].filter(Boolean).join(' · ');
   for (const b of $$('#rooms .rm')) b.classList.toggle('on', b.dataset.id === n.room_id);
-  for (const b of $$('#plan .dot, #planList button')) b.classList.toggle('on', b.dataset.id === n.id);
+  // On the minimap: the standpoint normally, the whole room while walking it.
+  for (const b of $$('#plan .dot, #planList button')) {
+    const nd = S.nodesById.get(b.dataset.id);
+    b.classList.toggle('on', walking ? !!(nd && nd.room_id === n.room_id) : b.dataset.id === n.id);
+  }
   for (const b of $$('#plan .dot')) b.setAttribute('aria-current', b.dataset.id === n.id ? 'true' : 'false');
+  updateWalkBtn();
   updateCone();
 }
+
+/* ----------------------------------------------------------------- walking
+   A room may carry one real Gaussian-splat scan. Everything that renders it
+   lives in walk.js and is only fetched when someone asks for it, so a tour
+   with no scans never downloads three.js or Spark. The 360 standpoint stays
+   the default and the fallback: every refusal here is a sentence, never a
+   disabled button with no explanation. */
+const walkBtn = $('#walkBtn'), exitWalkBtn = $('#exitWalkBtn'), respawnBtn = $('#respawnBtn');
+const LOW_MEMORY = typeof navigator.deviceMemory === 'number' && navigator.deviceMemory < 2;
+let walk = null, walkLoading = false;
+const walkOpen = () => document.body.classList.contains('walking');
+
+/* Why this room cannot be walked — or null when it can. */
+function walkBlockReason(room) {
+  const s = room && room.scan;
+  if (!s) return null;
+  if (!(s.summary && s.summary.usable === true))
+    return 'There is not enough floor in this scan to walk on — the 360 standpoint shows the whole room.';
+  if (!s.url || !s.facts_url)
+    return 'This scan is not ready to walk yet — ask the agent to attach it again.';
+  if (S.mode !== '3d')
+    return 'Walking needs 3D, which is switched off in this browser. The 360 tour still works.';
+  if (LOW_MEMORY)
+    return 'This device does not have enough memory to open a room scan. The 360 tour still works.';
+  return null;
+}
+function updateWalkBtn() {
+  if (!S.node) return;
+  const room = S.roomsById.get(S.node.room_id);
+  if (walkOpen()) { walkBtn.hidden = true; exitWalkBtn.hidden = false; respawnBtn.hidden = false; return; }
+  exitWalkBtn.hidden = true; respawnBtn.hidden = true;
+  if (!room || !room.scan) { walkBtn.hidden = true; return; }
+  walkBtn.hidden = false;
+  const why = walkBlockReason(room);
+  if (why) { walkBtn.setAttribute('aria-disabled', 'true'); walkBtn.title = why; walkBtn.setAttribute('aria-label', 'Walk this room — ' + why); }
+  else { walkBtn.removeAttribute('aria-disabled'); walkBtn.removeAttribute('title'); walkBtn.setAttribute('aria-label', 'Walk this room'); }
+}
+const walkHost = {
+  mount: $('#app'),
+  suspend() { cancelAnimationFrame(rafId); rafId = 0; lastT = 0; },
+  resume() { invalidate(); resize(); if (!rafId && S.ready) rafId = requestAnimationFrame(frame); },
+  toast,
+  announce(msg) { liveEl.textContent = msg; },
+  blocked: () => openDialogs.length > 0,
+  // Signed URLs expire; ask for a fresh manifest and hand back this room's new pair.
+  refreshScan: async room => {
+    await refreshManifest();
+    const r = S.roomsById.get(room.id);
+    return r ? r.scan : null;
+  },
+  onOpen() { updateChrome(); },
+  onClose() { updateChrome(); stage.focus(); }
+};
+async function startWalk(room) {
+  if (walkLoading || walkOpen() || !S.ready) return;
+  const why = walkBlockReason(room);
+  if (why) { toast(why, 6000); liveEl.textContent = why; return; }
+  // Walking a room the buyer is not standing in: move to its standpoint first,
+  // so Exit puts them somewhere that makes sense.
+  if (!S.node || S.node.room_id !== room.id) {
+    const nodes = S.nodesByRoom.get(room.id);
+    if (nodes && nodes.length) { await goTo(nodes[0].id); if (S.node.room_id !== room.id) return; }
+  }
+  walkLoading = true;
+  try {
+    if (!walk) walk = (await import('./walk.js')).createWalk(walkHost);
+  } catch (e) {
+    console.warn('[tour] walk mode did not load', e);
+    walkLoading = false;
+    toast('Walking needs 3D, and it did not load here. The 360 tour still works.', 6000);
+    return;
+  }
+  walkLoading = false;
+  await walk.open(room);
+}
+walkBtn.addEventListener('click', () => { if (S.node) startWalk(S.roomsById.get(S.node.room_id)); });
+exitWalkBtn.addEventListener('click', () => { if (walk) walk.close(); });
+respawnBtn.addEventListener('click', () => { if (walk) walk.respawn(); });
 
 /* ---------------------------------------------------------------- boot */
 const loadEl = $('#load');

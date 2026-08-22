@@ -589,6 +589,7 @@ function roomBlock(state, room) {
   const blk = el('div', { class: 'room' },
     el('div', { class: 'rhead' }, input, btn, rmsg, el('span', { class: 'small', style: 'margin-left:auto' }, nodes.length + (nodes.length === 1 ? ' standpoint' : ' standpoints'))),
   );
+  blk.append(scanRow(state, room));
   if (!nodes.length) blk.append(el('p', { class: 'small', style: 'margin-top:8px' }, 'No photos in this room yet — "Capture more" adds some.'));
   nodes.forEach(n => blk.append(nodeBlock(state, n)));
   return blk;
@@ -895,6 +896,720 @@ function leadsSection(state) {
 }
 
 /* ===========================================================================
+   ROOM SCANS  (Phase 2)
+
+   A room may carry one Gaussian-splat scan, so a buyer can walk it instead of
+   only turning on the spot. Two things are true of that scan and they shape
+   everything below:
+
+   1. It is a recording. What the phone never saw stays missing. Nothing is
+      filled in, so the agent is shown the holes before anyone else sees them.
+   2. Where the floor is, which way is up and what you can walk on are worked
+      out ONCE, here, in the agent's own browser — never again in a visitor's.
+      That is what facts.json is, and it is uploaded next to the scan.
+
+   The order (docs/TOUR_API.md → Room scans) is always:
+      read the file → centres → computeFacts in a worker → show the agent what
+      the scan contains → scan_upload_url → PUT scan → PUT facts.json →
+      attach_scan.
+   Nothing is uploaded before the agent has seen the result and said yes.
+   =========================================================================== */
+
+const SCAN_EXT = ['ply', 'spz', 'splat', 'ksplat'];
+const SCAN_MAX_BYTES = 250 * 1024 * 1024;    // the tours bucket's own per-object cap
+const SCAN_WARN_BYTES = 120 * 1024 * 1024;   // still works; a .spz would be kinder
+
+/* The worker is made from a blob, and a blob has no base URL to resolve
+   against, so both module paths are baked in absolute. */
+const MOD_SPLATPARSE = new URL('/tour/splatparse.js', location.origin).href;
+/* On localhost only, ?facts=<path> points the worker at another copy of the
+   measuring module. It is deliberately NOT overridable from the query string:
+   the worker imports this URL as a module, so an override would be an
+   arbitrary-code hole wearing a dev-tool costume. */
+const MOD_SCANFACTS = new URL('/tour/scanfacts.js', location.origin).href;
+
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+function fileExt(name) { const m = String(name || '').toLowerCase().match(/\.([a-z0-9]+)$/); return m ? m[1] : ''; }
+function mbs(bytes) {
+  const n = Number(bytes);
+  if (!Number.isFinite(n) || n <= 0) return '—';
+  if (n < 1024) return n + ' bytes';
+  const mb = n / (1024 * 1024);
+  if (mb < 1) return Math.round(n / 1024) + ' KB';
+  return (mb >= 100 ? Math.round(mb) : Math.round(mb * 10) / 10) + ' MB';
+}
+function count(n) { return Number.isFinite(Number(n)) ? Number(n).toLocaleString() : '—'; }
+function dp(v, places) { const n = Number(v); return Number.isFinite(n) ? n.toFixed(places) : '—'; }
+function todayLocal() { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
+function dayWords(iso) {
+  if (!iso) return 'not recorded';
+  const d = new Date(String(iso).length <= 10 ? String(iso) + 'T12:00:00' : iso);
+  return isNaN(d) ? String(iso) : d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+}
+/* {axis:'z',sign:-1} → "−Z", and → "z-" for the backend's summary. */
+function upAxis(up) { return up && typeof up === 'object' ? String(up.axis || '') : String(up || '')[0] || ''; }
+function upSign(up) { return up && typeof up === 'object' ? (Number(up.sign) < 0 ? -1 : 1) : (String(up || '')[1] === '-' ? -1 : 1); }
+function upLabel(up) { const a = upAxis(up); return a ? (upSign(up) < 0 ? '−' : '+') + a.toUpperCase() : '—'; }
+function upCode(up) { const a = upAxis(up).toLowerCase(); return /^[xyz]$/.test(a) ? a + (upSign(up) < 0 ? '-' : '+') : ''; }
+function upSentence(up) {
+  const a = upAxis(up).toLowerCase();
+  if (!a) return 'We could not tell which way was up in this scan.';
+  if (a === 'y' && upSign(up) > 0) return 'The scan was already the right way up (+Y).';
+  return 'The scan was recorded with ' + upLabel(up) + ' pointing at the ceiling, so the viewer turns it upright before anyone walks it.';
+}
+/* A filename the backend's SAFE_NAME will accept. The extension is the format
+   we actually read, not the one the file happened to be called: a 3DGS PLY
+   saved as "room.splat" is a .ply, and the object in storage has to say so or
+   the viewer picks the wrong reader for it. */
+function safeScanName(name, format) {
+  const ext = (SCAN_EXT.includes(String(format || '')) ? String(format) : fileExt(name)) || 'ply';
+  let base = String(name || '').toLowerCase().replace(/\.[a-z0-9]+$/, '').replace(/[^a-z0-9\-_.]+/g, '-').replace(/^[^a-z0-9]+/, '').replace(/-+/g, '-');
+  if (!base) base = 'scan';
+  return base.slice(0, 48) + '.' + ext;
+}
+
+/* ---------- the worker that reads and measures a scan ----------
+   Everything heavy happens in here: hashing 91 MB, pulling 369,006 centres
+   out of it, and the grid work. The tab stays answerable throughout, which is
+   the whole reason this is a worker and not a promise on the main thread. */
+function scanWorkerSource() {
+  return `
+const SPLATPARSE = ${JSON.stringify(MOD_SPLATPARSE)};
+const SCANFACTS  = ${JSON.stringify(MOD_SCANFACTS)};
+const post = (m) => self.postMessage(m);
+const stage = (text) => post({ type: 'stage', text: String(text).slice(0, 160) });
+
+/* scanfacts.js reports its own progress as (stage, detail) — "up" /
+   "working out which way is up", "grid" / "measuring the floor", and so on.
+   Its own words are already the right words, so they are what the agent
+   reads; the map is only for a stage that arrives without a sentence. We
+   never invent a step that did not happen. */
+const STAGE_TEXT = {
+  up: 'Working out which way is up…', axis: 'Working out which way is up…',
+  rotate: 'Turning the scan upright…',
+  floor: 'Measuring the floor…', heights: 'Measuring the floor…', grid: 'Measuring the floor…',
+  walls: 'Checking what you can walk on…', walk: 'Checking what you can walk on…',
+  region: 'Checking what you can walk on…', reach: 'Checking what you can walk on…',
+  spawn: 'Choosing where the buyer starts…'
+};
+const sentence = (s) => { const t = String(s).trim(); return t.charAt(0).toUpperCase() + t.slice(1) + (/[.!…]$/.test(t) ? '' : '…'); };
+function moduleStage(a, b) {
+  let s = null;
+  if (typeof b === 'string' && b.trim()) s = sentence(b);
+  else if (typeof a === 'string') s = STAGE_TEXT[a.toLowerCase()] || sentence(a);
+  else if (a && typeof a === 'object') s = STAGE_TEXT[String(a.stage || '').toLowerCase()] || (a.text || a.label ? sentence(a.text || a.label) : null);
+  if (s) stage(s);
+}
+async function sha256Hex(buf) {
+  if (!(self.crypto && self.crypto.subtle)) return null;
+  const d = await self.crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(d)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+let job = null;
+
+async function measure(positions, points) {
+  let mod;
+  try { mod = await import(SCANFACTS); }
+  catch (e) {
+    throw new Error('The part that measures a room (' + SCANFACTS + ') could not be loaded: ' +
+      ((e && e.message) || e) + '. Nothing has been uploaded.');
+  }
+  if (typeof mod.computeFacts !== 'function') {
+    throw new Error('scanfacts.js loaded but does not export computeFacts, so this scan cannot be measured yet. Nothing has been uploaded.');
+  }
+  const source = { format: job.format, splats: job.splats || points, bytes: job.bytes, sha256: job.sha256 };
+  /* progress is what scanfacts.js actually calls; onStage/onProgress are there
+     so a module that names it differently still gets to speak. */
+  const opts = { count: points, points: points, source: source, filename: job.filename, progress: moduleStage, onStage: moduleStage, onProgress: moduleStage };
+  stage('Measuring the room — which way is up, where the floor is, what you can walk on…');
+  let facts = null, firstError = null;
+  const shapes = [
+    () => mod.computeFacts(positions, opts),
+    () => mod.computeFacts(Object.assign({ positions: positions }, opts))
+  ];
+  for (const call of shapes) {
+    try {
+      const r = await call();
+      if (r && typeof r === 'object' && r.up && r.grid) { facts = r; break; }
+      if (!firstError) firstError = new Error('computeFacts did not return the facts for this scan (no up-axis or grid in what came back).');
+    } catch (e) { if (!firstError) firstError = (e instanceof Error ? e : new Error(String(e))); }
+  }
+  if (!facts) throw firstError;
+
+  /* The module measures points; only this page knows the file they came out
+     of. Fill in what it could not have known, and never overwrite what it did. */
+  const s0 = (facts.source && typeof facts.source === 'object') ? facts.source : {};
+  facts.source = {
+    format: s0.format || job.format,
+    splats: Number.isFinite(Number(s0.splats)) ? Number(s0.splats) : (job.splats || points),
+    bytes: Number.isFinite(Number(s0.bytes)) ? Number(s0.bytes) : job.bytes,
+    sha256: s0.sha256 || job.sha256 || null
+  };
+  if (facts.version == null) facts.version = 1;
+  if (!facts.computed_at) facts.computed_at = new Date().toISOString();
+
+  let json;
+  try {
+    const out = typeof mod.serialiseFacts === 'function' ? mod.serialiseFacts(facts) : facts;
+    json = typeof out === 'string' ? out : JSON.stringify(out);
+  } catch (e) { throw new Error('The measurements could not be written out: ' + ((e && e.message) || e)); }
+
+  /* Read the summary back off the bytes we are about to upload, not off the
+     object in memory — what the room row promises and what facts.json says
+     have to be the same thing. */
+  let wire;
+  try { wire = JSON.parse(json); }
+  catch (e) { throw new Error('The measurements came out malformed, so nothing was uploaded.'); }
+  if (typeof wire.usable !== 'boolean') throw new Error('The measurements do not say whether the room is walkable, and a missing verdict is not a yes.');
+
+  /* The row the backend stores. scanfacts.js exports the one function that
+     knows how to write it; only fall back to reading the file if it does not. */
+  let summary = null;
+  if (typeof mod.factsSummary === 'function') { try { summary = mod.factsSummary(facts); } catch (e) { summary = null; } }
+  if (!summary || typeof summary.usable !== 'boolean') {
+    summary = {
+      area_m2: wire.area_m2, holes_pct: wire.holes_pct, usable: wire.usable,
+      up: wire.up && wire.up.axis ? wire.up.axis + (wire.up.sign === -1 ? '-' : '+') : '',
+    };
+  }
+
+  post({
+    type: 'done',
+    json: json,
+    bytesJson: json.length,
+    summary: summary,
+    review: {
+      usable: wire.usable,
+      area_m2: wire.area_m2, holes_pct: wire.holes_pct, walls: wire.walls,
+      up: wire.up, floor_y: wire.floor_y, eye: wire.eye,
+      grid: wire.grid ? { w: wire.grid.w, h: wire.grid.h, cell: wire.grid.cell } : null,
+      warnings: Array.isArray(wire.warnings) ? wire.warnings.slice(0, 8) : [],
+      splats: job.splats || points, sha256: job.sha256, format: job.format, bytes: job.bytes,
+      sampled: !!job.sampled
+    }
+  });
+}
+
+self.onmessage = async (ev) => {
+  const m = ev.data || {};
+  try {
+    if (m.type === 'parse') {
+      job = { filename: m.filename, bytes: m.bytes, format: m.format, sha256: null, splats: null, sampled: false };
+      stage('Fingerprinting the file…');
+      job.sha256 = await sha256Hex(m.buffer);
+      stage('Reading the scan…');
+      let parsed = null;
+      try {
+        const sp = await import(SPLATPARSE);
+        parsed = await sp.parseCentres(m.buffer, m.filename);
+      } catch (e) {
+        m.buffer = null;
+        post({ type: 'needs-renderer', message: String((e && e.message) || e) });
+        return;
+      }
+      m.buffer = null;   // let the 91 MB go before the grid work starts
+      job.splats = parsed.total || parsed.count;
+      job.sampled = !!parsed.sampled;
+      if (parsed.format) job.format = parsed.format;
+      stage('Reading… ' + Number(job.splats).toLocaleString() + ' points');
+      if (!parsed.count) throw new Error('There are no splat centres in this file, so there is nothing to measure.');
+      await measure(parsed.positions, parsed.count);
+      return;
+    }
+    if (m.type === 'positions') {
+      if (!job) throw new Error('Nothing to measure — start again.');
+      job.splats = m.total || m.count;
+      stage('Reading… ' + Number(job.splats).toLocaleString() + ' points');
+      if (!m.count) throw new Error('The renderer opened the file but found no splat centres in it.');
+      await measure(new Float32Array(m.positions, 0, m.count * 3), m.count);
+      return;
+    }
+    throw new Error('Unknown worker request.');
+  } catch (e) {
+    post({ type: 'error', message: String((e && e.message) || e) });
+  }
+};
+`;
+}
+
+/* ---------- .spz / .ksplat: no reader of our own, so borrow the renderer ----------
+   splatparse.js deliberately refuses these two. Rather than ship a half-tested
+   decoder, load the file in the splat renderer inside a hidden canvas and read
+   the centres straight out of it. If that fails too, say so plainly: export a
+   .ply and attach that. */
+async function centresViaRenderer(file, onStage) {
+  onStage('This format needs the splat renderer to open it — loading it…');
+  let THREE, Spark;
+  try {
+    [THREE, Spark] = await Promise.all([import('three'), import('@sparkjsdev/spark')]);
+  } catch (e) {
+    throw new Error('The splat renderer could not be loaded, so a .' + fileExt(file.name) +
+      ' cannot be read here. Export the scan as .ply (Scaniverse: Share → Export → PLY) and attach that instead.');
+  }
+  const canvas = el('canvas', { width: 32, height: 32, 'aria-hidden': 'true', style: 'position:fixed;left:-9999px;top:0;width:32px;height:32px' });
+  document.body.append(canvas);
+  let renderer = null;
+  try {
+    try { renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true }); } catch (e) { renderer = null; }
+    onStage('Opening the scan in the renderer…');
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    /* onLoad alone never fires for a file the renderer cannot read — it simply
+       goes quiet — so the mesh's own `initialized` promise is what turns a bad
+       file into an error the agent can act on instead of a two-minute wait. */
+    const ready = new Promise((resolve, reject) => {
+      let m;
+      try { m = new Spark.SplatMesh({ fileBytes: bytes, fileName: file.name, onLoad: () => resolve(m) }); }
+      catch (e) { return reject(e); }
+      if (m && m.initialized && typeof m.initialized.then === 'function') m.initialized.then(() => resolve(m), reject);
+    });
+    const mesh = await Promise.race([ready, new Promise((_, reject) => setTimeout(
+      () => reject(new Error('The renderer did not finish opening this file within a minute.')), 60000))]);
+    const src = mesh.packedSplats || mesh.splats;
+    if (!src || !src.forEachSplat) throw new Error('The renderer opened the file but would not hand back the splat centres.');
+    const total = src.getNumSplats ? src.getNumSplats() : 0;
+    if (!total) throw new Error('The renderer opened the file and found no splats in it.');
+    onStage('Reading the centres out of the renderer…');
+    const out = new Float32Array(total * 3);
+    let w = 0;
+    src.forEachSplat((i, centre) => { if (w + 3 > out.length) return; out[w++] = centre.x; out[w++] = centre.y; out[w++] = centre.z; });
+    try { if (mesh.dispose) mesh.dispose(); } catch (e) { /* nothing to dispose */ }
+    return { positions: out, count: w / 3, total };
+  } catch (e) {
+    let why = String((e && e.message) || e).trim().replace(/\s*\.?$/, '');
+    if (!/^The /.test(why)) why = 'The splat renderer could not open ' + file.name + ' — ' + why;
+    throw new Error(why + '. Export the scan as .ply (Scaniverse: Share → Export → PLY) and attach that instead.');
+  } finally {
+    try { if (renderer) renderer.dispose(); } catch (e) { /* already gone */ }
+    canvas.remove();
+  }
+}
+
+/* ---------- uploading ---------- */
+function progressBar() {
+  const fill = el('i');
+  const bar = el('div', { class: 'prog', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-valuenow': '0' }, fill);
+  return {
+    bar,
+    set(frac, label) {
+      const p = Math.max(0, Math.min(1, Number(frac) || 0));
+      fill.style.width = (p * 100) + '%';
+      bar.setAttribute('aria-valuenow', String(Math.round(p * 100)));
+      if (label) bar.setAttribute('aria-valuetext', label);
+    },
+  };
+}
+
+/* fetch() cannot report how much of a 91 MB body has gone, and an agent
+   watching a blank screen for four minutes assumes it has hung. XHR can. */
+function putWithProgress(url, body, type, onProgress, hold) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    if (hold) hold.xhr = xhr;
+    xhr.open('PUT', url, true);
+    xhr.setRequestHeader('Content-Type', type);
+    xhr.upload.onprogress = (e) => { if (e.lengthComputable && onProgress) onProgress(e.loaded, e.total); };
+    xhr.onload = () => {
+      if (hold) hold.xhr = null;
+      if (xhr.status >= 200 && xhr.status < 300) return resolve();
+      if (xhr.status === 401 || xhr.status === 403) return reject(new Error('The upload was refused (HTTP ' + xhr.status + ') — the upload link may have expired.'));
+      reject(new Error('The upload failed (HTTP ' + xhr.status + ')' + (xhr.responseText ? ': ' + String(xhr.responseText).slice(0, 200) : '') + '.'));
+    };
+    xhr.onerror = () => { if (hold) hold.xhr = null; reject(new Error('The upload was cut off — check your connection.')); };
+    xhr.onabort = () => { if (hold) hold.xhr = null; reject(new Error('Upload cancelled.')); };
+    xhr.ontimeout = () => { if (hold) hold.xhr = null; reject(new Error('The upload timed out.')); };
+    xhr.send(body);
+  });
+}
+async function putScan(url, body, type, onProgress, hold, path) {
+  if (MOCK) return mockPut(path, body, onProgress);
+  return putWithProgress(url, body, type, onProgress, hold);
+}
+/* Three goes, backing off. A dropped connection halfway through 91 MB is a
+   bad afternoon, not a bad scan. */
+async function withRetry(fn, tries, onRetry) {
+  let last;
+  for (let i = 0; i < tries; i++) {
+    try { return await fn(i); }
+    catch (e) {
+      last = e;
+      if (/cancelled/i.test(String(e && e.message))) throw e;
+      if (i < tries - 1) { if (onRetry) onRetry(i + 2, tries, e); await sleep(1200 * Math.pow(2, i)); }
+    }
+  }
+  throw last;
+}
+
+/* ---------- the row in the editor ---------- */
+function scanRow(state, room) {
+  const box = el('div', { class: 'scan', role: 'group', 'aria-label': 'Walk-through scan for ' + (room.name || 'this room') });
+  paintScan(state, room, box);
+  return box;
+}
+
+function lockScan(box, on) {
+  box.querySelectorAll('button,input,select,a.btn').forEach(n => {
+    if (n._keepLive) return;
+    if (n.tagName === 'A') { n.setAttribute('aria-disabled', on ? 'true' : 'false'); return; }
+    n.disabled = !!on;
+  });
+}
+
+function paintScan(state, room, box) {
+  box.innerHTML = '';
+  const scan = room.scan && room.scan.path ? room.scan : null;
+  box.classList.toggle('on', !!scan);
+  box.classList.remove('no');
+  if (scan) attachedScan(state, room, box);
+  else emptyScan(state, room, box);
+}
+
+/* Nothing attached yet. */
+function emptyScan(state, room, box, opts) {
+  const msg = el('p', { class: 'why', role: 'status' });
+  const input = el('input', {
+    class: 'field', type: 'file', accept: '.ply,.spz,.splat,.ksplat',
+    id: 'scan-' + room.id, 'aria-describedby': 'scanhow-' + room.id,
+  });
+  const date = el('input', { class: 'field', type: 'date', value: todayLocal(), max: todayLocal(), id: 'scanwhen-' + room.id });
+  input.addEventListener('change', () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    beginScan(state, room, box, file, date.value);
+  });
+  box.append(
+    el('span', { class: 'lbl' }, (opts && opts.replacing) ? 'Replace the walk-through scan' : 'Add a walk-through scan (optional)'),
+    el('p', { class: 'small', id: 'scanhow-' + room.id },
+      'A scan lets a buyer walk this room instead of only turning on the spot. Scan it in Scaniverse on ' +
+      '"Splat" mode — about five minutes a room, walking slowly with the floor in view — then export it here. ' +
+      'Export .ply; if the file comes out over about 120 MB, export .spz instead so a buyer on a phone is not waiting.'),
+    el('div', { class: 'row' },
+      el('div', {}, el('label', { class: 'lbl', for: 'scan-' + room.id }, 'Scan file'), input),
+      el('div', {}, el('label', { class: 'lbl', for: 'scanwhen-' + room.id }, 'Scanned on'), date),
+    ),
+    el('p', { class: 'note' }, 'The date is shown to the buyer, so it should be the day the room was actually scanned.'),
+    msg,
+  );
+  if (opts && opts.replacing) {
+    box.append(el('div', { class: 'row' }, el('button', {
+      class: 'btn sm ghost', type: 'button', onclick: () => paintScan(state, room, box),
+    }, 'Keep the scan that is there')));
+  }
+  return box;
+}
+
+/* Reading, measuring, uploading — one status line, one bar, one way out. */
+function beginScan(state, room, box, file, scannedAt) {
+  const ext = fileExt(file.name);
+  const status = el('p', { class: 'small', role: 'status', style: 'margin-top:10px;font-weight:600' }, 'Reading the file… ' + mbs(file.size));
+  const prog = progressBar();
+  const err = el('p', { class: 'why' });
+  const cancel = el('button', { class: 'btn sm ghost', type: 'button' }, 'Cancel');
+  cancel._keepLive = true;
+  const hold = { worker: null, xhr: null, cancelled: false };
+  box._hold = hold;
+  cancel.addEventListener('click', () => {
+    hold.cancelled = true;
+    if (hold.worker) { hold.worker.terminate(); hold.worker = null; }
+    if (hold.xhr) { try { hold.xhr.abort(); } catch (e) { /* already done */ } }
+    paintScan(state, room, box);
+  });
+  box.innerHTML = '';
+  box.classList.add('on');
+  box.append(
+    el('span', { class: 'lbl' }, 'Walk-through scan'),
+    el('p', { class: 'small' }, file.name + ' · ' + mbs(file.size)),
+    status, prog.bar, err,
+    el('div', { class: 'row' }, cancel),
+  );
+  const setStage = (t) => { if (!hold.cancelled) status.textContent = t; };
+  const fail = (message) => {
+    if (hold.cancelled) return;
+    box.classList.add('no');
+    say(err, message, true);
+    prog.set(0);
+    cancel.textContent = 'Start again';
+  };
+
+  // Refuse what the API would refuse anyway, before reading 91 MB off disk.
+  if (!SCAN_EXT.includes(ext)) {
+    return fail('A scan has to be a .ply, .spz, .splat or .ksplat file — "' + file.name + '" is not one. In Scaniverse: Share → Export → PLY.');
+  }
+  if (file.size > SCAN_MAX_BYTES) {
+    return fail('That scan is ' + mbs(file.size) + ' and one file can be at most 250 MB. Export the same scan as .spz (Scaniverse: Share → Splat → SPZ) — it is usually about a tenth of the size and looks the same.');
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(scannedAt || ''))) {
+    return fail('Pick the date this room was scanned before choosing the file — the buyer is shown that date.');
+  }
+
+  (async () => {
+    let buf;
+    try { buf = await file.arrayBuffer(); }
+    catch (e) { return fail('The file could not be read from this device: ' + friendly(e)); }
+    if (hold.cancelled) return;
+
+    let worker;
+    try {
+      const url = URL.createObjectURL(new Blob([scanWorkerSource()], { type: 'text/javascript' }));
+      worker = new Worker(url, { type: 'module' });
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      return fail('This browser would not start the background worker that measures a scan: ' + friendly(e));
+    }
+    hold.worker = worker;
+    worker.onerror = (e) => { if (!hold.cancelled) fail('The measuring worker stopped: ' + ((e && e.message) || 'unknown error') + '. Nothing has been uploaded.'); };
+    worker.onmessage = async (ev) => {
+      const m = ev.data || {};
+      if (hold.cancelled) return;
+      if (m.type === 'stage') return setStage(m.text);
+      if (m.type === 'needs-renderer') {
+        /* splatparse.js will not open .spz / .ksplat. Try the renderer. */
+        try {
+          const got = await centresViaRenderer(file, setStage);
+          if (hold.cancelled) return;
+          worker.postMessage({ type: 'positions', positions: got.positions.buffer, count: got.count, total: got.total }, [got.positions.buffer]);
+        } catch (e) {
+          worker.terminate(); hold.worker = null;
+          fail(friendly(e));
+        }
+        return;
+      }
+      if (m.type === 'error') { worker.terminate(); hold.worker = null; return fail(m.message + ''); }
+      if (m.type === 'done') {
+        worker.terminate(); hold.worker = null;
+        reviewScan(state, room, box, {
+          file, scannedAt, json: m.json, review: m.review, summary: m.summary,
+          format: (m.review && m.review.format) || ext,
+        });
+      }
+    };
+    try { worker.postMessage({ type: 'parse', buffer: buf, filename: file.name, bytes: file.size, format: ext }, [buf]); }
+    catch (e) { worker.terminate(); hold.worker = null; fail('The file could not be handed to the worker: ' + friendly(e)); }
+  })();
+}
+
+/* What the scan actually contains — shown before a single byte is uploaded. */
+function reviewScan(state, room, box, job) {
+  const r = job.review || {};
+  box.innerHTML = '';
+  box.classList.add('on');
+  box.classList.toggle('no', !r.usable);
+  const date = el('input', { class: 'field', type: 'date', value: job.scannedAt || todayLocal(), max: todayLocal(), id: 'scanwhen-' + room.id });
+  const msg = el('p', { class: 'why', role: 'status' });
+
+  box.append(
+    el('span', { class: 'lbl' }, 'What this scan contains'),
+    el('p', { class: 'small' }, job.file.name + ' · ' + mbs(job.file.size) + ' · ' + count(r.splats) + ' points · measured here, nothing uploaded yet'),
+    el('div', { class: 'facts' },
+      el('div', {}, el('b', { text: dp(r.area_m2, 1) }), el('span', {}, 'm² to walk')),
+      el('div', {}, el('b', { text: dp(r.holes_pct, 1) + '%' }), el('span', {}, 'holes')),
+      el('div', {}, el('b', { text: upLabel(r.up) }), el('span', {}, 'was up')),
+      el('div', {}, el('b', { text: count(r.splats) }), el('span', {}, 'points')),
+    ),
+    el('p', { class: 'note' }, upSentence(r.up) + ' A scan is a recording: the ' + dp(r.holes_pct, 1) +
+      '% the phone never saw stays missing — behind furniture, under worktops. Nothing is filled in.'),
+  );
+  if (Array.isArray(r.warnings) && r.warnings.length) {
+    box.append(el('ul', { class: 'warns' }, r.warnings.map(w => el('li', { text: String(w) }))));
+  }
+  if (r.sampled) box.append(el('p', { class: 'note' }, 'The scan was measured from an even sample of its points, not every one — the numbers are the room, not the file.'));
+
+  if (!r.usable) {
+    box.append(
+      el('div', { class: 'refuse' }, 'This scan has too little floor to walk — ' + dp(r.area_m2, 1) + ' m².',
+        el('span', {}, 'Rescan the room slowly, keeping the floor in view the whole time, and walk the whole floor rather than turning on the spot. Nothing has been uploaded.')),
+      el('div', { class: 'row' },
+        el('button', { class: 'btn sm ghost', type: 'button', onclick: () => paintScan(state, room, box) }, 'Choose another file')),
+    );
+    return;
+  }
+
+  const go = el('button', { class: 'btn sm', type: 'button' }, 'Upload and attach');
+  go.addEventListener('click', () => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date.value)) return say(msg, 'Give the date this room was scanned — the buyer is shown it.', true);
+    job.scannedAt = date.value;
+    uploadScan(state, room, box, job);
+  });
+  box.append(
+    el('div', { class: 'row' },
+      el('div', {}, el('label', { class: 'lbl', for: 'scanwhen-' + room.id }, 'Scanned on'), date),
+    ),
+    el('div', { class: 'row' }, go,
+      el('button', { class: 'btn sm ghost', type: 'button', onclick: () => paintScan(state, room, box) }, 'Cancel')),
+    el('p', { class: 'note' }, 'Uploading sends ' + mbs(job.file.size) + ' plus the measurements. The scan only appears to buyers once it is attached.'),
+    msg,
+  );
+}
+
+/* scan_upload_url → PUT the scan → PUT facts.json → attach_scan. */
+function uploadScan(state, room, box, job) {
+  const status = el('p', { class: 'small', role: 'status', style: 'margin-top:10px;font-weight:600' }, 'Asking for somewhere to put it…');
+  const prog = progressBar();
+  const err = el('p', { class: 'why' });
+  const warn = el('p', { class: 'note' });
+  const hold = { xhr: null, cancelled: false };
+  const cancel = el('button', { class: 'btn sm ghost', type: 'button' }, 'Cancel');
+  cancel._keepLive = true;
+  cancel.addEventListener('click', () => {
+    hold.cancelled = true;
+    if (hold.xhr) { try { hold.xhr.abort(); } catch (e) { /* already done */ } }
+    reviewScan(state, room, box, job);
+  });
+  box.innerHTML = '';
+  box.classList.add('on');
+  box.classList.remove('no');
+  box.append(
+    el('span', { class: 'lbl' }, 'Uploading the scan'),
+    el('p', { class: 'small' }, job.file.name + ' · ' + mbs(job.file.size)),
+    status, prog.bar, warn, err,
+    el('div', { class: 'row' }, cancel),
+  );
+
+  (async () => {
+    try {
+      const slot = await api('scan_upload_url', {
+        room_id: room.id, filename: safeScanName(job.file.name, job.format), bytes: job.file.size,
+      });
+      if (hold.cancelled) return;
+      /* Plain text, not say(): this is advice about the file, not a result. */
+      if (slot.warning) warn.textContent = slot.warning;
+
+      status.textContent = 'Uploading the scan… 0 of ' + mbs(job.file.size);
+      await withRetry((attempt) => {
+        prog.set(0);
+        if (attempt) status.textContent = 'Uploading the scan again (try ' + (attempt + 1) + ' of 3)…';
+        return putScan(slot.upload_url, job.file, 'application/octet-stream', (sent, total) => {
+          prog.set(sent / (total || job.file.size), mbs(sent) + ' of ' + mbs(total || job.file.size));
+          status.textContent = 'Uploading the scan… ' + mbs(sent) + ' of ' + mbs(total || job.file.size);
+        }, hold, slot.path);
+      }, 3, (next, tries, e) => { say(err, friendly(e) + ' Trying again (' + next + ' of ' + tries + ')…', true); });
+      if (hold.cancelled) return;
+      say(err, '');
+      prog.set(1);
+
+      status.textContent = 'Uploading the measurements…';
+      const factsBlob = new Blob([job.json], { type: 'application/json' });
+      await withRetry(() => putScan(slot.facts_upload_url, factsBlob, 'application/json', null, hold, slot.facts_path), 3,
+        (next, tries, e) => { say(err, friendly(e) + ' Trying again (' + next + ' of ' + tries + ')…', true); });
+      if (hold.cancelled) return;
+      say(err, '');
+
+      status.textContent = 'Attaching it to ' + (room.name || 'the room') + '…';
+      const r = job.review || {};
+      const sent = {
+        room_id: room.id, path: slot.path, facts_path: slot.facts_path,
+        format: job.format, bytes: job.file.size, sha256: r.sha256 || null, splats: r.splats || null,
+        summary: job.summary || { area_m2: r.area_m2, holes_pct: r.holes_pct, usable: !!r.usable, up: upCode(r.up) },
+        scanned_at: job.scannedAt,
+      };
+      const j = await api('attach_scan', sent);
+      if (hold.cancelled) return;
+      /* The row the backend wrote is the truth; the local copy is only for a
+         backend that answers ok without echoing the room back. */
+      const { room_id, ...stored } = sent;
+      room.scan = (j.room && j.room.scan) || { ...stored, attached_at: new Date().toISOString() };
+      room.edited_at = (j.room && j.room.edited_at) || new Date().toISOString();
+      paintScan(state, room, box);
+      say(state.msg, 'Scan attached to ' + (room.name || 'the room') + '. Buyers can now walk it from any standpoint in that room.');
+    } catch (e) {
+      if (hold.cancelled) return;
+      box.classList.add('no');
+      say(err, friendly(e) + ' Nothing has been attached to the room.', true);
+      status.textContent = 'Upload stopped.';
+      cancel.textContent = 'Back';
+      box.querySelector('.row').prepend(el('button', {
+        class: 'btn sm', type: 'button', onclick: () => uploadScan(state, room, box, job),
+      }, 'Try the upload again'));
+    }
+  })();
+}
+
+/* A scan is attached: what it is, when it was taken, and the two ways out. */
+function attachedScan(state, room, box) {
+  const s = room.scan || {};
+  const sum = s.summary || {};
+  const msg = el('p', { class: 'why', role: 'status' });
+  const walkable = sum.usable === true;
+
+  box.append(
+    el('span', { class: 'lbl' }, 'Walk-through scan'),
+    el('div', { class: 'facts' },
+      el('div', {}, el('b', { text: String(s.format || fileExt(s.path) || '—').toUpperCase() }), el('span', {}, 'format')),
+      el('div', {}, el('b', { text: mbs(s.bytes) }), el('span', {}, 'size')),
+      el('div', {}, el('b', { text: count(s.splats) }), el('span', {}, 'points')),
+      el('div', {}, el('b', { text: dp(sum.area_m2, 1) }), el('span', {}, 'm² to walk')),
+      el('div', {}, el('b', { text: dp(sum.holes_pct, 1) + '%' }), el('span', {}, 'holes')),
+      el('div', {}, el('b', { text: upLabel(sum.up) }), el('span', {}, 'was up')),
+    ),
+    el('p', { class: 'small', style: 'margin-top:9px' },
+      'Scanned ' + dayWords(s.scanned_at) + (s.attached_at ? ' · attached ' + when(s.attached_at) : '')),
+  );
+  box.append(walkable
+    ? el('p', { class: 'note' }, 'Buyers see "Walk this room" on every standpoint in ' + (room.name || 'this room') + '. The ' + dp(sum.holes_pct, 1) + '% the phone never saw stays missing — nothing is filled in.')
+    : el('p', { class: 'why' }, 'This scan is not walkable, so the viewer will not offer it. Replace it with a slower scan that keeps the floor in view.'));
+
+  /* The date the buyer is shown, fixable without re-uploading 90 MB. */
+  const date = el('input', { class: 'field', type: 'date', value: /^\d{4}-\d{2}-\d{2}$/.test(String(s.scanned_at || '')) ? s.scanned_at : '', max: todayLocal(), id: 'scanwhen-' + room.id });
+  const saveDate = el('button', { class: 'btn sm ghost', type: 'button' }, 'Save date');
+  saveDate.addEventListener('click', () => run(saveDate, msg, async () => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date.value)) throw new Error('Give the date as a real date — the buyer is shown it.');
+    if (!s.path || !s.facts_path) throw new Error('This scan was attached before dates could be edited here. Replace it to set the date.');
+    lockScan(box, true);
+    try {
+      const j = await api('attach_scan', {
+        room_id: room.id, path: s.path, facts_path: s.facts_path, format: s.format, bytes: s.bytes,
+        sha256: s.sha256 || null, splats: s.splats || null, summary: sum, scanned_at: date.value,
+      });
+      room.scan = (j.room && j.room.scan) || { ...s, scanned_at: date.value };
+      paintScan(state, room, box);
+      say(state.msg, 'Scan date updated.');
+    } finally { lockScan(box, false); }
+  }));
+
+  const replace = el('button', {
+    class: 'btn sm ghost', type: 'button',
+    onclick: () => { box.innerHTML = ''; box.classList.remove('on'); emptyScan(state, room, box, { replacing: true }); },
+  }, 'Replace');
+
+  const remove = el('button', {
+    class: 'btn sm ghost', type: 'button', style: 'color:var(--red)',
+    onclick: () => {
+      const confirmRow = el('div', { class: 'strip danger', style: 'margin-top:10px' },
+        el('p', { class: 'small' }, 'Remove the walk-through scan from ' + (room.name || 'this room') +
+          '? The buyer goes back to turning on the spot from the photos, and the scan file is deleted. The photos are not touched.'),
+        el('div', { class: 'row' },
+          el('button', {
+            class: 'btn sm red', type: 'button', onclick: (ev) => run(ev.currentTarget, msg, async () => {
+              lockScan(box, true);
+              try {
+                const j = await api('remove_scan', { room_id: room.id });
+                room.scan = null;
+                paintScan(state, room, box);
+                say(state.msg, 'Scan removed from ' + (room.name || 'the room') +
+                  (j && j.objects_removed ? ' and its ' + j.objects_removed + ' file' + (j.objects_removed === 1 ? '' : 's') + ' deleted.' : '.'));
+              } finally { lockScan(box, false); }
+            }),
+          }, 'Remove the scan'),
+          el('button', { class: 'btn sm ghost', type: 'button', onclick: () => confirmRow.remove() }, 'Keep it'),
+        ),
+      );
+      box.append(confirmRow);
+    },
+  }, 'Remove');
+
+  box.append(
+    el('div', { class: 'row' },
+      el('div', {}, el('label', { class: 'lbl', for: 'scanwhen-' + room.id }, 'Scanned on'), date),
+      el('div', { style: 'align-self:flex-end' }, saveDate),
+      el('div', { style: 'align-self:flex-end' }, replace),
+      el('div', { style: 'align-self:flex-end' }, remove),
+    ),
+    msg,
+  );
+  return box;
+}
+
+/* ===========================================================================
    DEV MOCK (localhost + ?mock=1 only). Shapes follow docs/TOUR_API.md and the
    m3ix-spatial function exactly: list_tours → { tours: TourSummary[] },
    get_tour → { tour, rooms, nodes (with preview_url), floorplan:{url} },
@@ -975,7 +1690,22 @@ function mockData() {
       floorplan: null, rooms: [], nodes: [], leads: [],
     },
   ];
-  return { tours, summary, uuid };
+  /* Storage, as far as the mock is concerned: the set of object paths that
+     have actually been PUT. attach_scan checks it, exactly as the real
+     function checks the bucket, so the order of the flow is really tested. */
+  return { tours, summary, uuid, objects: new Set() };
+}
+
+/* A simulated PUT: real byte counts, real elapsed time, no network. */
+async function mockPut(path, body, onProgress) {
+  if (!MOCK_DB) MOCK_DB = mockData();
+  const total = (body && (body.size ?? body.byteLength ?? body.length)) || 0;
+  const steps = total > 4e6 ? 12 : 3;
+  for (let i = 1; i <= steps; i++) {
+    await sleep(90);
+    if (onProgress) onProgress(Math.round((total * i) / steps), total);
+  }
+  MOCK_DB.objects.add(path);
 }
 
 let MOCK_DB = null;
@@ -993,6 +1723,10 @@ async function mock(action, body) {
     throw new Error('node not found');
   };
   const publicNode = (n) => { const { _preview, ...rest } = n; return { ...rest, preview_url: _preview }; };
+  const findRoom = () => {
+    for (const t of tours) { const r = t.rooms.find(x => x.id === body.room_id); if (r) return { t, r }; }
+    throw new Error('Room not found');
+  };
   switch (action) {
     case 'list_tours': return { tours: tours.map(summary) };
     case 'get_tour': { const t = find(); return { tour: summary(t), rooms: t.rooms, nodes: t.nodes.filter(n => n.status === 'active').map(publicNode), floorplan: t.floorplan ? { url: t.floorplan } : null }; }
@@ -1022,6 +1756,70 @@ async function mock(action, body) {
       n.edited_at = new Date().toISOString();
       const { _preview, ...rest } = n;
       return { ok: true, node: rest };
+    }
+    /* ---- room scans: the same refusals, in the same order, as the real
+           function (supabase/functions/m3ix-spatial/index.ts) ---- */
+    case 'scan_upload_url': {
+      const { t } = findRoom();
+      const filename = String(body.filename || '').toLowerCase().replace(/[^a-z0-9\-_.]+/g, '-').slice(0, 80);
+      if (!/^[a-z0-9][a-z0-9\-_.]{0,80}$/.test(filename)) throw new Error('A plain filename is required, e.g. living-room.spz');
+      const ext = fileExt(filename);
+      if (!SCAN_EXT.includes(ext)) throw new Error('A scan has to be a .ply, .spz, .splat or .ksplat file — "' + filename + '" is not one.');
+      const bytes = Number(body.bytes);
+      if (!Number.isFinite(bytes) || bytes <= 0) throw new Error('bytes (the size of the file) is required');
+      if (bytes > SCAN_MAX_BYTES) throw new Error('That scan is ' + Math.round(bytes / 1048576) + ' MB and one file can be at most 250 MB. Export the same scan as .spz (in Scaniverse: Share → Splat → SPZ) — it is usually about a tenth of the size and looks the same.');
+      const rand = Array.from({ length: 12 }, () => '0123456789abcdef'[Math.floor(Math.random() * 16)]).join('');
+      const path = 'captures/' + t.property_id + '/scans/' + rand + '-' + filename;
+      return {
+        upload_url: 'mock:' + path, path,
+        facts_upload_url: 'mock:' + path + '.facts.json', facts_path: path + '.facts.json',
+        max_bytes: SCAN_MAX_BYTES,
+        warning: bytes > SCAN_WARN_BYTES ? Math.round(bytes / 1048576) + ' MB will work, but it is a long download for a buyer on a phone. A .spz export is usually about a tenth of the size.' : null,
+      };
+    }
+    case 'attach_scan': {
+      const { t, r } = findRoom();
+      const prefix = 'captures/' + t.property_id + '/scans';
+      const path = String(body.path || ''), facts_path = String(body.facts_path || '');
+      if (!path.startsWith(prefix + '/') || !facts_path.startsWith(prefix + '/')) throw new Error("That file is not in this property's scans folder — ask for a scan_upload_url first.");
+      if (path === facts_path || !facts_path.endsWith('.json')) throw new Error('facts_path must be the .facts.json uploaded alongside the scan.');
+      const format = String(body.format || '').toLowerCase() || fileExt(path);
+      if (!SCAN_EXT.includes(format)) throw new Error('A scan has to be .ply, .spz, .splat or .ksplat.');
+      const bytes = Number(body.bytes);
+      if (!Number.isFinite(bytes) || bytes <= 0) throw new Error('bytes (the size of the file) is required');
+      if (bytes > SCAN_MAX_BYTES) throw new Error('A scan can be at most 250 MB.');
+      const sIn = body.summary || {};
+      if (typeof sIn.usable !== 'boolean') throw new Error('summary is required: { area_m2, holes_pct, usable, up } taken from the facts you computed.');
+      const round2 = (x) => { const n = Number(x); return Number.isFinite(n) ? Math.round(n * 100) / 100 : null; };
+      const upStr = String(sIn.up || '').toLowerCase();
+      const summary = { area_m2: round2(sIn.area_m2), holes_pct: round2(sIn.holes_pct), usable: sIn.usable, up: /^[xyz][+-]$/.test(upStr) ? upStr : null };
+      const claimed = t.rooms.find(x => x.id !== r.id && x.scan && (x.scan.path === path || x.scan.facts_path === facts_path));
+      if (claimed) throw new Error('That scan is already attached to "' + claimed.name + '". Upload it again for this room.');
+      const missing = [MOCK_DB.objects.has(path) ? '' : 'the scan', MOCK_DB.objects.has(facts_path) ? '' : 'its facts.json'].filter(Boolean);
+      if (missing.length) throw new Error('Not uploaded yet: ' + missing.join(' and ') + '. Upload both, then attach.');
+      const prior = r.scan;
+      r.scan = {
+        path, facts_path, format, bytes,
+        sha256: /^[0-9a-f]{64}$/i.test(String(body.sha256 || '')) ? String(body.sha256).toLowerCase() : null,
+        splats: Number.isFinite(Number(body.splats)) ? Math.max(0, Math.round(Number(body.splats))) : null,
+        summary, scanned_at: String(body.scanned_at || '').slice(0, 40) || null, attached_at: new Date().toISOString(),
+      };
+      r.edited_at = new Date().toISOString();
+      let objects_removed = 0;
+      for (const p of [prior && prior.path, prior && prior.facts_path]) {
+        if (p && p !== path && p !== facts_path && MOCK_DB.objects.delete(p)) objects_removed++;
+      }
+      return { ok: true, room: r, objects_removed };
+    }
+    case 'remove_scan': {
+      const { r } = findRoom();
+      const prior = r.scan;
+      if (!prior || !prior.path) return { ok: true, objects_removed: 0 };
+      r.scan = null;
+      r.edited_at = new Date().toISOString();
+      let objects_removed = 0;
+      for (const p of [prior.path, prior.facts_path]) if (p && MOCK_DB.objects.delete(p)) objects_removed++;
+      return { ok: true, objects_removed };
     }
     default: throw new Error('unknown action ' + action);
   }
