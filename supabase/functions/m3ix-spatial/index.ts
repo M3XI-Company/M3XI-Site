@@ -227,8 +227,18 @@ function validateNode(n: NodeIn, prefix: string): string | null {
    `delete_tour`'s purge already sweeps. Nothing here reconstructs anything:
    the scan is a recording, and the facts only describe it. */
 const SCAN_FORMATS = ["ply", "spz", "splat", "ksplat"];
-const SCAN_MAX_BYTES = 250 * 1024 * 1024;   // 262144000 — the `tours` bucket's own per-object cap
-const SCAN_WARN_BYTES = 120 * 1024 * 1024;  // above this it still works, but say .spz would be kinder
+/* THE REAL CEILING IS THE PROJECT'S, NOT THE BUCKET'S.
+
+   The `tours` bucket is configured for 250 MB and reports it, but the project
+   carries a global per-object limit that overrides it. Measured against the
+   live storage API by bisection: 50 MB uploads, 51 MB comes back
+   `EntityTooLarge` — as an opaque HTTP 400 through a signed PUT. Advertising
+   250 MB therefore meant telling an agent their 87 MB scan was fine, taking
+   forty seconds of their upload, and then failing with a number nobody could
+   act on. Refuse it up front instead, and point at the export that fits: a
+   .spz of the same room is roughly a tenth the size. */
+const SCAN_MAX_BYTES = 50 * 1024 * 1024;    // 52428800 — the project's global object cap, measured
+const SCAN_WARN_BYTES = 25 * 1024 * 1024;   // above this it still works, but it is a long buyer download
 const scansPrefix = (property_id: string) => `captures/${property_id}/scans`;
 const extOf = (name: string) => (name.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? "");
 const mb = (bytes: number) => Math.round(bytes / (1024 * 1024));
@@ -518,7 +528,7 @@ Deno.serve(async (req) => {
       if (!Number.isFinite(bytes) || bytes <= 0) return json({ error: "bytes (the size of the file) is required" }, 400);
       if (bytes > SCAN_MAX_BYTES) {
         return json({
-          error: `That scan is ${Math.ceil(bytes / (1024 * 1024))} MB and one file can be at most ${mb(SCAN_MAX_BYTES)} MB. Export the same scan as .spz (in Scaniverse: Share → Splat → SPZ) — it is usually about a tenth of the size and looks the same.`,
+          error: `That scan is ${Math.ceil(bytes / (1024 * 1024))} MB and one file can be at most ${mb(SCAN_MAX_BYTES)} MB. Export the same room as .spz (in Scaniverse: Share → Splat → SPZ) — it is usually about a tenth the size, it looks the same, and a buyer on a phone downloads it in seconds.`,
         }, 400);
       }
       const path = `${scansPrefix(String(room.property_id))}/${crypto.randomUUID().replace(/-/g, "").slice(0, 12)}-${filename}`;

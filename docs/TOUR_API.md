@@ -63,14 +63,14 @@ A room may carry **one** real Gaussian-splat scan — a Scaniverse "Splat mode" 
 
 A scan is **two objects**: the splat file, and a `facts.json` computed from it once, at the moment the agent attaches it. The floor height, up-axis, spawn point and walkable area are worked out offline and stored; the viewer reads them and never recomputes them in a visitor's browser.
 
-Both objects live in the private `tours` bucket under `captures/<property_id>/scans/`, so `delete_tour`'s purge already sweeps them up. Formats: `.ply`, `.spz`, `.splat`, `.ksplat`. One object may be at most **250 MB** (262,144,000 bytes — the bucket's own per-object cap). Above **120 MB** the API still accepts the file but returns a `warning`: a `.spz` export of the same scan is usually about a tenth of the size and looks the same.
+Both objects live in the private `tours` bucket under `captures/<property_id>/scans/`, so `delete_tour`'s purge already sweeps them up. Formats: `.ply`, `.spz`, `.splat`, `.ksplat`. One object may be at most **50 MB** (52,428,800 bytes). Note that this is the **project's** global per-object limit, not the bucket's: the `tours` bucket is configured for 250 MB and will report that, but storage refuses anything over 50 MB with `EntityTooLarge`, surfaced through a signed PUT as an opaque HTTP 400. Measured by bisection against the live API (50 MB uploads, 51 MB refused). Above **25 MB** the API still accepts the file but returns a `warning`, because the buyer downloads it. A `.spz` export of the same room is usually about a tenth the size of a `.ply` and looks the same.
 
 The order is always `scan_upload_url` → PUT both files → `attach_scan`. All three actions are member-only: the anon key is rejected with 401 `Sign in to do that.` before any lookup, like every other member action.
 
 ### `scan_upload_url`
 `{ action, room_id, filename, bytes }` → `{ upload_url, path, facts_upload_url, facts_path, max_bytes, warning }`
 - `filename` is lowercased and non-`[a-z0-9-_.]` characters become `-`, as in `upload_url`. Its extension decides the format and must be one of the four — anything else is 400.
-- `bytes` is the size of the **scan** file (not the facts) and is required. Over `max_bytes` → 400, naming the cap and suggesting a `.spz` export. Over 120 MB → 200 with `warning` set; `null` otherwise.
+- `bytes` is the size of the **scan** file (not the facts) and is required. Over `max_bytes` → 400, naming the cap and suggesting a `.spz` export. Over 25 MB → 200 with `warning` set; `null` otherwise.
 - `path` is `captures/<property_id>/scans/<12 hex>-<filename>`, and `facts_path` is that same path plus `.facts.json`. **Both** are signed for a single PUT: send the scan to `upload_url`, the facts JSON to `facts_upload_url`.
 - Nothing is attached to the room here. A slot that is never used is simply never referenced.
 

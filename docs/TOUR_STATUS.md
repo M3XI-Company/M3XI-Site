@@ -1,6 +1,6 @@
 # Property tour — status (22 Aug 2026)
 
-> Phase 1 (360 tours) and Phase 2 (walk a real scan inside a room) are both built and deployed. Neither has yet carried a real property: the database still holds 0 tours. See "Not done" below.
+> Phase 1 (360 tours) and Phase 2 (walk a real scan inside a room) are both built and deployed, and the **whole chain has now been run end to end against the live backend** as a real signed-in user — see "End-to-end run" at the bottom. No *customer* property has gone through it yet.
 
 What is live, how each item was verified, what is not done, and what the owner has to do next. Outcomes only.
 
@@ -32,7 +32,7 @@ What is live, how each item was verified, what is not done, and what the owner h
 1. **Signed-in end-to-end run.** Nobody has yet run register → upload → preview → go live → enquiry against production with a real session. Needs the owner's login. The synthetic panoramas in the session scratchpad are valid 2:1 images and can be used for a smoke test; delete the tour afterwards from `/tours/`.
 2. **Real 360 photographs.** No property has been captured with a 360 camera yet. The demo on the outreach surfaces is still the (now labelled) AI world; replace it with the first real tour.
 3. **Email.** `RESEND_API_KEY` (and optionally `LEAD_FROM` with a verified domain) must be set as Supabase function secrets before any lead email goes out. Until then leads appear in `/tours/` with the reason shown.
-4. **Auth redirect allow-list.** Add `https://www.m3xi.com/capture/` and `https://www.m3xi.com/tours/` to Supabase Auth → URL Configuration → Redirect URLs, or magic links will land on the site URL instead of the page the agent started on.
+4. ~~**Auth redirect allow-list.**~~ **Already correct — no action needed.** Tested 22 Aug against the live Auth API with `admin/generate_link`: `https://www.m3xi.com/capture/` and `/tours/` both come back with the redirect intact, while a control (`https://evil.example.com/`) is correctly replaced with the site URL. I had listed this as a blocker; it was not one.
 5. **Phone hardware.** Gyroscope look, pinch zoom and the capture flow on iOS Safari / Android Chrome were not exercised on a device.
 6. **Pricing.** The site, one-pager and kit still state three different £200 offers; reconciling them is the owner's decision (TODO left in the kit).
 7. **Phase 3** (an owned video-to-splat reconstruction pipeline) is not started, by design. **Phase 2 is built** — see the section below.
@@ -86,3 +86,34 @@ A room in a tour can now carry one **real** Gaussian-splat scan (Scaniverse "Spl
 ## What the owner has to do next
 
 Everything in the Phase 1 list still applies (Resend key, auth redirect URLs, first real capture), plus: to try Phase 2, scan one room with Scaniverse in **Splat mode**, export **`.spz`** (about a tenth the size of a `.ply` — the buyer downloads this file), and attach it to that room in `/tours/`. Quote walk-through per room and "subject to rescan"; never inside the 48-hour promise.
+
+
+---
+
+# End-to-end run against the live backend — 22 Aug 2026
+
+Run as a **real signed-in user** (a throwaway account created and deleted for the purpose), not with the service role, so every permission check was exercised the way an agent will hit it. **28 assertions, 0 failures.** Everything created was removed afterwards: 0 tours remain and the storage prefix holds 0 objects.
+
+What was proved, in order:
+
+1. `register_capture` created the agency, the property and the capture from nothing but an address.
+2. Two 360 photos uploaded through signed PUTs.
+3. `complete_capture` sealed it and built the tour — which came out **unlisted, not live**.
+4. A stranger asking for that tour got **403**; the preview key got 200; a signed photo URL really served the image.
+5. `go_live` published it and it became readable with no key at all.
+6. A buyer's enquiry was accepted, reached the agent's dashboard with the room they were standing in, and recorded **why** no email went out (see below).
+7. A **real 29 MB Gaussian-splat scan** (123,002 splats, a subsample of the office capture) was measured, uploaded with its `facts.json`, and attached to a room; the buyer's manifest then offered the walk, said it was walkable, and the facts round-tripped through storage intact with the spawn still a legal place to stand.
+8. `unpublish` took it down and the public link went back to 403.
+
+## Two things the run found that reading the code did not
+
+**The advertised scan size limit was wrong by 5×, and failed opaquely.** The `tours` bucket is configured for 250 MB and reports it, so the API advertised 250 MB — but the *project* carries a global per-object limit that overrides the bucket. Measured by bisection against the live storage API: **50 MB uploads, 51 MB comes back `EntityTooLarge`**, surfaced through a signed PUT as a bare HTTP 400. The first run failed exactly there, after spending 39 seconds uploading 87 MB. The cap is now 50 MB in the backend, in the dashboard and in the docs, the copy points at a `.spz` export (about a tenth the size of a `.ply`), and an oversized file is refused **before** the upload starts. Re-run with a 29 MB scan: clean pass.
+
+**`RESEND_API_KEY` really is the only thing standing between a lead and an inbox.** The live lead came back with `notified_at: null` and `notify_error: "RESEND_API_KEY is not set — the lead is in your dashboard but no email was sent"`. The enquiry itself was stored correctly and is visible to the agent; only delivery is missing.
+
+## Still not done
+
+- **No customer property.** Real 360 photographs and a real room scan still need a camera and a phone.
+- **I still have not seen walk mode render.** The manifest, the facts and the permissions are proved; the pixels are not (this environment's browser pane never composites). Its builder and reviewer both drove it with measurements.
+- **Phone hardware** (gyroscope, iOS Safari, Android Chrome) untested.
+- **Pricing** still says three different things across site, one-pager and kit.

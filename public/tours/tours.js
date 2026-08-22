@@ -916,7 +916,10 @@ function leadsSection(state) {
    =========================================================================== */
 
 const SCAN_EXT = ['ply', 'spz', 'splat', 'ksplat'];
-const SCAN_MAX_BYTES = 250 * 1024 * 1024;    // the tours bucket's own per-object cap
+// The project's global per-object storage cap, measured against the live API
+// (50 MB uploads, 51 MB comes back EntityTooLarge). The bucket claims 250 MB
+// and is overruled. Kept in step with SCAN_MAX_BYTES in m3ix-spatial.
+const SCAN_MAX_BYTES = 50 * 1024 * 1024;
 const SCAN_WARN_BYTES = 120 * 1024 * 1024;   // still works; a .spz would be kinder
 
 /* The worker is made from a blob, and a blob has no base URL to resolve
@@ -1282,7 +1285,7 @@ function emptyScan(state, room, box, opts) {
     el('p', { class: 'small', id: 'scanhow-' + room.id },
       'A scan lets a buyer walk this room instead of only turning on the spot. Scan it in Scaniverse on ' +
       '"Splat" mode — about five minutes a room, walking slowly with the floor in view — then export it here. ' +
-      'Export .ply; if the file comes out over about 120 MB, export .spz instead so a buyer on a phone is not waiting.'),
+      'Export .spz — it is about a tenth the size of a .ply, looks the same, and a buyer downloads it in seconds. One file can be at most 50 MB.'),
     el('div', { class: 'row' },
       el('div', {}, el('label', { class: 'lbl', for: 'scan-' + room.id }, 'Scan file'), input),
       el('div', {}, el('label', { class: 'lbl', for: 'scanwhen-' + room.id }, 'Scanned on'), date),
@@ -1336,7 +1339,7 @@ function beginScan(state, room, box, file, scannedAt) {
     return fail('A scan has to be a .ply, .spz, .splat or .ksplat file — "' + file.name + '" is not one. In Scaniverse: Share → Export → PLY.');
   }
   if (file.size > SCAN_MAX_BYTES) {
-    return fail('That scan is ' + mbs(file.size) + ' and one file can be at most 250 MB. Export the same scan as .spz (Scaniverse: Share → Splat → SPZ) — it is usually about a tenth of the size and looks the same.');
+    return fail('That scan is ' + mbs(file.size) + ' and one file can be at most 50 MB. Export the same room as .spz (Scaniverse: Share → Splat → SPZ) — it is usually about a tenth the size and looks the same.');
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(scannedAt || ''))) {
     return fail('Pick the date this room was scanned before choosing the file — the buyer is shown that date.');
@@ -1767,7 +1770,7 @@ async function mock(action, body) {
       if (!SCAN_EXT.includes(ext)) throw new Error('A scan has to be a .ply, .spz, .splat or .ksplat file — "' + filename + '" is not one.');
       const bytes = Number(body.bytes);
       if (!Number.isFinite(bytes) || bytes <= 0) throw new Error('bytes (the size of the file) is required');
-      if (bytes > SCAN_MAX_BYTES) throw new Error('That scan is ' + Math.round(bytes / 1048576) + ' MB and one file can be at most 250 MB. Export the same scan as .spz (in Scaniverse: Share → Splat → SPZ) — it is usually about a tenth of the size and looks the same.');
+      if (bytes > SCAN_MAX_BYTES) throw new Error('That scan is ' + Math.round(bytes / 1048576) + ' MB and one file can be at most 50 MB. Export the same room as .spz (in Scaniverse: Share → Splat → SPZ) — it is usually about a tenth the size and looks the same.');
       const rand = Array.from({ length: 12 }, () => '0123456789abcdef'[Math.floor(Math.random() * 16)]).join('');
       const path = 'captures/' + t.property_id + '/scans/' + rand + '-' + filename;
       return {
@@ -1787,7 +1790,7 @@ async function mock(action, body) {
       if (!SCAN_EXT.includes(format)) throw new Error('A scan has to be .ply, .spz, .splat or .ksplat.');
       const bytes = Number(body.bytes);
       if (!Number.isFinite(bytes) || bytes <= 0) throw new Error('bytes (the size of the file) is required');
-      if (bytes > SCAN_MAX_BYTES) throw new Error('A scan can be at most 250 MB.');
+      if (bytes > SCAN_MAX_BYTES) throw new Error('A scan can be at most 50 MB.');
       const sIn = body.summary || {};
       if (typeof sIn.usable !== 'boolean') throw new Error('summary is required: { area_m2, holes_pct, usable, up } taken from the facts you computed.');
       const round2 = (x) => { const n = Number(x); return Number.isFinite(n) ? Math.round(n * 100) / 100 : null; };
