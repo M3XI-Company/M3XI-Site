@@ -125,6 +125,7 @@ const blank = () => ({
   plan: null,           // { name, width, height, path, status, err }
   undo: [],             // pin undo stack: { id, prev }
   links: [],            // [keyA, keyB] chosen during calibration
+  warnings: [],         // what the server said about the finished capture
   tour: null, live: null,
 });
 let S = blank();
@@ -375,7 +376,52 @@ async function decode(file){
     im.src = u;
   });
 }
-function isFullSphere(w, h){ return w >= 2048 && h >= 1024 && Math.abs(w / h - 2) <= 0.04 * 2; }
+/* ---------- how sharp is sharp enough ----------
+   A 360 photo is wrapped around the buyer, so only the slice they are facing
+   is ever on screen: at a 75° field of view that is 75/360 of the image width
+   stretched across the whole window. On a 1920px-wide laptop window that
+   works out at an upscale of 4.50× for a 2048-wide photo, 2.25× at 4096,
+   1.60× at 5760, 1.13× at 8192 and 0.84× at 11008 — and when the buyer zooms
+   in to look at something properly (30°) it doubles again: 5.63× at 4096,
+   2.81× at 8192, 2.09× at 11008. Anything above 1.0 is visible blur.
+   Nothing in the viewer can put back detail the camera never recorded, so the
+   size chosen in the camera's own app is the only thing that decides whether
+   a tour looks like a window or looks like a smear.
+   MIN_W is what the server now refuses outright; SHARP_W is where a buyer
+   looking closely stops noticing. */
+const MIN_W = 4096;
+const SHARP_W = 8000;
+const isSoft = p => p.width >= MIN_W && p.width < SHARP_W && !willBeRefused(p);
+/* Only reachable from a capture saved in this browser under an older, looser
+   rule. Ask the SAME question the server will ask — width, height and shape —
+   rather than width alone: a 8000x3900 photo saved under the old 8 % aspect
+   tolerance is wide enough and still refused, and finding that out after the
+   whole house has uploaded over a phone signal is the exact failure the front
+   door was just fixed to prevent. */
+const willBeRefused = p => !!sphereProblem(p.width, p.height);
+const isTooSmall = willBeRefused;
+const SOFT_WHY = 'A buyer who looks closely sees it magnified, so it goes soft. 8000 px or wider stays sharp — shoot at the camera\'s largest setting.';
+
+function sphereProblem(w, h){
+  if (!(w > 0) || !(h > 0)) return 'that file has no size this page can read. Export the stitched 360 image from the camera\'s own app.';
+  /* The same 4 % the server allows, not twice it: a photo this page waves
+     through and the server then refuses costs the agent the whole upload. */
+  if (Math.abs(w / h - 2) > 0.04) {
+    return 'that is not a full 360 photo (' + w + ' × ' + h + '). A full 360 image is exactly twice as wide as it is tall. Export the stitched 360 image from the camera\'s own app, not a single frame.';
+  }
+  if (w < MIN_W) {
+    return 'that is only ' + w + ' px wide (' + w + ' × ' + h + '). A 360 photo has to be at least ' + MIN_W + ' px wide, and ' + SHARP_W +
+      ' px or wider to stay sharp — the buyer only ever sees a slice of it, blown up to fill their screen. Set the largest photo size in the camera\'s own app and shoot the room again.';
+  }
+  /* Wide enough and the right shape can still be short: the server wants at
+     least MIN_W × MIN_W/2, so say so here rather than after the upload. */
+  if (h < MIN_W / 2) {
+    return 'that is only ' + h + ' px tall (' + w + ' × ' + h + '). A 360 photo has to be at least ' + MIN_W + ' × ' + (MIN_W / 2) +
+      ' — set the largest photo size in the camera\'s own app and shoot the room again.';
+  }
+  return null;
+}
+function isFullSphere(w, h){ return !sphereProblem(w, h); }
 function toJpeg(canvas, q){ return new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('could not encode')), 'image/jpeg', q)); }
 async function makePreview(img){
   const c = document.createElement('canvas'); c.width = 1024; c.height = 512;
@@ -424,9 +470,10 @@ async function acceptFile(file, roomId, replaceId){
   try { img = await decode(file); }
   catch (e) { throw new Error('"' + file.name + '" could not be opened as an image.'); }
   const w = img.width || img.naturalWidth, h = img.height || img.naturalHeight;
-  if (!isFullSphere(w, h)) {
+  const problem = sphereProblem(w, h);
+  if (problem) {
     if (img.close) img.close();
-    throw new Error('This isn\'t a full 360 photo (' + w + '×' + h + '). Use the 360 camera\'s app to export the stitched image.');
+    throw new Error('"' + file.name + '" was not added — ' + problem);
   }
   const [preview, hash, heading] = await Promise.all([makePreview(img), sha256(file), readPoseHeading(file)]);
   if (img.close) img.close();
@@ -689,6 +736,10 @@ function renderRoom(room){
   const list = el('div', { class: 'nodes' });
   ps.forEach((p, i) => list.append(renderNode(p, i, ps.length)));
   body.append(list);
+  /* One standpoint is a photo of a room; two or three are a room you can
+     walk. Said here, in the room, while the agent is still standing in it. */
+  if (ps.length === 1) body.append(el('p', { class: 'note', style: 'margin-top:8px',
+    text: 'One spot — a buyer can look round from here but cannot move. Add one or two more, 2–3 m apart, and one in the doorway.' }));
   return el('section', { class: 'room', 'data-room': room.id },
     el('div', { class: 'head' }, nameIn, el('span', { class: 'small', text: ps.length + (ps.length === 1 ? ' standpoint' : ' standpoints') }), del),
     body);
@@ -706,13 +757,18 @@ function renderNode(p, i, n){
   const flags = [];
   if (p.pin) flags.push('pinned'); if (p.north != null) flags.push(p.northFrom === 'camera' ? 'compass from camera' : 'calibrated');
   const info = el('span', { class: 'small', text: p.width + '×' + p.height + ' · ' + (p.bytes / 1048576).toFixed(1) + ' MB' + (flags.length ? ' · ' + flags.join(' · ') : '') });
+  /* Sharp is the normal case and says nothing. Soft says so here, where the
+     agent can still walk back into the room and shoot it again. */
+  const sharp = isTooSmall(p)
+    ? el('p', { class: 'flag small err', text: 'Too small (' + p.width + ' px wide). The server will refuse this one — replace it with a photo at least ' + MIN_W + ' px wide.' })
+    : (isSoft(p) ? el('p', { class: 'flag note', text: 'Will look soft — ' + p.width + ' px wide. ' + SOFT_WHY }) : null);
   const tools = el('div', { class: 'tools' },
     el('button', { type: 'button', text: 'Replace', onclick: () => { picking = { roomId: p.roomId, replaceId: p.id }; $('#photoFile').click(); } }),
     el('button', { type: 'button', class: 'danger', text: 'Delete', onclick: async () => { if (confirm('Delete "' + p.label + '"?')) { await removePhoto(p); renderRooms(); } } }),
     el('button', { type: 'button', text: '▲', 'aria-label': 'Move up', disabled: i === 0, onclick: () => moveWithin(p, -1) }),
     el('button', { type: 'button', text: '▼', 'aria-label': 'Move down', disabled: i === n - 1, onclick: () => moveWithin(p, 1) }),
     el('span', { class: 'handle', 'aria-hidden': 'true', title: 'Drag to reorder', text: '⋮⋮' }));
-  const node = el('div', { class: 'node', 'data-photo': p.id }, canvas, el('div', { class: 'meta' }, label, src, status, info, tools));
+  const node = el('div', { class: 'node', 'data-photo': p.id }, canvas, el('div', { class: 'meta' }, label, src, status, info, tools), sharp);
   dragReorder(node, tools.querySelector('.handle'), p);
   return node;
 }
@@ -821,7 +877,8 @@ function renderPinChips(){
   const c = $('#pinChips'); c.innerHTML = '';
   S.photos.forEach(p => {
     const b = el('button', { class: 'chip' + (p.pin ? ' pinned' : '') + (armed === p.id ? ' sel' : ''), type: 'button', 'aria-pressed': armed === p.id ? 'true' : 'false' },
-      el('span', { class: 'dot' }), fullLabel(p));
+      el('span', { class: 'dot' }), fullLabel(p),
+      isSoft(p) ? el('span', { class: 'note', title: SOFT_WHY, text: ' · will look soft' }) : null);
     b.onclick = () => { armed = p.id; renderPinChips(); renderPins(); };
     c.append(b);
   });
@@ -913,7 +970,7 @@ function renderCalib(){
   list.forEach(p => {
     const st = p.north == null ? 'not set — arrows approximate' : (p.northFrom === 'camera' ? 'compass from camera, ' + Math.round(p.north) + '°' : 'set, ' + Math.round(p.north) + '°');
     host.append(el('button', { type: 'button', 'aria-current': p.id === cal.id ? 'true' : 'false', onclick: () => { cal.id = p.id; renderCalib(); } },
-      el('span', { text: fullLabel(p) }), el('span', { class: 'small', text: st })));
+      el('span', { text: fullLabel(p) + (isSoft(p) ? ' · will look soft' : '') }), el('span', { class: 'small', text: st })));
   });
   calShowCurrent();
 }
@@ -976,6 +1033,199 @@ function calNext(){
 function calStop(){ if (cal.tex && cal.tex.dispose) cal.tex.dispose(); cal.tex = null; cal.texId = null; }
 $('#toFinish').onclick = () => show('finish');
 
+/* ===========================================================================
+   Advice: is it sharp, can it be walked, is anything missing.
+
+   None of this blocks anything. The agent is standing in the house and knows
+   things this page never will — an empty loft, a garage that belongs to the
+   neighbour. Every check here says what it saw and leaves the decision alone.
+   =========================================================================== */
+
+/* --- lists that read like a person wrote them --- */
+function joinList(a, word){
+  if (a.length <= 1) return a[0] || '';
+  return a.slice(0, -1).join(', ') + ' ' + word + ' ' + a[a.length - 1];
+}
+function someLabels(ps, max = 6){
+  const names = ps.slice(0, max).map(fullLabel);
+  const rest = ps.length - names.length;
+  return joinList(names, 'and') + (rest ? ', and ' + rest + ' more' : '');
+}
+
+/* --- moving around ---
+   How much the tour feels like walking the house is settled entirely by how
+   many standpoints there are and where they stand. Nothing downstream can
+   add a step that was never photographed. */
+function singleSpotRooms(){ return S.rooms.filter(r => photosIn(r.id).length === 1); }
+
+/* The room-to-room joins the manifest falls back to: last standpoint of one
+   room to the first of the next, or the closest pinned pair when there is a
+   plan. Shared with buildManifest so advice and manifest cannot drift. */
+function bridgePairs(){
+  const out = [];
+  for (let i = 0; i < S.rooms.length - 1; i++) {
+    const A = photosIn(S.rooms[i].id), B = photosIn(S.rooms[i + 1].id);
+    if (!A.length || !B.length) continue;
+    let pair = [A[A.length - 1], B[0]];
+    if (S.plan) {
+      let best = Infinity;
+      A.filter(p => p.pin).forEach(a => B.filter(p => p.pin).forEach(b => { const d = planDist(a.pin, b.pin); if (d < best) { best = d; pair = [a, b]; } }));
+    }
+    out.push(pair);
+  }
+  return out;
+}
+/* Every pair a buyer will be able to step between: same-room pairs (the
+   server links those itself), what calibration lined up, and the bridges. */
+function walkPairs(){
+  const out = []; const seen = new Set();
+  const add = (a, b) => { if (!a || !b || a === b) return; const k = [a.id, b.id].sort().join('|'); if (seen.has(k)) return; seen.add(k); out.push([a, b]); };
+  S.rooms.forEach(r => { const ps = photosIn(r.id); for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) add(ps[i], ps[j]); });
+  S.links.forEach(([a, b]) => add(photoById(a), photoById(b)));
+  bridgePairs().forEach(([a, b]) => add(a, b));
+  return out;
+}
+/* An uploaded floorplan is a picture. Nothing on it tells this page how many
+   metres a pixel is, and this page will not guess: a made-up scale would put
+   a made-up number in front of the agent. So gaps are compared with the
+   other gaps on the same plan, and the copy says as much. If a real scale
+   ever arrives (S.plan.mPerPx), the metre form is what should be used. */
+function planScale(){ return (S.plan && Number.isFinite(S.plan.mPerPx) && S.plan.mPerPx > 0) ? S.plan.mPerPx : null; }
+const median = a => { const s = a.slice().sort((x, y) => x - y); const i = s.length >> 1; return s.length % 2 ? s[i] : (s[i - 1] + s[i]) / 2; };
+function planGaps(){
+  if (!S.plan) return [];
+  const pinned = S.photos.filter(p => p.pin);
+  if (pinned.length < 3) return [];
+  // The typical step this agent took, measured from their own pins.
+  const typical = median(pinned.map(p => Math.min.apply(null, pinned.filter(x => x !== p).map(x => planDist(p.pin, x.pin)))));
+  if (!(typical > 0)) return [];
+  const diagonal = Math.hypot(S.plan.width, S.plan.height);
+  const m = planScale();
+  const out = [];
+  walkPairs().forEach(([a, b]) => {
+    if (!a.pin || !b.pin) return;
+    const d = planDist(a.pin, b.pin);
+    // With a real scale, 4 m. Without one, a step nearly twice the agent's
+    // own usual step and worth a tenth of the plan — big enough to be a jump,
+    // not just two pins that landed a little apart.
+    if (m ? d * m <= 4 : (d < typical * 1.8 || d < diagonal * 0.1)) return;
+    // A standpoint standing between the two already breaks the journey up.
+    if (pinned.some(c => c !== a && c !== b && planDist(a.pin, c.pin) < d && planDist(b.pin, c.pin) < d)) return;
+    out.push({ a, b, times: d / typical, metres: m ? d * m : null });
+  });
+  return out.sort((x, y) => y.times - x.times).slice(0, 3);
+}
+
+/* --- what a house viewing needs ---
+   The rooms that get forgotten, matched against what has actually been
+   photographed. Names are matched loosely on purpose: "Bed 1", "Bedroom 1"
+   and "Master Bedroom" are one room to everybody except a string compare. */
+const ROOM_ALIAS = { bed: 'bedroom', bedrm: 'bedroom', bathrm: 'bathroom', wcs: 'wc', loo: 'toilet', lav: 'toilet', lavatory: 'toilet', ensuite: 'en suite' };
+function normRoom(name){
+  // Dots go first so "W.C." is one word, not two letters.
+  const words = String(name || '').toLowerCase().replace(/\./g, '').replace(/[^a-z0-9]+/g, ' ').trim().split(' ').filter(Boolean)
+    .map(w => (w.length > 3 && w.endsWith('s') && !w.endsWith('ss')) ? w.slice(0, -1) : w)
+    .map(w => ROOM_ALIAS[w] || w);
+  return ' ' + words.join(' ') + ' ';
+}
+const has = (n, ...words) => words.some(w => n.includes(' ' + w + ' '));
+const CHECKS = [
+  { id: 'bathroom', short: 'Bathroom', name: 'a bathroom', test: n => has(n, 'bathroom', 'bath', 'shower room', 'shower', 'wet room', 'en suite') },
+  { id: 'wc', short: 'WC', name: 'a WC or cloakroom', test: n => has(n, 'wc', 'cloakroom', 'cloak', 'toilet', 'powder room') },
+  { id: 'utility', short: 'Utility', name: 'a utility room', test: n => has(n, 'utility', 'laundry', 'boot room') },
+  { id: 'hall', short: 'Hallway', name: 'a hallway', test: n => has(n, 'hall', 'hallway', 'entrance', 'entry', 'porch', 'foyer', 'vestibule', 'corridor', 'passage', 'lobby') },
+  { id: 'landing', short: 'Landing', name: 'the landing', test: n => has(n, 'landing') },
+  { id: 'stairs', short: 'Stairs', name: 'the stairs', test: n => has(n, 'stair', 'staircase', 'stairway', 'stairwell', 'step') },
+  { id: 'garage', short: 'Garage', name: 'the garage', test: n => has(n, 'garage', 'carport') },
+  // No 'hatch' (a serving hatch is not the loft) and no 'basement' (a cellar
+  // is its own room, not loft access).
+  { id: 'loft', short: 'Loft', name: 'the loft access', test: n => has(n, 'loft', 'attic') },
+  // No 'ground': "Ground floor WC" is not the garden.
+  { id: 'garden', short: 'Garden', name: 'the garden', test: n => has(n, 'garden', 'yard', 'patio', 'terrace', 'balcony', 'decking', 'deck', 'outside', 'outdoor', 'lawn') },
+  // "Front bedroom" is a bedroom, not the front of the house.
+  { id: 'front', short: 'Front', name: 'the front of the property', test: n => !has(n, 'bedroom') && (has(n, 'front', 'frontage', 'front elevation', 'kerb', 'curb', 'driveway', 'drive', 'exterior', 'street') || n.includes(' front of ')) },
+];
+/* Which of the checks a single room name reads as — exposed so a test can
+   see that "Bed 1" and "Master Bedroom" are treated alike. */
+function roomKinds(name){ const n = normRoom(name); return CHECKS.filter(c => c.test(n)).map(c => c.id); }
+function coverage(){
+  const names = S.rooms.filter(r => photosIn(r.id).length).map(r => normRoom(r.name));
+  return CHECKS.map(c => ({ id: c.id, short: c.short, name: c.name, got: names.some(n => c.test(n)) }));
+}
+
+/* --- painting the three boxes on the finish screen --- */
+function renderAdvice(){
+  const boxes = ['#finSharp', '#finWalk', '#finCover'];
+  if (S.tour || !S.photos.length) { boxes.forEach(b => $(b).hidden = true); return; }
+
+  /* 1 · sharpness */
+  const small = S.photos.filter(isTooSmall), soft = S.photos.filter(isSoft);
+  const sharpBox = $('#finSharp');
+  sharpBox.innerHTML = '';
+  sharpBox.hidden = !(small.length || soft.length);
+  sharpBox.className = 'advice ' + (small.length ? 'bad' : 'warn');
+  if (small.length) {
+    sharpBox.append(el('h3', { text: 'Too small to upload' }),
+      el('p', { class: 'hi', text: small.length + (small.length === 1 ? ' photo is' : ' photos are') + ' not a usable 360 photo: ' + someLabels(small) + '.' }),
+      el('p', { text: (small.length === 1
+        ? 'It is either under ' + MIN_W + ' × ' + (MIN_W / 2) + ' or not twice as wide as it is tall, so the server refuses it. Replace it'
+        : 'They are either under ' + MIN_W + ' × ' + (MIN_W / 2) + ' or not twice as wide as they are tall, so the server refuses them. Replace them')
+        + ' before you upload — everything else here would upload and then be turned away.' }));
+  }
+  if (soft.length) {
+    if (!small.length) sharpBox.append(el('h3', { text: 'Some photos will look soft' }));
+    const howMany = soft.length === S.photos.length
+      ? (soft.length === 1 ? 'Your one photo is' : 'All ' + soft.length + ' of your photos are')
+      : soft.length + ' of your ' + S.photos.length + ' photos ' + (soft.length === 1 ? 'is' : 'are');
+    const one = soft.length === 1;
+    sharpBox.append(el('p', { class: 'hi', text: howMany + ' under ' + SHARP_W + ' px wide: ' + someLabels(soft) + '.' }),
+      el('p', { text: 'A buyer only ever sees a slice of a 360 photo, blown up to fill their screen, so ' + (one ? 'it goes' : 'these go') +
+        ' soft as soon as anyone looks closely — and softer still if they zoom in. Nothing on this page or in the viewer can sharpen ' + (one ? 'it' : 'them') +
+        '; only shooting the room again at the camera\'s largest setting can.' }),
+      el('p', { text: 'You can upload ' + (one ? 'it as it is' : 'them as they are') + ' — that is your call, not ours.' }));
+  }
+
+  /* 2 · moving around */
+  const walkBox = $('#finWalk'); walkBox.innerHTML = '';
+  const singles = singleSpotRooms(), gaps = planGaps();
+  const lines = [];
+  if (singles.length) {
+    const names = singles.map(r => r.name);
+    const shown = names.slice(0, 4);
+    const rest = names.length - shown.length;
+    const who = names.length <= 4
+      ? joinList(names, 'and') + (names.length === 1 ? ' has' : ' have') + ' one spot' + (names.length === 1 ? '' : ' each')
+      : names.length + ' rooms have one spot each (' + shown.join(', ') + ' and ' + rest + ' more)';
+    lines.push({ hi: true, text: who + ' — a buyer can look round but cannot move. Two or three standpoints, 2–3 m apart, make a room somewhere you walk through instead of a photo you stand in.' });
+  }
+  if (S.rooms.length > 1) lines.push({ text: 'A standpoint standing in each doorway is what makes one room flow into the next. Without one, the buyer jumps.' });
+  gaps.forEach(g => lines.push({ hi: true, text: fullLabel(g.a) + ' → ' + fullLabel(g.b) + (g.metres ? ' are about ' + g.metres.toFixed(1) + ' m apart on the plan' : ' are far apart on the plan — roughly ' + g.times.toFixed(1) + '× the gap between your other standpoints') + '. A buyer crosses the whole distance in one step, which does not feel like walking. A standpoint in between, or in the doorway, fixes it.' }));
+  if (gaps.length && !planScale()) lines.push({ text: 'This page cannot tell what your floorplan\'s scale is in metres, so it compares the gaps on the plan with each other rather than inventing a distance.' });
+  if (S.photos.length > S.rooms.length) lines.push({ text: 'Every shot in a room wants the camera at the same eye height, about 1.5–1.6 m. Mixed heights feel like stumbling.' });
+  walkBox.hidden = !lines.length;
+  if (lines.length) {
+    walkBox.append(el('h3', { text: 'Moving around' }));
+    lines.forEach(l => walkBox.append(el('p', { class: l.hi ? 'hi' : '', text: l.text })));
+  }
+
+  /* 3 · what a viewing needs */
+  const cov = coverage(), missing = cov.filter(c => !c.got);
+  const covBox = $('#finCover'); covBox.innerHTML = ''; covBox.hidden = false;
+  covBox.append(el('h3', { text: 'What a viewing needs' }));
+  const ticks = el('div', { class: 'ticks' });
+  cov.forEach(c => ticks.append(el('span', { class: c.got ? 'yes' : '', text: (c.got ? '✓ ' : '· ') + c.short })));
+  covBox.append(ticks);
+  // One or two missing reads as a sentence; a long list reads as a list, so
+  // it uses the short labels. Either way it is a question, not a telling-off.
+  covBox.append(el('p', {
+    text: !missing.length ? 'Nothing obvious missing — the rooms people forget are all here.'
+      : missing.length === 1 ? 'Nothing named like ' + missing[0].name + ' yet — is there one?'
+      : missing.length <= 3 ? 'Nothing named like ' + joinList(missing.map(c => c.name), 'or') + ' yet — are they there to shoot?'
+      : 'Nothing named like ' + joinList(missing.map(c => c.id === 'wc' ? 'WC' : c.short.toLowerCase()), 'or') + ' yet — are they there to shoot?',
+  }));
+  covBox.append(el('p', { text: 'A buyer looks at the floor, at the ceiling and out of every window, so rooms want the lights on, the blinds open and your bag out of the shot.' }));
+}
+
 /* ---------- 5 · finish ---------- */
 function counts(){
   return { rooms: S.rooms.length, photos: S.photos.length, pinned: S.photos.filter(p => p.pin).length, calibrated: S.photos.filter(p => p.north != null).length,
@@ -989,7 +1239,15 @@ function renderFinish(){
     .map(([k, v]) => '<div><b>' + v + '</b><span>' + k + '</span></div>').join('');
   const ready = c.total > 0 && c.done === c.total && c.photos > 0;
   const fu = $('#finUploads');
-  if (S.tour) fu.textContent = '';
+  fu.className = 'small';
+  if (S.tour) {
+    // The server names any photo it thinks is too soft. Say it once, here,
+    // where the agent can still decide to go back and re-shoot the room.
+    const w = S.warnings || [];
+    fu.className = w.length ? 'small note' : 'small';
+    // The server's sentence already ends in a full stop; do not add a second.
+    fu.textContent = w.length ? ('Built, with a note: ' + w.join('; ').replace(/\s*\.\s*$/, '') + '. Re-shooting those rooms at the camera\'s largest setting is the only way to sharpen them.') : '';
+  }
   else if (!c.photos) fu.textContent = 'Nothing to upload yet — add at least one 360 photo.';
   else if (ready) fu.textContent = 'Everything is uploaded.';
   else fu.innerHTML = (c.done + ' of ' + c.total + ' files uploaded. ') + (c.failed ? c.failed + ' failed — <a href="#" id="retryAll">retry them</a>. ' : 'Finishing waits for the rest. ');
@@ -998,6 +1256,7 @@ function renderFinish(){
   $('#finErr').textContent = (!S.tour && uncal) ? uncal + ' standpoint' + (uncal === 1 ? '' : 's') + ' not calibrated — arrows there will be approximate.' : '';
   $('#finErr').className = 'small note';
   $('#btnComplete').disabled = !ready;
+  renderAdvice();
   $('#finPre').hidden = !!S.tour; $('#finPost').hidden = !S.tour;
   $('#finTitle').innerHTML = S.live ? 'THE TOUR IS <em>LIVE</em>' : (S.tour ? 'PREVIEW <em>READY</em>' : 'READY TO <em>PREVIEW</em>');
   $('#finBack').hidden = !!S.tour;
@@ -1026,16 +1285,8 @@ function buildManifest(){
   const links = []; const seen = new Set();
   const addLink = (a, b) => { if (!a || !b || a === b) return; const k = [a, b].sort().join('|'); if (seen.has(k)) return; seen.add(k); links.push([a, b]); };
   S.links.forEach(([a, b]) => addLink(keyOf.get(a), keyOf.get(b)));
-  for (let i = 0; i < S.rooms.length - 1; i++) {
-    const A = photosIn(S.rooms[i].id), B = photosIn(S.rooms[i + 1].id);
-    if (!A.length || !B.length) continue;
-    let pair = [A[A.length - 1], B[0]];
-    if (S.plan) {                              // with a plan: the closest pinned pair across the two rooms
-      let best = Infinity;
-      A.filter(p => p.pin).forEach(a => B.filter(p => p.pin).forEach(b => { const d = planDist(a.pin, b.pin); if (d < best) { best = d; pair = [a, b]; } }));
-    }
-    addLink(keyOf.get(pair[0].id), keyOf.get(pair[1].id));
-  }
+  // …and the room-to-room bridges (closest pinned pair when there is a plan).
+  bridgePairs().forEach(([a, b]) => addLink(keyOf.get(a.id), keyOf.get(b.id)));
   const first = S.rooms.map(r => photosIn(r.id)[0]).find(Boolean);
   return {
     action: 'complete_capture', capture_id: S.captureId, nodes,
@@ -1051,8 +1302,9 @@ $('#btnComplete').onclick = async () => {
   console.info('[capture] complete_capture manifest', JSON.stringify(manifest, null, 2));
   try {
     const res = await api(manifest);
-    S.tour = res.tour; await persist(true); renderFinish();
-    toast('Preview ready.', true);
+    S.tour = res.tour; S.warnings = Array.isArray(res.warnings) ? res.warnings : [];
+    await persist(true); renderFinish();
+    toast(S.warnings.length ? 'Preview ready — with a note about photo sharpness.' : 'Preview ready.', true);
   } catch (e) {
     if (e instanceof AuthError) { session = null; renderAuth(); showAuthOverlay(); $('#finErr').textContent = 'Sign in again, then tap Upload and preview.'; }
     else if (e.body && e.body.problems) { $('#finErr').textContent = 'The server rejected the capture: ' + e.body.problems.join('; '); }
@@ -1113,9 +1365,12 @@ async function mockApi(payload){
     case 'upload_url': return { upload_url: 'data:application/octet-stream;base64,', path: prefix + '/' + payload.filename };
     case 'complete_capture': {
       const problems = [];
-      payload.nodes.forEach(n => { if (!n.path || !n.path.startsWith(prefix + '/')) problems.push(n.key + ': bad path'); if (!(n.width >= 2048 && n.height >= 1024)) problems.push(n.key + ': too small'); });
+      // Mirrors the deployed function: under 4096 wide is refused outright,
+      // and anything under 8000 comes back as a warning, not a refusal.
+      payload.nodes.forEach(n => { if (!n.path || !n.path.startsWith(prefix + '/')) problems.push(n.key + ': bad path'); if (!(n.width >= MIN_W && n.height >= MIN_W / 2)) problems.push(n.key + ': ' + n.width + 'px wide is under the ' + MIN_W + 'px minimum'); });
       if (problems.length) { const e = new Error('rejected'); e.status = 422; e.body = { ok: false, problems }; throw e; }
-      return { ok: true, tour: mockTour('unlisted'), nodes: payload.nodes.length, rooms: S.rooms.length };
+      const warnings = payload.nodes.filter(n => n.width < SHARP_W).map(n => n.key + ' is only ' + n.width + 'px wide and will look soft');
+      return { ok: true, tour: mockTour('unlisted'), nodes: payload.nodes.length, rooms: S.rooms.length, warnings };
     }
     case 'go_live': return { ok: true, tour: mockTour('published') };
     default: throw new Error('mock: unknown action ' + payload.action);
@@ -1127,7 +1382,15 @@ function mockTour(status){
     urls: { preview: '/tour/?t=mock-14-example-street&vk=mockvk', live: '/tour/?t=mock-14-example-street' } };
 }
 function devTools(){
-  window.__cap = { get state(){ return S; }, acceptFile, addFiles, acceptPlan, buildManifest, addRoom, show, thumbs, sphere, bearing, norm360, norm180, refreshSession, pump };
+  window.__cap = { get state(){ return S; }, acceptFile, addFiles, acceptPlan, buildManifest, addRoom, show, thumbs, sphere, bearing, norm360, norm180, refreshSession, pump,
+    // resolution
+    MIN_W, SHARP_W, isFullSphere, sphereProblem, isSoft, isTooSmall,
+    // moving around
+    singleSpotRooms, bridgePairs, walkPairs, planGaps, planScale, planDist,
+    // coverage
+    normRoom, roomKinds, coverage, CHECKS,
+    // re-paint after poking at state directly
+    renderAdvice, renderRooms, renderFinish };
   $('#btnTestSet').onclick = async () => {
     if (!S.captureId) { $('#addr').value = $('#addr').value || '14 Example Street, SW1A 1AA'; await $('#go').onclick(); }
     const plan = [['Hallway', ['test-hall.jpg']], ['Kitchen', ['test-kitchen.jpg', 'test-kitchen-2.jpg']], ['Bedroom', ['test-bedroom.jpg']]];

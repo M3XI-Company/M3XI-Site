@@ -96,6 +96,8 @@ details ol{margin:10px 0 4px 18px;color:var(--txt);font-size:14px;line-height:1.
 .node .tools button{font-size:12px;padding:5px 8px;border:2px solid #6b6559;background:transparent}
 .node .tools button:disabled{opacity:.35;cursor:default}
 .node .tools button.danger{border-color:#8a3a2d}
+/* a resolution flag runs the full width of the row, not down the thin column */
+.node .flag{grid-column:1/-1;line-height:1.5}
 .node .handle{cursor:grab;font-size:18px;line-height:1;padding:2px 6px;border:2px solid #6b6559;background:transparent;touch-action:none}
 .status{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
 .status.queued{color:var(--dim)} .status.uploading{color:#ffd23f} .status.done{color:#7fd39b} .status.failed{color:#ff8a73;cursor:pointer;text-decoration:underline}
@@ -127,6 +129,19 @@ details ol{margin:10px 0 4px 18px;color:var(--txt);font-size:14px;line-height:1.
 .sum div{border:2px solid var(--edge);padding:10px 12px;background:var(--chrome)}
 .sum b{display:block;font-size:24px;font-family:'Arial Black',sans-serif}
 .sum span{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+/* advisory blocks — a nudge in the hallway, never a locked door */
+.advice{border:2px solid var(--edge);background:var(--chrome);padding:12px 14px;margin-top:14px}
+.advice h3{font-family:'Arial Black',sans-serif;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--dim)}
+.advice p{font-size:13px;line-height:1.55;color:var(--txt);margin:7px 0 0}
+.advice p.hi{color:var(--paper);font-weight:700}
+.advice ul{margin:7px 0 0 17px;font-size:13px;line-height:1.55;color:var(--txt)}
+.advice.warn{border-color:#7a6a22}
+.advice.warn h3{color:#ffd23f}
+.advice.bad{border-color:#8a3a2d}
+.advice.bad h3{color:#ff8a73}
+.ticks{display:flex;flex-wrap:wrap;gap:3px 12px;margin-top:8px;font-size:12.5px}
+.ticks span{color:var(--dim)}
+.ticks span.yes{color:#7fd39b;font-weight:700}
 pre.snip{white-space:pre-wrap;word-break:break-all;background:#000;border:2px solid var(--edge);padding:10px;font-size:12.5px;margin-top:6px;color:#e6e1d3}
 .linkbox{display:flex;gap:8px;align-items:center;margin-top:6px}
 .linkbox input{flex:1;min-width:0;font-size:14px;padding:9px 10px}
@@ -162,13 +177,15 @@ pre.snip{white-space:pre-wrap;word-break:break-all;background:#000;border:2px so
 <!-- 1 - start -->
 <section class="screen on" id="s-start"><div class="pad">
   <h1>A TOUR FROM <em>360 PHOTOS</em></h1>
-  <p class="lead">A <b>standpoint</b> is a spot a buyer can stand on and look around: one full 360 photo per standpoint, straight from the 360 camera's app (a phone photosphere app will do at a pinch). Photos must be complete 360 images &mdash; twice as wide as they are tall.</p>
+  <p class="lead">A <b>standpoint</b> is a spot a buyer can stand on and look around: one full 360 photo per standpoint, straight from the 360 camera's app. Photos must be complete 360 images &mdash; twice as wide as they are tall, at least <b>4096&nbsp;px wide</b>, and <b>8000&nbsp;px or wider</b> to stay sharp when a buyer looks closely.</p>
   <details id="howto">
     <summary>How to shoot</summary>
     <ol>
-      <li>Stand in the middle of the room, camera at about 1.5&nbsp;m (chest height) on a stick or tripod.</li>
-      <li>One photo per standpoint. Standpoints 2&ndash;3&nbsp;m apart; one in each doorway so the rooms join up.</li>
-      <li>Daylight on, lights on. Step out of the shot or stand directly under the camera.</li>
+      <li><b>Shoot at the camera's largest photo size.</b> A current 360 camera gives about 11000&nbsp;px wide. Under 8000&nbsp;px goes soft as soon as a buyer looks closely; under 4096&nbsp;px is refused here. A phone photosphere is usually around 4000&nbsp;px &mdash; a fallback when there is no camera, not the plan. Nothing later can put back detail the camera never recorded.</li>
+      <li>Camera at eye height &mdash; about 1.5&ndash;1.6&nbsp;m &mdash; and at the <b>same height for every shot in a room</b>. A tripod at knee height feels wrong to walk through.</li>
+      <li>Two or three standpoints per room, 2&ndash;3&nbsp;m apart, and one standing <b>in each doorway</b>: the doorway shots are what make one room flow into the next.</li>
+      <li>Shoot the rooms people forget: bathroom, WC, utility, hallway, landing, stairs, garage, loft hatch, the garden and the front of the property.</li>
+      <li>Daylight on, lights on, blinds open. Step out of the shot or stand directly under the camera.</li>
       <li>Export the stitched 360 image from the camera's app, then add it here.</li>
     </ol>
   </details>
@@ -219,6 +236,7 @@ pre.snip{white-space:pre-wrap;word-break:break-all;background:#000;border:2px so
 <section class="screen" id="s-rooms"><div class="pad">
   <h1>ROOMS &amp; <em>STANDPOINTS</em></h1>
   <p class="lead">Add a room, then add its 360 photos &mdash; one per standpoint. Drag a thumbnail to look around it. Photos upload in the background while you carry on.</p>
+  <p class="small" id="shootTips">Camera at eye height &mdash; about 1.5&ndash;1.6&nbsp;m &mdash; and at the same height for every shot in a room; a tripod at knee height feels wrong to walk through. Two or three standpoints per room, 2&ndash;3&nbsp;m apart, and one in each doorway so one room flows into the next.</p>
   <div class="lbl">Add a room</div>
   <div class="chips" id="roomChips"></div>
   <div class="row" style="margin-top:10px">
@@ -291,6 +309,9 @@ pre.snip{white-space:pre-wrap;word-break:break-all;background:#000;border:2px so
   <p class="lead" id="finAddr"></p>
   <div class="sum" id="sum"></div>
   <p class="small" id="finUploads" style="margin-top:12px" aria-live="polite"></p>
+  <div class="advice warn" id="finSharp" hidden></div>
+  <div class="advice" id="finWalk" hidden></div>
+  <div class="advice" id="finCover" hidden></div>
   <div id="finPre">
     <div style="margin-top:18px"></div>
     <button class="btn red big" id="btnComplete" type="button">Upload and preview</button>

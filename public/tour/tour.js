@@ -32,7 +32,12 @@ const FORCE_FLAT = DEV && Q.get('flat') === '1';
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const MAX_FULL = 6;                    // full-size textures kept in memory
-const FOV_MIN = 30, FOV_MAX = 100, FOV_DEFAULT = 75, PITCH_MAX = 85;
+/* PITCH_MAX is 90, not the usual 85: someone viewing a house looks straight
+   down at the floor (boards, carpet, damp) and straight up at the ceiling
+   (cracks, stains, coving). Stopping five degrees short hides exactly the
+   two surfaces a survey cares about. The nadir of a tripod shot does show
+   the tripod — that is what was really there, and it beats not looking. */
+const FOV_MIN = 30, FOV_MAX = 100, FOV_DEFAULT = 75, PITCH_MAX = 90;
 const ARROW_PITCH = -25, ARROW_DIST = 22, SPHERE_R = 50;
 const MOVE_MS = 500;
 
@@ -172,13 +177,31 @@ async function fetchImageRetry(urlOf, onProgress) {
 }
 
 /* --------------------------------------------------------- 3D textures */
-let THREE = null, renderer = null, maxAniso = 1, raycaster = null;
+let THREE = null, renderer = null, maxAniso = 1, maxTexture = 4096, raycaster = null;
 const cache = new Map(); // node id -> { full, preview, fullP, previewP, used }
 function entry(id) { let e = cache.get(id); if (!e) { e = { full: null, preview: null, fullP: null, previewP: null, used: 0 }; cache.set(id, e); } return e; }
 function countFull() { let n = 0; for (const e of cache.values()) if (e.full) n++; return n; }
 function countPreview() { let n = 0; for (const e of cache.values()) if (e.preview) n++; return n; }
+/* Shrink to what this GPU will actually hold, keeping the 2:1 shape. Done
+   once per image, on the way into the texture, so the rest of the viewer never
+   has to think about it. */
+function fitToGpu(img) {
+  const w = img.width || img.naturalWidth || 0;
+  if (!w || w <= maxTexture) return img;
+  const h = img.height || img.naturalHeight || Math.round(w / 2);
+  const scale = maxTexture / w;
+  const c = document.createElement('canvas');
+  c.width = maxTexture; c.height = Math.max(1, Math.round(h * scale));
+  const ctx = c.getContext('2d');
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img, 0, 0, c.width, c.height);
+  console.debug(`[tour] ${w}px panorama shrunk to ${c.width}px — this display caps textures at ${maxTexture}`);
+  if (img._blobUrl) { URL.revokeObjectURL(img._blobUrl); img._blobUrl = null; }
+  c._blobUrl = null;
+  return c;
+}
 function makeTexture(img) {
-  const t = new THREE.Texture(img);
+  const t = new THREE.Texture(fitToGpu(img));
   t.colorSpace = THREE.SRGBColorSpace;
   t.anisotropy = maxAniso;
   t.needsUpdate = true;
@@ -268,8 +291,16 @@ async function init3D() {
   renderer.autoClear = false;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   maxAniso = renderer.capabilities.getMaxAnisotropy ? renderer.capabilities.getMaxAnisotropy() : 1;
+  /* A good 360 camera makes an 11008-wide panorama. Plenty of phones and
+     older laptops cap textures at 8192 or even 4096, and handing WebGL an
+     oversized image does not fail loudly — it gives a black sphere. Read the
+     real limit once and shrink anything above it on the way in. */
+  maxTexture = renderer.capabilities.maxTextureSize || 4096;
   raycaster = new THREE.Raycaster();
-  const geo = new THREE.SphereGeometry(SPHERE_R, 64, 32);
+  // 128x64, not 64x32: now that the view reaches the poles, a coarse sphere
+  // shows its triangle fan as visible faceting straight up and down. One
+  // mesh, shared by both layers — the extra vertices cost nothing measurable.
+  const geo = new THREE.SphereGeometry(SPHERE_R, 128, 64);
   for (let i = 0; i < 2; i++) {
     const scene = new THREE.Scene();
     const mat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 1, depthTest: false, depthWrite: false });

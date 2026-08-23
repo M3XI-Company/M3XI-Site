@@ -35,7 +35,9 @@ Member-only actions require the signed-in user's JWT (supabase-js `session.acces
   captured_at }
 ```
 → `{ ok: true, tour: TourSummary, nodes, rooms }` or 422 `{ ok:false, problems:[...] }`.
-- Validation: every `path` under `storage_prefix/`; `width ≥ 2048`, `height ≥ 1024`, `width/height` within 4 % of 2:1; every object must already exist in storage.
+- Validation: every `path` under `storage_prefix/`; **`width ≥ 4096`, `height ≥ 2048`**, `width/height` within 4 % of 2:1; every object must already exist in storage.
+- **Why 4096 is the floor.** A panorama is wrapped around the viewer, so only the slice they face is on screen: at a 75° field of view that is 75/360 of the image width stretched across the whole window. Measured magnification on a 1920-wide window — 2048 → 4.5×, 4096 → 2.25×, 8192 → 1.13×, 11008 → 0.84× — and when a buyer zooms in to 30° to look at something, 4096 → 5.6×. Resolution at capture time is the only thing that decides whether a tour looks sharp; nothing downstream can put back detail the camera never recorded.
+- The success response carries a `warnings: string[]` naming any node under **8000 px** wide ("will look soft when a buyer looks closely"). Sharp is the normal case and says nothing.
 - Rooms are upserted by `r-<slug(room)>`; nodes by `r-<slug(room)>-n<ordinal>`. A node in a re-shot room that is not in this manifest becomes `superseded`. An agent's later edits (`edited_at` set by `update_room`/`update_node`) win over a re-capture.
 - The tour is created **unlisted** (or kept at its current status). Nothing goes live here.
 

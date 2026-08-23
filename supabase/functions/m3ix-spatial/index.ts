@@ -212,7 +212,9 @@ function validateNode(n: NodeIn, prefix: string): string | null {
   if (n.preview_path && !n.preview_path.startsWith(prefix + "/")) return "a preview is outside this capture";
   if (!n.room || typeof n.room !== "string") return "a photo has no room";
   const w = Number(n.width), h = Number(n.height);
-  if (!(w >= 2048 && h >= 1024)) return `"${n.label || n.room}" is too small (${w || "?"}×${h || "?"}); a 360 photo is at least 2048×1024`;
+  if (!(w >= PANO_MIN_W && h >= PANO_MIN_W / 2)) {
+    return `"${n.label || n.room}" is only ${w || "?"}×${h || "?"}. A 360 photo has to be at least ${PANO_MIN_W}×${PANO_MIN_W / 2} or it looks blurred the moment a buyer looks closely — export it at the camera's full size.`;
+  }
   if (Math.abs(w / h - 2) > 0.04) return `"${n.label || n.room}" is not a full 360 photo (${w}×${h} is not 2:1)`;
   if (n.source && !["360-camera", "phone-photosphere", "other"].includes(n.source)) return "unknown photo source";
   return null;
@@ -226,6 +228,26 @@ function validateNode(n: NodeIn, prefix: string): string | null {
    has to guess. Both objects live under captures/<property_id>/scans/, which
    `delete_tour`'s purge already sweeps. Nothing here reconstructs anything:
    the scan is a recording, and the facts only describe it. */
+/* WHY THE BAR IS THIS HIGH.
+
+   A panorama is wrapped around the viewer, so only the slice they are facing
+   is on screen: at a normal 75° field of view that is 75/360 of the image
+   width stretched across the whole window. On a 1920-wide window the source
+   therefore needs about 9,200 px of width to be pixel-for-pixel sharp, and
+   every pixel short of that is visible blur:
+
+     2048 wide -> 4.5x magnified   (unusable)
+     4096      -> 2.3x             (soft; the floor, not the goal)
+     8192      -> 1.1x             (sharp)
+    11008      -> 0.8x             (sharp, and still sharp zoomed in)
+
+   So 4096 is the hard floor and anything under 8000 earns a warning. Modern
+   360 cameras clear this comfortably — a Theta X or Insta360 X3 shoots around
+   11k — and the whole promise of the product is that a buyer can look closely
+   at a real room. */
+const PANO_MIN_W = 4096;      // below this it is blurred at any size
+const PANO_GOOD_W = 8000;     // at or above this it is sharp on a laptop
+
 const SCAN_FORMATS = ["ply", "spz", "splat", "ksplat"];
 /* THE REAL CEILING IS THE PROJECT'S, NOT THE BUCKET'S.
 
@@ -505,7 +527,15 @@ Deno.serve(async (req) => {
           }),
         }))?.[0];
       }
-      return json({ ok: true, capture_id, tour: await tourSummary(tour), nodes: touched.length, rooms: roomIdList.length, by: uid });
+      /* Sharp enough to publish is not the same as sharp. Name the photos that
+         will go soft the moment a buyer looks closely, so the agent can reshoot
+         them now rather than hear about it from a client. */
+      const soft = nodesIn.filter((n) => Number(n.width) < PANO_GOOD_W)
+        .map((n) => `${n.label || n.room} (${n.width}px)`);
+      const warnings = soft.length
+        ? [`${soft.length} photo${soft.length === 1 ? "" : "s"} will look soft when a buyer looks closely: ${soft.join(", ")}. A 360 camera set to its full size gives about 11000px; anything under ${PANO_GOOD_W} is being magnified on screen.`]
+        : [];
+      return json({ ok: true, capture_id, tour: await tourSummary(tour), nodes: touched.length, rooms: roomIdList.length, warnings, by: uid });
     }
 
     /* ------------------------------------------------------------------ */
