@@ -29,6 +29,21 @@ export default defineConfig({
         // team/ was never in this list, so /team/ silently vanished from every
         // build — fixed while adding the new pages.
         studio: resolve(__dirname, "studio/index.html"),
+        // The Studio was one 1,900-line page until it was split by job. Each of
+        // these is its own entry; they share studio.css and studio-core.js, so
+        // Rollup emits the shared parts once.
+        studioImages: resolve(__dirname, "studio/images.html"),
+        studioVideo: resolve(__dirname, "studio/video.html"),
+        studioWorlds: resolve(__dirname, "studio/worlds.html"),
+        studioBusiness: resolve(__dirname, "studio/business.html"),
+        studioLibrary: resolve(__dirname, "studio/library.html"),
+        studioPricing: resolve(__dirname, "studio/pricing.html"),
+        studioAccount: resolve(__dirname, "studio/account.html"),
+        // The video Editor. Its only module import is the Supabase client from
+        // a CDN, exactly like studio/index.html, so it bundles the same way —
+        // unlike walkthrough.html and ugc.html, which live under public/ because
+        // their importmaps do not survive Rollup.
+        studioEditor: resolve(__dirname, "studio/editor.html"),
         michael: resolve(__dirname, "michael/index.html"),
         team: resolve(__dirname, "team/index.html")
       }

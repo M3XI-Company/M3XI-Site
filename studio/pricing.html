@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M3XI Studio — Pricing</title>
+<link rel="icon" type="image/png" href="/M.png" />
+<meta name="description" content="Prepaid credits for images, video, 3D assets and worlds. £5, £20 or £45 packs. Business walkthrough plans are priced separately.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./studio.css">
+</head>
+<body>
+
+<div class="bar">
+  <div class="in">
+    <a class="logo" href="/studio/">M3XI <span class="jp">三X一</span> <span class="st">STUDIO</span></a>
+    <nav class="links">
+      <a href="https://www.m3xi.com/">M3XI</a>
+      <a href="images.html">Images</a>
+      <a href="video.html">Video</a>
+      <a href="worlds.html">Worlds</a>
+      <a href="walkthrough.html">Walk</a>
+      <a href="business.html">Business</a>
+      <a href="library.html">Library</a>
+      <a href="editor.html">Editor</a>
+      <a href="ugc.html">UGC</a>
+      <a href="pricing.html" class="on">Pricing</a>
+    </nav>
+    <div class="acct">
+      <a id="avatarChip" href="account.html" title="" style="display:none">&nbsp;</a>
+      <a class="btn sm ghost" id="btnProfile" href="account.html" style="display:none">Profile</a>
+      <a class="btn sm ghost" id="btnAuth" href="account.html">Sign in</a>
+      <a class="btn red sm" href="images.html">Enter Studio</a>
+    </div>
+  </div>
+</div>
+
+<section id="plans">
+  <div class="wrap">
+    <div class="sechead">
+      <h2 class="sfx">Developer Studio</h2>
+      <span class="note hand">credits, plans &amp; the company side</span>
+    </div>
+    <p class="subline">Creator pricing. Studio time is prepaid — buy a pack, spend it on anything you generate. No subscription and no surprise bills. Capturing real buildings is a different product on a different bill: that lives on <a href="business.html">Business</a>.</p>
+    <div class="plansGrid">
+      <div class="panel pack tilt-l"><span class="cap">Starter</span><h3>Try it properly</h3><div class="amt">£5</div><div class="cr">100 credits — 100 full-HD images, or a video clip + 40 images</div><button class="btn ghost" data-pack="starter">Buy Starter</button></div>
+      <div class="panel pack"><span class="cap red">Creator</span><h3>For weekly output</h3><div class="amt">£20</div><div class="cr">450 credits — stills, clips, films and UGC</div><button class="btn red" data-pack="creator">Buy Creator</button></div>
+      <div class="panel pack tilt-r"><span class="cap">Pro</span><h3>For teams</h3><div class="amt">£45</div><div class="cr">1,150 credits — campaigns, films, batch UGC</div><button class="btn" data-pack="pro">Buy Pro</button></div>
+    </div>
+    <div class="costRow">
+      <span class="chip">1 credit — image</span>
+      <span class="chip">60 credits — video clip (funds prompt refinement + film context)</span>
+      <span class="chip">15 credits — 3D asset</span>
+      <span class="chip">61 credits — UGC clip · batches ×3 / ×5</span>
+      <span class="chip">Short film ≤3 scenes · Long film ≤8 — 60 / scene</span>
+      
+      <span class="chip">Business walkthrough plans are separate — see <a href="business.html">Business</a></span>
+    </div>
+    <div class="balRow">
+      <input type="text" class="field" id="creditCode2" placeholder="Check a code's balance">
+      <button class="btn sm ghost" id="btnCheckBal2">Check balance</button>
+      <span class="small" id="balMsg2"></span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="in">
+    <div>
+      <div class="fl">M3XI <span style="color:var(--red)">三X一</span> STUDIO</div>
+      <p style="margin-top:8px">Less ornament, more intent. M3XI Studio is an independent product of M3XI — early, honest, and built to work. Generation runs on prepaid credits; the walkthrough platform is sold as a negotiated business plan.</p>
+    </div>
+    <div>
+      <p><b>Contact</b><br><a href="mailto:m3xiteam@m3xi.com">m3xiteam@m3xi.com</a></p>
+      <p style="margin-top:10px"><b>Studio</b><br>
+        <a href="walkthrough.html">Walkthrough</a> ·
+        <a href="editor.html">Editor</a> ·
+        <a href="ugc.html">UGC Studio</a> ·
+        <a href="library.html">Library</a> ·
+        <a href="pricing.html">Credits</a></p>
+      <p style="margin-top:10px"><b>M3XI</b><br>
+        <a href="https://www.m3xi.com/">Home</a> ·
+        <a href="https://www.m3xi.com/cornelia.html">Cornelia</a> ·
+        <a href="https://www.m3xi.com/autouv.html">AutoUV</a> ·
+        <a href="https://www.m3xi.com/callme.html">CallMe</a> ·
+        <a href="https://www.m3xi.com/projects/">Projects</a> ·
+        <a href="https://www.m3xi.com/jobs/">Jobs</a> ·
+        <a href="https://www.m3xi.com/michael/">Michael</a> ·
+        <a href="https://www.m3xi.com/privacy/">Policies</a> ·
+        <a href="https://www.m3xi.com/terms/">Terms</a></p>
+    </div>
+  </div>
+</footer>
+
+<div id="lb"><div class="panel" id="lbPanel"><img id="lbImg" src="" alt="full size"><div class="strip"><span id="lbCap"></span><a class="btn sm ghost" id="lbOpen" href="#" target="_blank" rel="noopener">Open original</a></div></div></div>
+<div id="topupModal" style="display:none;position:fixed;inset:0;z-index:90;background:rgba(22,21,18,.55);align-items:center;justify-content:center;padding:20px">
+  <div style="position:relative;width:min(430px,94vw);background:var(--card);border:3px solid var(--line);box-shadow:10px 10px 0 rgba(22,21,18,.9);padding:26px 28px;text-align:left">
+    <button id="topupClose" aria-label="Close" style="position:absolute;top:8px;right:10px;width:30px;height:30px;border:2px solid var(--line);background:var(--paper);font-size:15px;font-weight:800;cursor:pointer;line-height:1">×</button>
+    <div style="font-family:var(--disp);font-size:19px;letter-spacing:.02em;margin-bottom:10px">Out of credits</div>
+    <p id="topupLine" style="font-size:14px;line-height:1.65;color:var(--mut);margin:0 0 18px"></p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button id="topupGo" class="btn red sm" style="border:3px solid var(--line)">See credit packs</button>
+      <button class="btn sm ghost" onclick="document.getElementById('topupModal').style.display='none'">Not now</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="./studio-core.js"></script>
+
+</body>
+</html>

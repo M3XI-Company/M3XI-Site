@@ -30,6 +30,40 @@ const COST_REFINE = Number(Deno.env.get("M3IX_COST_REFINE") ?? 2);
 const COST_WORLD = Number(Deno.env.get("M3IX_COST_WORLD") ?? 150);
 const COST_WORLD_DRAFT = Number(Deno.env.get("M3IX_COST_WORLD_DRAFT") ?? 40);
 
+/* ---------------------------------------------------------------------------
+   VIDEO SHAPE AND LENGTH.
+
+   Kling 2.5 turbo accepts a 5s or a 10s clip and one of three frame shapes.
+   Both were hard-coded — the UI could not ask for a vertical clip, so every
+   video came back 1920x1080 and had to be cropped to 608 wide for a story,
+   throwing away two thirds of every frame. These clamp rather than validate:
+   an unknown value falls back to the old default instead of failing a
+   generation the user has already been charged for.
+   --------------------------------------------------------------------------- */
+const VIDEO_DURATIONS = ["5", "10"] as const;
+const VIDEO_ASPECTS = ["16:9", "9:16", "1:1"] as const;
+
+function clampDuration(v: unknown): string {
+  const s = String(v ?? "5");
+  return (VIDEO_DURATIONS as readonly string[]).includes(s) ? s : "5";
+}
+function clampAspect(v: unknown): string {
+  const s = String(v ?? "16:9");
+  return (VIDEO_ASPECTS as readonly string[]).includes(s) ? s : "16:9";
+}
+/** The provider bills by the second, so we do too. */
+function videoCost(duration: string): number {
+  return duration === "10" ? COST_VIDEO * 2 : COST_VIDEO;
+}
+
+/* Who may approve a video for the public Library. Comma-separated emails in
+   M3IX_ADMINS; falls back to the founder address so the queue is never
+   unreviewable because a secret was missed. */
+function adminEmails(): string[] {
+  return (Deno.env.get("M3IX_ADMINS") ?? "admin@m3xi.com")
+    .split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+}
+
 function falKey(): string {
   const k = Deno.env.get("FAL_KEY");
   if (!k) throw new Error("FAL_KEY secret is not set. Add it once: Supabase dashboard → Edge Functions → Secrets → FAL_KEY.");
@@ -83,6 +117,20 @@ async function callerId(req: Request): Promise<string | null> {
     if (!r.ok) return null;
     const u = await r.json();
     return UUIDRE.test(String(u?.id ?? "")) ? String(u.id) : null;
+  } catch { return null; }
+}
+
+/** The signed-in user's id AND email — moderation needs to know who is asking. */
+async function callerUser(req: Request): Promise<{ id: string; email: string } | null> {
+  const anon = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+  const token = bearer(req);
+  if (!token || !BASE() || token === anon) return null;
+  try {
+    const r = await fetch(`${BASE()}/auth/v1/user`, { headers: { Authorization: `Bearer ${token}`, apikey: anon } });
+    if (!r.ok) return null;
+    const u = await r.json();
+    if (!UUIDRE.test(String(u?.id ?? ""))) return null;
+    return { id: String(u.id), email: String(u?.email ?? "").toLowerCase() };
   } catch { return null; }
 }
 
@@ -474,30 +522,40 @@ Deno.serve(async (req: Request) => {
     if (action === "video_submit") {
       const uid = await callerId(req);
       if (!uid) return json(SIGNUP_REQUIRED, 401);
-      const ch = await charge(req, COST_VIDEO, "video");
+
+      /* Length is a real choice now, not a hard-coded 5. Kling bills by the
+         second, so the charge has to follow it — a 10s clip that cost the same
+         as a 5s one would be a straight loss on every long generation. */
+      const dur = clampDuration(body.duration);
+      const cost = videoCost(dur);
+      const ch = await charge(req, cost, "video");
       if (!ch.ok) return json({ error: ch.error }, ch.status);
       const remaining: number = ch.balance;
-      let prompt = String(body.prompt ?? "").trim();
-      // The scene director. Marble renders what the prompt asks for and stops
-      // there; a game map needs asking for EVERYTHING. Appended to every
-      // world prompt so completeness is the default, not prompt-craft.
-      if (prompt && body.raw !== true) {
-        prompt = prompt.slice(0, 1200) +
-          " — a complete, coherent world in every direction: continuous ground with no missing patches or holes, " +
-          "every building closed on all sides, consistent art direction and lighting throughout, " +
-          "detail held from near to far, nothing floating or half-formed, game-environment completeness.";
-      }
-      if (!prompt) { await refundUser(uid, COST_VIDEO, action); return json({ error: "Missing prompt" }, 400); }
+
+      /* NOTE: this used to append the world "scene director" paragraph — the
+         one about continuous ground and buildings closed on all sides — to
+         every VIDEO prompt. It belongs to world_submit and was copied here by
+         mistake, so every clip generated in the Studio was quietly asking for
+         game-environment completeness. Video prompts now go through untouched. */
+      const prompt = String(body.prompt ?? "").trim().slice(0, 1200);
+      if (!prompt) { await refundUser(uid, cost, action); return json({ error: "Missing prompt" }, 400); }
+
       const ref = typeof body.image_url === "string" && body.image_url ? body.image_url : null;
       let ep = String(body.endpoint ?? (ref ? DEFAULTS.vidI2V : DEFAULTS.vidT2V));
-      if (!ep.startsWith("fal-ai/")) { await refundUser(uid, COST_VIDEO, action); return json({ error: "Endpoint must start with fal-ai/" }, 400); }
-      const payload = ref ? { prompt, image_url: ref, duration: "5" } : { prompt, duration: "5", aspect_ratio: String(body.aspect ?? "16:9") };
+      if (!ep.startsWith("fal-ai/")) { await refundUser(uid, cost, action); return json({ error: "Endpoint must start with fal-ai/" }, 400); }
+
+      /* image-to-video takes its frame shape from the reference image, so
+         aspect_ratio is only meaningful on the text path — sending it with an
+         image_url is at best ignored and at worst a 422. */
+      const payload: Record<string, unknown> = ref
+        ? { prompt, image_url: ref, duration: dur }
+        : { prompt, duration: dur, aspect_ratio: clampAspect(body.aspect) };
       const r = await fetch(`https://queue.fal.run/${ep}`, { method: "POST", headers: auth, body: JSON.stringify(payload) });
       const text = await r.text();
-      if (!r.ok) { await refundUser(uid, COST_VIDEO, action); return json({ error: `fal ${r.status}: ${text.slice(0, 300)}` }, 502); }
+      if (!r.ok) { await refundUser(uid, cost, action); return json({ error: `fal ${r.status}: ${text.slice(0, 300)}` }, 502); }
       const j = JSON.parse(text);
-      await logJob("video", ep, { prompt: prompt.slice(0, 500), ref: !!ref, code: code ?? undefined }, "queued", { request_id: j?.request_id });
-      return json({ request_id: j?.request_id, status_url: j?.status_url, response_url: j?.response_url, credits_remaining: remaining ?? undefined });
+      await logJob("video", ep, { prompt: prompt.slice(0, 500), ref: !!ref, duration: dur, aspect: payload.aspect_ratio ?? "from image", code: code ?? undefined }, "queued", { request_id: j?.request_id });
+      return json({ request_id: j?.request_id, status_url: j?.status_url, response_url: j?.response_url, charged: cost, duration: dur, credits_remaining: remaining ?? undefined });
     }
 
     if (action === "video_status" || action === "video_result") {
@@ -509,7 +567,113 @@ Deno.serve(async (req: Request) => {
       return new Response(text, { headers: { ...CORS, "Content-Type": "application/json" } });
     }
 
-    return json({ error: "Unknown action. Use image | video_submit | video_status | video_result | asset_submit | refine | world_submit | world_status | world_import | fetch_asset | balance" }, 400);
+    /* =======================================================================
+       THE VIDEO LIBRARY.
+
+       A finished video is worth nothing sitting in a browser tab. These four
+       actions are the shop window: publish puts a video in the queue, list
+       serves the approved ones to everybody, queue and moderate are the
+       founder's desk.
+
+       Everything writes with the service role on purpose. The table has no
+       client INSERT or UPDATE grant, so 'approved' cannot be set by the person
+       who made the video — only by someone on the admin list.
+       ======================================================================= */
+    if (action === "video_publish") {
+      const me = await callerUser(req);
+      if (!me) return json(SIGNUP_REQUIRED, 401);
+      const url = String(body.video_url ?? "").trim();
+      if (!/^https:\/\//.test(url)) return json({ error: "A published video needs its https URL." }, 400);
+      const row = {
+        owner: me.id,
+        title: String(body.title ?? "Untitled").trim().slice(0, 120) || "Untitled",
+        prompt: String(body.prompt ?? "").slice(0, 1000) || null,
+        video_url: url,
+        poster_url: typeof body.poster_url === "string" && /^https:\/\//.test(body.poster_url) ? body.poster_url : null,
+        duration_secs: Number.isFinite(Number(body.duration_secs)) ? Number(body.duration_secs) : null,
+        width: Number.isFinite(Number(body.width)) ? Math.round(Number(body.width)) : null,
+        height: Number.isFinite(Number(body.height)) ? Math.round(Number(body.height)) : null,
+        aspect: typeof body.aspect === "string" ? body.aspect.slice(0, 12) : null,
+        source: body.source === "editor" ? "editor" : "studio",
+        maker_name: typeof body.maker_name === "string" ? body.maker_name.slice(0, 80) : null,
+        maker_link: typeof body.maker_link === "string" && /^https?:\/\//.test(body.maker_link) ? body.maker_link.slice(0, 300) : null,
+        status: "pending",
+      };
+      const r = await fetch(`${BASE()}/rest/v1/m3ix_videos`, {
+        method: "POST",
+        headers: { ...svcHeaders(), Prefer: "return=representation" },
+        body: JSON.stringify(row),
+      });
+      const text = await r.text();
+      if (!r.ok) return json({ error: `Could not publish: ${text.slice(0, 200)}` }, 502);
+      const saved = JSON.parse(text)?.[0] ?? null;
+      return json({
+        id: saved?.id ?? null,
+        status: "pending",
+        message: "Sent to the Library — it goes live once it has been checked.",
+      });
+    }
+
+    if (action === "video_list") {
+      const limit = Math.min(Math.max(Number(body.limit ?? 24), 1), 60);
+      const cols = "id,title,prompt,video_url,poster_url,duration_secs,width,height,aspect,source,maker_name,maker_link,views,created_at";
+      const r = await fetch(
+        `${BASE()}/rest/v1/m3ix_videos?select=${cols}&status=eq.approved&order=created_at.desc&limit=${limit}`,
+        { headers: svcHeaders() },
+      );
+      if (!r.ok) return json({ videos: [] });
+      return json({ videos: await r.json() });
+    }
+
+    if (action === "video_mine") {
+      const me = await callerUser(req);
+      if (!me) return json(SIGNUP_REQUIRED, 401);
+      const cols = "id,title,video_url,poster_url,status,source,created_at,review_note";
+      const r = await fetch(
+        `${BASE()}/rest/v1/m3ix_videos?select=${cols}&owner=eq.${me.id}&order=created_at.desc&limit=60`,
+        { headers: svcHeaders() },
+      );
+      if (!r.ok) return json({ videos: [] });
+      return json({ videos: await r.json() });
+    }
+
+    if (action === "video_queue" || action === "video_moderate") {
+      const me = await callerUser(req);
+      if (!me) return json(SIGNUP_REQUIRED, 401);
+      if (!adminEmails().includes(me.email)) return json({ error: "Not your queue." }, 403);
+
+      if (action === "video_queue") {
+        const cols = "id,title,prompt,video_url,poster_url,duration_secs,aspect,source,owner,created_at";
+        const want = String(body.status ?? "pending");
+        const st = ["pending", "approved", "rejected", "hidden"].includes(want) ? want : "pending";
+        const r = await fetch(
+          `${BASE()}/rest/v1/m3ix_videos?select=${cols}&status=eq.${st}&order=created_at.asc&limit=100`,
+          { headers: svcHeaders() },
+        );
+        if (!r.ok) return json({ videos: [] });
+        return json({ videos: await r.json() });
+      }
+
+      const id = String(body.id ?? "");
+      if (!UUIDRE.test(id)) return json({ error: "Which video?" }, 400);
+      const want = String(body.status ?? "");
+      if (!["approved", "rejected", "hidden", "pending"].includes(want)) return json({ error: "status must be approved, rejected, hidden or pending." }, 400);
+      const r = await fetch(`${BASE()}/rest/v1/m3ix_videos?id=eq.${id}`, {
+        method: "PATCH",
+        headers: { ...svcHeaders(), Prefer: "return=representation" },
+        body: JSON.stringify({
+          status: want,
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: me.id,
+          review_note: typeof body.note === "string" ? body.note.slice(0, 400) : null,
+        }),
+      });
+      const text = await r.text();
+      if (!r.ok) return json({ error: `Could not update: ${text.slice(0, 200)}` }, 502);
+      return json({ ok: true, status: want });
+    }
+
+    return json({ error: "Unknown action. Use image | video_submit | video_status | video_result | video_publish | video_list | video_mine | video_queue | video_moderate | asset_submit | refine | world_submit | world_status | world_import | fetch_asset | balance" }, 400);
   } catch (e) {
     return json({ error: (e as Error).message }, 500);
   }
