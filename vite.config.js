@@ -22,6 +22,9 @@ export default defineConfig({
         // Required by Google Play: a deletion route reachable WITHOUT installing
         // the app. Every page needs an explicit entry here or Vite never emits it.
         deleteAccount: resolve(__dirname, "delete-account/index.html"),
+        // Google Play child safety standards policy (dating/social apps) requires
+        // a published CSAE standards page; the Play declaration links here.
+        childSafety: resolve(__dirname, "child-safety/index.html"),
         contact: resolve(__dirname, "contact/index.html"),
         projects: resolve(__dirname, "projects/index.html"),
         jobs: resolve(__dirname, "jobs/index.html"),
