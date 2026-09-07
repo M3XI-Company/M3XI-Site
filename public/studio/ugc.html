@@ -95,6 +95,13 @@ footer a{color:var(--ink)}
   .rv.in{opacity:1}
   .rv.mv.in{transform:translateY(0)}
 }
+
+/* waitlist forms (shared /waitlist.js) */
+.wlForm{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;margin-top:10px}
+.wlForm input[type=email]{flex:1 1 180px;min-width:0;border:3px solid var(--line);background:#fff;color:var(--ink);padding:7px 10px;font:inherit;font-size:13px}
+.wlForm input[type=email]:focus{outline:none;box-shadow:3px 3px 0 rgba(22,21,18,.85)}
+.wlForm .hp{position:absolute;left:-9999px;opacity:0;pointer-events:none}
+.wl-msg{font-size:12.5px;margin:6px 0 0;min-height:1.2em}.wl-msg.ok{color:#2f6b3a}.wl-msg.err{color:var(--red,#d0402b)}
 </style>
 </head>
 <body>
@@ -106,7 +113,7 @@ footer a{color:var(--ink)}
       <a href="index.html#work">Work</a>
       <a href="index.html#studio">Studio</a>
       <a href="index.html#worlds">Worlds</a>
-      <a href="walkthrough.html">Walk</a>
+      <a href="walkthrough.html">Spatial</a>
       <a href="index.html#library">Library</a>
       <a href="ugc.html" class="on">UGC Studio</a>
       <a href="index.html#plans">Credits</a>
@@ -201,7 +208,8 @@ footer a{color:var(--ink)}
       <div class="panel rc"><span class="stamp" style="top:-12px;right:10px">in development</span><h4>Auto-schedule to socials</h4><p>Connect TikTok / Instagram. Batches generate on your schedule and post themselves every few hours — the whole line runs without you clicking.</p></div>
       <div class="panel rc"><span class="stamp" style="top:-12px;right:10px">in development</span><h4>Performance dashboard</h4><p>Clicks, activity, which video hit — charts per clip, plus the AI's own summary of what sold and why.</p></div>
     </div>
-    <p class="price-note" style="margin-top:16px">Register interest for any of these: <a href="mailto:m3xiteam@m3xi.com?subject=UGC%20roadmap%20early%20access">m3xiteam@m3xi.com</a></p>
+    <p class="price-note" style="margin-top:16px">Register interest for any of these and we'll email you when they open:</p>
+    <div style="max-width:460px"><form class="m3xi-waitlist wlForm" data-product="ugc" data-label="UGC Studio" novalidate><label class="hp" aria-hidden="true">Company<input type="text" name="company" tabindex="-1" autocomplete="off"></label><input type="email" name="email" placeholder="you@email.com" required aria-label="Email address"><button type="submit" class="btn sm red" style="color:#fff">Register interest</button></form><p class="wl-msg" aria-live="polite"></p></div>
   </div>
 </section>
 
@@ -598,5 +606,6 @@ window.__sessionToken=async()=>{
 };
 </script>
 
+<script src="/waitlist.js" defer></script>
 </body>
 </html>

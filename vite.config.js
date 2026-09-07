@@ -26,7 +26,7 @@ export default defineConfig({
         // a published CSAE standards page; the Play declaration links here.
         childSafety: resolve(__dirname, "child-safety/index.html"),
         contact: resolve(__dirname, "contact/index.html"),
-        projects: resolve(__dirname, "projects/index.html"),
+        services: resolve(__dirname, "services/index.html"),
         jobs: resolve(__dirname, "jobs/index.html"),
         // Studio-first wiring: flagship product page and Michael's profile.
         // team/ was never in this list, so /team/ silently vanished from every

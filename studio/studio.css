@@ -297,3 +297,10 @@ footer a{color:var(--ink)}
   .rv.in{opacity:1}
   .rv.mv.in{transform:translateY(0)}
 }
+
+/* waitlist forms (shared /waitlist.js) */
+.wlForm{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;margin-top:10px}
+.wlForm input[type=email]{flex:1 1 180px;min-width:0;border:3px solid var(--line);background:#fff;color:var(--ink);padding:7px 10px;font:inherit;font-size:13px}
+.wlForm input[type=email]:focus{outline:none;box-shadow:3px 3px 0 rgba(22,21,18,.85)}
+.wlForm .hp{position:absolute;left:-9999px;opacity:0;pointer-events:none}
+.wl-msg{font-size:12.5px;margin:6px 0 0;min-height:1.2em}.wl-msg.ok{color:#2f6b3a}.wl-msg.err{color:var(--red,#d0402b)}

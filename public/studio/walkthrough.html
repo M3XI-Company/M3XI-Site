@@ -244,6 +244,7 @@ a{color:var(--gold)}
 </div></div>
 <div class="ovScroll">
 <div class="card">
+  <a class="btn" id="ovBack" href="/studio/worlds.html" style="position:absolute;top:-16px;left:-3px;font-size:12px;padding:5px 10px">&larr; Back</a>
   <h3>CREATE YOUR <em style="color:var(--gold);font-style:normal">AI WORLD</em></h3>
   <p id="ovMsg">Describe it. Walk it. Publish it. Pick a style or write your own — and when the space is real, it works just as hard:
   showrooms, house tours and galleries walk the same way. Scan or photograph the place, drop it here, share the link —
@@ -320,6 +321,16 @@ const $=s=>document.querySelector(s);
 const status=$('#status'),hint=$('#hint'),overlay=$('#overlay'),ovProg=$('#ovProg');
 const Q=new URLSearchParams(location.search);
 const EMBED=Q.get('embed')==='1';
+/* Back from the "Create your AI world" screen. A real Back when the visitor
+   came from another page on this site; otherwise the Worlds page (a direct
+   link or a fresh tab has nowhere else sensible to go). Embeds are somebody
+   else's page, so no Back at all. */
+(function(){
+  const b=document.getElementById('ovBack');if(!b)return;
+  if(EMBED){b.style.display='none';return;}
+  let same=false;try{same=document.referrer&&new URL(document.referrer).origin===location.origin&&!/walkthrough\.html/.test(document.referrer);}catch(e){}
+  b.addEventListener('click',e=>{if(same&&history.length>1){e.preventDefault();history.back();}});
+})();
 
 /* ---------- renderer / scene ----------
    Spark probes the GPU the moment its module evaluates, so a browser with

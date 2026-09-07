@@ -69,6 +69,36 @@
       "source": "/products/",
       "destination": "/#products",
       "permanent": false
+    },
+    {
+      "source": "/projects",
+      "destination": "/services/",
+      "permanent": true
+    },
+    {
+      "source": "/projects/",
+      "destination": "/services/",
+      "permanent": true
+    },
+    {
+      "source": "/projects/:path*",
+      "destination": "/services/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/studio/walkthrough",
+      "destination": "/studio/walkthrough.html",
+      "permanent": false
+    },
+    {
+      "source": "/walk",
+      "destination": "/studio/walkthrough.html",
+      "permanent": false
+    },
+    {
+      "source": "/studio/walk",
+      "destination": "/studio/walkthrough.html",
+      "permanent": false
     }
   ],
   "rewrites": [

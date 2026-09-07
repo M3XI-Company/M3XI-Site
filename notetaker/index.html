@@ -251,8 +251,8 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 </div></div></section>
 
 <script>
- const SUPABASE_URL="https://nfdegwfgrlikmmzakxqw.supabase.co";
- const SUPABASE_KEY="sb_publishable_7ChibjJuhY73-E_PGHz1DA_Pq_SnsNT";
+ const SUPABASE_URL="https://tnlcuptfldwxtxajudoq.supabase.co";
+ const SUPABASE_KEY="sb_publishable_9_QupB72Lwr4GnP2dhW0bg_TTLT_uiJ";
  const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  const form=document.getElementById('wl-form'),emailEl=document.getElementById('wl-email'),nameEl=document.getElementById('wl-name'),
  hpEl=form.querySelector('input[name=company]'),btn=document.getElementById('wl-submit'),msg=document.getElementById('wl-msg'),
@@ -263,7 +263,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
   if(hpEl.value)return; if(!EMAIL_RE.test(email)){setMsg('Please enter a valid email address.','err');emailEl.focus();return;}
   btn.disabled=true;const lb=btn.textContent;btn.textContent='Joining…';
   const p=new URLSearchParams(location.search);
-  try{const res=await fetch(SUPABASE_URL+'/rest/v1/waitlist',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+  try{const res=await fetch(SUPABASE_URL+'/rest/v1/m3ix_waitlist',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
    body:JSON.stringify({email,name:name||null,product:'cornelia',source:'website',metadata:{ref:document.referrer||null,utm_source:p.get('utm_source'),ua:navigator.userAgent}})});
    if(res.ok){form.style.display='none';okBox.style.display='block';return;}
    let b={};try{b=await res.json();}catch(_){}

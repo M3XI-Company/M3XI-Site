@@ -6,7 +6,7 @@
     <title>CallMe by M3XI — call-first dating, no swiping</title>
     <meta
       name="description"
-      content="CallMe is M3XI's call-first dating app — the opposite of swipe apps. Set your preferences once, tap Start, and you're in a live voice call with a compatible person. In development. Join the waitlist."
+      content="CallMe is M3XI's call-first dating app — the opposite of swipe apps. Set your preferences once, tap Start, and you're in a live voice call with a compatible person. Ready — join the waitlist for early access."
     />
     <link rel="icon" type="image/png" href="/M.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -239,6 +239,21 @@
       .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
       .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.6s ease, transform 0.6s ease; }
       .reveal.is-visible { opacity: 1; transform: none; }
+
+      /* ---------- Screens ---------- */
+      .screens { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.1rem; margin: 2.2rem 0 0; padding: 0; list-style: none; }
+      .screens figure { margin: 0; text-align: center; }
+      .screens img { display: block; width: 100%; height: auto; filter: drop-shadow(0 12px 22px rgba(35, 28, 24, 0.16)); }
+      .screens figcaption { margin-top: 0.7rem; font-size: 0.86rem; color: var(--ink-muted); line-height: 1.4; }
+      .screens figcaption b { display: block; color: var(--ink); font-weight: 600; }
+      @media (max-width: 960px) {
+        .screens { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .screens figure:nth-child(n+4) { grid-column: span 1; }
+      }
+      @media (max-width: 600px) {
+        .screens { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 0.9rem; padding-bottom: 0.6rem; -webkit-overflow-scrolling: touch; }
+        .screens figure { flex: 0 0 62%; scroll-snap-align: center; }
+      }
     </style>
   </head>
   <body>
@@ -247,6 +262,7 @@
       <nav class="nav">
         <a href="/#products">Products</a>
         <a href="#how">How it works</a>
+        <a href="#screens">Screens</a>
         <a href="#why">Why call-first</a>
         <a class="nav-cta" href="#waitlist">Join waitlist</a>
       </nav>
@@ -258,7 +274,7 @@
         <div class="wrap hero-grid">
           <div class="reveal is-visible">
             <a class="back-link" href="/">&larr; Back to M3XI</a>
-            <div class="pill"><span class="dot"></span> In development · early access soon</div>
+            <div class="pill"><span class="dot"></span> Ready · early access opening</div>
             <p class="script" style="font-size:1.6rem; margin:0.6rem 0 -0.3rem;">the opposite of swiping…</p>
             <h1>Skip the profiles. <em>Just talk.</em></h1>
             <p class="lead">
@@ -336,6 +352,24 @@
         </div>
       </section>
 
+      <!-- SCREENS -->
+      <section id="screens">
+        <div class="wrap">
+          <div class="reveal">
+            <p class="eyebrow">In the app</p>
+            <h2 class="section-title">What a call looks like</h2>
+            <p class="lead">Real screens from the current Android build. Paper, ink and a wax seal — not a swipe deck.</p>
+          </div>
+          <div class="screens reveal">
+            <figure><img src="/callme/callme-01-choose.png" alt="CallMe screen: choose between joining a table or meeting someone new" loading="lazy" width="442" height="941"><figcaption><b>Choose how</b>A table with a few people, or one to one.</figcaption></figure>
+            <figure><img src="/callme/callme-02-home.png" alt="CallMe home screen: Ready to talk? with the envelope to start calling" loading="lazy" width="442" height="941"><figcaption><b>Ready to talk?</b>Press the letter three times to send it.</figcaption></figure>
+            <figure><img src="/callme/callme-03-matching.png" alt="CallMe matching screen: finding someone who fits" loading="lazy" width="434" height="941"><figcaption><b>Matching</b>Preferences, distance and age, checked both ways.</figcaption></figure>
+            <figure><img src="/callme/callme-04-voice-call.png" alt="CallMe voice-only call screen with Add friend and Skip" loading="lazy" width="434" height="940"><figcaption><b>Voice first</b>Camera off until you both say yes.</figcaption></figure>
+            <figure><img src="/callme/callme-05-video-call.png" alt="CallMe video call screen with reactions, Add friend and Skip" loading="lazy" width="432" height="942"><figcaption><b>Video, if you both opt in</b>Reactions, looks, and a Skip that costs nothing.</figcaption></figure>
+          </div>
+        </div>
+      </section>
+
       <!-- WHY CALL-FIRST -->
       <section id="why">
         <div class="wrap">
@@ -385,7 +419,7 @@
           <p class="eyebrow">Early access</p>
           <h2 class="section-title">Join the CallMe waitlist</h2>
           <p class="lead" style="margin-inline:auto;">
-            CallMe is in development. Leave your email and we'll invite you when the first calls
+            CallMe is ready. Leave your email and we'll invite you as the first calls
             go live — you'll be among the first to try call-first dating.
           </p>
           <div class="waitlist-card">
@@ -420,7 +454,7 @@
     <footer>
       <div class="wrap">
         © <span id="year"></span> M3XI · CallMe — call-first dating ·
-        <a href="/privacy/#callme">Privacy &amp; Policy</a> · <a href="/projects/">Projects</a> · <a href="/jobs/">Jobs</a>
+        <a href="/privacy/#callme">Privacy &amp; Policy</a> · <a href="/services/">Services</a> · <a href="/jobs/">Jobs</a>
       </div>
     </footer>
 
