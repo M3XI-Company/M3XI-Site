@@ -68,6 +68,16 @@ Deno.serve(async (req: Request) => {
       if (!ins.ok) {
         return text(`Payment received, but the credits could not be added automatically.\n\nQuote this reference to support: ${sid}`, 500);
       }
+      /* THE WALLET: what the customer actually paid, in pence, so the wallet
+         panel can show real revenue against provider spend. Unique on the
+         Stripe session, so a refresh cannot double-count. */
+      try {
+        await fetch(`${base}/rest/v1/m3ix_purchases`, {
+          method: "POST",
+          headers: { ...svcHeaders(), Prefer: "return=minimal,resolution=ignore-duplicates" },
+          body: JSON.stringify({ user_id: uid, stripe_session: sid, credits, amount_pence: Number(session.amount_total ?? 0) || null }),
+        });
+      } catch { /* dashboard only */ }
     }
     /* Paying is what earns the referrer their discount — not signing up, which
        costs nothing and would make the scheme farmable with throwaway

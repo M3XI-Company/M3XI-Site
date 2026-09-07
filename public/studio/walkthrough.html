@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>M3XI — Create your AI world</title>
+<title>M3XI Spatial</title>
 <link rel="icon" type="image/png" href="/M.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,7 +43,24 @@ button,input,textarea{font-family:inherit}
 #ovLoadWrap .rule{margin-top:26px;height:3px;background:rgba(22,21,18,.12)}
 #ovLoadWrap .rule span{display:block;height:100%;width:0%;background:var(--ink);transition:width .25s linear}
 #ovLoadWrap .note{margin-top:14px;font-size:12px;color:var(--mut);min-height:1.3em}
-#overlay{transition:opacity .9s cubic-bezier(.22,1,.36,1)}
+#overlay{transition:opacity .5s cubic-bezier(.22,1,.36,1)}
+/* First-frame control hint (top, centred) and the place strip (bottom-left,
+   above the status / Library chips). Both are visitor-facing and stay in embed. */
+#ctrlHint{position:fixed;left:50%;top:64px;transform:translateX(-50%);z-index:21;background:var(--card);color:var(--ink);border:3px solid var(--line);box-shadow:4px 4px 0 rgba(22,21,18,.85);padding:8px 16px;font-size:13px;font-weight:600;display:none;max-width:calc(100vw - 24px);text-align:center;opacity:0;transition:opacity .4s}
+#ctrlHint.show{display:block;opacity:1}
+#placeStrip{position:fixed;left:12px;bottom:104px;z-index:21;background:var(--card);border:2px solid var(--line);box-shadow:3px 3px 0 rgba(22,21,18,.55);padding:6px 11px;font-size:12px;font-weight:700;color:var(--ink);display:none;max-width:min(360px,calc(100vw - 24px));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#placeStrip span{color:var(--mut);font-weight:600;margin-right:6px}
+#planLock{position:fixed;right:12px;top:64px;z-index:26;width:min(320px,92vw);background:var(--card);border:3px solid var(--line);box-shadow:6px 6px 0 rgba(22,21,18,.85);padding:16px;display:none}
+#planLock h4{font-family:var(--disp);font-size:14px;letter-spacing:.04em;margin-bottom:8px;color:var(--gold)}
+#planLock p{font-size:13px;line-height:1.5;color:var(--mut);margin-bottom:12px}
+#exportPanel{position:fixed;right:12px;top:64px;z-index:26;width:min(420px,94vw);background:var(--card);border:3px solid var(--line);box-shadow:6px 6px 0 rgba(22,21,18,.85);padding:16px;display:none;max-height:calc(100vh - 84px);overflow:auto}
+#exportPanel h4{font-family:var(--disp);font-size:14px;letter-spacing:.04em;margin-bottom:6px;color:var(--gold)}
+#exportPanel p{font-size:12.5px;line-height:1.5;color:var(--mut);margin-bottom:10px}
+#exportPanel textarea{width:100%;height:96px;background:#fff;border:2px solid var(--line);color:var(--ink);font-size:11px;padding:8px;font-family:ui-monospace,Menlo,Consolas,monospace;resize:vertical}
+@media (prefers-reduced-motion: reduce){
+  #overlay,#ctrlHint,.btn,.ovLib .wc{transition:none!important}
+  #ovLoadWrap .rule span{transition:none!important}
+}
 #overlay.fading{opacity:0;pointer-events:none}
 #ovAttach .att{position:relative;width:74px;height:74px;border:2px solid var(--line);background:#fff;box-shadow:3px 3px 0 rgba(22,21,18,.8)}
 #ovAttach .att img{width:100%;height:100%;object-fit:cover;display:block}
@@ -92,7 +109,7 @@ a{color:var(--gold)}
 <body>
 
 <div class="bar">
-  <a class="logo" href="index.html" title="M3XI Studio — home">M3<em>XI</em><span>Walkthrough</span></a>
+  <a class="logo" href="index.html" title="M3XI Studio — home">M3<em>XI</em><span>Spatial</span></a>
   <a class="btn" href="https://www.m3xi.com/" title="m3xi.com">M3XI.com</a>
   <button class="btn gold" id="btnLoad">Load scan</button>
   <input type="file" id="fileInput" accept=".ply,.spz,.splat,.ksplat" style="display:none">
@@ -105,6 +122,7 @@ a{color:var(--gold)}
   <button class="btn" id="btnReset" title="Back to the start of this world">Reset view</button>
   <button class="btn" id="btnRefine" style="display:none" title="Regenerate this world from your current view and prompt — a new take, 150 credits">Refine</button>
   <button class="btn" id="btnShare">Share</button>
+  <button class="btn" id="btnExport" style="display:none" title="Embed snippet and a portable page for your own website">Export for your website</button>
   <button class="btn" id="btnFull">Fullscreen</button>
 </div>
 
@@ -112,6 +130,20 @@ a{color:var(--gold)}
 <div id="aiMark" role="note">AI-GENERATED — NOT A RECORD OF A REAL PLACE</div>
 <div id="fixHint" style="display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:74px;z-index:30;background:rgba(22,21,18,.92);color:#f4eedf;border:2px solid var(--red);padding:9px 14px;font-size:13px;max-width:520px;text-align:center">Room look wrong? Open <b>Calibrate</b> and try the &ldquo;which way is up&rdquo; buttons &mdash; the numbers jump on the right one.</div>
 <div class="hint" id="hint"></div>
+<div id="ctrlHint" role="status"></div>
+<div id="placeStrip" role="status"><span>You are near:</span><b id="placeName"></b></div>
+<div id="planLock" role="dialog" aria-label="Spatial business plans">
+  <h4>Spatial is for business plans</h4>
+  <p>Spatial is part of the business plans. From &pound;200 a month &mdash; includes hosting, enquiries to your dashboard and one-click export.</p>
+  <div class="rowb"><a class="btn gold" href="/studio/business.html">See business plans</a><a class="btn" id="planLockSignIn" href="/studio/account.html" style="display:none">Sign in</a><button class="btn" id="planLockClose">Close</button></div>
+</div>
+<div id="exportPanel" role="dialog" aria-label="Export for your website">
+  <h4>Export for your website</h4>
+  <p>Paste this into any page on your website. It stays live and updates when you publish changes.</p>
+  <textarea id="exportSnip" readonly spellcheck="false"></textarea>
+  <div class="rowb" style="margin-top:8px"><button class="btn gold" id="exportCopy">Copy</button><button class="btn" id="exportDownload">Download portable page</button><a class="btn" id="exportOpen" target="_blank" rel="noopener">Open embed</a><button class="btn" id="exportClose">Close</button></div>
+  <div class="small" id="exportStatus" style="margin-top:8px">&nbsp;</div>
+</div>
 
 <div class="panel" id="calPanel">
   <h4>Calibrate scan</h4>
@@ -233,7 +265,7 @@ a{color:var(--gold)}
   <div class="pp" style="right:4.5%;bottom:7%;width:24%;height:34%;transform:rotate(-1.7deg)"><span class="pcap">Gallery world</span><img src="https://v3b.fal.media/files/b/0aa5ae0f/P_5hymWZreaaKZH5-XX2j.jpg" alt=""></div>
   <div class="pp" style="left:28.5%;top:-5%;width:17%;height:23%;transform:rotate(1deg)"><span class="pcap">Home world</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/-W5THKxgRSpok6zaaPFsZ.jpg" alt=""></div>
   <div class="pp" style="right:29%;bottom:-6%;width:17%;height:24%;transform:rotate(-1.2deg)"><span class="pcap">Twilight listing</span><img src="https://v3b.fal.media/files/b/0aa5ae20/2LANjv1jCQUgpSwlujnHM.jpg" alt=""></div>
-  <div class="hand" style="left:3.5%;top:46%;transform:rotate(-3.5deg)">simulated walkthrough demos ↓</div>
+  <div class="hand" style="left:3.5%;top:46%;transform:rotate(-3.5deg)">simulated Spatial demos ↓</div>
   <div class="hand" style="right:4%;top:44%;transform:rotate(2.5deg)">scan it → walk it ★</div>
 </div>
 <div id="ovLoadWrap"><div class="inner">
@@ -245,7 +277,7 @@ a{color:var(--gold)}
 <div class="ovScroll">
 <div class="card">
   <a class="btn" id="ovBack" href="/studio/worlds.html" style="position:absolute;top:-16px;left:-3px;font-size:12px;padding:5px 10px">&larr; Back</a>
-  <h3>CREATE YOUR <em style="color:var(--gold);font-style:normal">AI WORLD</em></h3>
+  <h3>M3XI <em style="color:var(--gold);font-style:normal">SPATIAL</em> <span style="display:block;font-size:13px;letter-spacing:.14em;color:var(--mut);margin-top:6px">CREATE YOUR WORLD</span></h3>
   <p id="ovMsg">Describe it. Walk it. Publish it. Pick a style or write your own — and when the space is real, it works just as hard:
   showrooms, house tours and galleries walk the same way. Scan or photograph the place, drop it here, share the link —
   visitors browse it in 3D and <b>Enquire</b> reaches you directly. <a href="/studio/#spatial" style="color:var(--gold);font-weight:700">M3XI Spatial</a> runs it for businesses.</p>
@@ -1461,6 +1493,7 @@ window.__applyRememberedFix=applyRememberedFix;
 /* ---------- player state ---------- */
 const player={x:0,y:1.6,z:2.4,yaw:0,pitch:0,eye:1.6,speed:1.35,floor:0,feetY:0,vy:0,grounded:true};
 let mode='walk',toastUntil=0;
+const REDUCED_MOTION=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 function toast(t,ms){hint.textContent=t;hint.style.display='block';toastUntil=performance.now()+(ms||1800);}
 const orbit={theta:0.6,phi:1.15,dist:5,target:new THREE.Vector3(0,1,0)};
 const keys={};
@@ -1497,7 +1530,6 @@ function docExtras(fromDoc){
   if(EMBED){
     const lg=document.querySelector('.logo');
     if(lg)lg.innerHTML=String(fromDoc.name||'World').replace(/</g,'&lt;')+(fromDoc.creator&&fromDoc.creator.name?' <span>by '+String(fromDoc.creator.name).replace(/</g,'&lt;')+'</span>':'');
-    toast(('ontouchstart' in window)?'Drag to look \u00b7 joystick to move \u00b7 tap objects':'Click to capture the mouse \u00b7 WASD move \u00b7 Space jump \u00b7 Esc releases',7000);
   }
 }
 function afterLoad(mesh,{authored=false,fromDoc=null}={}){
@@ -1647,8 +1679,34 @@ function hideOverlay(){
   const ov=overlay;
   setTimeout(()=>{
     ov.classList.add('fading');
-    setTimeout(()=>{ov.style.display='none';ov.classList.remove('fading');loadUI(false);},950);
-  },250);
+    setTimeout(()=>{ov.style.display='none';ov.classList.remove('fading');loadUI(false);showCtrlHint();},520);
+  },200);
+}
+/* First frame: one line of controls for four seconds, then gone. */
+let _ctrlT=0;
+function showCtrlHint(){
+  const el=document.getElementById('ctrlHint');if(!el)return;
+  el.textContent=('ontouchstart' in window)?'Drag to look \u00b7 joystick to walk':'Drag to look \u00b7 W A S D or arrows to walk \u00b7 Tap a marker to learn more';
+  el.classList.add('show');
+  clearTimeout(_ctrlT);
+  _ctrlT=setTimeout(()=>{el.classList.remove('show');},4000);
+  updatePlaceStrip(performance.now(),true);
+}
+/* "You are near: <hotspot>" while a named hotspot is within 3 m; otherwise the
+   world's name. Throttled — it reads from the loop every quarter second. */
+let _placeAt=0,_placeTxt='';
+function updatePlaceStrip(now,force){
+  if(!force&&now-_placeAt<250)return;_placeAt=now;
+  const el=document.getElementById('placeStrip'),nm=document.getElementById('placeName');
+  if(!el||!nm)return;
+  if(!splat){if(el.style.display!=='none'){el.style.display='none';_placeTxt='';}return;}
+  let best=null,bd=3;
+  for(const h of hotspots){if(!h||!h.pos||!h.title)continue;const d=Math.hypot(h.pos[0]-player.x,h.pos[2]-player.z);if(d<bd){bd=d;best=h;}}
+  const label=best?'You are near:':'';
+  const txt=best?String(best.title):String(worldState.name||($('#wName')&&$('#wName').value)||'').trim();
+  if(!txt){if(el.style.display!=='none')el.style.display='none';_placeTxt='';return;}
+  const key=label+'|'+txt;
+  if(key!==_placeTxt){_placeTxt=key;el.firstElementChild.textContent=label;nm.textContent=txt;el.style.display='block';}
 }
 let srcInfo=null; // retained environment source for saving: {kind:'bytes'|'url', bytes?, name, url?}
 /* Walking needs the GPU; nothing else does. Every load path passes through
@@ -2038,7 +2096,8 @@ async function saveWorld({publish}={}){
     b.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(worldState.slug);b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy share code',1400);};
     const base=location.href.split('?')[0];
     const snip=$('#embedSnip');snip.style.display='';
-    snip.value='<iframe src="'+base+'?world='+worldState.slug+'&embed=1" style="width:100%;height:620px;border:0;border-radius:12px" allow="fullscreen"></iframe>';
+    snip.value=spatialEmbedSnippet(worldState.slug,name);
+    const xb=$('#btnExport');if(xb&&spatialUnlocked&&!EMBED)xb.style.display='';
   }catch(e){wStatus('Save failed: '+e.message);}
 }
 async function openWorld(slug,key){
@@ -2052,10 +2111,11 @@ async function openWorld(slug,key){
     worldState.slug=slug;worldState.edit_key=(l.owner&&key)?key:null;
     const doc=l.world;
     worldState.published=!!l.published;worldState.owner=!!l.owner;updatePubButtons();
+    spatialReady.then(applySpatialLock);
     // The backend says where a world came from (source); older docs say it
     // themselves (generator). Either one means: generated, not photographed.
     markAi(l.source==='marble'||!!(doc&&doc.generator==='marble'));
-    if(doc&&doc.name)document.title=String(doc.name)+' — M3XI';
+    if(doc&&doc.name)document.title=String(doc.name)+' — M3XI Spatial';
     const env=doc&&doc.environment;
     if(!env||(!env.src&&!(env.parts&&env.parts.length)))throw new Error('World has no environment');
     if(env.parts&&env.parts.length)loadFromParts(env.parts,env.file||env.src||'scan.ply',{fromDoc:doc});
@@ -2095,6 +2155,104 @@ async function userToken(){
   try{const{data:{session}}=await sbAuth.auth.getSession();return session&&session.access_token||null;}
   catch(e){return null;}
 }
+
+/* ---------- business plan lock ----------------------------------------------
+   Spatial (this editor) is sold as a business plan. Making, saving, publishing,
+   sharing, calibrating and hotspot editing need a signed-in account whose
+   m3ix_accounts row has plan in SPATIAL_PLANS and plan_status = 'active'.
+   Viewing a world (?world= / ?embed=1) stays open to everyone.
+   This is UI gating only: the server (m3ix-worlds) should enforce the same
+   rule on create / save / publish / unpublish, and must never rely on this.
+   The owner's admin email always passes. */
+const SPATIAL_PLANS=['start','starter','growth','business','enterprise'];
+const SPATIAL_ADMINS=['admin@m3xi.com'];
+let spatialUnlocked=false,spatialSignedIn=false;
+async function checkSpatialPlan(){
+  try{
+    const{data:{session}}=await sbAuth.auth.getSession();
+    if(!session||!session.user){spatialSignedIn=false;spatialUnlocked=false;return false;}
+    spatialSignedIn=true;
+    const email=String(session.user.email||'').toLowerCase();
+    if(SPATIAL_ADMINS.includes(email)){spatialUnlocked=true;return true;}
+    const{data,error}=await sbAuth.from('m3ix_accounts').select('plan,plan_status').eq('user_id',session.user.id).maybeSingle();
+    if(error||!data){spatialUnlocked=false;return false;}
+    const plan=String(data.plan||'').toLowerCase().trim(),st=String(data.plan_status||'').toLowerCase().trim();
+    spatialUnlocked=SPATIAL_PLANS.includes(plan)&&st==='active';
+    return spatialUnlocked;
+  }catch(e){spatialUnlocked=false;return false;}
+}
+const spatialReady=EMBED?Promise.resolve(false):checkSpatialPlan().then(u=>{applySpatialLock();return u;});
+try{sbAuth.auth.onAuthStateChange(()=>{if(!EMBED)checkSpatialPlan().then(applySpatialLock);});}catch(e){}
+function applySpatialLock(){
+  if(EMBED)return;
+  const xb=$('#btnExport');if(xb)xb.style.display=(spatialUnlocked&&(worldState.slug||Q.get('world')))?'':'none';
+  const si=$('#planLockSignIn');if(si)si.style.display=spatialSignedIn?'none':'';
+  if(spatialUnlocked){const pl=$('#planLock');if(pl)pl.style.display='none';}
+}
+function showPlanLock(){
+  const pl=$('#planLock');if(!pl)return;
+  const si=$('#planLockSignIn');if(si)si.style.display=spatialSignedIn?'none':'';
+  pl.style.display='block';
+  $('#calPanel').style.display='none';$('#drawer').style.display='none';$('#exportPanel').style.display='none';
+}
+$('#planLockClose').onclick=()=>{$('#planLock').style.display='none';};
+/* Wrap an editor control so it only runs for an unlocked account. */
+function gateSpatial(id){
+  const el=document.getElementById(id);if(!el)return;
+  const orig=el.onclick;
+  el.onclick=async function(e){
+    await spatialReady;
+    if(!spatialUnlocked){if(e&&e.preventDefault)e.preventDefault();showPlanLock();return;}
+    if(typeof orig==='function')return orig.call(this,e);
+  };
+}
+
+/* ---------- one-step export ----------
+   The same iframe the owner pastes into any page; the portable page wraps it
+   full-viewport with a small credit line. Both point at the live world, so
+   publishing changes updates every copy. */
+const SPATIAL_BASE='https://www.m3xi.com/studio/walkthrough.html';
+function escAttr(t){return String(t||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function spatialEmbedUrl(slug){return SPATIAL_BASE+'?world='+encodeURIComponent(slug)+'&embed=1';}
+function spatialEmbedSnippet(slug,name){
+  return '<iframe src="'+spatialEmbedUrl(slug)+'" width="100%" height="600" style="border:0;border-radius:12px" allow="fullscreen; xr-spatial-tracking" allowfullscreen loading="lazy" title="'+escAttr(name||'World')+' \u2014 M3XI Spatial"></iframe>';
+}
+function spatialPortablePage(slug,name){
+  const t=escAttr(name||'World');
+  return '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>'+t+'</title>\n'+
+    '<style>html,body{margin:0;height:100%;background:#161512;color:#f5f2e9;font-family:Inter,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}'+
+    '.wrap{display:flex;flex-direction:column;height:100%}.wrap iframe{flex:1;width:100%;border:0;display:block}'+
+    'footer{padding:8px 14px;font-size:12px;color:#c9c3b4;border-top:1px solid #3a3731;text-align:right}footer a{color:#f5f2e9;font-weight:700;text-decoration:none}</style>\n</head>\n<body>\n<div class="wrap">\n'+
+    '<iframe src="'+spatialEmbedUrl(slug)+'" allow="fullscreen; xr-spatial-tracking" allowfullscreen title="'+t+' \u2014 M3XI Spatial"></iframe>\n'+
+    '<footer>Powered by <a href="https://www.m3xi.com/studio/business.html" rel="noopener">M3XI Spatial</a></footer>\n</div>\n</body>\n</html>\n';
+}
+function exportSay(t){const el=$('#exportStatus');if(el)el.textContent=t||'\u00a0';}
+function copyText(text){
+  const fallback=()=>{const ta=$('#exportSnip');try{ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);document.execCommand&&document.execCommand('copy');return true;}catch(e){return false;}};
+  if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(text).then(()=>true).catch(()=>fallback());
+  return Promise.resolve(fallback());
+}
+function openExportPanel(){
+  const slug=worldState.slug||Q.get('world');
+  if(!slug){$('#drawer').style.display='block';wStatus('Save or publish this world first \u2014 then Export gives you the snippet for your website.');return;}
+  const name=($('#wName').value||worldState.name||'World').trim()||'World';
+  $('#exportSnip').value=spatialEmbedSnippet(slug,name);
+  $('#exportOpen').href=spatialEmbedUrl(slug);
+  exportSay(worldState.published?'This world is published \u2014 the snippet works on any site.':'Draft worlds show only with a view key; publish to make the snippet public.');
+  $('#planLock').style.display='none';$('#calPanel').style.display='none';
+  $('#exportPanel').style.display='block';
+}
+$('#btnExport').onclick=openExportPanel;
+$('#exportClose').onclick=()=>{$('#exportPanel').style.display='none';};
+$('#exportCopy').onclick=async()=>{const ok=await copyText($('#exportSnip').value);exportSay(ok?'Copied. Paste it into your page.':'Could not copy automatically \u2014 select the text above and copy it.');};
+$('#exportDownload').onclick=()=>{
+  const slug=worldState.slug||Q.get('world');if(!slug)return;
+  const name=($('#wName').value||worldState.name||'World').trim()||'World';
+  const blob=new Blob([spatialPortablePage(slug,name)],{type:'text/html;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=slug.replace(/[^\w-]+/g,'-')+'-spatial.html';
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
+  exportSay('Downloaded. Upload that file anywhere on your website.');
+};
 async function gcall(payload){
   const tok=await userToken();
   const bearer=tok||M3IX_W.key;
@@ -2380,13 +2538,13 @@ window.__demoRoom=demoRoom;
 function applyBranding(b){
   b=b||{};
   if(b.color)document.documentElement.style.setProperty('--gold',b.color);
-  if(b.name&&!EMBED){const lg=document.querySelector('.logo');if(lg)lg.innerHTML=b.name.replace(/</g,'&lt;')+' <span>walkthrough</span>';}
+  if(b.name&&!EMBED){const lg=document.querySelector('.logo');if(lg)lg.innerHTML=b.name.replace(/</g,'&lt;')+' <span>Spatial</span>';}
   if(EMBED&&b.cta&&b.cta.url){const c=$('#btnBrandCta');c.href=b.cta.url;c.textContent=b.cta.label||'Visit website';c.style.display='';}
 }
 window.__applyBranding=applyBranding;
 if(EMBED){
   // Visitors get the experience, not the workshop: world name, share, fullscreen — settings are the creator's.
-  ['btnLoad','btnCal','btnHs','btnPublish','btnWalkMode','btnOrbitMode','ovLoad','ovDemo','ovGen','ovLibWrap','ovArt'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['btnLoad','btnCal','btnHs','btnPublish','btnWalkMode','btnOrbitMode','btnExport','planLock','exportPanel','ovLoad','ovDemo','ovGen','ovLibWrap','ovArt'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   status.style.display='none';
   const lb=document.getElementById('btnLibrary');if(lb)lb.style.display='';
   const oc=$('#ovWorldCode');if(oc&&!Q.get('world')){$('#ovMsg').innerHTML='This experience opens from a world link.';}
@@ -2652,12 +2810,19 @@ function loop(){
       orbit.target.z+orbit.dist*Math.sin(orbit.phi)*Math.cos(orbit.theta));
     camera.lookAt(orbit.target);if(now>toastUntil)hint.style.display='none';
   }
-  hsGroup.children.forEach((sp,i)=>{sp.position.y=hotspots[i]?hotspots[i].pos[1]+Math.sin(now/500+i)*0.03:sp.position.y;});
+  if(!REDUCED_MOTION)hsGroup.children.forEach((sp,i)=>{const h=hotspots[i];if(!h)return;
+    sp.position.y=h.pos[1]+Math.sin(now/500+i)*0.03;
+    const k=0.22*(1+0.09*Math.sin(now/650+i));sp.scale.set(k,k,1);});   // subtle pulse
+  updatePlaceStrip(now,false);
   renderer.render(scene,camera);
   if((now|0)%30===0)status.textContent=(splatCount?splatCount.toLocaleString()+' splats · ':'')+Math.round(fpsE)+' fps';
 }
 loop();
 addEventListener('resize',()=>{renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();});
+
+/* Editor controls are business-plan features; wrap them once every handler
+   above has been assigned. Viewing is untouched. */
+if(!EMBED)['btnCal','btnHs','btnPublish','btnShare','btnSaveWorld','btnPublishWorld','btnUnpublish','btnDrop','btnApplyJson','hsSave','hsDelete','btnSaveFix'].forEach(gateSpatial);
 
 /* ---------- boot ---------- */
 window.__afterLoadTest=d=>afterLoad(splat,{fromDoc:d});

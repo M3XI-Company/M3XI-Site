@@ -6,7 +6,11 @@ import { existsSync } from "node:fs";
 // it exists locally but NOT on the build server. Listing it unconditionally
 // would fail every Vercel build with a missing-input error.
 const panel = resolve(__dirname, "panel/index.html");
-const privatePages = existsSync(panel) ? { panel } : {};
+const wallet = resolve(__dirname, "panel/wallet.html");
+const privatePages = {
+  ...(existsSync(panel) ? { panel } : {}),
+  ...(existsSync(wallet) ? { panelWallet: wallet } : {}),
+};
 
 export default defineConfig({
   build: {

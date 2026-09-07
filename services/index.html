@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Services — what M3XI builds and runs</title>
-<meta name="description" content="The M3XI services library — a live look at the apps we're currently building: Cornelia (NoteTaker), AutoUV and CallMe. Status, stack and what's on the workbench." />
+<meta name="description" content="M3XI services: website building, video creation and management, robotics and AI consulting, digital walkthroughs (M3XI Spatial), app development and 3D. Plus our mobile and desktop apps — Cornelia, CallMe, AutoUV and M3XI Studio." />
 <link rel="icon" type="image/png" href="/M.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -89,6 +89,44 @@ section{padding:56px 0;position:relative}
 .now b{color:var(--ink)}
 .sheet-actions{display:flex;gap:12px;flex-wrap:wrap}
 
+/* services grid */
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:28px}
+@media(max-width:960px){.svc-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.svc-grid{grid-template-columns:1fr}}
+.svc{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px 24px 22px;
+  box-shadow:0 24px 50px -44px rgba(43,66,87,.5)}
+.svc .no{font-size:10px;letter-spacing:2px;color:var(--gold);font-weight:600;margin-bottom:10px}
+.svc h3{font-size:21px;line-height:1.2;margin-bottom:8px}
+.svc p{color:var(--ink2);font-size:14.5px;margin-bottom:14px;flex:1}
+.svc .price{font-size:13px;color:var(--ink);font-weight:600;padding:8px 0 12px;border-top:1px dashed var(--line);margin-top:auto}
+.svc .price span{display:block;font-weight:400;color:var(--ink2);font-size:12.5px}
+.svc .acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.svc .acts .lnk2{font-size:13.5px;color:var(--blue);border-bottom:1px solid var(--line)}
+.btn-sm{padding:9px 16px;font-size:13.5px}
+
+/* apps: tabbed panels */
+.tabs{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:999px;background:var(--panel);padding:4px;margin:22px 0 18px}
+.tab{appearance:none;background:transparent;border:0;border-radius:999px;padding:9px 20px;font:inherit;font-size:14px;font-weight:600;color:var(--ink2);cursor:pointer;transition:background .2s,color .2s}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{background:linear-gradient(180deg,#2c2a22,#19150F);color:#F4EEDF}
+.tab:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.panel-apps{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:26px 28px 28px;box-shadow:0 30px 60px -46px rgba(43,66,87,.5)}
+.panel-apps[hidden]{display:none}
+.panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:12px;border-bottom:1px dashed var(--line)}
+.panel-head h3{font-size:22px}
+.panel-head .sub{font-size:13.5px;color:var(--ink2);margin:0}
+.app-list{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:720px){.app-list{grid-template-columns:1fr}}
+.app-row{display:flex;flex-direction:column;gap:8px;background:var(--white);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px}
+.app-row .top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.app-row h4{font-size:19px}
+.app-row p{color:var(--ink2);font-size:14px;margin:0}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:4px 9px;border-radius:999px;border:1px solid var(--line);color:var(--blue);background:var(--paper2)}
+.badge.soon{color:var(--ink2);border-style:dashed}
+.app-row .go{margin-top:4px;font-size:13.5px;font-weight:600;color:var(--blue)}
+.app-row .go:hover{color:var(--ink)}
+
 /* footer */
 footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);font-size:13px;background:rgba(246,240,227,.6);margin-top:40px}
 .foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
@@ -111,11 +149,121 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 
 <section style="padding-bottom:20px"><div class="wrap">
   <p class="eyebrow">Our services</p>
-  <h1>On the <em>workbench.</em></h1>
-  <p class="lede">Everything we&rsquo;re actively building right now, in one place. No vapourware, no padding &mdash; three real projects, each at a different stage. We update this page as things move.</p>
+  <h1>What we build <em>and run.</em></h1>
+  <p class="lede">M3XI is a small studio. We take on client work in a handful of areas where we already ship our own products, and we publish our own apps for phones and desktops. Every service below is quoted directly by the team; you get a reply within one working day.</p>
 </div></section>
 
-<div class="dim">Currently building · updated July 2026</div>
+<div class="dim">Services · quoted per project</div>
+
+<section id="services" style="padding-top:20px"><div class="wrap reveal">
+  <p class="eyebrow">Client work</p>
+  <h2>Six things we do <em>for others.</em></h2>
+  <p class="lede">Short descriptions, honest scope. Where a service has published pricing we show it; everything else is quoted per project once we know what you need.</p>
+
+  <div class="svc-grid">
+
+    <article class="svc">
+      <div class="no">01 &mdash; WEB</div>
+      <h3>Website building</h3>
+      <p>Fast, hand-built static and dynamic sites &mdash; landing pages, product sites, portfolios and small business sites. Designed and coded by us, hosted where you like, with the forms, waitlists and analytics you actually need.</p>
+      <div class="price">Quoted per project<span>Reply within one working day</span></div>
+      <div class="acts"><a class="btn btn-primary btn-sm" href="/contact/">Start a website &rarr;</a></div>
+    </article>
+
+    <article class="svc">
+      <div class="no">02 &mdash; VIDEO</div>
+      <h3>Video creation and management</h3>
+      <p>AI-generated and edited short-form video, produced and scheduled for brands. Scripts, storyboards, voice and score, then a posting calendar we manage for you. Powered by M3XI Studio.</p>
+      <div class="price">Quoted per project<span>Reply within one working day. Self-serve credits from &pound;5 in the Studio.</span></div>
+      <div class="acts"><a class="btn btn-primary btn-sm" href="/contact/">Talk about video &rarr;</a><a class="lnk2" href="/studio/">See the Studio</a></div>
+    </article>
+
+    <article class="svc">
+      <div class="no">03 &mdash; ROBOTICS / AI</div>
+      <h3>Robotics and AI consulting</h3>
+      <p>Our founder studies Creative Robotics at University of the Arts London and builds ROS2/C++ and AI systems. We help with prototypes, robot software architecture, and putting AI models to work inside real products.</p>
+      <div class="price">Quoted per project<span>Reply within one working day</span></div>
+      <div class="acts"><a class="btn btn-primary btn-sm" href="/contact/">Discuss a project &rarr;</a><a class="lnk2" href="/michael/">About the founder</a></div>
+    </article>
+
+    <article class="svc">
+      <div class="no">04 &mdash; SPATIAL</div>
+      <h3>Digital walkthroughs (M3XI Spatial)</h3>
+      <p>Your real building scanned on a phone and published as a walkable photoreal tour, hosted by us, with enquiries landing in your dashboard. For property, venues, showrooms and studios.</p>
+      <div class="price">&pound;200 or &pound;500 a month, rolling<span>Scanning quoted per site</span></div>
+      <div class="acts"><a class="btn btn-primary btn-sm" href="/studio/business.html">See plans &rarr;</a><a class="lnk2" href="/contact/">Contact us</a></div>
+    </article>
+
+    <article class="svc">
+      <div class="no">05 &mdash; APPS</div>
+      <h3>App development</h3>
+      <p>Mobile apps in Expo and React Native with a Supabase backend, and desktop tooling such as Blender add-ons. The same stack we use for Cornelia, CallMe and AutoUV, so you get something we have already shipped with.</p>
+      <div class="price">Quoted per project<span>Reply within one working day</span></div>
+      <div class="acts"><a class="btn btn-primary btn-sm" href="/contact/">Scope an app &rarr;</a><a class="lnk2" href="#apps">Our apps</a></div>
+    </article>
+
+    <article class="svc">
+      <div class="no">06 &mdash; 3D</div>
+      <h3>3D and generated assets</h3>
+      <p>Cinematic images, video clips and 3D assets generated in M3XI Studio, plus mesh clean-up and game-ready UVs through AutoUV. Useful for game teams, product visuals and concept work.</p>
+      <div class="price">Studio credits from &pound;5<span>Larger asset packs quoted per project</span></div>
+      <div class="acts"><a class="btn btn-primary btn-sm" href="/studio/pricing.html">Studio pricing &rarr;</a><a class="lnk2" href="/contact/">Contact us</a></div>
+    </article>
+
+  </div>
+</div></section>
+
+<div class="dim">Our apps · mobile and desktop</div>
+
+<section id="apps" style="padding-top:20px"><div class="wrap reveal">
+  <p class="eyebrow">Our apps</p>
+  <h2>Built <em>in-house.</em></h2>
+  <p class="lede">Two shelves: apps for your phone, and tools for the desk. Pick a panel to see what runs where.</p>
+
+  <div class="tabs" role="tablist" aria-label="App platforms">
+    <button class="tab" role="tab" id="tab-mobile" aria-controls="panel-mobile" aria-selected="true" type="button">Mobile applications</button>
+    <button class="tab" role="tab" id="tab-desktop" aria-controls="panel-desktop" aria-selected="false" type="button">Desktop applications</button>
+  </div>
+
+  <div class="panel-apps" id="panel-mobile" role="tabpanel" aria-labelledby="tab-mobile">
+    <div class="panel-head"><h3>Mobile applications</h3><p class="sub">Built with Expo and React Native on Supabase. Android first, iOS to follow.</p></div>
+    <div class="app-list">
+      <article class="app-row">
+        <div class="top"><h4>Cornelia</h4><div class="badges"><span class="badge">Android</span><span class="badge soon">iOS later</span></div></div>
+        <p>A calm note-taking app for students (also known as NoteTaker): record lectures, transcribe them and turn everything into Cornell, outline and mind-map notes.</p>
+        <a class="go" href="/cornelia.html">Cornelia product page &rarr;</a>
+      </article>
+      <article class="app-row">
+        <div class="top"><h4>CallMe</h4><div class="badges"><span class="badge">iOS</span><span class="badge">Android</span></div></div>
+        <p>Call-first dating, the opposite of swiping. Set your preferences once, tap Start, and you are in a live voice call with someone compatible.</p>
+        <a class="go" href="/callme.html">CallMe product page &rarr;</a>
+      </article>
+    </div>
+  </div>
+
+  <div class="panel-apps" id="panel-desktop" role="tabpanel" aria-labelledby="tab-desktop" hidden>
+    <div class="panel-head"><h3>Desktop applications</h3><p class="sub">Tools for the workbench: one installs into Blender, one runs in any modern browser.</p></div>
+    <div class="app-list">
+      <article class="app-row">
+        <div class="top"><h4>AutoUV</h4><div class="badges"><span class="badge">Windows</span><span class="badge">Linux</span><span class="badge">Blender 4.2+</span></div></div>
+        <p>A Blender add-on that turns a raw mesh into production-ready, game-ready UVs: Adaptive UV Intelligence, a seam toolbox, quality scoring and one-click export to Unity, Unreal and Godot.</p>
+        <a class="go" href="/autouv.html">AutoUV product page &rarr;</a>
+      </article>
+      <article class="app-row">
+        <div class="top"><h4>M3XI Studio</h4><div class="badges"><span class="badge">Web</span><span class="badge">Windows</span><span class="badge">macOS</span></div></div>
+        <p>Our AI generation platform: cinematic images, video and 3D assets on prepaid credits, and real spaces scanned on a phone published as walkable worlds. Runs in the browser on any desktop.</p>
+        <a class="go" href="/studio/">Enter the Studio &rarr;</a>
+      </article>
+    </div>
+  </div>
+</div></section>
+
+<div class="dim">Build notes · updated July 2026</div>
+
+<section style="padding-top:20px;padding-bottom:0"><div class="wrap">
+  <p class="eyebrow">Workbench</p>
+  <h2>Where each app <em>is right now.</em></h2>
+</div></section>
 
 <section style="padding-top:20px"><div class="wrap">
 
@@ -262,6 +410,28 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
   }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // Tabbed app panels: plain buttons, one panel visible at a time.
+  const tabs = Array.from(document.querySelectorAll('.tab[role="tab"]'));
+  function showTab(tab){
+    tabs.forEach(t => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      const panel = document.getElementById(t.getAttribute('aria-controls'));
+      if (panel) panel.hidden = !on;
+    });
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => showTab(t));
+    t.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const n = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+        n.focus(); showTab(n);
+      }
+    });
+  });
+  if (location.hash === '#desktop') showTab(document.getElementById('tab-desktop'));
 </script>
 </body>
 </html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M3XI Studio — Free tier</title>
+<link rel="icon" type="image/png" href="/M.png" />
+<meta name="description" content="Free voice and image generation that runs entirely in your own browser. No account, no credits, no limit.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/studio/studio.css"><!-- public/studio/studio.css: a copy of studio/studio.css, because this page is served unprocessed -->
+<style>
+  /* Page-local rules only; everything else comes from studio.css. */
+  #ttsText{width:100%;min-height:170px;border:0;outline:0;resize:vertical;background:
+    repeating-linear-gradient(transparent,transparent 27px,rgba(22,21,18,.14) 27px,rgba(22,21,18,.14) 28px);
+    font-family:var(--hand);font-weight:500;font-size:21px;line-height:28px;color:var(--ink);padding:0 2px}
+  #ttsText::placeholder{color:rgba(95,91,80,.55)}
+  #ttsOut audio{width:100%;margin-top:4px}
+  #ttsLog,#gpuStatus{margin-top:16px;background:var(--ink);color:#e8e4d6;font:12px/1.7 ui-monospace,Menlo,Consolas,monospace;
+    padding:10px 12px;white-space:pre-wrap;word-break:break-word}
+  #gpuStatus{margin-top:0;margin-bottom:26px}
+  .frameBox{border:3px solid var(--line);box-shadow:7px 7px 0 rgba(22,21,18,.92);background:var(--card);position:relative}
+  .frameBox iframe{display:block;width:100%;height:720px;border:0;background:#fff}
+  .frameNote{padding:10px 14px;border-top:3px solid var(--line);font-size:12.5px;color:var(--mut)}
+  .howGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  @media(max-width:900px){.howGrid{grid-template-columns:1fr}}
+  .howGrid .panel{padding:20px 22px}
+  .howGrid h3{font-family:var(--disp);font-size:15px;letter-spacing:.05em;margin-bottom:6px}
+  .howGrid p{font-size:13.5px;color:var(--mut)}
+  section{padding:54px 0 60px}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="in">
+    <a class="logo" href="/studio/">M3XI <span class="jp">三X一</span> <span class="st">STUDIO</span></a>
+    <nav class="links">
+      <a href="https://www.m3xi.com/">M3XI</a>
+      <a href="free.html" class="on">Free</a>
+      <a href="images.html">Images</a>
+      <a href="video.html">Video</a>
+      <a href="worlds.html">Worlds</a>
+      <a href="walkthrough.html">Spatial</a>
+      <a href="business.html">Business</a>
+      <a href="library.html">Library</a>
+      <a href="editor.html">Editor</a>
+      <a href="ugc.html">UGC</a>
+      <a href="pricing.html">Pricing</a>
+    </nav>
+    <div class="acct">
+      <a class="btn sm ghost" href="account.html">Sign in</a>
+      <a class="btn red sm" href="images.html">Enter Studio</a>
+    </div>
+  </div>
+</div>
+
+<section id="intro" style="padding-bottom:0">
+  <div class="wrap">
+    <div class="sechead">
+      <h2 class="sfx">Free tier</h2>
+      <span class="note hand">runs in your browser</span>
+    </div>
+    <p class="subline">No account, no credits, no limit. The models below download into your browser once and then run on your own machine. Nothing you make here is sent to M3XI.</p>
+    <div id="gpuStatus">Checking your browser…</div>
+  </div>
+</section>
+
+<section id="voice" style="padding-top:0">
+  <div class="wrap">
+    <div class="sechead">
+      <h2 class="sfx">Voice</h2>
+      <span class="note hand">text to speech, on your machine</span>
+    </div>
+    <p class="subline">Type what you want said, pick a voice, press Generate. The first run downloads the Kokoro voice model (about 90 MB) and keeps it in your browser cache; after that it is instant to load.</p>
+    <div class="studioGrid">
+      <div class="panel notebook tilt-l">
+        <span class="cap">Prompt page</span>
+        <div class="tape" style="top:-14px;right:60px;transform:rotate(3deg)"></div>
+        <h3>What should it say</h3>
+        <textarea id="ttsText" placeholder="Welcome to M3XI Studio. Everything on this page runs on your own computer…"></textarea>
+        <div class="srow" style="align-items:center">
+          <span class="small">Voice</span>
+          <select class="field" id="ttsVoice" style="max-width:320px">
+            <option value="af_heart" selected>af_heart</option>
+          </select>
+        </div>
+        <div class="srow" style="margin-top:10px">
+          <button class="btn red" id="btnSpeak">Generate voice</button>
+          <span class="small">Free · runs in this tab</span>
+        </div>
+        <p class="price-note">English voices. Long texts take longer; a paragraph is a good size. Nothing is uploaded.</p>
+      </div>
+      <div class="panel out tilt-r">
+        <span class="cap red">Output</span>
+        <h3>Result</h3>
+        <div id="ttsOut"><div class="empty">Nothing yet — your voice clip lands here.</div></div>
+        <div class="srow" id="ttsActions" style="display:none">
+          <a class="btn sm ghost" id="btnDownload" href="#" download="m3xi-voice.wav">Download WAV</a>
+        </div>
+        <div id="ttsLog">Ready. The model loads on your first click.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="image">
+  <div class="wrap">
+    <div class="sechead">
+      <h2 class="sfx">Image</h2>
+      <span class="note hand">your GPU does the work</span>
+    </div>
+    <p class="subline">Bonsai Image runs entirely on your own graphics card through WebGPU. It needs a desktop browser with WebGPU (Chrome or Edge) and downloads about 1.2 GB once, then works offline-fast. Phones will not run it. If you want images made on our cloud instead — bigger models, no download, saved to your account — that is the paid <a href="/studio/images.html">Studio Images</a> page.</p>
+    <div class="frameBox">
+      <span class="cap">Bonsai Image — in your browser</span>
+      <iframe id="bonsaiFrame" src="https://webml-community-bonsai-image-webgpu.static.hf.space" title="Bonsai Image, running in your browser" loading="lazy"></iframe>
+      <div class="frameNote">Loading takes a moment the first time while the model downloads. If the frame stays blank, open it directly: <a href="https://huggingface.co/spaces/webml-community/bonsai-image-webgpu" target="_blank" rel="noopener">huggingface.co/spaces/webml-community/bonsai-image-webgpu</a>.</div>
+    </div>
+    <p class="price-note" style="margin-top:18px"><b>Library:</b> the free tier saves nothing to an account. What you make here is yours to download and keep, and it only exists in this tab until you do. Signing in and buying credits is what unlocks the Library, where cloud generations are stored and can be published.</p>
+  </div>
+</section>
+
+<section id="how" style="padding-top:0">
+  <div class="wrap">
+    <div class="sechead">
+      <h2 class="sfx">How this is free</h2>
+      <span class="note hand">no catch</span>
+    </div>
+    <div class="howGrid">
+      <div class="panel"><h3>Your browser does the work</h3><p>The models are downloaded to your machine and run there, on your CPU or GPU. Your text and images never leave your computer.</p></div>
+      <div class="panel"><h3>We pay nothing per generation</h3><p>No server of ours is involved. There is no cost to M3XI when you press Generate, so there is nothing to charge you for.</p></div>
+      <div class="panel"><h3>That is why it is unlimited</h3><p>Make as much as you like. The paid Studio exists for bigger models, video, 3D and a Library that keeps your work — it runs on our cloud and costs credits.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="in">
+    <div>
+      <div class="fl">M3XI <span style="color:var(--red)">三X一</span> STUDIO</div>
+      <p style="margin-top:8px">Less ornament, more intent. M3XI Studio is an independent product of M3XI — early, honest, and built to work. The free tier runs in your browser; cloud generation runs on prepaid credits.</p>
+    </div>
+    <div>
+      <p><b>Contact</b><br><a href="mailto:m3xiteam@m3xi.com">m3xiteam@m3xi.com</a></p>
+      <p style="margin-top:10px"><b>Studio</b><br>
+        <a href="images.html">Images</a> ·
+        <a href="video.html">Video</a> ·
+        <a href="editor.html">Editor</a> ·
+        <a href="library.html">Library</a> ·
+        <a href="pricing.html">Credits</a></p>
+      <p style="margin-top:10px"><b>M3XI</b><br>
+        <a href="https://www.m3xi.com/">Home</a> ·
+        <a href="https://www.m3xi.com/services/">Services</a> ·
+        <a href="https://www.m3xi.com/privacy/">Policies</a> ·
+        <a href="https://www.m3xi.com/terms/">Terms</a></p>
+    </div>
+  </div>
+</footer>
+
+<script type="module">
+  import { KokoroTTS } from "https://cdn.jsdelivr.net/npm/kokoro-js@1.2.0/+esm";
+
+  const $ = (id) => document.getElementById(id);
+  const hasGPU = !!navigator.gpu;
+
+  // Capability line. Honest about what each path means for the visitor.
+  $("gpuStatus").textContent = hasGPU
+    ? "WebGPU available — voice will use your GPU, and the image generator below should run."
+    : "No WebGPU — voice will use the CPU, slower; images need a desktop Chrome or Edge.";
+
+  const log = (msg) => { $("ttsLog").textContent = msg; };
+
+  let tts = null;
+  let loading = null;
+  let lastUrl = null;
+
+  async function getTTS() {
+    if (tts) return tts;
+    if (!loading) {
+      loading = (async () => {
+        log("Downloading the voice model once (about 90 MB)… this is kept in your browser cache.");
+        const device = hasGPU ? "webgpu" : "wasm";
+        const dtype = hasGPU ? "fp32" : "q8";
+        const inst = await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX", { dtype, device });
+        fillVoices(inst);
+        tts = inst;
+        return inst;
+      })().catch((e) => { loading = null; throw e; });
+    }
+    return loading;
+  }
+
+  function fillVoices(inst) {
+    let voices = [];
+    try {
+      const v = inst.list_voices ? inst.list_voices() : inst.voices;
+      voices = Array.isArray(v) ? v : Object.keys(v || {});
+    } catch (_) { voices = []; }
+    if (!voices.length) return;
+    const sel = $("ttsVoice");
+    const keep = sel.value || "af_heart";
+    sel.innerHTML = "";
+    for (const name of voices) {
+      const id = typeof name === "string" ? name : (name.id || name.name);
+      if (!id) continue;
+      const o = document.createElement("option");
+      o.value = id; o.textContent = id;
+      sel.appendChild(o);
+    }
+    sel.value = voices.some((n) => (typeof n === "string" ? n : n.id) === keep) ? keep : (voices.includes("af_heart") ? "af_heart" : sel.options[0].value);
+  }
+
+  function plain(e) {
+    const m = String((e && e.message) || e || "");
+    if (/webgpu|adapter|gpu/i.test(m)) return "Your browser could not start WebGPU. Try Chrome or Edge on a desktop, or reload to fall back to the CPU.";
+    if (/fetch|network|load|404|failed to/i.test(m)) return "The model could not be downloaded. Check your connection and try again.";
+    if (/memory|allocat/i.test(m)) return "Your browser ran out of memory. Close some tabs or use a shorter text.";
+    return "Something went wrong: " + (m || "unknown error") + ".";
+  }
+
+  $("btnSpeak").addEventListener("click", async () => {
+    const text = $("ttsText").value.trim();
+    if (!text) { log("Type something first."); return; }
+    const btn = $("btnSpeak");
+    btn.disabled = true;
+    try {
+      const inst = await getTTS();
+      log("Speaking…");
+      const voice = $("ttsVoice").value || "af_heart";
+      const audio = await inst.generate(text, { voice });
+      const blob = audio.toBlob();
+      if (lastUrl) URL.revokeObjectURL(lastUrl);
+      lastUrl = URL.createObjectURL(blob);
+      const out = $("ttsOut");
+      out.innerHTML = "";
+      const player = document.createElement("audio");
+      player.controls = true;
+      player.src = lastUrl;
+      out.appendChild(player);
+      $("btnDownload").href = lastUrl;
+      $("ttsActions").style.display = "";
+      log("Done — " + Math.round(blob.size / 1024) + " KB of audio, made on this machine.");
+    } catch (e) {
+      console.error(e);
+      log(plain(e));
+    } finally {
+      btn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+-- Applied to the live project on 7 Sep 2026 (via MCP). Kept here so the schema
+-- history is in the repo.
+--
+-- THE RULE: provider calls are only ever funded by credits the customer paid
+-- for. Free credits (welcome, promo, referral) can never reach fal or any other
+-- paid provider. The free tier runs in the visitor's browser and needs no credits.
+--   * m3ix_on_auth_user_created no longer grants 25 welcome credits
+--   * m3ix_paid_balance(uid) / m3ix_balance() / m3ix_spend() ignore free reasons
+-- THE WALLET:
+--   * m3ix_provider_spend  — every provider call, with our USD cost
+--   * m3ix_wallet_topups   — money put into a provider, recorded from the panel
+--   * m3ix_purchases       — real Stripe amounts per session
+-- THE LOCAL WORKER:
+--   * m3ix_jobs + m3ix_claim_job(worker, kinds[]) — queue a GPU box drains
+--   * m3ix_workers         — heartbeat so the Studio knows when a box is online
+-- See the MCP migrations 'the_rule_paid_credits_only_and_wallet' and
+-- 'local_workers_heartbeat' for the exact SQL.

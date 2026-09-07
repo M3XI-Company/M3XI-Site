@@ -40,3 +40,8 @@ supabase/.temp/
 # credentials, but it is not for strangers. Keep it local; run it with
 # `npm run dev` and open /panel/.
 panel/
+
+# local render worker: holds the Supabase service role key
+worker/.env
+__pycache__/
+_build_src.tgz

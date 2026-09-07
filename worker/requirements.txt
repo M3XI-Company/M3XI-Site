@@ -1,0 +1,17 @@
+# m3xi local worker
+#
+# Install PyTorch with CUDA FIRST, before the rest, so pip does not pull the
+# CPU-only build. Pick the line matching your driver (nvidia-smi shows the
+# max CUDA version it supports):
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+# Then:  pip install -r requirements.txt
+requests
+torch
+diffusers>=0.35
+transformers
+accelerate
+ftfy
+imageio[ffmpeg]
+sentencepiece
+protobuf

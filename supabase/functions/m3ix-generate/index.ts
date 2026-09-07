@@ -19,7 +19,14 @@ const DEFAULTS = {
   vidI2V: "fal-ai/kling-video/v2.5-turbo/pro/image-to-video",
   asset: "fal-ai/hunyuan3d-v3/image-to-3d",
   llm: "fal-ai/any-llm",
+  // Nano Banana 2: the UGC keyframe model (creator + product + scene in one edit).
+  imgNB: "fal-ai/nano-banana-2",
+  imgNBEdit: "fal-ai/nano-banana-2/edit",
 };
+/* The language model behind Research, Refine and the UGC script writer.
+   Routed through fal any-llm so it bills to the same wallet as everything
+   else — one key, one balance. */
+const LLM_MODEL = Deno.env.get("M3IX_LLM") ?? "anthropic/claude-sonnet-4";
 const WL = "https://api.worldlabs.ai/marble/v1";
 const PART_LIMIT = 45 * 1024 * 1024;
 
@@ -29,6 +36,44 @@ const COST_ASSET = Number(Deno.env.get("M3IX_COST_ASSET") ?? 15);
 const COST_REFINE = Number(Deno.env.get("M3IX_COST_REFINE") ?? 2);
 const COST_WORLD = Number(Deno.env.get("M3IX_COST_WORLD") ?? 150);
 const COST_WORLD_DRAFT = Number(Deno.env.get("M3IX_COST_WORLD_DRAFT") ?? 40);
+// Nano Banana 2 costs us ~8¢ a frame, so it cannot sit on the 1-credit tier.
+const COST_IMAGE_NB = Number(Deno.env.get("M3IX_COST_IMAGE_NB") ?? 4);
+// A clip rendered on our own GPU box costs us electricity, not a provider fee.
+const COST_VIDEO_LOCAL = Number(Deno.env.get("M3IX_COST_VIDEO_LOCAL") ?? 20);
+
+/* ---------------------------------------------------------------------------
+   THE WALLET.
+
+   Every provider call is written down with what it cost US, in dollars, so
+   the wallet panel can show credits sold against provider spend without
+   anyone reading a fal invoice. Prices are list prices at the time of
+   writing (Sept 2026) and are env-overridable; they only need to be roughly
+   right — the panel is a dashboard, not the accounts.
+   --------------------------------------------------------------------------- */
+const USD = {
+  imageSchnell: Number(Deno.env.get("M3IX_USD_IMAGE_SCHNELL") ?? 0.003),
+  imageDev: Number(Deno.env.get("M3IX_USD_IMAGE_DEV") ?? 0.025),
+  imageNB: Number(Deno.env.get("M3IX_USD_IMAGE_NB") ?? 0.08),
+  videoPerSec: Number(Deno.env.get("M3IX_USD_VIDEO_PER_SEC") ?? 0.07),   // Kling 2.5 Turbo Pro
+  asset: Number(Deno.env.get("M3IX_USD_ASSET") ?? 0.30),                  // Hunyuan3D v3
+  refine: Number(Deno.env.get("M3IX_USD_REFINE") ?? 0.004),               // ~1.5k tokens of Sonnet
+  world: Number(Deno.env.get("M3IX_USD_WORLD") ?? 1.00),                  // Marble 1.1
+  worldDraft: Number(Deno.env.get("M3IX_USD_WORLD_DRAFT") ?? 0.30),
+};
+function usdImage(ep: string): number {
+  if (ep.includes("nano-banana")) return USD.imageNB;
+  if (ep.includes("schnell")) return USD.imageSchnell;
+  return USD.imageDev;
+}
+async function recordSpend(uid: string | null, kind: string, model: string, credits: number, cost_usd: number, ok = true, provider = "fal"): Promise<void> {
+  try {
+    await fetch(`${BASE()}/rest/v1/m3ix_provider_spend`, {
+      method: "POST",
+      headers: { ...svcHeaders(), Prefer: "return=minimal" },
+      body: JSON.stringify({ user_id: uid, kind, model, provider, credits, cost_usd, ok }),
+    });
+  } catch { /* the dashboard is best effort; the generation is not */ }
+}
 
 /* ---------------------------------------------------------------------------
    VIDEO SHAPE AND LENGTH.
@@ -210,34 +255,6 @@ async function storeChunks(pathBase: string, bytes: Uint8Array): Promise<string[
   return urls;
 }
 
-async function spend(code: string, cost: number): Promise<number> {
-  const r = await fetch(`${BASE()}/rest/v1/rpc/m3ix_spend`, {
-    method: "POST", headers: svcHeaders(), body: JSON.stringify({ p_code: code, p_cost: cost }),
-  });
-  if (!r.ok) return -1;
-  return Number(await r.json());
-}
-async function refund(code: string, cost: number): Promise<void> {
-  await fetch(`${BASE()}/rest/v1/rpc/m3ix_refund`, {
-    method: "POST", headers: svcHeaders(), body: JSON.stringify({ p_code: code, p_cost: cost }),
-  }).catch(() => {});
-}
-
-async function countToday(kind: string, extra = ""): Promise<number> {
-  try {
-    const base = BASE();
-    if (!base) return 0;
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
-    const r = await fetch(
-      `${base}/rest/v1/m3ix_gen_jobs?select=id&kind=eq.${kind}${extra}&created_at=gte.${today.toISOString()}&limit=1`,
-      { headers: { ...svcHeaders(), Prefer: "count=exact" } },
-    );
-    const range = r.headers.get("content-range") ?? "/0";
-    return Number(range.split("/")[1] ?? 0);
-  } catch (_) { return 0; }
-}
-
 async function logJob(kind: string, modelId: string, input: unknown, status: string, assets: unknown) {
   try {
     const url = BASE();
@@ -357,7 +374,8 @@ Deno.serve(async (req: Request) => {
       const text = await r.text();
       if (!r.ok) { await refundUser(uid, cost, action); return json({ error: `worldlabs ${r.status}: ${text.slice(0, 300)}` }, 502); }
       const j = JSON.parse(text);
-      await logJob("world", model, { prompt: prompt.slice(0, 300), imgs: imgs.length, code: code ?? undefined }, "queued", { operation_id: j?.operation_id });
+      await recordSpend(uid, "world", model, cost, isDraft ? USD.worldDraft : USD.world, true, "worldlabs");
+      await logJob("world", model, { prompt: prompt.slice(0, 300), imgs: imgs.length }, "queued", { operation_id: j?.operation_id });
       return json({ operation_id: j?.operation_id, done: j?.done ?? false, credits_remaining: remaining ?? undefined });
     }
 
@@ -437,16 +455,9 @@ Deno.serve(async (req: Request) => {
     const auth = { Authorization: `Key ${falKey()}`, "Content-Type": "application/json" };
 
     if (action === "refine") {
-      let prompt = String(body.prompt ?? "").trim();
-      // The scene director. Marble renders what the prompt asks for and stops
-      // there; a game map needs asking for EVERYTHING. Appended to every
-      // world prompt so completeness is the default, not prompt-craft.
-      if (prompt && body.raw !== true) {
-        prompt = prompt.slice(0, 1200) +
-          " — a complete, coherent world in every direction: continuous ground with no missing patches or holes, " +
-          "every building closed on all sides, consistent art direction and lighting throughout, " +
-          "detail held from near to far, nothing floating or half-formed, game-environment completeness.";
-      }
+      // Refine takes the user's words as written. The world "scene director"
+      // paragraph that used to be appended here belongs to world_submit only.
+      const prompt = String(body.prompt ?? "").trim().slice(0, 4000);
       if (!prompt) return json({ error: "Missing prompt" }, 400);
       const uid = await callerId(req);
       if (!uid) return json(SIGNUP_REQUIRED, 401);
@@ -454,50 +465,54 @@ Deno.serve(async (req: Request) => {
       if (!ch.ok) return json({ error: ch.error }, ch.status);
       const remaining: number = ch.balance;
       const system = String(body.system ?? "You are a film director's assistant. Refine the user's idea into vivid, concrete visual prompts.");
-      const model = String(body.llm ?? "google/gemini-flash-1.5");
+      const model = String(body.llm ?? LLM_MODEL);
       const r = await fetch(`https://fal.run/${DEFAULTS.llm}`, { method: "POST", headers: auth, body: JSON.stringify({ model, system_prompt: system, prompt }) });
       const text = await r.text();
-      if (!r.ok) { await refundUser(uid, COST_REFINE, action); return json({ error: `fal ${r.status}: ${text.slice(0, 240)}` }, 502); }
+      if (!r.ok) { await refundUser(uid, COST_REFINE, action); await recordSpend(uid, "refine", model, 0, 0, false); return json({ error: `fal ${r.status}: ${text.slice(0, 240)}` }, 502); }
       const j = JSON.parse(text);
       const out = j?.output ?? j?.text ?? "";
       if (!out) { await refundUser(uid, COST_REFINE, action); return json({ error: "No output from the language model" }, 502); }
+      await recordSpend(uid, "refine", model, COST_REFINE, USD.refine);
       return json({ output: out, credits_remaining: remaining ?? undefined });
     }
 
     if (action === "image") {
       const uid = await callerId(req);
       if (!uid) return json(SIGNUP_REQUIRED, 401);
-      const ch = await charge(req, COST_IMAGE, "image");
-      if (!ch.ok) return json({ error: ch.error }, ch.status);
-      const remaining: number = ch.balance;
-      let prompt = String(body.prompt ?? "").trim();
-      // The scene director. Marble renders what the prompt asks for and stops
-      // there; a game map needs asking for EVERYTHING. Appended to every
-      // world prompt so completeness is the default, not prompt-craft.
-      if (prompt && body.raw !== true) {
-        prompt = prompt.slice(0, 1200) +
-          " — a complete, coherent world in every direction: continuous ground with no missing patches or holes, " +
-          "every building closed on all sides, consistent art direction and lighting throughout, " +
-          "detail held from near to far, nothing floating or half-formed, game-environment completeness.";
-      }
-      if (!prompt) { await refundUser(uid, COST_IMAGE, action); return json({ error: "Missing prompt" }, 400); }
+      /* NOTE: this used to append the world "scene director" paragraph to
+         every image prompt — copied from world_submit by mistake, the same
+         bug video_submit had. Image prompts now go through untouched. */
+      const prompt = String(body.prompt ?? "").trim().slice(0, 1500);
+      if (!prompt) return json({ error: "Missing prompt" }, 400);
       const multi = Array.isArray(body.image_urls) ? (body.image_urls as string[]).filter((u) => typeof u === "string" && u).slice(0, 6) : null;
       const ref = typeof body.image_url === "string" && body.image_url ? body.image_url : null;
-      let ep = String(body.endpoint ?? (multi && multi.length ? "fal-ai/nano-banana/edit" : ref ? DEFAULTS.imgI2I : DEFAULTS.imgT2I));
-      if (!ep.startsWith("fal-ai/")) { await refundUser(uid, COST_IMAGE, action); return json({ error: "Endpoint must start with fal-ai/" }, 400); }
+      const wantNB = body.quality === "nb" || body.quality === "keyframe";
+      const ep = String(body.endpoint ?? (
+        wantNB ? (multi && multi.length ? DEFAULTS.imgNBEdit : ref ? DEFAULTS.imgNBEdit : DEFAULTS.imgNB)
+               : (multi && multi.length ? "fal-ai/nano-banana/edit" : ref ? DEFAULTS.imgI2I : DEFAULTS.imgT2I)));
+      if (!ep.startsWith("fal-ai/")) return json({ error: "Endpoint must start with fal-ai/" }, 400);
+      // Charge by what the frame costs us, after we know which model it is.
+      const cost = ep.includes("nano-banana") ? COST_IMAGE_NB : COST_IMAGE;
+      const ch = await charge(req, cost, "image");
+      if (!ch.ok) return json({ error: ch.error }, ch.status);
+      const remaining: number = ch.balance;
+      const nbEdit = ep.includes("nano-banana");
       const payload = multi && multi.length
         ? { prompt, image_urls: multi, num_images: 1 }
         : ref
-        ? { prompt, image_url: ref, strength: typeof body.strength === "number" ? body.strength : 0.82 }
+        ? (nbEdit ? { prompt, image_urls: [ref], num_images: 1 } : { prompt, image_url: ref, strength: typeof body.strength === "number" ? body.strength : 0.82 })
+        : nbEdit
+        ? { prompt, aspect_ratio: body.portrait === true ? "9:16" : "16:9", num_images: 1 }
         : { prompt, image_size: body.portrait === true ? { width: 1080, height: 1920 } : { width: 1920, height: 1080 }, num_images: 1 };
       const r = await fetch(`https://fal.run/${ep}`, { method: "POST", headers: auth, body: JSON.stringify(payload) });
       const text = await r.text();
-      if (!r.ok) { await refundUser(uid, COST_IMAGE, action); return json({ error: `fal ${r.status}: ${text.slice(0, 300)}` }, 502); }
+      if (!r.ok) { await refundUser(uid, cost, action); await recordSpend(uid, "image", ep, 0, 0, false); return json({ error: `fal ${r.status}: ${text.slice(0, 300)}` }, 502); }
       const j = JSON.parse(text);
       const url = j?.images?.[0]?.url ?? j?.image?.url;
-      if (!url) { await refundUser(uid, COST_IMAGE, action); return json({ error: "No image in provider response" }, 502); }
-      await logJob("image", ep, { prompt: prompt.slice(0, 500), ref: !!ref || !!(multi && multi.length), code: code ?? undefined }, "done", { url });
-      return json({ url, credits_remaining: remaining ?? undefined });
+      if (!url) { await refundUser(uid, cost, action); return json({ error: "No image in provider response" }, 502); }
+      await recordSpend(uid, "image", ep, cost, usdImage(ep));
+      await logJob("image", ep, { prompt: prompt.slice(0, 500), ref: !!ref || !!(multi && multi.length) }, "done", { url });
+      return json({ url, charged: cost, credits_remaining: remaining ?? undefined });
     }
 
     if (action === "asset_submit") {
@@ -515,7 +530,8 @@ Deno.serve(async (req: Request) => {
       const text = await r.text();
       if (!r.ok) { await refundUser(uid, COST_ASSET, action); return json({ error: `fal ${r.status}: ${text.slice(0, 300)}` }, 502); }
       const j = JSON.parse(text);
-      await logJob("asset", ep, { ref: true, code: code ?? undefined }, "queued", { request_id: j?.request_id });
+      await recordSpend(uid, "asset", ep, COST_ASSET, USD.asset);
+      await logJob("asset", ep, { ref: true }, "queued", { request_id: j?.request_id });
       return json({ request_id: j?.request_id, status_url: j?.status_url, response_url: j?.response_url, credits_remaining: remaining ?? undefined });
     }
 
@@ -554,8 +570,58 @@ Deno.serve(async (req: Request) => {
       const text = await r.text();
       if (!r.ok) { await refundUser(uid, cost, action); return json({ error: `fal ${r.status}: ${text.slice(0, 300)}` }, 502); }
       const j = JSON.parse(text);
-      await logJob("video", ep, { prompt: prompt.slice(0, 500), ref: !!ref, duration: dur, aspect: payload.aspect_ratio ?? "from image", code: code ?? undefined }, "queued", { request_id: j?.request_id });
+      await recordSpend(uid, "video", ep, cost, USD.videoPerSec * Number(dur));
+      await logJob("video", ep, { prompt: prompt.slice(0, 500), ref: !!ref, duration: dur, aspect: payload.aspect_ratio ?? "from image" }, "queued", { request_id: j?.request_id });
       return json({ request_id: j?.request_id, status_url: j?.status_url, response_url: j?.response_url, charged: cost, duration: dur, credits_remaining: remaining ?? undefined });
+    }
+
+    /* =======================================================================
+       THE LOCAL WORKER.
+
+       A GPU box of ours (worker/ in the repo) polls m3ix_jobs and renders
+       with open models — Wan 2.2 5B today. It costs electricity, not a
+       provider fee, so the credit price is lower. The option only appears
+       when a worker has checked in within the last few minutes; otherwise
+       the Studio falls back to the provider path above.
+       ======================================================================= */
+    if (action === "workers") {
+      const rows = await (await fetch(`${BASE()}/rest/v1/m3ix_workers?select=name,gpu,kinds,last_seen&last_seen=gte.${encodeURIComponent(new Date(Date.now() - 5 * 60_000).toISOString())}`, { headers: svcHeaders() })).json();
+      return json({ online: Array.isArray(rows) ? rows : [], cost_video: COST_VIDEO_LOCAL });
+    }
+
+    if (action === "job_submit") {
+      const uid = await callerId(req);
+      if (!uid) return json(SIGNUP_REQUIRED, 401);
+      const kind = body.kind === "image" ? "image" : "video";
+      const online = await (await fetch(`${BASE()}/rest/v1/m3ix_workers?select=name&kinds=cs.{${kind}}&last_seen=gte.${encodeURIComponent(new Date(Date.now() - 5 * 60_000).toISOString())}&limit=1`, { headers: svcHeaders() })).json();
+      if (!Array.isArray(online) || !online.length) return json({ error: "No local render box is online right now — use the cloud option." }, 503);
+      const prompt = String(body.prompt ?? "").trim().slice(0, 1200);
+      if (!prompt) return json({ error: "Missing prompt" }, 400);
+      const dur = clampDuration(body.duration);
+      const cost = kind === "video" ? (dur === "10" ? COST_VIDEO_LOCAL * 2 : COST_VIDEO_LOCAL) : COST_IMAGE;
+      const ch = await charge(req, cost, kind === "video" ? "video" : "image", "local");
+      if (!ch.ok) return json({ error: ch.error }, ch.status);
+      const input = { prompt, image_url: typeof body.image_url === "string" ? body.image_url : null, duration: Number(dur), aspect: clampAspect(body.aspect) };
+      const ins = await fetch(`${BASE()}/rest/v1/m3ix_jobs`, {
+        method: "POST", headers: { ...svcHeaders(), Prefer: "return=representation" },
+        body: JSON.stringify({ user_id: uid, kind, input, credits: cost }),
+      });
+      if (!ins.ok) { await refundUser(uid, cost, "job_submit"); return json({ error: "Could not queue the job" }, 500); }
+      const row = (await ins.json())?.[0];
+      await recordSpend(uid, kind, "local/wan-2.2", cost, 0, true, "local");
+      return json({ job_id: row?.id, charged: cost, credits_remaining: ch.balance });
+    }
+
+    if (action === "job_status") {
+      const uid = await callerId(req);
+      if (!uid) return json(SIGNUP_REQUIRED, 401);
+      const id = String(body.job_id ?? "");
+      if (!UUIDRE.test(id)) return json({ error: "Bad job id" }, 400);
+      const rows = await (await fetch(`${BASE()}/rest/v1/m3ix_jobs?id=eq.${id}&user_id=eq.${uid}&select=status,output,error,claimed_at,finished_at`, { headers: svcHeaders() })).json();
+      const row = Array.isArray(rows) ? rows[0] : null;
+      if (!row) return json({ error: "No such job" }, 404);
+      // A failed job is refunded by the worker itself (service role), once.
+      return json(row);
     }
 
     if (action === "video_status" || action === "video_result") {
@@ -673,7 +739,7 @@ Deno.serve(async (req: Request) => {
       return json({ ok: true, status: want });
     }
 
-    return json({ error: "Unknown action. Use image | video_submit | video_status | video_result | video_publish | video_list | video_mine | video_queue | video_moderate | asset_submit | refine | world_submit | world_status | world_import | fetch_asset | balance" }, 400);
+    return json({ error: "Unknown action. Use image | video_submit | video_status | video_result | workers | job_submit | job_status | video_publish | video_list | video_mine | video_queue | video_moderate | asset_submit | refine | world_submit | world_status | world_import | fetch_asset | balance" }, 400);
   } catch (e) {
     return json({ error: (e as Error).message }, 500);
   }
