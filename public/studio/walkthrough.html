@@ -677,6 +677,7 @@ function floorLikeness(){
 
 let autoLevelInfo=null;
 let autoUpInfo=null;      // what the loader decided about "up", and why
+let altUp=null;           // the other detector's verdict, tried if the first leaves nowhere to stand
 /* Decide which way is up by OUTCOME, not by reading histograms.
    The histogram heuristic kept getting it wrong in the way that matters most:
    on the Gallery Loft it rotated a perfectly upright room 90 degrees, which is
@@ -1309,7 +1310,7 @@ function restoreSpawn(fromDoc){
    opened scans staring at a wall from the middle of the carpet. */
 function chooseEntrance(){
   if(!colGrid||!colGrid.usable)return null;
-  const W=colGrid.walk,F=colGrid.floorY,cs=colGrid.cs,w=colGrid.w,h=colGrid.h,N=w*h;
+  const W=colGrid.walk,F=colGrid.floorY,C=colGrid.cnt,cs=colGrid.cs,w=colGrid.w,h=colGrid.h,N=w*h;
   const gy=colGrid.groundY;
   const near=i=>{const f=F[i];return f===f&&(gy!==gy||Math.abs(f-gy)<=0.5);};
   const cand=[];
@@ -1322,19 +1323,28 @@ function chooseEntrance(){
   const step=Math.max(1,Math.floor(cand.length/2500));
   const maxR=Math.ceil(12/cs);
   const dirs=[];for(let k=0;k<16;k++)dirs.push([Math.cos(k*Math.PI/8),Math.sin(k*Math.PI/8)]);
+  // Generated worlds are best-formed around their own origin — that is where
+  // Marble's camera stood — so the start stays near it and only the facing is chosen.
+  const ai=!!worldState.ai;
   let best=null;
   for(let c=0;c<cand.length;c+=step){
     const {i,gx,gz,edge}=cand[c];
-    let bestLen=0,bestDir=0,sum=0;
+    const x=colGrid.minx+(gx+0.5)*cs,z=colGrid.minz+(gz+0.5)*cs;
+    if(ai&&Math.hypot(x,z)>1.5)continue;
+    let bestScore=-1,bestDir=0,bestLen=0,sum=0;
     for(let k=0;k<16;k++){
-      const [dx,dz]=dirs[k];let len=0;
-      for(let r=1;r<=maxR;r++){const x=Math.round(gx+dx*r),z=Math.round(gz+dz*r);
-        if(x<0||z<0||x>=w||z>=h)break;const j=z*w+x;if(!W[j]||!near(j))break;len=r;}
-      sum+=len;if(len>bestLen){bestLen=len;bestDir=k;}
+      const [dx,dz]=dirs[k];let len=0,endsAtWall=false;
+      for(let r=1;r<=maxR;r++){const xx=Math.round(gx+dx*r),zz=Math.round(gz+dz*r);
+        if(xx<0||zz<0||xx>=w||zz>=h)break;const j=zz*w+xx;
+        if(!W[j]||!near(j)){endsAtWall=C?C[j]>0:true;break;}len=r;}
+      /* A view is only worth having if something is at the end of it. A run
+         of floor that ends in nothing is the edge of the scan or a hole in a
+         generated world — the navy void the bedroom opened onto. */
+      const sc=len*cs*(endsAtWall?1:0.15);
+      sum+=sc;if(sc>bestScore){bestScore=sc;bestDir=k;bestLen=len;}
     }
-    // long view ahead, some room around, and standing at an edge (doorway/wall)
     const clutter=colGrid.eye?colGrid.eye[i]*2:0;
-    const score=bestLen*cs+(sum/16)*cs*0.25+(edge?1.2:0)-clutter;
+    const score=bestScore+(sum/16)*0.25+(edge&&!ai?1.2:0)-clutter-(ai?Math.hypot(x,z)*0.5:0);
     if(!best||score>best.score)best={i,gx,gz,score,dir:bestDir,len:bestLen};
   }
   if(!best)return null;
@@ -1718,17 +1728,28 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
             say AND the shape is overwhelmingly flat along one axis. */
       let du=null;
       try{du=detectUp();}catch(e){du=null;}
-      let vert='y',flipped=false,how='identity';
-      if(du&&du.decisive){vert=du.axis;flipped=du.sign<0;how='room shape ×'+du.margin;}
-      else if(!du||du.margin<1.05){
-        if(rz<ry*0.6&&rz<=rx)vert='z';else if(rx<ry*0.6&&rx<=rz)vert='x';
-        if(vert!=='y'){
-          const vp={x:xs,y:ys,z:zs}[vert];
-          const lo=q(vp,0.03),hi=q(vp,0.97),third=Math.max(0.01,(hi-lo)/3);
-          let low=0,high=0;for(const vv of vp){if(vv<lo+third)low++;else if(vv>hi-third)high++;}
-          flipped=high>low*1.25;how='extents';
-        }
+      /* Measured on the office scan (COLMAP, Y-down): the extents test says
+         y, flipped — correct. The room-shape detector said z- at a 2.4x
+         margin — the room on its side, with a wall as the floor. A wall is a
+         dense flat slab too, so the room-shape score cannot tell them apart
+         once the scan has no ceiling. So: extents first, because it has been
+         right on every scan of ours; room shape only when the extents are
+         ambiguous (no axis clearly tighter than the others); and a collision
+         check afterwards that swaps to the other verdict if this one leaves
+         nowhere to stand. */
+      const sorted=[['x',rx],['y',ry],['z',rz]].sort((a,b)=>a[1]-b[1]);
+      const extClear=sorted[0][1]<sorted[1][1]*0.8;
+      let vert='y',flipped=false,how='extents';
+      if(rz<ry*0.75&&rz<=rx)vert='z';else if(rx<ry*0.75&&rx<=rz)vert='x';
+      if(!extClear&&du&&du.decisive){vert=du.axis;flipped=du.sign<0;how='room shape ×'+du.margin;}
+      if(how==='extents'){
+        const vp={x:xs,y:ys,z:zs}[vert];
+        const lo=q(vp,0.03),hi=q(vp,0.97),third=Math.max(0.01,(hi-lo)/3);
+        let low=0,high=0;for(const vv of vp){if(vv<lo+third)low++;else if(vv>hi-third)high++;}
+        flipped=high>low*1.25;
       }
+      // the runner-up, for the collision check below
+      altUp=(du&&du.decisive&&(du.axis!==vert||(du.sign<0)!==flipped))?{axis:du.axis,sign:du.sign}:null;
       autoUpInfo={axis:vert,sign:flipped?-1:1,how,margin:du?du.margin:null};
       const vpick={x:xs,y:ys,z:zs}[vert];
       // Remember the verdict as a fix, not just a rotation: autoLevel used to
@@ -1765,13 +1786,43 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
     const sh=document.getElementById('sharp');if(sh)sh.value='1';
   }
   cleanScan();   // hides spikes/haze/ghosts, then builds collision from what is left
+  /* Second opinion: if the chosen "up" leaves nowhere to stand, try the other
+     detector's verdict and keep whichever gives the bigger room to walk. */
+  if(altUp&&!(fromDoc&&fromDoc.fix)){
+    const first={axis:fixUp.axis,sign:fixUp.sign},firstArea=(colDiag&&colDiag.ok)?(window.__colInfo().mainAreaM2||0):0,firstSolid=(colDiag&&colDiag.ok)?(colDiag.walls||0):0;
+    if(!colDiag||!colDiag.ok||firstArea<3||firstSolid<12){
+      applyUp(altUp.axis,altUp.sign,{rebuild:false});cleanScan();
+      const altArea=(colDiag&&colDiag.ok)?(window.__colInfo().mainAreaM2||0):0;
+      if(altArea>firstArea){autoUpInfo=Object.assign({},autoUpInfo,{axis:altUp.axis,sign:altUp.sign,how:'collision check'});}
+      else{applyUp(first.axis,first.sign,{rebuild:false});cleanScan();}
+    }
+  }
   setSharpness(isScan?Number(($('#sharp')||{}).value)||1:Number(($('#sharp')||{}).value)||0.82);
+  /* METRIC SCALE FOR GENERATED WORLDS. Marble's units are arbitrary: the
+     bedroom opened with the visitor's eyes near the ceiling because the room
+     was 1.7 "metres" tall. A room's ceiling is a reliable ruler — 2.4 m in a
+     house — so measure the typical floor-to-ceiling gap over the walkable
+     cells and scale the world so it reads 2.45 m. Scans are metric already
+     and are left alone; a saved transform.scale always wins. */
+  if(!isScan&&!(fromDoc&&fromDoc.environment&&fromDoc.environment.transform&&fromDoc.environment.transform.scale)&&colGrid&&colGrid.reach){
+    const gaps=[];
+    for(let i=0;i<colGrid.reach.length;i++){if(!colGrid.reach[i])continue;const f=colGrid.floorY[i],c=colGrid.ceilY[i];if(f===f&&c===c&&c-f>0.8)gaps.push(c-f);}
+    if(gaps.length>40){gaps.sort((a,b)=>a-b);const med=gaps[gaps.length>>1];
+      if(med>1.0&&med<7&&Math.abs(med-2.45)/2.45>0.15){
+        const k=2.45/med,cur=splatRoot.scale.x,ns=Math.min(4,Math.max(0.25,cur*k));
+        splatRoot.scale.setScalar(ns);splatRoot.updateMatrixWorld(true);
+        const sl=document.getElementById('scale');if(sl){sl.value=Math.log10(ns);const sv=document.getElementById('scaleVal');if(sv)sv.textContent=ns.toFixed(2)+'\u00d7';}
+        autoUpInfo=Object.assign({},autoUpInfo,{scale:+ns.toFixed(2),ceiling:+med.toFixed(2)});
+        buildCollision();dropToFloor();ensureSpawn(true);
+      }
+    }
+  }
   // Owner-saved start point beats the automatic one; ensureSpawn(true) inside
   // cleanScan has just moved the player, so put them back if the spot still stands.
   if(fromDoc)restoreSpawn(fromDoc);
   // A fix the owner saved into the world, or one this visitor made last time,
   // beats anything auto-levelling decided a moment ago.
-  if(applyRememberedFix(fromDoc)){buildCollision();dropToFloor();ensureSpawn(true);}
+  if(applyRememberedFix(fromDoc)){buildCollision();dropToFloor();ensureSpawn(true);if(fromDoc)restoreSpawn(fromDoc);}
   if(window.__reportClean)window.__reportClean();
   reportFix();offerFix();
   // Generated and outdoor worlds get SKY behind them: their gaps then read as
