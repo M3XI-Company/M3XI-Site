@@ -282,6 +282,48 @@ async function logJob(kind: string, modelId: string, input: unknown, status: str
   } catch (_) { /* best-effort */ }
 }
 
+/* ===========================================================================
+   SPATIAL HELPERS — free where it can be free.
+
+   plan_parse: a floor plan (and up to four room photos) → rooms, which rooms
+   touch, which photos belong where, and where the front door is. Runs on
+   Groq's free vision tier; nothing else is paid.
+   exterior: a UK postcode (plus an optional house number) → a street-level
+   photo of the front of the property. Google's Street View metadata call is
+   free and tells us if there is coverage; the picture itself is inside the
+   10,000-a-month free allowance. Mapillary is the no-key fallback.
+   =========================================================================== */
+const GROQ_VISION = (Deno.env.get("M3IX_GROQ_VISION") ?? "qwen/qwen3.6-27b,qwen/qwen3.8-27b,meta-llama/llama-4-scout-17b-16e-instruct").split(",").map((m) => m.trim()).filter(Boolean);
+
+async function groqVision(system: string, user: string, imageUrls: string[], maxTokens = 1500): Promise<string> {
+  const key = Deno.env.get("GROQ_API_KEY");
+  if (!key) throw new Error("Floor-plan reading needs a free GROQ_API_KEY secret (console.groq.com).");
+  const content: unknown[] = [{ type: "text", text: user }];
+  for (const u of imageUrls.slice(0, 5)) content.push({ type: "image_url", image_url: { url: u } });
+  let lastErr = "";
+  for (const model of GROQ_VISION) {
+    const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model, messages: [{ role: "system", content: system }, { role: "user", content }], temperature: 0.2, max_tokens: maxTokens, response_format: { type: "json_object" } }),
+    });
+    const text = await r.text();
+    if (r.ok) return JSON.parse(text)?.choices?.[0]?.message?.content ?? "";
+    lastErr = `groq ${r.status} (${model}): ${text.slice(0, 160)}`;
+    if (r.status !== 400 && r.status !== 404) break;   // a real failure, not "unknown model"
+  }
+  throw new Error(lastErr || "No vision model answered.");
+}
+
+async function rehost(url: string, path: string, contentType = "image/jpeg"): Promise<string | null> {
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return null;
+    const bytes = new Uint8Array(await r.arrayBuffer());
+    const up = await fetch(`${BASE()}/storage/v1/object/worlds/${path}`, { method: "POST", headers: { ...svcHeaders(), "Content-Type": contentType, "x-upsert": "true" }, body: bytes });
+    return up.ok ? `${BASE()}/storage/v1/object/public/worlds/${path}` : null;
+  } catch { return null; }
+}
+
 /* Put a job on our own render queue. Charges the local price, never a
    provider price. When no worker has checked in recently the job still
    queues — with the cloud provider off, waiting is the honest answer. */
@@ -373,6 +415,98 @@ Deno.serve(async (req: Request) => {
       return json({ images, text });
     }
 
+    /* ---------- read a floor plan ----------
+       Free (Groq vision). Returns the rooms, which touch which, the entrance,
+       and which of the attached photos show which room, as JSON the builder
+       can act on directly. */
+    if (action === "plan_parse") {
+      const uid = await callerId(req);
+      if (!uid) return json(SIGNUP_REQUIRED, 401);
+      const plan = typeof body.plan_url === "string" && /^https?:\/\//.test(body.plan_url) ? body.plan_url : null;
+      const photos = Array.isArray(body.photo_urls) ? (body.photo_urls as string[]).filter((u) => typeof u === "string" && /^https?:\/\//.test(u)).slice(0, 4) : [];
+      if (!plan && !photos.length) return json({ error: "Attach a floor plan image (and optionally room photos)." }, 400);
+      const system = "You read estate-agent floor plans and room photographs for a 3D house-viewing tool. Answer ONLY with JSON.";
+      const ask = `Image 1 is ${plan ? "a floor plan" : "a room photo"}${photos.length ? `; images ${plan ? 2 : 1}–${(plan ? 1 : 0) + photos.length} are room photos` : ""}.
+Return JSON: {"rooms":[{"name":string,"floor":"ground"|"first"|"second"|"basement"|"other","approx_m2":number|null,"adjacent":[room names reachable through a door or open doorway ONLY — never through a wall]}],
+"entrance":"the room the front door opens into","photos":[{"index":number (1-based, photos only),"room":room name}],
+"walk":"one sentence: the rooms in walking order from the front door",
+"house":"one sentence describing the property type and style from what you can see"}.
+Room names must be unique and plain (Hallway, Living room, Kitchen, Bedroom 1). If a photo does not match any room, use room "unknown".`;
+      const raw = await groqVision(system, ask, [...(plan ? [plan] : []), ...photos]);
+      let parsed: any = null;
+      try { parsed = JSON.parse(raw); } catch { return json({ error: "The plan could not be read as rooms — try a clearer image." }, 502); }
+      const rooms = Array.isArray(parsed?.rooms) ? parsed.rooms.filter((r: any) => r && typeof r.name === "string").slice(0, 24) : [];
+      if (!rooms.length) return json({ error: "No rooms were found on that plan." }, 422);
+      await recordSpend(uid, "plan", GROQ_VISION[0], 0, 0, true, "groq");
+      return json({ rooms, entrance: typeof parsed.entrance === "string" ? parsed.entrance : rooms[0].name, photos: Array.isArray(parsed.photos) ? parsed.photos : [], walk: String(parsed.walk ?? ""), house: String(parsed.house ?? "") });
+    }
+
+    /* ---------- the front of the house, from a postcode ----------
+       Metadata first (free): is there a Street View panorama within 60 m?
+       Then the picture (inside the free monthly allowance), aimed from the
+       car's position at the property when we know the house number, and
+       re-hosted on our own storage so the world never depends on a Google URL. */
+    if (action === "exterior") {
+      const uid = await callerId(req);
+      if (!uid) return json(SIGNUP_REQUIRED, 401);
+      const pc = String(body.postcode ?? "").toUpperCase().replace(/\s+/g, "").slice(0, 8);
+      if (!/^[A-Z]{1,2}[0-9][A-Z0-9]?[0-9][A-Z]{2}$/.test(pc)) return json({ error: "That does not look like a UK postcode." }, 400);
+      const house = String(body.house ?? "").trim().slice(0, 40);
+      // 1. where is it
+      let lat = NaN, lng = NaN, precise = false;
+      if (house) {
+        try {
+          const g = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=gb&q=${encodeURIComponent(house + " " + pc)}`, { headers: { "User-Agent": "M3XI-Spatial/1.0 (admin@m3xi.com)" } });
+          const gj = await g.json();
+          if (Array.isArray(gj) && gj[0]) { lat = Number(gj[0].lat); lng = Number(gj[0].lon); precise = true; }
+        } catch { /* fall back to the postcode centroid */ }
+      }
+      if (!isFinite(lat) || !isFinite(lng)) {
+        const pr = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(pc)}`);
+        const pj = await pr.json().catch(() => null);
+        if (!pr.ok || !pj?.result) return json({ error: "Postcode not found." }, 404);
+        lat = Number(pj.result.latitude); lng = Number(pj.result.longitude);
+      }
+      const gkey = Deno.env.get("GOOGLE_MAPS_KEY");
+      const slug = "exterior-" + pc.toLowerCase() + "-" + randId(4);
+      if (gkey) {
+        const meta = await (await fetch(`https://maps.googleapis.com/maps/api/streetview/metadata?location=${lat},${lng}&radius=60&source=outdoor&key=${gkey}`)).json().catch(() => null);
+        if (meta?.status === "OK") {
+          const pl = meta.location ?? {};
+          // aim the camera from the panorama towards the property
+          const toRad = (d: number) => d * Math.PI / 180;
+          const dLng = toRad(lng - Number(pl.lng)), la1 = toRad(Number(pl.lat)), la2 = toRad(lat);
+          const y = Math.sin(dLng) * Math.cos(la2), x = Math.cos(la1) * Math.sin(la2) - Math.sin(la1) * Math.cos(la2) * Math.cos(dLng);
+          const heading = ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
+          const img = `https://maps.googleapis.com/maps/api/streetview?size=640x640&pano=${encodeURIComponent(meta.pano_id)}&heading=${heading.toFixed(0)}&pitch=5&fov=80&return_error_code=true&key=${gkey}`;
+          const hosted = await rehost(img, `${slug}/street.jpg`);
+          if (hosted) {
+            await recordSpend(uid, "exterior", "streetview-static", 0, 0.007, true, "google");
+            return json({ url: hosted, source: "streetview", date: meta.date ?? null, precise, lat, lng, attribution: "Imagery © Google" });
+          }
+        }
+      }
+      const mtok = Deno.env.get("MAPILLARY_TOKEN");
+      if (mtok) {
+        const d = 0.0006; // ~60 m
+        const q = `https://graph.mapillary.com/images?access_token=${mtok}&fields=id,thumb_2048_url,computed_geometry,compass_angle,captured_at&bbox=${lng - d},${lat - d},${lng + d},${lat + d}&limit=30`;
+        const mj = await (await fetch(q)).json().catch(() => null);
+        const list: any[] = Array.isArray(mj?.data) ? mj.data : [];
+        // nearest image whose compass roughly faces the property
+        let best: any = null, bd = 1e9;
+        for (const im of list) {
+          const c = im.computed_geometry?.coordinates; if (!c) continue;
+          const dd = Math.hypot(c[0] - lng, c[1] - lat);
+          if (dd < bd) { bd = dd; best = im; }
+        }
+        if (best?.thumb_2048_url) {
+          const hosted = await rehost(best.thumb_2048_url, `${slug}/street.jpg`);
+          if (hosted) { await recordSpend(uid, "exterior", "mapillary", 0, 0, true, "mapillary"); return json({ url: hosted, source: "mapillary", precise, lat, lng, attribution: "Imagery © Mapillary contributors, CC BY-SA 4.0" }); }
+        }
+      }
+      return json({ url: null, precise, lat, lng, note: gkey || mtok ? "No street-level photo covers this address." : "Street photos need a GOOGLE_MAPS_KEY (10,000 free a month) or a free MAPILLARY_TOKEN secret." });
+    }
+
     /* ---------- Marble world generation (World Labs World API) ---------- */
     if (action === "world_submit") {
       const model = String(body.model ?? "marble-1.1");
@@ -387,7 +521,7 @@ Deno.serve(async (req: Request) => {
           "every building closed on all sides, consistent art direction and lighting throughout, " +
           "detail held from near to far, nothing floating or half-formed, game-environment completeness.";
       }
-      const imgs = Array.isArray(body.image_urls) ? (body.image_urls as string[]).filter((u) => typeof u === "string" && u).slice(0, 4) : [];
+      const imgs = Array.isArray(body.image_urls) ? (body.image_urls as string[]).filter((u) => typeof u === "string" && u).slice(0, 8) : [];
       if (!prompt && !imgs.length) return json({ error: "Give the world a text prompt, photo attachments, or both." }, 400);
       const isDraft = model.includes("draft");
       const cost = isDraft ? COST_WORLD_DRAFT : COST_WORLD;
@@ -400,15 +534,35 @@ Deno.serve(async (req: Request) => {
         ? { source: "data_base64", data_base64: u.slice(u.indexOf(",") + 1), mime_type: (u.match(/^data:([^;]+)/) || [])[1] || "image/jpeg" }
         : { source: "uri", uri: u };
       let world_prompt: Record<string, unknown>;
+      /* HOW SEVERAL PHOTOS ARE READ. Two modes, and telling them apart is the
+         difference between a room and a mash-up:
+           reconstruct — photos of ONE room from nearby spots with overlap
+                         (what an agent shoots). Marble lays them out itself;
+                         up to 8, and they must share aspect ratio/resolution.
+           turn        — four views from one standpoint, turned 90° each
+                         (the "best quality" view expansion). Azimuths.
+         The old code always sent azimuths, so photos of the kitchen, the
+         lounge and the front of the house were declared to be one spot seen
+         at 0/90/180/270° — which guarantees a mash-up. Reconstruct is now the
+         default for real photos. */
+      const layout = body.layout === "turn" ? "turn" : "reconstruct";
       if (!imgs.length) {
         world_prompt = { type: "text", text_prompt: prompt };
       } else if (imgs.length === 1) {
-        world_prompt = { type: "image", image_prompt: toContent(imgs[0]), ...(prompt ? { text_prompt: prompt } : {}) };
-      } else {
-        const step = 360 / imgs.length;
+        world_prompt = { type: "image", image_prompt: toContent(imgs[0]), is_pano: body.is_pano === true ? "true" : "auto", ...(prompt ? { text_prompt: prompt } : {}) };
+      } else if (layout === "turn") {
+        const four = imgs.slice(0, 4);
+        const step = 360 / four.length;
         world_prompt = {
           type: "multi-image",
-          multi_image_prompt: imgs.map((u, i) => ({ azimuth: Math.round(i * step), content: toContent(u) })),
+          multi_image_prompt: four.map((u, i) => ({ azimuth: Math.round(i * step), content: toContent(u) })),
+          ...(prompt ? { text_prompt: prompt } : {}),
+        };
+      } else {
+        world_prompt = {
+          type: "multi-image",
+          multi_image_prompt: imgs.slice(0, 8).map((u) => ({ content: toContent(u) })),
+          reconstruct_images: true,
           ...(prompt ? { text_prompt: prompt } : {}),
         };
       }
@@ -483,6 +637,10 @@ Deno.serve(async (req: Request) => {
         fix: { up: { axis: "y", sign: -1 } },
         // The prompt rides with the world so Refine can start from it later.
         prompt: String(body.prompt ?? "").slice(0, 1500),
+        // A room of a house: which house, which room, which rooms it touches.
+        // The viewer draws a Rooms list from this and the door markers from
+        // the hotspots the builder adds once every room exists.
+        ...(body.house && typeof body.house === "object" ? { house: body.house } : {}),
         saved_at: new Date().toISOString(),
       };
       const ins = await fetch(`${BASE()}/rest/v1/m3ix_spaces`, {
@@ -793,7 +951,7 @@ Deno.serve(async (req: Request) => {
       return json({ ok: true, status: want });
     }
 
-    return json({ error: "Unknown action. Use image | video_submit | video_status | video_result | workers | job_submit | job_status | video_publish | video_list | video_mine | video_queue | video_moderate | asset_submit | refine | world_submit | world_status | world_import | fetch_asset | balance" }, 400);
+    return json({ error: "Unknown action. Use image | video_submit | video_status | video_result | workers | job_submit | job_status | plan_parse | exterior | video_publish | video_list | video_mine | video_queue | video_moderate | asset_submit | refine | world_submit | world_status | world_import | fetch_asset | balance" }, 400);
   } catch (e) {
     return json({ error: (e as Error).message }, 500);
   }

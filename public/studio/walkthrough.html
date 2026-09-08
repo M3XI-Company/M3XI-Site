@@ -50,6 +50,11 @@ button,input,textarea{font-family:inherit}
 #ctrlHint.show{display:block;opacity:1}
 #placeStrip{position:fixed;left:12px;bottom:104px;z-index:21;background:var(--card);border:2px solid var(--line);box-shadow:3px 3px 0 rgba(22,21,18,.55);padding:6px 11px;font-size:12px;font-weight:700;color:var(--ink);display:none;max-width:min(360px,calc(100vw - 24px));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #placeStrip span{color:var(--mut);font-weight:600;margin-right:6px}
+#roomsBar{position:fixed;right:12px;bottom:56px;z-index:21;display:none;flex-direction:column;gap:6px;align-items:flex-end;max-width:min(280px,60vw)}
+#roomsBar .rb{background:var(--card);border:2px solid var(--line);box-shadow:3px 3px 0 rgba(22,21,18,.55);padding:6px 11px;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#roomsBar .rb.here{background:var(--ink);color:var(--paper);cursor:default}
+#roomsBar .rb.out{border-color:var(--gold)}
+#roomsBar .rb:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 #planLock{position:fixed;right:12px;top:64px;z-index:26;width:min(320px,92vw);background:var(--card);border:3px solid var(--line);box-shadow:6px 6px 0 rgba(22,21,18,.85);padding:16px;display:none}
 #planLock h4{font-family:var(--disp);font-size:14px;letter-spacing:.04em;margin-bottom:8px;color:var(--gold)}
 #planLock p{font-size:13px;line-height:1.5;color:var(--mut);margin-bottom:12px}
@@ -132,6 +137,7 @@ a{color:var(--gold)}
 <div class="hint" id="hint"></div>
 <div id="ctrlHint" role="status"></div>
 <div id="placeStrip" role="status"><span>You are near:</span><b id="placeName"></b></div>
+<div id="roomsBar" role="navigation" aria-label="Rooms"></div>
 <div id="planLock" role="dialog" aria-label="Spatial business plans">
   <h4>Spatial is for business plans</h4>
   <p>Spatial is part of the business plans. From &pound;200 a month &mdash; includes hosting, enquiries to your dashboard and one-click export.</p>
@@ -227,7 +233,9 @@ a{color:var(--gold)}
   <div class="rowb" style="margin:8px 0 6px"><button class="btn" id="btnAssetUrl">Place from URL</button><button class="btn" id="btnAssetFile">Place from file</button><input type="file" id="assetFileInput" accept=".glb,.gltf" style="display:none"></div>
   <div id="assetList" class="small"></div>
   <h4 style="color:var(--gold);font-size:13px;margin:14px 0 6px">Hotspots</h4>
-  <div class="rowb" style="margin-bottom:8px"><button class="btn gold" id="btnDrop">Drop hotspot here</button></div>
+  <div class="rowb" style="margin-bottom:8px"><button class="btn gold" id="btnDrop">Drop hotspot here</button><button class="btn" id="btnEntrance" title="Visitors start exactly here, facing this way">Set entrance here</button></div>
+  <div class="small" id="entranceStat" style="margin-bottom:8px">&nbsp;</div>
+  <div class="small" style="margin-bottom:6px"><b>Coverage</b> <span id="covStat">—</span></div>
   <textarea id="hsJson" spellcheck="false"></textarea>
   <div class="rowb" style="margin-top:8px"><button class="btn" id="btnApplyJson">Apply JSON</button><button class="btn" id="btnCopyJson2">Copy</button></div>
   <div class="rowb" style="margin-top:8px"><button class="btn" id="btnExportWorld">Export world data (JSON)</button></div>
@@ -238,6 +246,7 @@ a{color:var(--gold)}
   <textarea id="hsBody" rows="3" placeholder="What should visitors read here?"></textarea>
   <input type="text" id="hsPrice" placeholder="Price / label (optional)">
   <input type="text" id="hsCta" placeholder="Link URL (optional — Visit button)">
+  <input type="text" id="hsTarget" placeholder="Door: world code of the room this leads to (optional)">
   <div class="rowb"><button class="btn gold" id="hsSave">Save</button><a class="btn" id="hsVisit" target="_blank" rel="noopener" style="display:none">Visit</a><button class="btn" id="hsDelete">Delete</button><button class="btn" id="hsClose">Close</button></div>
 </div>
 
@@ -296,7 +305,18 @@ a{color:var(--gold)}
       <button class="btn gold" id="ovGenBtn">Generate world</button>
       <button class="btn" id="ovAttachBtn" type="button">+ Photos</button>
       <button class="btn" id="ovQuality" type="button" title="Generates up to two takes, scans each for missing patches and depth loss, keeps the better one. Costs up to 300 credits.">Best quality: off</button>
+      <button class="btn" id="ovPlanBtn" type="button" title="A floor plan turns your photos into a whole house: one room per world, joined by doors">+ Floor plan</button>
       <input type="file" id="ovAttachInput" accept="image/*,.spz,.ply,.splat,.ksplat,.sog" multiple style="display:none">
+      <input type="file" id="ovPlanInput" accept="image/*" style="display:none">
+    </div>
+    <!-- A real property: the floor plan says which rooms exist and which touch,
+         the photos say what each looks like, the postcode fetches the street
+         outside. Each room becomes its own world; doors join them. -->
+    <div id="ovHouse" style="display:none;gap:8px;justify-content:center;flex-wrap:wrap;align-items:center;margin-top:10px">
+      <img id="ovPlanThumb" alt="floor plan" style="height:54px;border:2px solid var(--line);background:#fff;display:none">
+      <input type="text" id="ovPostcode" placeholder="Postcode (street photo)" maxlength="8" style="width:170px;padding:7px 9px;border:2px solid var(--line);font-size:13px;background:#fff">
+      <input type="text" id="ovHouseNo" placeholder="House no." maxlength="12" style="width:96px;padding:7px 9px;border:2px solid var(--line);font-size:13px;background:#fff">
+      <button class="btn" id="ovPlanClear" type="button">Remove plan</button>
     </div>
     <div id="ovGenNote" class="small" style="margin-top:8px">Drop photos or a scan file anywhere on this page — photos build the world, a .spz / .ply / .splat scan opens directly. The free <b>Scaniverse</b> app exports scans: Splat mode → Share → Export.</div>
   </div>
@@ -377,7 +397,11 @@ let renderer,scene,camera,spark,splatRoot,sunL;
 try{
   ({SparkRenderer,SplatMesh,SplatFileType}=await import('@sparkjsdev/spark'));
   renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio*1.25,2.5));
+  // One pixel ratio for the whole visit. This used to open at 1.25x (up to
+  // 2.5x) and drop to 2x on the first resize, so quality changed when a phone
+  // rotated and the first frame was fill-rate bound on 3x screens.
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.setSize(innerWidth,innerHeight);
   document.body.appendChild(renderer.domElement);
   scene=new THREE.Scene();
@@ -652,6 +676,7 @@ function floorLikeness(){
 }
 
 let autoLevelInfo=null;
+let autoUpInfo=null;      // what the loader decided about "up", and why
 /* Decide which way is up by OUTCOME, not by reading histograms.
    The histogram heuristic kept getting it wrong in the way that matters most:
    on the Gallery Loft it rotated a perfectly upright room 90 degrees, which is
@@ -1252,8 +1277,84 @@ function canStand(x,z,feetY){
   if(f-feetY>STEP_UP)return false;   // stairs are climbed one tread at a time
   return true;
 }
+/* Where a visit starts. spawnHome is the place Reset returns to: the owner's
+   saved entrance when there is one, otherwise the spot the auto-spawn chose. */
+let spawnHome=null,_homeAt=0;
+function setHome(){spawnHome={x:player.x,z:player.z,feetY:player.feetY,yaw:player.yaw};_homeAt=performance.now();}
+function goHome(){
+  if(!spawnHome)return false;
+  player.x=spawnHome.x;player.z=spawnHome.z;player.feetY=spawnHome.feetY;player.yaw=spawnHome.yaw;
+  player.pitch=0;player.vy=0;player.grounded=true;return true;
+}
+/* Put the visitor where the owner said the visit starts, if that spot is still
+   somewhere a person can stand after cleanup and collision. Saved spawns used
+   to be read and then discarded by the ensureSpawn(true) that follows every
+   cleanScan, so "stand at the front door, press Save" never reached anyone. */
+function restoreSpawn(fromDoc){
+  const sp=fromDoc&&fromDoc.spawn;
+  if(!sp||!Array.isArray(sp.pos))return false;
+  const x=Number(sp.pos[0]),z=Number(sp.pos[2]);
+  if(!isFinite(x)||!isFinite(z))return false;
+  let fy=null;
+  if(colGrid&&collideOn){fy=cellFloor(x,z);if(fy===null||!canStand(x,z,fy))return false;}
+  player.x=x;player.z=z;player.feetY=fy!==null?fy:player.floor;player.yaw=Number(sp.yaw)||0;player.pitch=0;player.vy=0;player.grounded=true;
+  setHome();return true;
+}
+/* THE ENTRANCE, GUESSED. With no saved start, stand where a person entering
+   the room would: against an edge of the walkable floor, looking across the
+   longest clear run of it. Sixteen rays over the collision grid measure the
+   open view from each candidate cell; a cell touching a wall or doorway with
+   the longest inward view wins, and the visitor faces down that view. The old
+   rule — the centroid of the floor, facing -Z whatever the room's shape —
+   opened scans staring at a wall from the middle of the carpet. */
+function chooseEntrance(){
+  if(!colGrid||!colGrid.usable)return null;
+  const W=colGrid.walk,F=colGrid.floorY,cs=colGrid.cs,w=colGrid.w,h=colGrid.h,N=w*h;
+  const gy=colGrid.groundY;
+  const near=i=>{const f=F[i];return f===f&&(gy!==gy||Math.abs(f-gy)<=0.5);};
+  const cand=[];
+  for(let i=0;i<N;i++){if(!W[i]||!near(i))continue;
+    const gx=i%w,gz=(i/w)|0;
+    // an edge cell: at least one 4-neighbour is not walkable (wall, doorway, drop)
+    const edge=(gx===0||gz===0||gx===w-1||gz===h-1)||!W[i-1]||!W[i+1]||!W[i-w]||!W[i+w];
+    cand.push({i,gx,gz,edge});}
+  if(!cand.length)return null;
+  const step=Math.max(1,Math.floor(cand.length/2500));
+  const maxR=Math.ceil(12/cs);
+  const dirs=[];for(let k=0;k<16;k++)dirs.push([Math.cos(k*Math.PI/8),Math.sin(k*Math.PI/8)]);
+  let best=null;
+  for(let c=0;c<cand.length;c+=step){
+    const {i,gx,gz,edge}=cand[c];
+    let bestLen=0,bestDir=0,sum=0;
+    for(let k=0;k<16;k++){
+      const [dx,dz]=dirs[k];let len=0;
+      for(let r=1;r<=maxR;r++){const x=Math.round(gx+dx*r),z=Math.round(gz+dz*r);
+        if(x<0||z<0||x>=w||z>=h)break;const j=z*w+x;if(!W[j]||!near(j))break;len=r;}
+      sum+=len;if(len>bestLen){bestLen=len;bestDir=k;}
+    }
+    // long view ahead, some room around, and standing at an edge (doorway/wall)
+    const clutter=colGrid.eye?colGrid.eye[i]*2:0;
+    const score=bestLen*cs+(sum/16)*cs*0.25+(edge?1.2:0)-clutter;
+    if(!best||score>best.score)best={i,gx,gz,score,dir:bestDir,len:bestLen};
+  }
+  if(!best)return null;
+  // step half a metre in from the edge so the camera is not inside the wall
+  const [dx,dz]=dirs[best.dir];
+  const inset=Math.min(best.len,Math.round(0.5/cs));
+  const gx=best.gx+dx*inset,gz=best.gz+dz*inset;
+  const x=colGrid.minx+(gx+0.5)*cs,z=colGrid.minz+(gz+0.5)*cs;
+  // yaw: the viewer looks down -Z at yaw 0; +X is to the right. Grid x → world x, grid z → world z.
+  const yaw=Math.atan2(-dx,-dz);
+  const j=cellIndex(x,z);
+  return {x,z,feetY:(j>=0&&F[j]===F[j])?F[j]:player.floor,yaw};
+}
 function ensureSpawn(force){
   if(!colGrid||!collideOn)return;
+  if(force){
+    const e=chooseEntrance();
+    if(e){player.x=e.x;player.z=e.z;player.feetY=e.feetY;player.floor=colGrid.groundY===colGrid.groundY?colGrid.groundY:player.floor;
+      player.yaw=e.yaw;player.pitch=0;player.vy=0;player.grounded=true;setHome();return;}
+  }
   const W=colGrid.walk,F=colGrid.floorY,cs=colGrid.cs,w=colGrid.w,N=w*colGrid.h;
   // Which height IS the floor? A scan often contains a desk top, a windowsill
   // and a roof as well as the ground, and the biggest connected patch is not
@@ -1435,6 +1536,10 @@ function offerFix(){
   const poor=!ci||!ci.built||ci.solid<12||(ci.areaM2||0)<2.5;
   // Visitors have no Calibrate button, so never point them at one.
   el.style.display=(poor&&!EMBED)?'block':'none';
+  // A visitor in an embed has no Calibrate panel; if the world is clearly
+  // wrong, at least say so in words they can act on (open in the Studio).
+  const strip=document.getElementById('placeStrip');
+  if(poor&&EMBED&&strip){strip.style.display='block';strip.firstElementChild.textContent='';const nm=document.getElementById('placeName');if(nm)nm.textContent='This room needs calibrating by its owner';}
 }
 window.__offerFix=offerFix;
 
@@ -1519,6 +1624,7 @@ function docExtras(fromDoc){
     player.speed=sp;$('#spd').value=sp;$('#spdVal').textContent=sp.toFixed(2)+' m/s';
   }
   hotspots=Array.isArray(fromDoc.hotspots)?fromDoc.hotspots:[];renderMarkers();
+  renderRoomsBar(fromDoc.house);
   loadAssetsFromDoc(fromDoc.assets||[]);
   if(fromDoc.name){$('#wName').value=fromDoc.name;}
   if(fromDoc.creator){$('#cName').value=fromDoc.creator.name||'';$('#cUrl').value=fromDoc.creator.url||'';}
@@ -1559,6 +1665,7 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
       docExtras(fromDoc);
       try{const src2=mesh.packedSplats||mesh.splats;splatCount=src2&&src2.getNumSplats?src2.getNumSplats():0;}catch(e){}
       cleanScan();   // hides spikes/haze/ghosts, then builds collision from what is left
+      restoreSpawn(fromDoc);   // cleanScan ended with ensureSpawn(true), which threw the saved start away
       /* A saved fix outranks the stored transform. The transform records how the
          world happened to be sitting when it was last published; the fix records
          what someone actually decided was upright. This path used to return
@@ -1567,9 +1674,12 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
          own correction were silently discarded \u2014 the calibrate panel appeared to
          work, then reverted on the next visit. */
       const rotBefore=splatRoot.rotation.clone();
-      if(applyRememberedFix(fromDoc)&&!splatRoot.rotation.equals(rotBefore)){
+      if(applyRememberedFix(fromDoc)){
+        // Always rebuild: a saved wall sensitivity used to be loaded into a
+        // variable and never applied unless the rotation happened to change.
         splatRoot.updateMatrixWorld(true);
         buildCollision();dropToFloor();ensureSpawn(true);
+        restoreSpawn(fromDoc);
       }
       if(window.__reportClean)window.__reportClean();
       reportFix();offerFix();   // and leave the escape hatch visible if it is still wrong
@@ -1595,17 +1705,34 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
       const q=(arr,p)=>{const s=[...arr].sort((m,n)=>m-n);return s[Math.floor((s.length-1)*p)]};
       const rng=arr=>q(arr,0.97)-q(arr,0.03);
       const rx=rng(xs),ry=rng(ys),rz=rng(zs);
-      let vert='y'; // rooms are wider than tall: the tightest axis is vertical
-      if(rz<ry*0.75&&rz<=rx)vert='z';else if(rx<ry*0.75&&rx<=rz)vert='x';
+      /* WHICH WAY IS UP. Two detectors, in order of trust:
+         1. Room shape (detectUp): along the true up-axis a room reads as a
+            dense floor slab, clear headroom, then a ceiling. Six candidates,
+            identity only unseated by a decisive margin. This was dead code
+            while the crude extents test below decided every real scan — and
+            the extents test fails on small rooms and corridors (the short
+            horizontal side becomes "vertical") and flips rooms with dense
+            ceilings. The bedroom and office scans that arrived sideways or
+            upside down came from exactly that.
+         2. Extents (fallback): only when the room detector has nothing to
+            say AND the shape is overwhelmingly flat along one axis. */
+      let du=null;
+      try{du=detectUp();}catch(e){du=null;}
+      let vert='y',flipped=false,how='identity';
+      if(du&&du.decisive){vert=du.axis;flipped=du.sign<0;how='room shape ×'+du.margin;}
+      else if(!du||du.margin<1.05){
+        if(rz<ry*0.6&&rz<=rx)vert='z';else if(rx<ry*0.6&&rx<=rz)vert='x';
+        if(vert!=='y'){
+          const vp={x:xs,y:ys,z:zs}[vert];
+          const lo=q(vp,0.03),hi=q(vp,0.97),third=Math.max(0.01,(hi-lo)/3);
+          let low=0,high=0;for(const vv of vp){if(vv<lo+third)low++;else if(vv>hi-third)high++;}
+          flipped=high>low*1.25;how='extents';
+        }
+      }
+      autoUpInfo={axis:vert,sign:flipped?-1:1,how,margin:du?du.margin:null};
       const vpick={x:xs,y:ys,z:zs}[vert];
-      const lo=q(vpick,0.03),hi=q(vpick,0.97),third=Math.max(0.01,(hi-lo)/3);
-      let low=0,high=0;
-      for(const vv of vpick){if(vv<lo+third)low++;else if(vv>hi-third)high++;}
-      const flipped=high>low*1.25; // the dense end is the floor \u2014 it belongs at the bottom
       // Remember the verdict as a fix, not just a rotation: autoLevel used to
-      // RESET rotation right after this block, silently undoing the flip \u2014
-      // which is exactly how a world published without a saved fix arrived
-      // upside down. detectedUp survives; autoLevel is skipped when it exists.
+      // RESET rotation right after this block, silently undoing the flip.
       detectedUp={axis:vert,sign:flipped?-1:1};
       mesh.position.set(-cx,-cy,-cz); // centre the capture at the origin
       const mapv={y:v=>flipped?-(v-cy):(v-cy),z:v=>flipped?-(v-cz):(v-cz),x:v=>flipped?-(v-cx):(v-cx)}[vert];
@@ -1625,8 +1752,23 @@ function afterLoad(mesh,{authored=false,fromDoc=null}={}){
   if(fromDoc)docExtras(fromDoc);
   if(detectedUp)applyUp(detectedUp.axis,detectedUp.sign,{rebuild:false});
   else autoLevel();   // nothing detected: show as authored
+  /* QUALITY DEFAULTS BY SOURCE. A phone scan is a record of a real room: every
+     splat in it was seen by the camera, plain walls are legitimately large
+     splats, and rooms at the ends of an L-shaped house sit outside the box the
+     "normal" preset trusts. So scans get the light clean and no artificial
+     sharpening — shrinking uniform splats is what opened the holes people saw
+     in walls. Generated (Marble) worlds keep the stronger cleanup: their halo
+     of floaters is real and cleanup measurably helps them. */
+  const isScan=!(fromDoc&&(fromDoc.generator==='marble'||worldState.ai));
+  if(isScan&&!(fromDoc&&fromDoc.fix)){
+    cleanLevel='light';const cl=document.getElementById('cleanLevel');if(cl)cl.value='light';
+    const sh=document.getElementById('sharp');if(sh)sh.value='1';
+  }
   cleanScan();   // hides spikes/haze/ghosts, then builds collision from what is left
-  setSharpness(Number(($('#sharp')||{}).value)||0.82);
+  setSharpness(isScan?Number(($('#sharp')||{}).value)||1:Number(($('#sharp')||{}).value)||0.82);
+  // Owner-saved start point beats the automatic one; ensureSpawn(true) inside
+  // cleanScan has just moved the player, so put them back if the spot still stands.
+  if(fromDoc)restoreSpawn(fromDoc);
   // A fix the owner saved into the world, or one this visitor made last time,
   // beats anything auto-levelling decided a moment ago.
   if(applyRememberedFix(fromDoc)){buildCollision();dropToFloor();ensureSpawn(true);}
@@ -1876,9 +2018,14 @@ function hsTexture(){const c=document.createElement('canvas');c.width=c.height=1
   g.strokeStyle='#d0402b';g.lineWidth=10;g.beginPath();g.arc(64,64,44,0,7);g.stroke();
   g.fillStyle='#ffffff';g.beginPath();g.arc(64,64,14,0,7);g.fill();return new THREE.CanvasTexture(c);}
 const hsTex=hsTexture();
+function ringTexture(col){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
+  g.strokeStyle=col;g.lineWidth=10;g.beginPath();g.arc(64,64,44,0,7);g.stroke();
+  g.fillStyle='#ffffff';g.beginPath();g.arc(64,64,14,0,7);g.fill();return new THREE.CanvasTexture(c);}
+const hsTexDoor=ringTexture('#b6892f'),hsTexEntrance=ringTexture('#161512');
 function renderMarkers(){
   hsGroup.clear();
-  hotspots.forEach((h,i)=>{const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:hsTex,depthTest:false}));
+  hotspots.forEach((h,i)=>{const tex=h.kind==='door'?hsTexDoor:h.kind==='entrance'?hsTexEntrance:hsTex;
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,depthTest:false}));
     sp.position.set(h.pos[0],h.pos[1],h.pos[2]);sp.scale.set(0.22,0.22,1);sp.userData.idx=i;hsGroup.add(sp);});
   $('#hsJson').value=JSON.stringify(hotspots);
 }
@@ -1948,20 +2095,88 @@ let openTarget=null; // {type:'hs'|'asset', idx}
 function fillPanel(rec){
   $('#hsTitle').value=rec.title||'';$('#hsBody').value=rec.body||'';
   $('#hsPrice').value=rec.price||'';$('#hsCta').value=rec.cta||'';
+  const tg=document.getElementById('hsTarget');if(tg)tg.value=rec.target||'';
   const v=$('#hsVisit');if(rec.cta){v.style.display='';v.href=rec.cta;}else v.style.display='none';
   $('#hsPanel').style.display='block';
 }
-function openHotspot(i){openTarget={type:'hs',idx:i};openIdx=i;const h=hotspots[i];if(h)fillPanel(h);}
+function openHotspot(i){openTarget={type:'hs',idx:i};openIdx=i;const h=hotspots[i];
+  if(h&&h.kind==='door'&&h.target&&(EMBED||!spatialUnlocked)){gotoWorld(h.target);return;}
+  if(h)fillPanel(h);}
 function openAsset(i){openTarget={type:'asset',idx:i};const a=assets[i];if(a)fillPanel(a);}
 function currentRec(){if(!openTarget)return null;return openTarget.type==='hs'?hotspots[openTarget.idx]:assets[openTarget.idx];}
 $('#hsSave').onclick=()=>{const r=currentRec();if(!r)return;
   r.title=$('#hsTitle').value;r.body=$('#hsBody').value;r.price=$('#hsPrice').value;r.cta=$('#hsCta').value;
+  const tg=document.getElementById('hsTarget');const t=tg?tg.value.trim():'';
+  if(t){r.target=t;r.kind='door';}else{delete r.target;if(r.kind==='door')delete r.kind;}
   renderMarkers();renderAssetList();$('#hsPanel').style.display='none';openTarget=null;openIdx=-1;};
 $('#hsDelete').onclick=()=>{if(!openTarget)return;
   if(openTarget.type==='hs')hotspots.splice(openTarget.idx,1);else removeAsset(openTarget.idx);
   renderMarkers();$('#hsPanel').style.display='none';openTarget=null;openIdx=-1;};
 $('#hsClose').onclick=()=>{$('#hsPanel').style.display='none';openTarget=null;openIdx=-1;};
 $('#btnDrop').onclick=dropHotspot;
+/* THE ENTRANCE. The owner walks to the front door, faces into the house and
+   presses this: every visitor now starts here, facing this way, and the spot
+   is marked so the place strip reads "Entrance". Saved with the world. */
+$('#btnEntrance')&&($('#btnEntrance').onclick=()=>{
+  if(!splat){wStatus('Load a world first.');return;}
+  setHome();spawnHome.kind='entrance';
+  const dir=new THREE.Vector3(-Math.sin(player.yaw),0,-Math.cos(player.yaw));
+  const p=[player.x+dir.x*0.6,player.feetY+1.15,player.z+dir.z*0.6];
+  const i=hotspots.findIndex(h=>h.kind==='entrance');
+  const rec={kind:'entrance',pos:p,title:'Entrance',body:'Visitors start here.'};
+  if(i>=0)hotspots[i]=Object.assign(hotspots[i],rec);else hotspots.push(rec);
+  renderMarkers();
+  const es=document.getElementById('entranceStat');if(es)es.textContent='Entrance set — press Save or Publish to keep it.';
+  toast('Entrance set here',1600);
+});
+/* DOORS BETWEEN ROOMS. Marble builds one connected space per world, so a
+   house is a set of room worlds joined by doors. A door hotspot carries the
+   world code of the room it leads to; walking into it opens that world. */
+let _doorAt=0;
+/* The rooms of this house, as a strip of buttons: the current room, then
+   every room a door leads to. Works in embeds, and gives visitors a way
+   through the house that never depends on finding a marker. */
+function renderRoomsBar(house){
+  const bar=document.getElementById('roomsBar');if(!bar)return;
+  bar.innerHTML='';
+  const rooms=house&&Array.isArray(house.rooms)?house.rooms:null;
+  if(!rooms||rooms.length<2){bar.style.display='none';return;}
+  const here=rooms.find(r=>r.name===house.room)||null;
+  const adj=here?rooms.filter(r=>(here.adjacent||[]).includes(r.name)):rooms;
+  const mk=(r,cls)=>{const b=document.createElement('button');b.type='button';b.className='rb '+cls;b.textContent=(cls==='here'?'':'→ ')+r.name;
+    if(cls!=='here')b.onclick=()=>gotoWorld(r.slug);bar.appendChild(b);};
+  if(here)mk(here,'here');
+  adj.filter(r=>!here||r.name!==here.name).forEach(r=>mk(r,r.name==='Street'?'out':''));
+  bar.style.display='flex';
+}
+function gotoWorld(slug){
+  if(!slug)return;
+  const u=new URL(location.href);u.searchParams.set('world',slug);u.searchParams.delete('key');u.searchParams.delete('vk');
+  toast('Going through…',1200);location.assign(u.toString());
+}
+function checkDoors(now){
+  if(now-_doorAt<1500)return;
+  // Never fire on arrival: a visitor who lands next to a door must walk into
+  // it on purpose, otherwise two rooms can bounce each other for ever.
+  if(now-_homeAt<3000)return;
+  if(spawnHome&&Math.hypot(spawnHome.x-player.x,spawnHome.z-player.z)<1.2)return;
+  for(const h of hotspots){if(h.kind!=='door'||!h.target)continue;
+    if(Math.hypot(h.pos[0]-player.x,h.pos[2]-player.z)<0.7){_doorAt=now;gotoWorld(h.target);return;}}
+}
+function reportCoverage(){
+  const el=document.getElementById('covStat');if(!el)return;
+  const ci=colDiag;
+  if(!ci||!ci.ok){el.textContent='no scan loaded';return;}
+  const cov=Math.max(0,100-(ci.holePct||0));
+  let advice='';
+  if(ci.holePct>15)advice=' — large gaps: scan again slowly along the missing walls (360 mode on Scaniverse fills gaps fastest)';
+  else if(ci.holePct>6)advice=' — a few gaps; a second slow pass through the middle of the room will close them';
+  else advice=' — good';
+  el.textContent=cov.toFixed(0)+'% of the floor area has geometry'+advice+(ci.walls?' · '+ci.walls+' walls':'');
+  const es=document.getElementById('entranceStat');
+  if(es&&!/Entrance set/.test(es.textContent))es.textContent=(hotspots.some(h=>h.kind==='entrance')?'Entrance saved with this world.':'No entrance set — visitors start at the automatic spot ('+(autoUpInfo?('up: '+autoUpInfo.how):'')+').');
+}
+window.__reportCoverage=reportCoverage;
 $('#btnExportWorld').onclick=()=>{
   if(!colGrid){wStatus('Load a world first \u2014 the map is built from the scan.');return;}
   const {w,h,cs,minx,minz,solid,floorY}=colGrid;
@@ -2080,7 +2295,11 @@ async function saveWorld({publish}={}){
       environment:{type:'splat',src:envSrc,floor:player.floor,
         transform:{rot:[splatRoot.rotation.x,splatRoot.rotation.y,splatRoot.rotation.z],scale:splatRoot.scale.x,meshPos:[splat.position.x,splat.position.y,splat.position.z]}},
       eye:player.eye,speed:player.speed,
-      spawn:{pos:[player.x,player.floor,player.z],yaw:player.yaw},
+      // The orientation and cleanup the owner is looking at right now travel
+      // with the world, so no visitor ever re-guesses them.
+      fix:{up:fixUp,wall:wallThreshold,sharp:sharpAmt,clean:cleanLevel,eye:player.eye},
+      spawn:{pos:[player.x,player.feetY,player.z],yaw:player.yaw,kind:(spawnHome&&spawnHome.kind)||'auto'},
+      coverage:colDiag&&colDiag.ok?{holePct:colDiag.holePct,areaM2:colDiag.areaM2,walls:colDiag.walls}:undefined,
       hotspots,
       assets:assets.map(a=>({src:a.src,name:a.name,title:a.title,body:a.body,price:a.price,cta:a.cta,pos:a.pos,rotY:a.rotY,scale:a.scale})),
       branding:{name:$('#bName').value.trim(),color:$('#bColor').value,cta:{label:$('#bCtaLabel').value.trim(),url:$('#bCtaUrl').value.trim()}},
@@ -2344,6 +2563,30 @@ function addAttFile(file){
   img.src=URL.createObjectURL(file);
 }
 $('#ovAttachBtn')&&($('#ovAttachBtn').onclick=()=>$('#ovAttachInput').click());
+/* ---------- the house inputs: floor plan + postcode ---------- */
+let ovPlan=null;
+function houseMode(){return !!(ovPlan||($('#ovPostcode')&&$('#ovPostcode').value.trim()));}
+function drawHouse(){
+  const box=$('#ovHouse');if(!box)return;
+  const on=houseMode()||box.dataset.open==='1';
+  box.style.display=on?'flex':'none';
+  const th=$('#ovPlanThumb');if(th){th.style.display=ovPlan?'':'none';if(ovPlan)th.src=ovPlan;}
+  const pc=$('#ovPlanClear');if(pc)pc.style.display=ovPlan?'':'none';
+  const gb=$('#ovGenBtn');if(gb&&!gb.disabled)gb.textContent=houseMode()?'Build house':'Generate world';
+  const n=$('#ovGenNote');
+  if(n&&houseMode()){n.style.color='';n.innerHTML='<b>House mode.</b> Each room on the plan becomes its own world built from the photos of that room; doors join them; the postcode fetches the street outside. Photos of the same room should overlap. Rooms without photos are built from the plan and your description.';}
+}
+$('#ovPlanBtn')&&($('#ovPlanBtn').onclick=()=>{const b=$('#ovHouse');b.dataset.open='1';drawHouse();$('#ovPlanInput').click();});
+$('#ovPlanInput')&&($('#ovPlanInput').onchange=e=>{
+  const f=e.target.files[0];e.target.value='';if(!f||!/^image\//.test(f.type))return;
+  const img=new Image();
+  img.onload=()=>{const MAX=1600,k=Math.min(1,MAX/Math.max(img.width,img.height));const c=document.createElement('canvas');
+    c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    ovPlan=c.toDataURL('image/jpeg',0.85);URL.revokeObjectURL(img.src);drawHouse();};
+  img.src=URL.createObjectURL(f);
+});
+$('#ovPlanClear')&&($('#ovPlanClear').onclick=()=>{ovPlan=null;drawHouse();});
+$('#ovPostcode')&&($('#ovPostcode').oninput=drawHouse);
 $('#ovAttachInput')&&($('#ovAttachInput').onchange=e=>{[...e.target.files].forEach(addAttFile);e.target.value='';});
 async function loadOvLibrary(){
   const grid=$('#ovLib');if(!grid)return;
@@ -2448,8 +2691,121 @@ async function attachmentsToUrls(list){
   }
   return out;
 }
+/* Same-size photos: reconstruct mode needs every photo at one aspect ratio
+   and resolution. Phone photos arrive in every shape, so crop each to 4:3
+   (or 3:4 for a portrait set) at 1280 px before upload. */
+async function normaliseSet(list){
+  if(list.length<2)return list;
+  let portrait=0;const ims=[];
+  for(const d of list){const im=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=d;});ims.push(im);if(im.height>im.width)portrait++;}
+  const pt=portrait>ims.length/2,W=pt?960:1280,H=pt?1280:960;
+  return ims.map(im=>{const c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
+    const k=Math.max(W/im.width,H/im.height),sw=W/k,sh=H/k;
+    g.drawImage(im,(im.width-sw)/2,(im.height-sh)/2,sw,sh,0,0,W,H);return c.toDataURL('image/jpeg',0.8);});
+}
+/* ---------- BUILD A HOUSE ----------
+   Marble makes one connected space per generation, so a house is a set of
+   room worlds joined by doors. The plan says which rooms exist and which
+   touch; the photos say what each room looks like; the postcode gives the
+   street outside. The entrance room is built first and opened at the end.
+   Draft rooms cost 40 credits each, final quality 150 — the count and the
+   total are shown before anything is charged. */
+let housePlan=null;
+async function buildHouse(p){
+  const btn=$('#ovGenBtn');
+  const postcode=($('#ovPostcode').value||'').trim().toUpperCase();
+  const houseNo=($('#ovHouseNo').value||'').trim();
+  const model=qualityOn?'marble-1.1':'marble-1.0-draft';
+  const per=qualityOn?150:40;
+  if(!housePlan){
+    btn.disabled=true;btn.textContent='Reading …';
+    try{
+      const photos=await attachmentsToUrls(await normaliseSet(ovAtt.slice(0,8)));
+      let plan;
+      if(ovPlan){
+        genSay('Reading the floor plan …');
+        const planUrl=(await attachmentsToUrls([ovPlan]))[0];
+        plan=await gcall({action:'plan_parse',plan_url:planUrl,photo_urls:photos.slice(0,4)});
+      }else{
+        plan={rooms:[{name:'Home',floor:'ground',adjacent:[]}],entrance:'Home',photos:photos.map((_,i)=>({index:i+1,room:'Home'})),walk:'',house:''};
+      }
+      let ext=null;
+      if(postcode){genSay('Finding the street outside …');try{ext=await gcall({action:'exterior',postcode,house:houseNo});}catch(e){ext={url:null,note:e.message};}}
+      const byRoom={};
+      (plan.photos||[]).forEach(pm=>{const u=photos[(pm.index|0)-1];if(u&&pm.room&&pm.room!=='unknown')(byRoom[pm.room]=byRoom[pm.room]||[]).push(u);});
+      const rooms=plan.rooms.slice().sort((a,b)=>(a.name===plan.entrance?-1:b.name===plan.entrance?1:0));
+      housePlan={plan,rooms,byRoom,ext,photos,model,per};
+      const n=rooms.length+(ext&&ext.url?1:0);
+      genSay('<b>'+rooms.length+' room'+(rooms.length>1?'s':'')+'</b> found: '+rooms.map(r=>String(r.name).replace(/</g,'&lt;')+(byRoom[r.name]?' ('+byRoom[r.name].length+' photo'+(byRoom[r.name].length>1?'s':'')+')':'')).join(', ')+
+        (ext&&ext.url?' &middot; street photo found ('+ext.source+')':postcode?' &middot; no street photo: '+String(ext&&ext.note||'').replace(/</g,'&lt;'):'')+
+        '.<br>Entrance: <b>'+String(plan.entrance).replace(/</g,'&lt;')+'</b>. Building '+n+' world'+(n>1?'s':'')+' costs <b>'+(n*per)+' credits</b> ('+(qualityOn?'final quality':'drafts — turn on Best quality for finals')+'). Press <b>Build house</b> again to start.');
+    }catch(e){housePlan=null;throw e;}
+    finally{btn.disabled=false;btn.textContent='Build house';}
+    return;
+  }
+  const {plan,rooms,byRoom,ext,per:cost}=housePlan;
+  btn.disabled=true;btn.textContent='Building …';
+  const t0=Date.now();const elapsed=()=>{const s=((Date.now()-t0)/1000)|0;return ((s/60)|0)+':'+String(s%60).padStart(2,'0');};
+  const houseId='house-'+Date.now().toString(36);
+  const made=[];
+  const genRoom=async(label,prompt,imgs,house)=>{
+    const q=await gcall({action:'world_submit',prompt,model:housePlan.model,image_urls:imgs&&imgs.length?imgs:undefined,layout:'reconstruct'});
+    let st=null;
+    for(let i=0;i<130;i++){
+      await new Promise(x=>setTimeout(x,6000));
+      st=await gcall({action:'world_status',operation_id:q.operation_id});
+      if(st.done)break;
+      if(st.error)throw new Error(label+' failed on the provider side — that room was refunded.');
+      genSay(label+' — <b>'+elapsed()+'</b> elapsed. '+made.length+' of '+(rooms.length+(ext&&ext.url?1:0))+' done. Keep this page open.');
+    }
+    if(!st||!st.done)throw new Error(label+' is still generating after '+elapsed()+' — check your library in a few minutes.');
+    return await gcall({action:'world_import',operation_id:q.operation_id,prompt,name:house.room,house});
+  };
+  try{
+    for(const r of rooms){
+      const adj=Array.isArray(r.adjacent)?r.adjacent.filter(a=>typeof a==='string'):[];
+      const prompt=(r.name+' of a real '+(plan.house||'home')+', photoreal, exactly as it is. '+(p?p+' ':'')+
+        'Ground-level walkable interior seen from its doorway'+(adj.length?'; open doorways lead to '+adj.join(', '):'')+
+        '. Complete walls, floor and ceiling; furniture as photographed; natural light; nothing missing.').slice(0,1200);
+      const im=await genRoom('Building '+r.name,prompt,byRoom[r.name]||[],{id:houseId,room:r.name,floor:r.floor||'ground',adjacent:adj,entrance:r.name===plan.entrance,m2:r.approx_m2||null});
+      made.push({name:r.name,slug:im.slug,edit_key:im.edit_key||'',adjacent:adj,entrance:r.name===plan.entrance});
+    }
+    if(ext&&ext.url){
+      const prompt=('The street outside a real '+(plan.house||'house')+': the front of the property seen from the pavement, photoreal, exactly as photographed. Ground-level walkable street with the front door ahead.').slice(0,1200);
+      const im=await genRoom('Building the street',prompt,[ext.url],{id:houseId,room:'Street',floor:'outside',adjacent:[plan.entrance],entrance:false,exterior:true,attribution:ext.attribution||''});
+      made.push({name:'Street',slug:im.slug,edit_key:im.edit_key||'',adjacent:[plan.entrance],entrance:false});
+      const ent=made.find(m=>m.entrance);if(ent&&!ent.adjacent.includes('Street'))ent.adjacent.push('Street');
+    }
+    genSay('Joining the rooms with doors …');
+    const index=made.map(m=>({name:m.name,slug:m.slug,entrance:m.entrance,adjacent:m.adjacent}));
+    for(const m of made){
+      try{
+        const l=await wcall({action:'load',slug:m.slug,edit_key:m.edit_key});
+        const doc=(l&&l.world)||{};
+        doc.house=Object.assign({},doc.house,{id:houseId,room:m.name,rooms:index});
+        const hs=Array.isArray(doc.hotspots)?doc.hotspots.filter(h=>h.kind!=='door'):[];
+        const links=m.adjacent.map(a=>made.find(x=>x.name===a)).filter(Boolean);
+        links.forEach((t,i)=>{const ang=Math.PI*2*i/Math.max(1,links.length)+Math.PI;   // first door behind the start view
+          hs.push({kind:'door',target:t.slug,pos:[Math.sin(ang)*1.8,1.1,Math.cos(ang)*1.8],title:'Door → '+t.name,body:'Walk in to enter '+t.name+'.'});});
+        doc.hotspots=hs;
+        await wcall({action:'save',slug:m.slug,edit_key:m.edit_key,world:doc});
+      }catch(e){/* a missing door link is not worth failing the house */}
+    }
+    const ent=made.find(m=>m.entrance)||made[0];
+    genSay('<b>'+made.length+' worlds</b> built and joined. Opening the entrance …');
+    ovAtt.length=0;drawAtt();ovPlan=null;housePlan=null;drawHouse();loadOvLibrary();
+    openWorld(ent.slug,ent.edit_key);
+  }catch(e){
+    housePlan=null;
+    if(e&&e.signup)genSay('Sign in to build — <a href="/studio/?panel=account" style="color:var(--gold);font-weight:700">create a free account or sign in</a>, then come back here.',true);
+    else if(e&&e.status===402)genSay(String(e.message||'Not enough credits.').replace(/</g,'&lt;')+' <a href="/studio/#plans" style="color:var(--gold);font-weight:700">Top up your credits</a>.'+(made.length?' The '+made.length+' room'+(made.length>1?'s':'')+' already built are in your library.':''),true);
+    else genSay('✗ '+String(e&&e.message||'Build failed').replace(/</g,'&lt;')+(made.length?' — the '+made.length+' room'+(made.length>1?'s':'')+' already built are in your library.':''),true);
+  }
+  btn.disabled=false;btn.textContent=houseMode()?'Build house':'Generate world';
+}
 async function ovGenerate(){
   const p=($('#ovPrompt').value||'').trim();
+  if(houseMode()){try{await buildHouse(p);}catch(e){genSay('✗ '+String(e&&e.message||'Could not read the plan').replace(/</g,'&lt;'),true);}return;}
   if(!p&&!ovAtt.length){genSay('Describe the world, attach photos of a real place, or both.',true);return;}
   const btn=$('#ovGenBtn');btn.disabled=true;
   const t0=Date.now();
@@ -2462,10 +2818,11 @@ async function ovGenerate(){
   const pSend=looksRaw
     ?('A walkable interior of the real property described in these listing details — every room present and connected exactly as described, starting inside the front entrance: '+p)
     :p;
-  let imgs=ovAtt.length?ovAtt.slice(0,20):undefined;
+  let imgs=ovAtt.length?ovAtt.slice(0,8):undefined;
+  let layout='reconstruct';
   const takes=qualityOn?2:1;
   const genOnce=async(label,takeImgs)=>{
-    const q=await gcall({action:'world_submit',prompt:pSend,model:'marble-1.1',image_urls:takeImgs});
+    const q=await gcall({action:'world_submit',prompt:pSend,model:'marble-1.1',image_urls:takeImgs,layout});
     let st=null;
     for(let i=0;i<130;i++){
       await new Promise(x=>setTimeout(x,6000));
@@ -2479,7 +2836,7 @@ async function ovGenerate(){
     return await gcall({action:'world_import',operation_id:q.operation_id,prompt:pSend});
   };
   try{
-    if(imgs)imgs=await attachmentsToUrls(imgs);
+    if(imgs)imgs=await attachmentsToUrls(await normaliseSet(imgs));
     /* VIEW EXPANSION. One reference image gives Marble evidence for one
        direction and guesses for the rest \u2014 which is exactly where the
        erasures live. Best quality first paints the other three compass views
@@ -2497,6 +2854,7 @@ async function ovGenerate(){
           if(r&&r.url)imgs.push(r.url);
         }catch(e){break;}   // expansion is a bonus, never a blocker
       }
+      if(imgs.length===4)layout='turn';   // these really are four views from one spot
     }
     genSay(takes>1
       ?'Take 1 of 2 \u2014 a world costs <b>150 credits per take</b>; the better take is kept.'
@@ -2507,7 +2865,9 @@ async function ovGenerate(){
       // Marble builds from 4 images per take. With more attached, take two
       // runs on the NEXT four - different rooms as evidence - and the
       // hole-scoring keeps whichever world came out fuller.
-      const takeImgs=imgs?(t===2&&imgs.length>4?imgs.slice(4,8):imgs.slice(0,4)):undefined;
+      // Reconstruct mode reads up to eight overlapping photos of one space, so
+      // every take gets all of them; a second take is simply another roll.
+      const takeImgs=imgs?imgs.slice(0,8):undefined;
       const im=await genOnce(label,takeImgs);
       openWorld(im.slug,im.edit_key||'');
       const score=await scoreWorld(60000);
@@ -2633,8 +2993,8 @@ function setMode(m){mode=m;
 /* Reset view: back to a sane start without reloading anything — the spawn
    search re-runs, look levels out, and orbit returns to its opening framing. */
 $('#btnReset')&&($('#btnReset').onclick=()=>{
-  player.yaw=0;player.pitch=0;player.vy=0;player.grounded=true;
-  if(colGrid&&collideOn){ensureSpawn(true);}else{player.x=0;player.z=2.2;player.feetY=player.floor;}
+  player.pitch=0;player.vy=0;player.grounded=true;
+  if(!goHome()){player.yaw=0;if(colGrid&&collideOn){ensureSpawn(true);}else{player.x=0;player.z=2.2;player.feetY=player.floor;}}
   orbit.theta=0.6;orbit.phi=1.15;orbit.dist=5;orbit.target.set(0,player.floor+1,0);
   toast('Back to the start',1400);
 });
@@ -2747,6 +3107,7 @@ function reportClean(){
   else if(ci&&ci.reason)bits.push(ci.reason);
   el.textContent=bits.join(' · ');
 }
+const _rc0=reportClean;reportClean=function(){_rc0();try{reportCoverage();}catch(e){}};
 window.__reportClean=reportClean;
 $('#btnCollide').onclick=()=>{collideOn=!collideOn;
   $('#btnCollide').textContent=collideOn?'On \u2014 walk it like a real space':'Off \u2014 free fly-through';
@@ -2814,6 +3175,7 @@ function loop(){
     sp.position.y=h.pos[1]+Math.sin(now/500+i)*0.03;
     const k=0.22*(1+0.09*Math.sin(now/650+i));sp.scale.set(k,k,1);});   // subtle pulse
   updatePlaceStrip(now,false);
+  if(mode==='walk')checkDoors(now);
   renderer.render(scene,camera);
   if((now|0)%30===0)status.textContent=(splatCount?splatCount.toLocaleString()+' splats · ':'')+Math.round(fpsE)+' fps';
 }

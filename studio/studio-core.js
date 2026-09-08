@@ -369,7 +369,7 @@ function renderThumbs(){
 }
 function addFiles(files){
   [...files].forEach(f=>{
-    if(attachments.length>=4)return;
+    if(attachments.length>=8)return;
     if(!f.type.startsWith('image/'))return;
     const img=new Image();
     img.onload=()=>{
@@ -401,8 +401,8 @@ function takeFiles(list){
                 .sort((a,b)=>(a.webkitRelativePath||a.name).localeCompare(b.webkitRelativePath||b.name,undefined,{numeric:true}));
   const scans=all.filter(f=>SCAN_EXT.test(f.name));
   if(imgs.length){
-    const room=Math.max(0,4-attachments.length);
-    if(!room)glog('✗ Already holding 4 photos — remove one to add another.');
+    const room=Math.max(0,8-attachments.length);
+    if(!room)glog('✗ Already holding 8 photos — remove one to add another.');
     else{
       addFiles(imgs.slice(0,room));
       if(imgs.length>room)glog('  '+imgs.length+' images found; using the first '+room+'.');
