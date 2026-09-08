@@ -27,6 +27,21 @@ const DEFAULTS = {
    Routed through fal any-llm so it bills to the same wallet as everything
    else — one key, one balance. */
 const LLM_MODEL = Deno.env.get("M3IX_LLM") ?? "anthropic/claude-sonnet-4";
+
+/* ---------------------------------------------------------------------------
+   NO PAID PROVIDER BY DEFAULT.
+
+   fal is OFF unless M3IX_PROVIDER_ENABLED=true is set as a secret. With it off,
+   nothing in this function can create a bill: images and video go to the
+   local render queue (worker/ in the repo, our own GPU), and the free tier at
+   /studio/free.html runs in the visitor's browser. Flip the secret on the day
+   there are paying customers and a reason to rent GPU time.
+   --------------------------------------------------------------------------- */
+const PROVIDER_ON = (Deno.env.get("M3IX_PROVIDER_ENABLED") ?? "false").toLowerCase() === "true";
+const PROVIDER_OFF_MSG = "Cloud rendering is switched off to keep costs at zero. Free tier: /studio/free.html runs in your browser. Paid credits queue on our own render box instead.";
+/* Free language model for Research/Refine: Groq's free tier, if a key is set.
+   Costs nothing; quality is fine for prompt writing. */
+const GROQ_MODEL = Deno.env.get("M3IX_GROQ_MODEL") ?? "llama-3.3-70b-versatile";
 const WL = "https://api.worldlabs.ai/marble/v1";
 const PART_LIMIT = 45 * 1024 * 1024;
 
@@ -267,6 +282,34 @@ async function logJob(kind: string, modelId: string, input: unknown, status: str
   } catch (_) { /* best-effort */ }
 }
 
+/* Put a job on our own render queue. Charges the local price, never a
+   provider price. When no worker has checked in recently the job still
+   queues — with the cloud provider off, waiting is the honest answer. */
+async function queueLocal(req: Request, uid: string, kind: "image" | "video", body: Record<string, unknown>): Promise<Response> {
+  const prompt = String(body.prompt ?? "").trim().slice(0, 1200);
+  if (!prompt) return json({ error: "Missing prompt" }, 400);
+  const dur = clampDuration(body.duration);
+  const cost = kind === "video" ? (dur === "10" ? COST_VIDEO_LOCAL * 2 : COST_VIDEO_LOCAL) : COST_IMAGE;
+  const ch = await charge(req, cost, kind, "local");
+  if (!ch.ok) return json({ error: ch.error }, ch.status);
+  const ref = typeof body.image_url === "string" && body.image_url ? body.image_url : null;
+  const multi = Array.isArray(body.image_urls) ? (body.image_urls as string[]).filter((u) => typeof u === "string" && u).slice(0, 6) : [];
+  const input = { prompt, image_url: ref ?? multi[0] ?? null, image_urls: multi, duration: Number(dur), aspect: clampAspect(body.aspect), portrait: body.portrait === true };
+  const ins = await fetch(`${BASE()}/rest/v1/m3ix_jobs`, {
+    method: "POST", headers: { ...svcHeaders(), Prefer: "return=representation" },
+    body: JSON.stringify({ user_id: uid, kind, input, credits: cost }),
+  });
+  if (!ins.ok) { await refundUser(uid, cost, "job_submit"); return json({ error: "Could not queue the job" }, 500); }
+  const row = (await ins.json())?.[0];
+  const online = await (await fetch(`${BASE()}/rest/v1/m3ix_workers?select=name&kinds=cs.{${kind}}&last_seen=gte.${encodeURIComponent(new Date(Date.now() - 5 * 60_000).toISOString())}&limit=1`, { headers: svcHeaders() })).json();
+  const waiting = !(Array.isArray(online) && online.length);
+  await recordSpend(uid, kind, "local/wan-2.2", cost, 0, true, "local");
+  return json({
+    job_id: row?.id, queued: true, local: true, charged: cost, credits_remaining: ch.balance,
+    message: waiting ? "Queued on the M3XI render box. It is offline right now, so this will render when it comes back on — check the Library later." : "Rendering on the M3XI render box.",
+  });
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
@@ -452,7 +495,9 @@ Deno.serve(async (req: Request) => {
       return json({ slug, edit_key, name, cover, marble_url: w.world_marble_url, size_mb: Math.round(bytes.length / 1048576) });
     }
 
-    const auth = { Authorization: `Key ${falKey()}`, "Content-Type": "application/json" };
+    // fal's key is only read when the provider is switched on; with it off the
+    // function must keep working without the secret existing at all.
+    const auth = { Authorization: `Key ${PROVIDER_ON ? falKey() : "off"}`, "Content-Type": "application/json" };
 
     if (action === "refine") {
       // Refine takes the user's words as written. The world "scene director"
@@ -465,6 +510,21 @@ Deno.serve(async (req: Request) => {
       if (!ch.ok) return json({ error: ch.error }, ch.status);
       const remaining: number = ch.balance;
       const system = String(body.system ?? "You are a film director's assistant. Refine the user's idea into vivid, concrete visual prompts.");
+      const groq = Deno.env.get("GROQ_API_KEY");
+      if (groq) {
+        // Free tier. One request, no bill.
+        const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST", headers: { Authorization: `Bearer ${groq}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ model: GROQ_MODEL, messages: [{ role: "system", content: system }, { role: "user", content: prompt }], temperature: 0.7, max_tokens: 1200 }),
+        });
+        const text = await r.text();
+        if (!r.ok) { await refundUser(uid, COST_REFINE, action); return json({ error: `groq ${r.status}: ${text.slice(0, 240)}` }, 502); }
+        const out = JSON.parse(text)?.choices?.[0]?.message?.content ?? "";
+        if (!out) { await refundUser(uid, COST_REFINE, action); return json({ error: "No output from the language model" }, 502); }
+        await recordSpend(uid, "refine", GROQ_MODEL, COST_REFINE, 0, true, "groq");
+        return json({ output: out, credits_remaining: remaining ?? undefined });
+      }
+      if (!PROVIDER_ON) { await refundUser(uid, COST_REFINE, action); return json({ error: "No language model is configured. Add a free GROQ_API_KEY secret (console.groq.com) — it costs nothing." }, 503); }
       const model = String(body.llm ?? LLM_MODEL);
       const r = await fetch(`https://fal.run/${DEFAULTS.llm}`, { method: "POST", headers: auth, body: JSON.stringify({ model, system_prompt: system, prompt }) });
       const text = await r.text();
@@ -479,6 +539,11 @@ Deno.serve(async (req: Request) => {
     if (action === "image") {
       const uid = await callerId(req);
       if (!uid) return json(SIGNUP_REQUIRED, 401);
+      if (!PROVIDER_ON) {
+        // Same request, routed to our own render box. It waits in the queue if
+        // the box is off; nothing is billed to us either way.
+        return await queueLocal(req, uid, "image", body);
+      }
       /* NOTE: this used to append the world "scene director" paragraph to
          every image prompt — copied from world_submit by mistake, the same
          bug video_submit had. Image prompts now go through untouched. */
@@ -520,6 +585,7 @@ Deno.serve(async (req: Request) => {
       if (!img) return json({ error: "3D assets are built from an image — attach one or generate one first." }, 400);
       const uid = await callerId(req);
       if (!uid) return json(SIGNUP_REQUIRED, 401);
+      if (!PROVIDER_ON) return json({ error: "3D assets need cloud rendering, which is switched off to keep costs at zero." , code: "provider_off" }, 503);
       const ch = await charge(req, COST_ASSET, "asset");
       if (!ch.ok) return json({ error: ch.error }, ch.status);
       const remaining: number = ch.balance;
@@ -538,6 +604,11 @@ Deno.serve(async (req: Request) => {
     if (action === "video_submit") {
       const uid = await callerId(req);
       if (!uid) return json(SIGNUP_REQUIRED, 401);
+      if (!PROVIDER_ON) {
+        // Same request, routed to our own render box. It waits in the queue if
+        // the box is off; nothing is billed to us either way.
+        return await queueLocal(req, uid, "video", body);
+      }
 
       /* Length is a real choice now, not a hard-coded 5. Kling bills by the
          second, so the charge has to follow it — a 10s clip that cost the same
@@ -592,24 +663,7 @@ Deno.serve(async (req: Request) => {
     if (action === "job_submit") {
       const uid = await callerId(req);
       if (!uid) return json(SIGNUP_REQUIRED, 401);
-      const kind = body.kind === "image" ? "image" : "video";
-      const online = await (await fetch(`${BASE()}/rest/v1/m3ix_workers?select=name&kinds=cs.{${kind}}&last_seen=gte.${encodeURIComponent(new Date(Date.now() - 5 * 60_000).toISOString())}&limit=1`, { headers: svcHeaders() })).json();
-      if (!Array.isArray(online) || !online.length) return json({ error: "No local render box is online right now — use the cloud option." }, 503);
-      const prompt = String(body.prompt ?? "").trim().slice(0, 1200);
-      if (!prompt) return json({ error: "Missing prompt" }, 400);
-      const dur = clampDuration(body.duration);
-      const cost = kind === "video" ? (dur === "10" ? COST_VIDEO_LOCAL * 2 : COST_VIDEO_LOCAL) : COST_IMAGE;
-      const ch = await charge(req, cost, kind === "video" ? "video" : "image", "local");
-      if (!ch.ok) return json({ error: ch.error }, ch.status);
-      const input = { prompt, image_url: typeof body.image_url === "string" ? body.image_url : null, duration: Number(dur), aspect: clampAspect(body.aspect) };
-      const ins = await fetch(`${BASE()}/rest/v1/m3ix_jobs`, {
-        method: "POST", headers: { ...svcHeaders(), Prefer: "return=representation" },
-        body: JSON.stringify({ user_id: uid, kind, input, credits: cost }),
-      });
-      if (!ins.ok) { await refundUser(uid, cost, "job_submit"); return json({ error: "Could not queue the job" }, 500); }
-      const row = (await ins.json())?.[0];
-      await recordSpend(uid, kind, "local/wan-2.2", cost, 0, true, "local");
-      return json({ job_id: row?.id, charged: cost, credits_remaining: ch.balance });
+      return await queueLocal(req, uid, body.kind === "image" ? "image" : "video", body);
     }
 
     if (action === "job_status") {

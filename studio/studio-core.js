@@ -354,7 +354,9 @@ loadVideoLibrary();
 
 /* ================= studio (generation) ================= */
 const glog=m=>{const l=$('#genLog');l.textContent+='\n'+m;l.scrollTop=l.scrollHeight;};
-function falHeaders(){const k=$('#falKey').value.trim();if(!k){$('#setupBox').open=true;throw new Error('Direct mode needs a fal.ai key — paste it under Advanced, or switch Mode back to M3XI Cloud.');}return{'Authorization':'Key '+k,'Content-Type':'application/json'};}
+/* The bring-your-own-fal-key mode is gone. Everything renders through the
+   backend, which routes to our own render box; there is no key to paste. */
+function falHeaders(){throw new Error('Direct provider mode has been removed.');}
 const attachments=[];let lastImageUrl=null,lastVideoUrl=null;
 function renderThumbs(){
   const t=$('#thumbs');t.innerHTML='';
@@ -523,7 +525,22 @@ $('#genPrompt').addEventListener('keydown',e=>{
    current page doesn't have, and that stand-in is truthy. Asking it for
    .value returns '' and every `genMode()==='backend'` check would fail,
    quietly routing generation down the bring-your-own-key path. */
-const genMode=()=>{const s=document.getElementById('genMode');return s?s.value:'backend';};
+const genMode=()=>'backend';
+/* A job that went to the M3XI render box instead of a cloud provider. The
+   backend answers {queued:true, job_id}; poll until the worker has finished.
+   Video on one GPU takes minutes; images seconds. */
+async function awaitLocal(q,kind){
+  glog('  '+(q.message||'Queued on the M3XI render box.'));
+  const limit=kind==='video'?360:120;            // × 5 s → 30 min / 10 min
+  for(let i=0;i<limit;i++){
+    await new Promise(x=>setTimeout(x,5000));
+    const st=await backendCall({action:'job_status',job_id:q.job_id});
+    if(st.status==='done')return st.output&&st.output.url;
+    if(st.status==='failed')throw new Error('The render box failed on this one — credits were refunded. '+(st.error||''));
+    if(i%12===11)glog('   still '+(st.status==='running'?'rendering':'waiting for the render box')+' … ('+Math.round((i+1)*5/60)+' min)');
+  }
+  throw new Error('Still in the queue — it will finish when the render box is on. Check your Library later.');
+}
 $('#genMode').onchange=()=>{$('#directBox').style.display=genMode()==='direct'?'':'none';};
 
 /* credits — the two code fields stay in sync */
@@ -590,8 +607,9 @@ $('#btnGenImg').onclick=async()=>{
     if(attachments.length>1)glog('  note: this model takes one reference — using the first attachment.');
     let url;
     if(genMode()==='backend'){
-      const j=await backendCall({action:'image',prompt:p,image_url:ref?ref.url:undefined,endpoint:ep,portrait:imgPortrait,code:creditCode()||undefined});
-      url=j.url;if(j.credits_remaining!=null)glog('  credits left: '+j.credits_remaining);
+      const j=await backendCall({action:'image',prompt:p,image_url:ref?ref.url:undefined,portrait:imgPortrait,code:creditCode()||undefined});
+      if(j.credits_remaining!=null)glog('  credits left: '+j.credits_remaining);
+      url=j.queued?await awaitLocal(j,'image'):j.url;
     }else{
       const body=ref?{prompt:p,image_url:ref.url,strength:0.82}:{prompt:p,image_size:imgPortrait?'portrait_16_9':'landscape_16_9',num_images:1};
       const r=await fetch('https://fal.run/'+ep,{method:'POST',headers:falHeaders(),body:JSON.stringify(body)});
@@ -619,9 +637,11 @@ $('#btnGenVid').onclick=async()=>{
     glog(ref?'Bringing "'+ref.name+'" to life — usually 1–3 minutes …':'Creating your video — usually 1–3 minutes …');
     let su,ru,st,resp,url;
     if(genMode()==='backend'){
-      const q=await backendCall({action:'video_submit',prompt:p,image_url:ref?ref.url:undefined,endpoint:ep,aspect:vidAspect,duration:vidDur,code:creditCode()||undefined});
+      const q=await backendCall({action:'video_submit',prompt:p,image_url:ref?ref.url:undefined,aspect:vidAspect,duration:vidDur,code:creditCode()||undefined});
       if(q.credits_remaining!=null)glog('  credits left: '+q.credits_remaining);
+      if(q.queued){url=await awaitLocal(q,'video');resp={video:{url}};}
       su=q.status_url;ru=q.response_url;
+      if(!q.queued){
       for(let i=0;i<80;i++){
         await new Promise(x=>setTimeout(x,3500));
         st=await backendCall({action:'video_status',url:su});
@@ -631,6 +651,7 @@ $('#btnGenVid').onclick=async()=>{
       }
       if(!st||st.status!=='COMPLETED')throw new Error('Timed out — it may still finish; check again shortly.');
       resp=await backendCall({action:'video_result',url:ru});
+      }
     }else{
       const body=ref?{prompt:p,image_url:ref.url,duration:vidDur}:{prompt:p,duration:vidDur,aspect_ratio:vidAspect};
       const r=await fetch('https://queue.fal.run/'+ep,{method:'POST',headers:falHeaders(),body:JSON.stringify(body)});
@@ -656,6 +677,7 @@ $('#btnGenVid').onclick=async()=>{
 };
 async function oneClip(prompt){
   const q=await backendCall({action:'video_submit',prompt,aspect:vidAspect,duration:vidDur,code:creditCode()||undefined});
+  if(q.queued)return await awaitLocal(q,'video');
   let st=null;
   for(let i=0;i<80;i++){
     await new Promise(x=>setTimeout(x,3500));

@@ -75,20 +75,10 @@
       </div>
         <p class="price-note">1 credit per image. Prepaid — you can never spend more than you have. Packs on <a href="pricing.html">Pricing</a>.</p>
       <details class="adv" id="setupBox">
-        <summary>Advanced — models &amp; mode</summary>
-        <label>Mode</label>
-        <select class="field" id="genMode">
-          <option value="backend" selected>M3XI Cloud (recommended — key lives server-side)</option>
-          <option value="direct">Direct fal.ai (bring your own key)</option>
-        </select>
-        <div id="directBox" style="display:none">
-          <label>fal.ai key (kept in this tab only)</label>
-          <input type="password" class="field" id="falKey" placeholder="key_id:key_secret">
-        </div>
-        <label>Image model — text</label>
-        <input type="text" class="field" id="epImgT2I" value="fal-ai/flux/dev">
-        <label>Image model — with reference</label>
-        <input type="text" class="field" id="epImgI2I" value="fal-ai/flux/dev/image-to-image">
+        <summary>Where this renders</summary>
+        <p class="hint">Images render on the M3XI render box (our own GPU, open models) and are charged at the local price. Nothing is sent to a paid cloud provider. For instant, unlimited images that run in your own browser, use the <a href="free.html">Free tier</a>.</p>
+        <input type="hidden" id="epImgT2I" value="local/flux-schnell">
+        <input type="hidden" id="epImgI2I" value="local/flux-schnell">
       </details>
 
       </div>
