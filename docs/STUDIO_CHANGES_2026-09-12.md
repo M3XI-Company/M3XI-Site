@@ -1,8 +1,15 @@
 # M3XI Studio — what changed, 12 September 2026
 
-Everything below is in the working tree and builds (`vite build` clean, every
-page serves, both edge functions parse). **Nothing is committed and nothing is
-deployed.** See "To make it live" at the bottom.
+**Committed and deployed on 12 September 2026.**
+
+- Site: commits `f347dce`, `63696b4`, `73f86cc` pushed to `main`; Vercel has
+  rebuilt. `/studio/generate.html` and `/studio/worlds.html` are live and the
+  engine switch works in production.
+- Backend: `m3ix-generate` v26 and `m3ix-worlds` v11 are deployed, both with
+  `verify_jwt` on. Smoke-tested live: creating a world without an account is
+  now refused, the public Library listing still answers, and a request with no
+  key at all gets 401.
+- **Still not applied: the SQL migration.** See section 3.
 
 ---
 
@@ -239,25 +246,29 @@ Studio.
 
 ---
 
-## 5. To make it live
+## 5. Deploying
 
-Three separate things, in this order.
+Site and functions are done. The one thing left is the migration, and it is the
+only step that touches live data.
 
-```
-git add -A
-git commit -m "Spatial Engine, one Generation bench, prompt polish, and the money bugs"
-```
+Open the Supabase dashboard, go to the SQL editor, paste
+`supabase/migrations/20260912093000_lock_anon_writes_and_dedupe_credits.sql`
+and run it. Read it first: it revokes write access from the anonymous role
+across the schema. It leaves every SELECT alone and gives the waitlist form back
+its INSERT, so the public site keeps working, but if something else writes as
+anon that I did not find, that is where it would show.
 
-```
-npx supabase functions deploy m3ix-generate
-```
+Afterwards the two checks at the bottom of the migration should both come back
+empty, and the waitlist form on m3xi.com should still take an email.
 
-```
-npx supabase functions deploy m3ix-worlds
-```
+### Notes for next time
 
-Then apply the migration (Supabase dashboard → SQL editor, paste the file), and
-push to deploy the site.
+The Supabase CLI is authenticated on this machine even though there is no token
+file — it uses the Windows credential store — so `npx supabase functions deploy
+<name> --project-ref tnlcuptfldwxtxajudoq` works without logging in.
 
-**The edge function changes do nothing until deployed.** The refunds, the
-allowlists and the free prompt-sharpening are all server side.
+It has a `--no-verify-jwt` flag and **no opposite**. Passing it by accident turns
+the gateway check off, and a plain redeploy does not restore it, because the API
+keeps whatever was last set. That happened to m3ix-generate during this deploy
+and was caught and fixed within a minute. `supabase/config.toml` now pins
+`verify_jwt` for every function, so a deploy cannot change it again.
