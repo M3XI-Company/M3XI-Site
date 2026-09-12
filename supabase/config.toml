@@ -1,0 +1,46 @@
+# Supabase project config.
+#
+# This exists for ONE reason: to pin `verify_jwt` per function so a deploy
+# cannot silently change it. The CLI has a `--no-verify-jwt` flag and no
+# opposite, so a single mistyped deploy turns a function's gateway check off and
+# the only way back is to declare the setting here. Deploying m3ix-generate with
+# that flag by accident on 12 Sep 2026 is why this file was written.
+#
+# verify_jwt = true  -> the gateway requires a JWT. The public anon key is a
+#                       valid JWT, so pages still work; requests with no key at
+#                       all are refused before the function runs.
+# verify_jwt = false -> anyone on the internet can invoke it. Only correct for
+#                       endpoints that authenticate themselves (a Stripe
+#                       webhook signature) or that are genuinely public.
+
+project_id = "tnlcuptfldwxtxajudoq"
+
+# The Studio's generation backend. Every action that spends money resolves the
+# caller itself, but the gateway check keeps unauthenticated traffic off the
+# free-quota actions (floor-plan reading, Street View, page fetching).
+[functions.m3ix-generate]
+verify_jwt = true
+
+# World persistence. Creating a world now requires a signed-in user.
+[functions.m3ix-worlds]
+verify_jwt = true
+
+# Wallet and checkout are account-scoped.
+[functions.m3ix-wallet]
+verify_jwt = true
+
+[functions.m3ix-checkout]
+verify_jwt = true
+
+# Deliberately open, and each one has its own check:
+#   m3ix-spatial     serves published tours to buyers who have only a link
+#   m3ix-thanks      the Stripe success redirect, which carries a session id
+#   m3ix-lead-notify called by a database trigger
+[functions.m3ix-spatial]
+verify_jwt = false
+
+[functions.m3ix-thanks]
+verify_jwt = false
+
+[functions.m3ix-lead-notify]
+verify_jwt = false
