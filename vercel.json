@@ -86,12 +86,12 @@
       "permanent": true
     },
     {
-      "source": "/studio/:page(account|business|editor|images|library|pricing|ugc|video|walkthrough|worlds)",
+      "source": "/studio/:page(account|business|editor|free|generate|images|library|pricing|ugc|video|walkthrough|worlds)",
       "destination": "/studio/:page.html",
       "permanent": false
     },
     {
-      "source": "/studio/:page(account|business|editor|images|library|pricing|ugc|video|walkthrough|worlds)/",
+      "source": "/studio/:page(account|business|editor|free|generate|images|library|pricing|ugc|video|walkthrough|worlds)/",
       "destination": "/studio/:page.html",
       "permanent": false
     },
