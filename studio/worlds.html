@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>M3XI Studio — Worlds</title>
+<title>M3XI Studio — Spatial Engine</title>
 <link rel="icon" type="image/png" href="/M.png" />
-<meta name="description" content="Generate walkable 3D worlds from a prompt or photos, and 3D assets from a single image.">
+<meta name="description" content="Scan a property on a phone and publish it as a walkable tour anyone can open from a listing. One engine for scanned places and generated ones, and it always says which is which.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,107 +19,160 @@
     <nav class="links">
       <a href="https://www.m3xi.com/">M3XI</a>
       <a href="free.html">Free</a>
-      <a href="images.html">Images</a>
-      <a href="video.html">Video</a>
-      <a href="worlds.html" class="on">Worlds</a>
-      <a href="walkthrough.html">Spatial</a>
-      <a href="business.html">Business</a>
-      <a href="library.html">Library</a>
+      <a href="generate.html">Generation</a>
+      <a href="worlds.html" class="on">Spatial</a>
       <a href="editor.html">Editor</a>
       <a href="ugc.html">UGC</a>
+      <a href="library.html">Library</a>
+      <a href="business.html">Business</a>
       <a href="pricing.html">Pricing</a>
     </nav>
     <div class="acct">
       <a id="avatarChip" href="account.html" title="" style="display:none">&nbsp;</a>
       <a class="btn sm ghost" id="btnProfile" href="account.html" style="display:none">Profile</a>
       <a class="btn sm ghost" id="btnAuth" href="account.html">Sign in</a>
-      <a class="btn red sm" href="images.html">Enter Studio</a>
+      <a class="btn red sm" href="generate.html">Enter Studio</a>
     </div>
   </div>
 </div>
 
-<section id="worlds">
+<!-- =========================================================================
+     THE SPATIAL ENGINE. This page was the World Engine and the Spatial page
+     was somewhere else, which was two front doors onto one system: the same
+     viewer, the same storage, the same credits, described twice and priced
+     twice. One page now. The display that was here — scan, publish, walk —
+     stays as the front of it, because that is the product: an estate agent
+     walks a property with a phone and a buyer walks it from the listing.
+     ========================================================================= -->
+<section id="spatial">
   <div class="wrap">
     <div class="sechead">
-      <h2 class="sfx">World Engine</h2>
-      <span class="note hand">a floor plan you can walk through</span>
+      <h2 class="sfx">Spatial Engine</h2>
+      <span class="note hand">a property you can walk through</span>
     </div>
-    <p class="subline">Two kinds of world, and each one says which it is. <b>Scanned</b> worlds come from a real place captured on a phone — the capture is the truth, nothing is invented. <b>Generated</b> worlds are AI-made from a prompt or reference photos, labelled “AI-generated” wherever they appear, and never passed off as a real space. Either kind publishes as one link or a tag on your own site.</p>
+    <p class="subline">Scan a place on a phone, or build one from a floor plan. Either way it becomes a space a buyer can walk in a browser, from one link, with no app and no headset. <b>Scanned</b> places come from a real capture and nothing in them is invented. <b>Generated</b> places are AI-made and labelled as such everywhere they appear, so a listing can never pass one off as a photograph.</p>
+
     <div class="steps" id="pipeline">
-      <div class="panel step"><span class="num">01</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/-W5THKxgRSpok6zaaPFsZ.jpg" alt="A room being captured"><div class="txt"><h3>Scan</h3><p>Walk the space with Scaniverse (free, iPhone &amp; Android) in Splat mode. Five minutes, true scale in metres.</p></div></div>
-      <div class="panel step"><span class="num">02</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/XomPDS-MR8YNysdErl4nm.jpg" alt="A staged penthouse interior"><div class="txt"><h3>Publish</h3><p>Drop the file into the World Viewer. Set the view, place info points and 3D assets, brand it, press Publish.</p></div></div>
-      <div class="panel step"><span class="num">03</span><img src="https://v3b.fal.media/files/b/0aa5ae0f/P_5hymWZreaaKZH5-XX2j.jpg" alt="A gallery space with daylight"><div class="txt"><h3>Walk</h3><p>Visitors open one link on any device and walk the real space — every enquiry is kept in your dashboard.</p></div></div>
+      <div class="panel step"><span class="num">01</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/-W5THKxgRSpok6zaaPFsZ.jpg" alt="A room being captured on a phone"><div class="txt"><h3>Scan</h3><p>Walk the property with Scaniverse in Splat mode — free, on an iPhone or an Android. About five minutes a room, at true scale in metres.</p></div></div>
+      <div class="panel step"><span class="num">02</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/XomPDS-MR8YNysdErl4nm.jpg" alt="A staged penthouse interior"><div class="txt"><h3>Publish</h3><p>Drop the file into the viewer. It is measured once — which way is up, where the floor is, where the walls are, how much the camera never saw — then you set the entrance, place the notes and press Publish.</p></div></div>
+      <div class="panel step"><span class="num">03</span><img src="https://v3b.fal.media/files/b/0aa5ae0f/P_5hymWZreaaKZH5-XX2j.jpg" alt="A gallery space with daylight"><div class="txt"><h3>Share</h3><p>One link on the listing, the window card or a WhatsApp message. Every enquiry from inside the tour lands in your dashboard.</p></div></div>
     </div>
+
+    <div class="srow" style="margin-top:20px">
+      <a class="btn red" href="walkthrough.html" target="_blank" rel="noopener">Open the viewer</a>
+      <a class="btn ghost" href="/capture/">Capture a property</a>
+      <a class="btn ghost" href="/tours/">Your tours &amp; enquiries</a>
+      <a class="btn ghost" href="business.html">Business plans</a>
+    </div>
+  </div>
+</section>
+
+<!-- The estate-agent case, stated plainly, because it is who this is for. -->
+<section id="agents" style="padding-top:0">
+  <div class="wrap">
     <div class="showcase">
       <div class="panel shot tilt-l"><span class="cap">Twilight listing — generated key art</span><img src="https://v3b.fal.media/files/b/0aa5ae20/2LANjv1jCQUgpSwlujnHM.jpg" alt="Twilight house exterior"><div class="stamp" style="right:16px;bottom:16px">capture is truth</div></div>
       <div class="panel bizcard tilt-r">
-        <span class="cap red">For business</span>
-        <h3>The walkthrough platform</h3>
+        <span class="cap red">For estate agents</span>
+        <h3>The viewing before the viewing</h3>
         <ul>
-          <li><b>Estates &amp; rentals</b> — replace the floor plan with the actual space.</li>
-          <li><b>Dealerships</b> — the showroom, open at 2am, with every car clickable.</li>
-          <li><b>Museums &amp; venues</b> — the visit before the visit.</li>
-          <li><b>Included</b> — capture guidance, hosting, branding, lead capture, embeds.</li>
+          <li><b>Every listing walkable</b> — a buyer moves through the rooms instead of swiping eleven photographs.</li>
+          <li><b>Captured on the phone you own</b> — no £5,000 camera, no crew, no closing early.</li>
+          <li><b>Measured, not guessed</b> — floor area, ceiling height and the parts the camera never reached are reported rather than filled in.</li>
+          <li><b>Fewer wasted viewings</b> — the people who book have already walked it.</li>
+          <li><b>Yours to embed</b> — one link or one tag on your own site, and the enquiry button sits inside the tour.</li>
         </ul>
-        <p class="small">Sold as a business plan &mdash; <a href="business.html" style="text-decoration:underline;text-underline-offset:3px">see M3XI Spatial pricing</a>. Capture is quoted per site.</p>
+        <p class="small">Hosting, branding, lead capture and embeds come with the business plan &mdash; <a href="business.html" style="text-decoration:underline;text-underline-offset:3px">see the pricing</a>. Scanning is quoted per site.</p>
         <div class="srow">
           <a class="btn red" href="business.html">See business plans</a>
-          <a class="btn ghost" href="walkthrough.html" target="_blank" rel="noopener">Open World Viewer</a>
+          <a class="btn ghost" href="/capture/">Start a capture</a>
         </div>
         <div class="srow">
-          <span class="chip"><span class="dot"></span>Photoreal — live</span>
-          <span class="chip dev"><span class="dot"></span>Style themes (anime, noir) — in development</span>
+          <span class="chip"><span class="dot"></span>Photoreal scans — live</span>
+          <span class="chip dev"><span class="dot"></span>Measured floor plans — in development</span>
         </div>
       </div>
     </div>
-    </div>
+  </div>
+</section>
+
+<!-- The generator. Same prompt box, same attachments, same credits as the rest
+     of the Studio; what it produces is a place rather than a picture. -->
+<section id="build" style="padding-top:0">
   <div class="wrap">
+    <div class="sechead">
+      <h2 class="sfx">Build a place</h2>
+      <span class="note hand">when there is nothing to scan yet</span>
+    </div>
+    <p class="subline">A room from photographs of that room, a whole house from its floor plan, or somewhere that does not exist at all. Everything built here is <b>AI-generated and carries that label</b> — it is for concepts, staging ideas and listings that have not been built yet, never for showing a property that exists.</p>
+
     <div class="studioGrid">
       <div class="panel notebook tilt-l">
         <span class="cap">Prompt page</span>
         <h3>Describe the place</h3>
         <textarea id="genPrompt" placeholder="A sunlit mid-century living room with a courtyard beyond the glass…"></textarea>
-      <div class="thumbs" id="thumbs"></div>
-      <div class="srow">
-        <button class="btn sm ghost" id="btnAttach">Attach files</button>
-        <button class="btn sm ghost" id="btnAttachFolder">Attach a folder</button>
-        <input type="file" id="attachInput" accept="image/*" multiple style="display:none">
-        <input type="file" id="attachDirInput" webkitdirectory directory multiple style="display:none">
-        <span class="small">Up to 8 photos of <b>one</b> room, taken from nearby spots so they overlap. For a whole house use <a href="walkthrough.html">Spatial</a>: add the floor plan and it builds every room, joined by doors.</span>
-      </div>
+
+        <div class="thumbs" id="thumbs"></div>
+        <div class="srow">
+          <button class="btn sm ghost" id="btnAttach">Attach photos</button>
+          <button class="btn sm ghost" id="btnAttachFolder">Attach a folder</button>
+          <input type="file" id="attachInput" accept="image/*" multiple style="display:none">
+          <input type="file" id="attachDirInput" webkitdirectory directory multiple style="display:none">
+          <span class="small">Up to 8 photos of <b>one</b> room, taken from nearby spots so they overlap. For a whole house, open the viewer and add the floor plan — it builds every room and joins them by doors.</span>
+        </div>
+
+        <label class="toggleRow" for="refineToggle">
+          <input type="checkbox" id="refineToggle">
+          <span class="tSwitch" aria-hidden="true"></span>
+          <span class="tText">
+            <b>Sharpen my prompt first</b>
+            <span class="small">The AI rewrites your description as a location brief and shows you what it sent. Free.</span>
+          </span>
+        </label>
+
         <div class="srow" style="margin-top:10px">
-          <button class="btn red" id="btnGenWorld">Generate world</button>
-          <button class="btn ghost" id="btnGenAsset">Generate 3D asset</button>
+          <button class="btn red" id="btnGenWorld">Generate the place</button>
+          <button class="btn ghost" id="btnGenAsset">Generate a 3D object</button>
         </div>
-        <p class="price-note">Full world 150 credits (draft 40) · 3D asset 15 credits, built from your first attachment or your last generated image. A finished world publishes straight to the <a href="library.html">Library</a>. Packs on <a href="pricing.html">Pricing</a>.</p>
-      <div class="srow">
-        <input type="text" class="field" id="creditCode" placeholder="Credit code (optional)" style="max-width:420px">
-        <button class="btn sm ghost" id="btnCheckBal">Balance</button>
-        <span class="small" id="balMsg"></span>
-      </div>
-      <details class="adv" id="setupBox">
-        <summary>Advanced — models &amp; mode</summary>
-        <label>Mode</label>
-        <select class="field" id="genMode">
-          <option value="backend" selected>M3XI Cloud (recommended — key lives server-side)</option>
-          <option value="direct">Direct fal.ai (bring your own key)</option>
-        </select>
-        <div id="directBox" style="display:none">
-          <label>fal.ai key (kept in this tab only)</label>
-          <input type="password" class="field" id="falKey" placeholder="key_id:key_secret">
+        <p class="price-note">Finished place 150 credits, draft 40. A 3D object is 15 credits, built from your first attachment or your last generated image. Finished places publish to the <a href="library.html">Library</a> with an AI-generated badge. Packs on <a href="pricing.html">Pricing</a>.</p>
+
+        <div class="srow">
+          <input type="text" class="field" id="creditCode" placeholder="Credit code (optional)" style="max-width:420px">
+          <button class="btn sm ghost" id="btnCheckBal">Balance</button>
+          <span class="small" id="balMsg"></span>
         </div>
-        <label>World model (Marble)</label>
-        <input type="text" class="field" id="epWorld" value="marble-1.1">
-        <p class="price-note">marble-1.0-draft is the cheap test tier; marble-1.1-plus is the top tier.</p>
-      </details>
+
+        <details class="adv" id="setupBox">
+          <summary>Advanced — which model builds it</summary>
+          <label for="epWorld">Model</label>
+          <select class="field" id="epWorld">
+            <option value="marble-1.1" selected>marble-1.1 — the finished place (150 credits)</option>
+            <option value="marble-1.0-draft">marble-1.0-draft — a quick look (40 credits)</option>
+            <option value="marble-1.1-plus">marble-1.1-plus — larger places, costs more to run</option>
+          </select>
+          <p class="price-note">Draft first is the cheap way to see whether an idea holds up; generate the finished version once it does. Places render through M3XI Cloud — there is no key to paste and nothing is billed to you beyond the credits shown.</p>
+        </details>
       </div>
+
       <div class="panel out tilt-r">
-      <span class="cap red">Output</span>
-      <h3>Result</h3>
-      <div id="genOut"><div class="empty">Nothing yet — your next generation lands here.</div></div>
-      <div id="genLog">M3XI Studio ready.</div>
+        <span class="cap red">Output</span>
+        <h3>Result</h3>
+        <div id="genOut"><div class="empty">Nothing yet — your next place lands here.</div></div>
+        <div id="genLog">M3XI Studio ready.</div>
+      </div>
     </div>
+  </div>
+</section>
+
+<!-- What has been published. The same Library the rest of the Studio uses. -->
+<section id="library" style="padding-top:0">
+  <div class="wrap">
+    <div class="sechead">
+      <h2 class="sfx">Places to walk</h2>
+      <span class="note hand">scanned and generated, always labelled</span>
     </div>
+    <div class="libGrid" id="libGrid"></div>
+    <p class="price-note" id="libEmpty" style="display:none">Nothing published yet — build a place above, or scan one and publish it from the viewer.</p>
   </div>
 </section>
 
@@ -127,12 +180,13 @@
   <div class="in">
     <div>
       <div class="fl">M3XI <span style="color:var(--red)">三X一</span> STUDIO</div>
-      <p style="margin-top:8px">Less ornament, more intent. M3XI Studio is an independent product of M3XI — early, honest, and built to work. Generation runs on prepaid credits; the walkthrough platform is sold as a negotiated business plan.</p>
+      <p style="margin-top:8px">Less ornament, more intent. M3XI Studio is an independent product of M3XI — early, honest, and built to work. Generation runs on prepaid credits; the Spatial Engine's hosted tours are sold as a business plan.</p>
     </div>
     <div>
       <p><b>Contact</b><br><a href="mailto:m3xiteam@m3xi.com">m3xiteam@m3xi.com</a></p>
       <p style="margin-top:10px"><b>Studio</b><br>
-        <a href="walkthrough.html">Spatial</a> ·
+        <a href="generate.html">Generation</a> ·
+        <a href="walkthrough.html">The viewer</a> ·
         <a href="editor.html">Editor</a> ·
         <a href="ugc.html">UGC Studio</a> ·
         <a href="library.html">Library</a> ·

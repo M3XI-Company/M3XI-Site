@@ -307,6 +307,7 @@ const TRANS=['cut','crossfade','dip','whip'];
 let proj=blank();
 function blank(){return{v:1,fmt:'9:16',w:1080,h:1920,fps:30,clips:[],audio:[]};}
 
+const esc=t=>String(t==null?'':t).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
 const media=new Map();       // id -> {id,kind,name,url,el,dur,w,h,buf}
 let sel=null;                // selected clip id
 let px=54;                   // pixels per second on the timeline
@@ -430,7 +431,7 @@ function drawTimeline(){
     laneV.appendChild(el);
     if(i>0&&c.trans!=='cut'&&ov>0){
       const t=document.createElement('div');t.className='tmark';t.style.left=(start+ov/2)*px+'px';
-      t.innerHTML='<b>'+c.trans+'</b>';laneV.appendChild(t);
+      t.innerHTML='<b>'+esc(c.trans)+'</b>';laneV.appendChild(t);
     }
   });
 
@@ -520,7 +521,7 @@ function drawInspector(){
   if(a){
     const m=media.get(a.mediaId);
     $('#inspTitle').textContent='Audio';
-    box.innerHTML='<p class="hint" style="margin-top:0"><b>'+(m?m.name:'missing')+'</b></p>'
+    box.innerHTML='<p class="hint" style="margin-top:0"><b>'+esc(m?m.name:'missing')+'</b></p>'
       +rng('Volume','aVol',0,1.5,.05,a.volume)
       +rng('Starts at','aStart',0,Math.max(10,total()),.1,a.start,'s')
       +rng('Fade in','aFi',0,4,.1,a.fadeIn,'s')
@@ -534,7 +535,7 @@ function drawInspector(){
   }
   const m=media.get(c.mediaId),i=proj.clips.indexOf(c);
   $('#inspTitle').textContent='Clip '+(i+1);
-  box.innerHTML='<p class="hint" style="margin-top:0"><b>'+(m?m.name:'missing')+'</b> · '+clipDur(c).toFixed(1)+'s on the timeline</p>'
+  box.innerHTML='<p class="hint" style="margin-top:0"><b>'+esc(m?m.name:'missing')+'</b> · '+clipDur(c).toFixed(1)+'s on the timeline</p>'
     +(i>0?seg('Transition in',TRANS,c.trans,null)+rng('Transition length','tDur',.15,2,.05,c.transDur,'s'):'<p class="hint">The first clip opens the video, so it has no transition in.</p>')
     +seg('Fit',['cover','contain','blur'],c.fit,null)
     +seg('Look',Object.keys(FILTERS),c.filter,null)
@@ -1106,7 +1107,12 @@ new MutationObserver(()=>autosave()).observe($('#laneV'),{childList:true});
   let inbox=[];
   try{inbox=JSON.parse(localStorage.getItem('m3xi.editor.inbox')||'[]');}catch(_){}
   const saved=localStorage.getItem(KEY);
-  if(saved&&!inbox.length){try{await restore(saved);}catch(_){}}
+  /* Restore FIRST, always. Skipping the restore whenever something arrived
+     from the Studio meant the autosave was overwritten by the new clip the
+     moment it was placed: send one image over and an afternoon's edit was
+     gone, with no undo and no warning. Arriving media is added to what you
+     had, which is what "Open in the Editor" means. */
+  if(saved){try{await restore(saved);}catch(_){}}
   if(inbox.length){
     localStorage.removeItem('m3xi.editor.inbox');
     for(const it of inbox){

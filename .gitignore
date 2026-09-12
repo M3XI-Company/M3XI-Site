@@ -45,3 +45,10 @@ panel/
 worker/.env
 __pycache__/
 _build_src.tgz
+
+# Generated video and stills kept for reference. 64 MB of media that the site
+# never serves — it is a scratch folder, not part of the build.
+Claude outputs/
+
+# Leftovers awaiting a manual delete; nothing here is wired to anything.
+_to_delete/

@@ -39,6 +39,10 @@ export default defineConfig({
         // The Studio was one 1,900-line page until it was split by job. Each of
         // these is its own entry; they share studio.css and studio-core.js, so
         // Rollup emits the shared parts once.
+        // One bench for images, video and words. images.html and video.html
+        // stay in the build as redirects, because old links and bookmarks
+        // point at them.
+        studioGenerate: resolve(__dirname, "studio/generate.html"),
         studioImages: resolve(__dirname, "studio/images.html"),
         studioVideo: resolve(__dirname, "studio/video.html"),
         studioWorlds: resolve(__dirname, "studio/worlds.html"),

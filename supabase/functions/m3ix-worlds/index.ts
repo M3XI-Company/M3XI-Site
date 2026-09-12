@@ -17,6 +17,34 @@ function svcHeaders() {
 }
 const BASE = () => Deno.env.get("SUPABASE_URL") ?? "";
 
+/* WHO IS ASKING.
+
+   The gateway is satisfied by the anon key, and that key ships in the page, so
+   "the request got here" says nothing about who sent it. Anything that creates
+   a row, spends bandwidth or reaches the public Library has to resolve a real
+   user, which means asking the auth server about the bearer token.
+
+   Returns null for the anon key, an expired token, or no token at all. */
+async function callerId(req: Request): Promise<string | null> {
+  try {
+    const auth = req.headers.get("authorization") ?? "";
+    const token = auth.toLowerCase().startsWith("bearer ") ? auth.slice(7).trim() : "";
+    if (!token) return null;
+    const anon = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    if (!token || token === anon) return null;
+    const r = await fetch(`${BASE()}/auth/v1/user`, {
+      headers: { apikey: anon, Authorization: `Bearer ${token}` },
+    });
+    if (!r.ok) return null;
+    const u = await r.json();
+    return typeof u?.id === "string" ? u.id : null;
+  } catch { return null; }
+}
+const SIGNIN = { error: "Sign in to do that.", code: "signup_required" };
+/* Nothing we host is bigger than the storage object cap, so a fetch that keeps
+   going past it is not a world — it is someone using this function as a proxy. */
+const REHOST_MAX_BYTES = 60 * 1024 * 1024;
+
 function randId(n: number): string {
   const a = "abcdefghjkmnpqrstuvwxyz23456789";
   const b = crypto.getRandomValues(new Uint8Array(n));
@@ -70,13 +98,21 @@ Deno.serve(async (req: Request) => {
 
   try {
     if (action === "create") {
+      /* This used to answer anybody. Two calls — create, then save with
+         published:true — put arbitrary text and an arbitrary remote cover
+         image on the public Library, and the edit_key it handed out was the
+         only thing standing in front of `rehost`. It also never recorded an
+         owner, which is why an enquiry sent from a world reached nobody: the
+         notifier looks up the owner's email and there was none. */
+      const owner = await callerId(req);
+      if (!owner) return json(SIGNIN, 401);
       const name = String(body.name ?? "Untitled world").slice(0, 80);
       const slug = slugify(name);
       const edit_key = "wk_" + randId(20);
       const ins = await fetch(`${BASE()}/rest/v1/m3ix_spaces`, {
         method: "POST",
         headers: { ...svcHeaders(), Prefer: "return=representation" },
-        body: JSON.stringify({ title: name, kind: "other", status: "draft", source: "twin-viewer", embed_slug: slug, edit_key }),
+        body: JSON.stringify({ title: name, kind: "other", status: "draft", source: "twin-viewer", embed_slug: slug, edit_key, owner_id: owner }),
       });
       const rows = await ins.json().catch(() => null);
       if (!ins.ok) return json({ error: "Could not create world" }, 500);
@@ -174,9 +210,24 @@ Deno.serve(async (req: Request) => {
       const src = String(body.url ?? doc?.environment?.src ?? "");
       if (!/^https:\/\//.test(src)) return json({ error: "World has no https environment source" }, 400);
       if (src.startsWith(`${BASE()}/storage/`)) return json({ ok: true, slug, src, note: "already self-hosted" });
+      /* This reaches out to a URL the caller chose and mirrors the answer into
+         a PUBLIC bucket, so it is a file-copying service pointed at our egress
+         unless it is bounded. The caller must be signed in (create already
+         requires it, but rehost is reachable with any edit_key), the target
+         must be https, and a body that runs past the cap is dropped rather
+         than buffered — the whole response used to be read into edge memory
+         before anything looked at its size. */
+      if (!(await callerId(req))) return json(SIGNIN, 401);
       const dl = await fetch(src);
       if (!dl.ok) return json({ error: `Source fetch failed (${dl.status})` }, 502);
+      const declared = Number(dl.headers.get("content-length") ?? 0);
+      if (declared > REHOST_MAX_BYTES) {
+        return json({ error: `That file is ${Math.round(declared / 1048576)} MB; the limit is ${REHOST_MAX_BYTES / 1048576} MB.` }, 413);
+      }
       const bytes = new Uint8Array(await dl.arrayBuffer());
+      if (bytes.length > REHOST_MAX_BYTES) {
+        return json({ error: `That file is ${Math.round(bytes.length / 1048576)} MB; the limit is ${REHOST_MAX_BYTES / 1048576} MB.` }, 413);
+      }
       if (bytes.length < 10_000) return json({ error: `Source returned only ${bytes.length} bytes — not a scan file (check the URL)` }, 502);
       const extM = src.split("?")[0].match(/\.(ply|spz|splat|ksplat)$/i);
       const ext = extM ? extM[1].toLowerCase() : "ply";

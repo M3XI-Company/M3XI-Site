@@ -139,11 +139,58 @@ nav.links a:hover{border-color:var(--line);background:var(--paper)}
   font-family:var(--hand);font-weight:500;font-size:21px;line-height:28px;color:var(--ink);padding:0 2px}
 #genPrompt::placeholder{color:rgba(95,91,80,.55)}
 .srow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
-.thumbs{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-.thumb{position:relative;width:74px;height:74px;border:3px solid var(--line);box-shadow:4px 4px 0 rgba(22,21,18,.85)}
-.thumb img{width:100%;height:100%;object-fit:cover}
-.thumb button{position:absolute;top:-12px;right:-12px;width:24px;height:24px;border:2px solid var(--line);background:var(--card);
-  font-weight:800;cursor:pointer;line-height:1}
+/* ATTACHMENTS. A bare 74px square told you something was attached but not
+   which file; eight photos of one room were eight identical squares. Each
+   attachment is a card: the picture, the real file name, its folder and size,
+   and a remove button that is always in the same place. */
+.thumbs{display:flex;gap:10px;flex-wrap:wrap;margin-top:0}
+.thumbs.has{margin-top:12px}
+.att{position:relative;display:flex;align-items:center;gap:10px;max-width:100%;
+  border:2px solid var(--line);background:var(--card);box-shadow:3px 3px 0 rgba(22,21,18,.85);
+  padding:7px 30px 7px 7px}
+.att .fig{flex:none;width:42px;height:42px;border:1.5px solid var(--line);background:var(--paper2);
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.att .fig img{width:100%;height:100%;object-fit:cover;display:block}
+.att .fig.gen{font-size:18px;color:var(--mut)}
+.att .txt{display:flex;flex-direction:column;min-width:0;max-width:190px}
+.att .nm{font-size:12.5px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.att .sz{font-size:11px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.att .x{position:absolute;top:4px;right:4px;width:22px;height:22px;border:1.5px solid var(--line);
+  background:var(--paper);font-weight:800;font-size:13px;line-height:1;cursor:pointer;color:var(--ink);padding:0}
+.att .x:hover{background:var(--red);color:#fff}
+.att .x:focus-visible{outline:3px solid rgba(208,64,43,.45);outline-offset:1px}
+
+/* THE ENGINE SWITCH on the Generation page: image, video or words. */
+.modeSwitch{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 6px}
+.modeBtn{display:flex;align-items:baseline;gap:9px;border:3px solid var(--line);background:var(--card);
+  box-shadow:4px 4px 0 rgba(22,21,18,.85);padding:10px 16px;cursor:pointer;font-family:var(--body);color:var(--ink)}
+.modeBtn .mIcon{font-size:15px;line-height:1}
+.modeBtn .mName{font-family:var(--disp);font-size:14px;letter-spacing:.04em;text-transform:uppercase}
+.modeBtn .mCost{font-size:11.5px;color:var(--mut)}
+.modeBtn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 rgba(22,21,18,.85)}
+.modeBtn.on{background:var(--red);color:#fff;box-shadow:4px 4px 0 rgba(22,21,18,.9)}
+.modeBtn.on .mCost{color:rgba(255,255,255,.82)}
+.modeBtn:focus-visible{outline:3px solid rgba(208,64,43,.45);outline-offset:2px}
+.modePane[hidden]{display:none}
+
+/* A real switch, not a checkbox pretending: the whole row is the label. */
+.toggleRow{display:flex;align-items:flex-start;gap:11px;margin-top:14px;padding:11px 12px;
+  border:2px dashed rgba(22,21,18,.35);background:rgba(255,253,246,.6);cursor:pointer}
+.toggleRow input{position:absolute;opacity:0;width:0;height:0}
+.toggleRow .tSwitch{flex:none;width:38px;height:22px;margin-top:1px;border:2px solid var(--line);
+  background:var(--paper2);position:relative;transition:background .12s}
+.toggleRow .tSwitch::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;
+  background:var(--ink);transition:transform .12s}
+.toggleRow input:checked + .tSwitch{background:var(--red)}
+.toggleRow input:checked + .tSwitch::after{transform:translateX(16px);background:#fff}
+.toggleRow input:focus-visible + .tSwitch{outline:3px solid rgba(208,64,43,.45);outline-offset:2px}
+.toggleRow .tText{display:flex;flex-direction:column;gap:2px}
+.toggleRow .tText b{font-size:13.5px}
+
+/* Words come back as text, so give them a page to sit on rather than a canvas. */
+.textOut{white-space:pre-wrap;word-break:break-word;font-family:var(--body);font-size:14px;line-height:1.7;
+  color:var(--ink);background:var(--card);border:2px solid var(--line);box-shadow:3px 3px 0 rgba(22,21,18,.85);
+  padding:14px 16px;margin:0;max-height:420px;overflow:auto}
 .field{width:100%;border:3px solid var(--line);background:var(--card);padding:10px 12px;font-family:var(--body);font-size:14px;font-weight:500;color:var(--ink)}
 .field:focus{outline:3px solid rgba(208,64,43,.4)}
 details.adv{margin-top:18px;border-top:2px dashed rgba(22,21,18,.3);padding-top:14px}

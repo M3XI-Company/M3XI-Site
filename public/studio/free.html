@@ -39,19 +39,17 @@
     <nav class="links">
       <a href="https://www.m3xi.com/">M3XI</a>
       <a href="free.html" class="on">Free</a>
-      <a href="images.html">Images</a>
-      <a href="video.html">Video</a>
-      <a href="worlds.html">Worlds</a>
-      <a href="walkthrough.html">Spatial</a>
-      <a href="business.html">Business</a>
-      <a href="library.html">Library</a>
+      <a href="generate.html">Generation</a>
+      <a href="worlds.html">Spatial</a>
       <a href="editor.html">Editor</a>
       <a href="ugc.html">UGC</a>
+      <a href="library.html">Library</a>
+      <a href="business.html">Business</a>
       <a href="pricing.html">Pricing</a>
     </nav>
     <div class="acct">
       <a class="btn sm ghost" href="account.html">Sign in</a>
-      <a class="btn red sm" href="images.html">Enter Studio</a>
+      <a class="btn red sm" href="generate.html">Enter Studio</a>
     </div>
   </div>
 </div>
@@ -111,7 +109,7 @@
       <h2 class="sfx">Image</h2>
       <span class="note hand">your GPU does the work</span>
     </div>
-    <p class="subline">Bonsai Image runs entirely on your own graphics card through WebGPU. It needs a desktop browser with WebGPU (Chrome or Edge) and downloads about 1.2 GB once, then works offline-fast. Phones will not run it. If you want images made on our cloud instead — bigger models, no download, saved to your account — that is the paid <a href="/studio/images.html">Studio Images</a> page.</p>
+    <p class="subline">Bonsai Image runs entirely on your own graphics card through WebGPU. It needs a desktop browser with WebGPU (Chrome or Edge) and downloads about 1.2 GB once, then works offline-fast. Phones will not run it. If you want images made on our cloud instead — bigger models, no download, saved to your account — that is the paid <a href="/studio/generate.html">Generation bench</a>.</p>
     <div class="frameBox">
       <span class="cap">Bonsai Image — in your browser</span>
       <iframe id="bonsaiFrame" src="https://webml-community-bonsai-image-webgpu.static.hf.space" title="Bonsai Image, running in your browser" loading="lazy"></iframe>
@@ -144,8 +142,8 @@
     <div>
       <p><b>Contact</b><br><a href="mailto:m3xiteam@m3xi.com">m3xiteam@m3xi.com</a></p>
       <p style="margin-top:10px"><b>Studio</b><br>
-        <a href="images.html">Images</a> ·
-        <a href="video.html">Video</a> ·
+        <a href="generate.html">Images</a> ·
+        <a href="generate.html?mode=video">Video</a> ·
         <a href="editor.html">Editor</a> ·
         <a href="library.html">Library</a> ·
         <a href="pricing.html">Credits</a></p>
@@ -248,6 +246,143 @@
       btn.disabled = false;
     }
   });
+</script>
+
+<!-- =========================================================================
+     THE SEVEN-DAY MARK.
+
+     The free tier runs on the visitor's own machine, so it costs M3XI nothing
+     and stays unlimited. What it does not do is tell us who is using it. After
+     a week, it asks: make an account to carry on, and once you have one, it
+     asks once a week whether the free tier is still what you want or whether
+     the paid Studio would serve you better.
+
+     Three rules this follows:
+       - It NEVER locks anyone out because storage failed. Every read is in a
+         try/catch and every failure leaves the page open.
+       - The letter can always be dismissed while the seven days are still
+         running; only after the seventh day does it ask for an account first.
+       - It says what is actually true: the free tier is free because your
+         computer does the work.
+     ========================================================================= -->
+<div id="gateModal" style="display:none;position:fixed;inset:0;z-index:120;background:rgba(22,21,18,.55);align-items:center;justify-content:center;padding:20px">
+  <div class="panel" style="position:relative;width:min(470px,94vw);padding:28px 30px;text-align:left;background:var(--card)">
+    <button id="gateClose" aria-label="Close" style="position:absolute;top:8px;right:10px;width:30px;height:30px;border:2px solid var(--line);background:var(--paper);font-size:15px;font-weight:800;cursor:pointer;line-height:1">×</button>
+    <div id="gateTitle" style="font-family:var(--disp);font-size:20px;letter-spacing:.02em;margin-bottom:12px"></div>
+    <p id="gateBody" style="font-size:14px;line-height:1.7;color:var(--mut);margin:0 0 18px"></p>
+    <div class="srow" id="gateActions" style="margin-top:0"></div>
+  </div>
+</div>
+
+<script>
+(function freeTierGate(){
+  var DAY = 86400000, TRIAL_DAYS = 7;
+  var K_SINCE = 'm3xi.free.since', K_ASKED = 'm3xi.free.asked';
+  var SB_REF = 'tnlcuptfldwxtxajudoq';
+
+  function get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+  function set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+
+  /* Is somebody signed in? Read the session supabase-js already stores rather
+     than pulling the whole auth client onto a page that has no other use for
+     it. An expired session counts as signed out, which is what the Studio
+     would say too. */
+  function signedIn(){
+    try {
+      var raw = localStorage.getItem('sb-' + SB_REF + '-auth-token');
+      if (!raw) return false;
+      var s = JSON.parse(raw);
+      var exp = s && (s.expires_at || (s.currentSession && s.currentSession.expires_at));
+      if (!exp) return !!(s && (s.access_token || s.currentSession));
+      return (Number(exp) * 1000) > Date.now();
+    } catch(e){ return false; }
+  }
+
+  var since = Number(get(K_SINCE) || 0);
+  if (!since) { since = Date.now(); set(K_SINCE, String(since)); }
+  var days = Math.floor((Date.now() - since) / DAY);
+
+  var modal = document.getElementById('gateModal');
+  var title = document.getElementById('gateTitle');
+  var body  = document.getElementById('gateBody');
+  var acts  = document.getElementById('gateActions');
+  var closeBtn = document.getElementById('gateClose');
+  if (!modal) return;
+
+  function hide(){ modal.style.display = 'none'; }
+  function show(t, b, buttons, dismissible){
+    title.textContent = t;
+    body.innerHTML = b;
+    acts.innerHTML = '';
+    buttons.forEach(function(cfg){
+      var el = document.createElement(cfg.href ? 'a' : 'button');
+      el.className = 'btn sm' + (cfg.primary ? ' red' : ' ghost');
+      el.textContent = cfg.label;
+      if (cfg.href) el.href = cfg.href;
+      else el.onclick = cfg.onClick || hide;
+      acts.appendChild(el);
+    });
+    closeBtn.style.display = dismissible ? '' : 'none';
+    closeBtn.onclick = hide;
+    modal.onclick = function(e){ if (e.target === modal && dismissible) hide(); };
+    modal.style.display = 'flex';
+  }
+
+  /* Past the week and signed out: ask for an account before carrying on. The
+     tools stay on the page, but pressing one asks first — a page that silently
+     does nothing is worse than a page that says why. */
+  function gateTools(){
+    ['btnSpeak'].forEach(function(id){
+      var b = document.getElementById(id);
+      if (!b) return;
+      b.addEventListener('click', function(e){
+        if (signedIn()) return;
+        e.preventDefault(); e.stopImmediatePropagation();
+        askForAccount();
+      }, true);
+    });
+    var frame = document.getElementById('bonsaiFrame');
+    if (frame && frame.parentNode) {
+      var note = document.createElement('p');
+      note.className = 'price-note';
+      note.innerHTML = 'You have been using the free tier for ' + days + ' days. ' +
+        '<a href="account.html">Create a free account</a> to carry on — it takes one tap and costs nothing.';
+      frame.parentNode.insertBefore(note, frame);
+    }
+  }
+
+  function askForAccount(){
+    show('Seven days of free',
+      'The free tier runs on your own computer, so it stays unlimited and it stays free. ' +
+      'After a week we do ask for an account — it is free, it takes one tap with Google, and it is how ' +
+      'the Studio knows who you are when you want to keep something.',
+      [{ label: 'Create a free account', href: 'account.html', primary: true },
+       { label: 'See what the paid Studio does', href: 'pricing.html' }],
+      false);
+  }
+
+  /* Signed in and past the week: ask once a week, and take the answer. */
+  function askWhichTier(){
+    show('Still on the free tier',
+      'You have been making things here for ' + days + ' days without spending anything, which is exactly what this page is for. ' +
+      'Carry on if it is doing the job. If you want bigger models, video, walkable places, or work that is saved to your Library, ' +
+      'that is the paid Studio — from &pound;5.',
+      [{ label: 'Carry on free', primary: false, onClick: function(){ set(K_ASKED, String(Date.now())); hide(); } },
+       { label: 'See the paid Studio', href: 'pricing.html', primary: true }],
+      true);
+    set(K_ASKED, String(Date.now()));
+  }
+
+  if (days < TRIAL_DAYS) return;
+
+  if (!signedIn()) {
+    gateTools();
+    setTimeout(askForAccount, 900);
+    return;
+  }
+  var asked = Number(get(K_ASKED) || 0);
+  if (Date.now() - asked > TRIAL_DAYS * DAY) setTimeout(askWhichTier, 1200);
+})();
 </script>
 
 </body>

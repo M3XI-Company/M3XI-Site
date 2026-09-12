@@ -86,8 +86,13 @@
       "permanent": true
     },
     {
-      "source": "/studio/walkthrough",
-      "destination": "/studio/walkthrough.html",
+      "source": "/studio/:page(account|business|editor|images|library|pricing|ugc|video|walkthrough|worlds)",
+      "destination": "/studio/:page.html",
+      "permanent": false
+    },
+    {
+      "source": "/studio/:page(account|business|editor|images|library|pricing|ugc|video|walkthrough|worlds)/",
+      "destination": "/studio/:page.html",
       "permanent": false
     },
     {

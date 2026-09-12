@@ -23,6 +23,19 @@ const DEFAULTS = {
   imgNB: "fal-ai/nano-banana-2",
   imgNBEdit: "fal-ai/nano-banana-2/edit",
 };
+/* THE ONLY MODELS A REQUEST MAY NAME.
+
+   `endpoint` is taken from the request body, and the price was worked out by
+   asking whether the string contained "nano-banana". Anything else starting
+   "fal-ai/" therefore cost one credit — including the models that cost us
+   pounds a frame. The check was for a prefix; the price was for a substring;
+   the gap between them was the whole catalogue. An allowlist closes it: a
+   model we have not priced cannot be run. */
+const ALLOWED_IMAGE_EP = new Set<string>([
+  DEFAULTS.imgT2I, DEFAULTS.imgI2I, DEFAULTS.imgNB, DEFAULTS.imgNBEdit,
+  "fal-ai/nano-banana/edit",
+]);
+const ALLOWED_VIDEO_EP = new Set<string>([DEFAULTS.vidT2V, DEFAULTS.vidI2V]);
 /* The language model behind Research, Refine and the UGC script writer.
    Routed through fal any-llm so it bills to the same wallet as everything
    else — one key, one balance. */
@@ -324,14 +337,69 @@ async function rehost(url: string, path: string, contentType = "image/jpeg"): Pr
   } catch { return null; }
 }
 
+/* JOBS NOTHING WILL EVER CLAIM.
+
+   A queued job is charged the moment it is queued, and it is the render box
+   that later marks it done or failed. If no box ever claims it, the charge
+   stands for ever: there is no timeout anywhere else in this system. That is
+   fine for a box that is off for an hour and fatal for one that does not
+   exist.
+
+   So: expire queued jobs after a few hours and hand the credits back. The
+   PATCH carries `status=eq.queued` so only the caller that actually flips the
+   row issues the refund — two requests expiring the same job cannot refund it
+   twice. Housekeeping never throws: it must not be able to break the request
+   that happened to trigger it. */
+const JOB_TTL_H = Number(Deno.env.get("M3IX_JOB_TTL_HOURS") ?? 6);
+async function expireStaleJobs(): Promise<void> {
+  try {
+    const cutoff = new Date(Date.now() - JOB_TTL_H * 3600_000).toISOString();
+    const r = await fetch(
+      `${BASE()}/rest/v1/m3ix_jobs?status=eq.queued&created_at=lt.${encodeURIComponent(cutoff)}&select=id,user_id,credits&limit=25`,
+      { headers: svcHeaders() },
+    );
+    const rows = await r.json().catch(() => []);
+    if (!Array.isArray(rows) || !rows.length) return;
+    for (const row of rows) {
+      const upd = await fetch(`${BASE()}/rest/v1/m3ix_jobs?id=eq.${row.id}&status=eq.queued`, {
+        method: "PATCH",
+        headers: { ...svcHeaders(), Prefer: "return=representation" },
+        body: JSON.stringify({
+          status: "failed",
+          error: `No render box picked this up within ${JOB_TTL_H} hours, so your credits were returned.`,
+        }),
+      });
+      const flipped = await upd.json().catch(() => []);
+      if (Array.isArray(flipped) && flipped.length && Number(row.credits) > 0) {
+        await refundUser(row.user_id, Number(row.credits), `job_expired:${row.id}`);
+      }
+    }
+  } catch { /* housekeeping must never break a request */ }
+}
+
 /* Put a job on our own render queue. Charges the local price, never a
-   provider price. When no worker has checked in recently the job still
-   queues — with the cloud provider off, waiting is the honest answer. */
+   provider price. A box that is briefly off still takes work — waiting is the
+   honest answer there — but a box that has NEVER checked in is not a queue,
+   it is a hole, and nothing may be charged into it. */
 async function queueLocal(req: Request, uid: string, kind: "image" | "video", body: Record<string, unknown>): Promise<Response> {
   const prompt = String(body.prompt ?? "").trim().slice(0, 1200);
   if (!prompt) return json({ error: "Missing prompt" }, 400);
   const dur = clampDuration(body.duration);
   const cost = kind === "video" ? (dur === "10" ? COST_VIDEO_LOCAL * 2 : COST_VIDEO_LOCAL) : COST_IMAGE;
+  /* Has a render box EVER existed? Not "is one online" — one that is off for
+     the afternoon should still take the job — but if none has ever checked in
+     there is nobody to do the work and charging for it would be taking money
+     for something that cannot happen. */
+  const known = await (await fetch(`${BASE()}/rest/v1/m3ix_workers?select=name&limit=1`, { headers: svcHeaders() }))
+    .json().catch(() => []);
+  if (!(Array.isArray(known) && known.length)) {
+    return json({
+      error: "No render box is connected yet, so this would never be rendered and you have not been charged. " +
+        "The free tier makes images in your own browser right now, and words are always available.",
+      code: "no_worker",
+    }, 503);
+  }
+  expireStaleJobs();     // deliberately not awaited: housekeeping, not the answer
   const ch = await charge(req, cost, kind, "local");
   if (!ch.ok) return json({ error: ch.error }, ch.status);
   const ref = typeof body.image_url === "string" && body.image_url ? body.image_url : null;
@@ -530,9 +598,16 @@ Room names must be unique and plain (Hallway, Living room, Kitchen, Bedroom 1). 
       const ch = await charge(req, cost, "world");
       if (!ch.ok) return json({ error: ch.error }, ch.status);
       const remaining: number = ch.balance;
-      const toContent = (u: string) => u.startsWith("data:")
-        ? { source: "data_base64", data_base64: u.slice(u.indexOf(",") + 1), mime_type: (u.match(/^data:([^;]+)/) || [])[1] || "image/jpeg" }
-        : { source: "uri", uri: u };
+      /* The documented field for inline bytes is `extension` — a bare "jpg" or
+         "png", no dot and no mime type. `mime_type` is not in the schema at
+         all: at best it is ignored, at worst the request is refused with a 422
+         after the charge has already been taken. */
+      const toContent = (u: string) => {
+        if (!u.startsWith("data:")) return { source: "uri", uri: u };
+        const mime = (u.match(/^data:([^;,]+)/) || [])[1] || "image/jpeg";
+        const extension = mime.includes("png") ? "png" : mime.includes("webp") ? "webp" : "jpg";
+        return { source: "data_base64", data_base64: u.slice(u.indexOf(",") + 1), extension };
+      };
       let world_prompt: Record<string, unknown>;
       /* HOW SEVERAL PHOTOS ARE READ. Two modes, and telling them apart is the
          difference between a room and a mash-up:
@@ -567,12 +642,39 @@ Room names must be unique and plain (Hallway, Living room, Kitchen, Bedroom 1). 
         };
       }
       const payload = { display_name: (prompt || "M3XI world").slice(0, 60), model, world_prompt };
-      const r = await fetch(`${WL}/worlds:generate`, { method: "POST", headers: wlHeaders(), body: JSON.stringify(payload) });
-      const text = await r.text();
-      if (!r.ok) { await refundUser(uid, cost, action); return json({ error: `worldlabs ${r.status}: ${text.slice(0, 300)}` }, 502); }
+      /* The charge has already been taken. A DNS blip, a reset connection or a
+         timeout here used to throw straight past every refund line into the
+         outer catch, which answers 500 and keeps the money. Nothing after a
+         charge may leave by an unguarded throw. */
+      let r: Response, text: string;
+      try {
+        r = await fetch(`${WL}/worlds:generate`, { method: "POST", headers: wlHeaders(), body: JSON.stringify(payload) });
+        text = await r.text();
+      } catch (e) {
+        await refundUser(uid, cost, action);
+        return json({ error: `Could not reach the world generator (${(e as Error).message}). You were not charged.` }, 502);
+      }
+      if (!r.ok) {
+        await refundUser(uid, cost, action);
+        /* The provider allows roughly three generation starts a minute and
+           sixty an hour, and the house builder fires one per room in a loop.
+           A bare 502 there reads as "it broke"; this says wait, and says the
+           money came back. */
+        if (r.status === 429) {
+          const wait = Number(r.headers.get("retry-after") ?? 0) || 60;
+          return json({
+            error: `Too many places at once — the generator allows about three a minute. Wait ${wait} seconds and carry on; you were not charged for this one.`,
+            retry_after: wait,
+          }, 429);
+        }
+        return json({ error: `worldlabs ${r.status}: ${text.slice(0, 300)}` }, 502);
+      }
       const j = JSON.parse(text);
       await recordSpend(uid, "world", model, cost, isDraft ? USD.worldDraft : USD.world, true, "worldlabs");
-      await logJob("world", model, { prompt: prompt.slice(0, 300), imgs: imgs.length }, "queued", { operation_id: j?.operation_id });
+      /* who paid and how much, so a late failure can be refunded by
+         world_status. These ride in `input` because it is a json column that
+         already exists; adding columns would need a migration. */
+      await logJob("world", model, { prompt: prompt.slice(0, 300), imgs: imgs.length, uid, credits: cost }, "queued", { operation_id: j?.operation_id });
       return json({ operation_id: j?.operation_id, done: j?.done ?? false, credits_remaining: remaining ?? undefined });
     }
 
@@ -582,6 +684,41 @@ Room names must be unique and plain (Hallway, Living room, Kitchen, Bedroom 1). 
       const r = await fetch(`${WL}/operations/${encodeURIComponent(op)}`, { headers: wlHeaders() });
       const text = await r.text();
       if (!r.ok) return json({ error: `worldlabs ${r.status}: ${text.slice(0, 300)}` }, 502);
+      /* A WORLD THAT FAILS LATE.
+
+         The charge happens at submit, and the only refund used to be for a
+         non-2xx from worlds:generate. But generation is an operation: the real
+         failures arrive minutes later as done:true with an error, long after
+         that code has returned. 150 credits stayed spent on a world that does
+         not exist, while the viewer told the person it had been refunded.
+
+         The submit step records who paid and how much on the job row, so the
+         refund can be issued from here. The PATCH carries status=eq.queued, so
+         only the first poll to see the failure flips it and pays out — the
+         viewer polls every six seconds and two tabs may poll at once. */
+      try {
+        const op_j = JSON.parse(text);
+        if (op_j?.done && op_j?.error) {
+          const rows = await (await fetch(
+            `${BASE()}/rest/v1/m3ix_gen_jobs?assets->>operation_id=eq.${encodeURIComponent(op)}&status=eq.queued&select=id,input&limit=1`,
+            { headers: svcHeaders() },
+          )).json().catch(() => []);
+          const row = Array.isArray(rows) ? rows[0] : null;
+          if (row) {
+            const flip = await fetch(`${BASE()}/rest/v1/m3ix_gen_jobs?id=eq.${row.id}&status=eq.queued`, {
+              method: "PATCH",
+              headers: { ...svcHeaders(), Prefer: "return=representation" },
+              body: JSON.stringify({ status: "failed" }),
+            });
+            const flipped = await flip.json().catch(() => []);
+            if (Array.isArray(flipped) && flipped.length) {
+              const who = String(row.input?.uid ?? "");
+              const amount = Number(row.input?.credits ?? 0);
+              if (who && amount > 0) await refundUser(who, amount, `world_failed:${op}`);
+            }
+          }
+        }
+      } catch { /* a refund that cannot be worked out must not break the poll */ }
       return new Response(text, { headers: { ...CORS, "Content-Type": "application/json" } });
     }
 
@@ -593,6 +730,27 @@ Room names must be unique and plain (Hallway, Living room, Kitchen, Bedroom 1). 
       if (!importer) return json(SIGNUP_REQUIRED, 401);
       const op = String(body.operation_id ?? "");
       if (!op) return json({ error: "Missing operation_id" }, 400);
+      /* IMPORT ONCE. Importing is free and takes no ownership check, so the
+         same operation id could be imported again and again — each time
+         re-downloading the whole world (hundreds of megabytes) and writing
+         another copy into Storage under another slug. A page that retries, or
+         two tabs finishing together, was enough to do it by accident. The
+         operation id is recorded on the world document, so asking whether we
+         already have it is one cheap query, and a repeat returns the world we
+         made the first time. */
+      const already = await (await fetch(
+        `${BASE()}/rest/v1/m3ix_spaces?select=embed_slug,edit_key,title,world&world->>op=eq.${encodeURIComponent(op)}&limit=1`,
+        { headers: svcHeaders() },
+      )).json().catch(() => []);
+      if (Array.isArray(already) && already.length) {
+        const w0 = already[0] as Record<string, any>;
+        return json({
+          slug: w0.embed_slug, edit_key: w0.edit_key, name: w0.title,
+          cover: (w0.world ?? {}).cover ?? null,
+          marble_url: (w0.world ?? {}).marble_url ?? null,
+          already_imported: true,
+        });
+      }
       const r = await fetch(`${WL}/operations/${encodeURIComponent(op)}`, { headers: wlHeaders() });
       const j = await r.json().catch(() => null);
       if (!r.ok || !j) return json({ error: `worldlabs ${r.status}` }, 502);
@@ -600,9 +758,21 @@ Room names must be unique and plain (Hallway, Living room, Kitchen, Bedroom 1). 
       if (j.error) return json({ error: "Generation failed: " + JSON.stringify(j.error).slice(0, 200) }, 502);
       const w = (j.response ?? {}) as Record<string, any>;
       const assets = (w.assets ?? {}) as Record<string, any>;
-      const spzUrls = assets?.splats?.spz_urls ?? {};
-      const spz = spzUrls.default ?? (Object.values(spzUrls)[0] as string | undefined);
+      const spzUrls = (assets?.splats?.spz_urls ?? {}) as Record<string, string>;
+      /* WHICH SPLAT FILE. The keys are `full_res` (about 2M splats), `500k` and
+         `100k`; there is no `default`. Asking for one and falling back to
+         "whichever key the JSON happened to list first" was taking a 100k
+         PREVIEW as the finished world on any response that listed it first —
+         a twentieth of the detail, which reads as a soft, mushy room and looks
+         exactly like a bad generation. Ask for the real one, in order, and
+         only then take what is there. The schema allows the key set to change,
+         so the last fallback stays. */
+      const spz = spzUrls.full_res ?? spzUrls["500k"] ?? spzUrls["100k"] ??
+        (Object.values(spzUrls)[0] as string | undefined);
       if (!spz) return json({ error: "No splat asset on this world (it may still be processing exports)" }, 502);
+      const spzTier = spzUrls.full_res === spz ? "full_res"
+        : spzUrls["500k"] === spz ? "500k"
+        : spzUrls["100k"] === spz ? "100k" : "unknown";
       const name = String(body.name ?? w.display_name ?? "Generated world").slice(0, 60);
       const slug = slugify(name);
       const edit_key = "wk_" + randId(20);
@@ -625,9 +795,31 @@ Room names must be unique and plain (Hallway, Living room, Kitchen, Bedroom 1). 
           }
         }
       } catch (_) { /* cover optional */ }
+      /* METRIC SCALE COMES WITH THE WORLD. Every generation carries
+         `metric_scale_factor` (raw units to metres) and `ground_plane_offset`
+         (where the floor sits, in metres). The viewer was ignoring both and
+         measuring the median floor-to-ceiling gap instead, normalising it to
+         2.45 m — a ruler built to guess a number the provider hands over. The
+         measured guess stays in the viewer as the fallback, because worlds
+         made before December 2025 carry neither field. */
+      const sem = (assets?.splats?.semantics_metadata ?? {}) as Record<string, unknown>;
+      const metricScale = Number(sem.metric_scale_factor);
+      const groundOffset = Number(sem.ground_plane_offset);
+      /* Both of these come free with every generation and were being thrown
+         away: the panorama is a flat 360 of the same place (the input any
+         analysis or a listing hero wants) and the collider mesh is real
+         geometry to stand on rather than an occupancy grid. */
+      const panoUrl = assets?.imagery?.pano_url ?? null;
+      const colliderUrl = assets?.mesh?.collider_mesh_url ?? null;
+
       const doc = {
         id: slug, name, published: true, unit: "m",
+        op,                       // what makes a second import a no-op
         environment: envObj,
+        ...(Number.isFinite(metricScale) && metricScale > 0 ? { metric_scale: metricScale } : {}),
+        ...(Number.isFinite(groundOffset) ? { ground_offset: groundOffset } : {}),
+        ...(panoUrl ? { pano: panoUrl } : {}),
+        ...(colliderUrl ? { collider: colliderUrl } : {}),
         eye: 1.6, speed: 1.45, hotspots: [], assets: [],
         creator: { name: String(body.creator_name ?? "M3XI Studio").slice(0, 60), url: String(body.creator_url ?? "").slice(0, 200) },
         cover, marble_url: w.world_marble_url, generator: "marble",
@@ -649,7 +841,21 @@ Room names must be unique and plain (Hallway, Living room, Kitchen, Bedroom 1). 
         body: JSON.stringify({ title: name, kind: "other", status: "published", source: "marble", embed_slug: slug, edit_key, world: doc, owner_id: importer }),
       });
       if (!ins.ok) return json({ error: "Could not save the imported world" }, 500);
-      await logJob("world", "import", { op }, "done", { slug, spz_mb: Math.round(bytes.length / 1048576), parts: urls.length });
+      /* WHAT IT REALLY COST. The submit step records an estimate, because at
+         that moment nobody knows: 1.1 is a flat 1,580 credits from text but
+         1.1-plus adds a variable charge for a bigger place, and only the
+         finished operation carries the settled figure. At 1,250 credits to the
+         dollar this is the true number, so record it here rather than leaving
+         the guess standing as the only account of the spend. */
+      const settled = Number(j?.cost?.total_credits);
+      if (Number.isFinite(settled) && settled > 0) {
+        await recordSpend(importer, "world", `${w.model ?? "marble"} settled`, 0, settled / 1250, true, "worldlabs");
+      }
+      await logJob("world", "import", { op }, "done", {
+        slug, spz_mb: Math.round(bytes.length / 1048576), parts: urls.length,
+        splat_tier: spzTier,
+        ...(Number.isFinite(settled) ? { provider_credits: settled, provider_usd: Number((settled / 1250).toFixed(4)) } : {}),
+      });
       return json({ slug, edit_key, name, cover, marble_url: w.world_marble_url, size_mb: Math.round(bytes.length / 1048576) });
     }
 
@@ -664,7 +870,28 @@ Room names must be unique and plain (Hallway, Living room, Kitchen, Bedroom 1). 
       if (!prompt) return json({ error: "Missing prompt" }, 400);
       const uid = await callerId(req);
       if (!uid) return json(SIGNUP_REQUIRED, 401);
-      const ch = await charge(req, COST_REFINE, "refine");
+      /* SHARPENING A PROMPT IS FREE while the free language model answers it.
+         It costs us nothing to run, and it exists to stop someone spending 60
+         credits on a video whose prompt was three words — charging for the
+         thing that prevents the waste is the wrong way round. Writing a piece
+         of TEXT is still the normal price: that is the product, not a step on
+         the way to one. A paid fallback is charged either way. */
+      const forPrompt = String(body.purpose ?? "") === "prompt";
+      const hasGroq = !!Deno.env.get("GROQ_API_KEY");
+      /* The toggle in the Studio says "Free", so sharpening a prompt is free
+         or it does not happen: it must never quietly fall through to a paid
+         model and charge for it. The caller treats this refusal as "keep my
+         own words", which is the right outcome anyway. */
+      if (forPrompt && !hasGroq) {
+        return json({
+          error: "The prompt helper runs on the free language model, which is not configured — add a GROQ_API_KEY secret (console.groq.com, no card). Your own words were used instead.",
+          code: "no_free_llm",
+        }, 503);
+      }
+      const price = forPrompt ? 0 : COST_REFINE;
+      const ch = price > 0
+        ? await charge(req, price, "refine")
+        : { ok: true as const, balance: undefined as unknown as number };
       if (!ch.ok) return json({ error: ch.error }, ch.status);
       const remaining: number = ch.balance;
       const system = String(body.system ?? "You are a film director's assistant. Refine the user's idea into vivid, concrete visual prompts.");
@@ -676,21 +903,24 @@ Room names must be unique and plain (Hallway, Living room, Kitchen, Bedroom 1). 
           body: JSON.stringify({ model: GROQ_MODEL, messages: [{ role: "system", content: system }, { role: "user", content: prompt }], temperature: 0.7, max_tokens: 1200 }),
         });
         const text = await r.text();
-        if (!r.ok) { await refundUser(uid, COST_REFINE, action); return json({ error: `groq ${r.status}: ${text.slice(0, 240)}` }, 502); }
+        /* Every refund below hands back `price`, never COST_REFINE. Refunding
+           a flat 2 after charging 0 would MINT credits on every failed free
+           sharpen — a mint, not a leak, and it would never show up as spend. */
+        if (!r.ok) { if (price) await refundUser(uid, price, action); return json({ error: `groq ${r.status}: ${text.slice(0, 240)}` }, 502); }
         const out = JSON.parse(text)?.choices?.[0]?.message?.content ?? "";
-        if (!out) { await refundUser(uid, COST_REFINE, action); return json({ error: "No output from the language model" }, 502); }
-        await recordSpend(uid, "refine", GROQ_MODEL, COST_REFINE, 0, true, "groq");
+        if (!out) { if (price) await refundUser(uid, price, action); return json({ error: "No output from the language model" }, 502); }
+        await recordSpend(uid, "refine", GROQ_MODEL, price, 0, true, "groq");
         return json({ output: out, credits_remaining: remaining ?? undefined });
       }
-      if (!PROVIDER_ON) { await refundUser(uid, COST_REFINE, action); return json({ error: "No language model is configured. Add a free GROQ_API_KEY secret (console.groq.com) — it costs nothing." }, 503); }
+      if (!PROVIDER_ON) { if (price) await refundUser(uid, price, action); return json({ error: "No language model is configured. Add a free GROQ_API_KEY secret (console.groq.com) — it costs nothing." }, 503); }
       const model = String(body.llm ?? LLM_MODEL);
       const r = await fetch(`https://fal.run/${DEFAULTS.llm}`, { method: "POST", headers: auth, body: JSON.stringify({ model, system_prompt: system, prompt }) });
       const text = await r.text();
-      if (!r.ok) { await refundUser(uid, COST_REFINE, action); await recordSpend(uid, "refine", model, 0, 0, false); return json({ error: `fal ${r.status}: ${text.slice(0, 240)}` }, 502); }
+      if (!r.ok) { if (price) await refundUser(uid, price, action); await recordSpend(uid, "refine", model, 0, 0, false); return json({ error: `fal ${r.status}: ${text.slice(0, 240)}` }, 502); }
       const j = JSON.parse(text);
       const out = j?.output ?? j?.text ?? "";
-      if (!out) { await refundUser(uid, COST_REFINE, action); return json({ error: "No output from the language model" }, 502); }
-      await recordSpend(uid, "refine", model, COST_REFINE, USD.refine);
+      if (!out) { if (price) await refundUser(uid, price, action); return json({ error: "No output from the language model" }, 502); }
+      await recordSpend(uid, "refine", model, price, USD.refine);
       return json({ output: out, credits_remaining: remaining ?? undefined });
     }
 
@@ -713,7 +943,7 @@ Room names must be unique and plain (Hallway, Living room, Kitchen, Bedroom 1). 
       const ep = String(body.endpoint ?? (
         wantNB ? (multi && multi.length ? DEFAULTS.imgNBEdit : ref ? DEFAULTS.imgNBEdit : DEFAULTS.imgNB)
                : (multi && multi.length ? "fal-ai/nano-banana/edit" : ref ? DEFAULTS.imgI2I : DEFAULTS.imgT2I)));
-      if (!ep.startsWith("fal-ai/")) return json({ error: "Endpoint must start with fal-ai/" }, 400);
+      if (!ALLOWED_IMAGE_EP.has(ep)) return json({ error: "That image model is not one this Studio runs." }, 400);
       // Charge by what the frame costs us, after we know which model it is.
       const cost = ep.includes("nano-banana") ? COST_IMAGE_NB : COST_IMAGE;
       const ch = await charge(req, cost, "image");
@@ -748,7 +978,7 @@ Room names must be unique and plain (Hallway, Living room, Kitchen, Bedroom 1). 
       if (!ch.ok) return json({ error: ch.error }, ch.status);
       const remaining: number = ch.balance;
       let ep = String(body.endpoint ?? DEFAULTS.asset);
-      if (!ep.startsWith("fal-ai/")) { await refundUser(uid, COST_ASSET, action); return json({ error: "Endpoint must start with fal-ai/" }, 400); }
+      if (ep !== DEFAULTS.asset) { await refundUser(uid, COST_ASSET, action); return json({ error: "That 3D model is not one this Studio runs." }, 400); }
       const payload = { input_image_url: img, enable_pbr: true };
       const r = await fetch(`https://queue.fal.run/${ep}`, { method: "POST", headers: auth, body: JSON.stringify(payload) });
       const text = await r.text();
@@ -787,7 +1017,7 @@ Room names must be unique and plain (Hallway, Living room, Kitchen, Bedroom 1). 
 
       const ref = typeof body.image_url === "string" && body.image_url ? body.image_url : null;
       let ep = String(body.endpoint ?? (ref ? DEFAULTS.vidI2V : DEFAULTS.vidT2V));
-      if (!ep.startsWith("fal-ai/")) { await refundUser(uid, cost, action); return json({ error: "Endpoint must start with fal-ai/" }, 400); }
+      if (!ALLOWED_VIDEO_EP.has(ep)) { await refundUser(uid, cost, action); return json({ error: "That video model is not one this Studio runs." }, 400); }
 
       /* image-to-video takes its frame shape from the reference image, so
          aspect_ratio is only meaningful on the text path — sending it with an
@@ -832,7 +1062,11 @@ Room names must be unique and plain (Hallway, Living room, Kitchen, Bedroom 1). 
       const rows = await (await fetch(`${BASE()}/rest/v1/m3ix_jobs?id=eq.${id}&user_id=eq.${uid}&select=status,output,error,claimed_at,finished_at`, { headers: svcHeaders() })).json();
       const row = Array.isArray(rows) ? rows[0] : null;
       if (!row) return json({ error: "No such job" }, 404);
-      // A failed job is refunded by the worker itself (service role), once.
+      /* A failed job is refunded by the worker itself (service role), once.
+         A job nobody ever claimed has no worker to do that, so the sweep runs
+         from here too: the person most likely to poll a dead job is the person
+         waiting on it. */
+      if (row.status === "queued") expireStaleJobs();
       return json(row);
     }
 

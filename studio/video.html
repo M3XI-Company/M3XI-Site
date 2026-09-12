@@ -5,153 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>M3XI Studio — Video</title>
 <link rel="icon" type="image/png" href="/M.png" />
-<meta name="description" content="AI video clips in 9:16, 16:9 or 1:1 — five or ten seconds, then cut them together in the Editor.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="description" content="Video generation now lives in the Generation bench, alongside images and words.">
+<link rel="canonical" href="https://www.m3xi.com/studio/generate.html">
+<!-- See images.html: one bench, three engines. This page is here so older
+     links keep working. -->
+<meta http-equiv="refresh" content="0; url=generate.html?mode=video">
+<script>location.replace('generate.html?mode=video'+location.hash);</script>
 <link rel="stylesheet" href="./studio.css">
 </head>
 <body>
-
-<div class="bar">
-  <div class="in">
-    <a class="logo" href="/studio/">M3XI <span class="jp">三X一</span> <span class="st">STUDIO</span></a>
-    <nav class="links">
-      <a href="https://www.m3xi.com/">M3XI</a>
-      <a href="free.html">Free</a>
-      <a href="images.html">Images</a>
-      <a href="video.html" class="on">Video</a>
-      <a href="worlds.html">Worlds</a>
-      <a href="walkthrough.html">Spatial</a>
-      <a href="business.html">Business</a>
-      <a href="library.html">Library</a>
-      <a href="editor.html">Editor</a>
-      <a href="ugc.html">UGC</a>
-      <a href="pricing.html">Pricing</a>
-    </nav>
-    <div class="acct">
-      <a id="avatarChip" href="account.html" title="" style="display:none">&nbsp;</a>
-      <a class="btn sm ghost" id="btnProfile" href="account.html" style="display:none">Profile</a>
-      <a class="btn sm ghost" id="btnAuth" href="account.html">Sign in</a>
-      <a class="btn red sm" href="images.html">Enter Studio</a>
-    </div>
-  </div>
-</div>
-
-<section id="studio">
-  <div class="wrap">
-    <div class="sechead">
-      <h2 class="sfx">Video</h2>
-      <span class="note hand">five seconds or ten, any shape</span>
-    </div>
-    <p class="subline">Pick the shape before you generate — vertical for stories and reels, wide for the site. Attach a photo and it becomes the first frame. Several clips? Send them to the Editor and cut them into one film.</p>
-    <div class="studioGrid">
-      <div class="panel notebook tilt-l">
-        <span class="cap">Prompt page</span>
-        <div class="tape" style="top:-14px;right:60px;transform:rotate(3deg)"></div>
-        <h3>Describe the shot</h3>
-        <textarea id="genPrompt" placeholder="A bright Scandinavian penthouse living room at golden hour, floor-to-ceiling windows, cinematic photoreal…"></textarea>
-      <div class="thumbs" id="thumbs"></div>
-      <div class="srow">
-        <button class="btn sm ghost" id="btnAttach">Attach files</button>
-        <button class="btn sm ghost" id="btnAttachFolder">Attach a folder</button>
-        <input type="file" id="attachInput" accept="image/*" multiple style="display:none">
-        <input type="file" id="attachDirInput" webkitdirectory directory multiple style="display:none">
-        <span class="small">Up to 4 photos. The first steers the result.</span>
-      </div>
-        <div class="srow vidOpts" style="margin-top:8px;align-items:center">
-          <span class="small">Shape</span>
-          <button class="btn sm ghost aspBtn on" data-asp="9:16">9:16</button>
-          <button class="btn sm ghost aspBtn" data-asp="16:9">16:9</button>
-          <button class="btn sm ghost aspBtn" data-asp="1:1">1:1</button>
-          <span style="width:8px"></span>
-          <span class="small">Length</span>
-          <button class="btn sm ghost durBtn on" data-dur="5">5s</button>
-          <button class="btn sm ghost durBtn" data-dur="10">10s</button>
-          <span class="small" id="vidCost">60 credits</span>
-        </div>
-        <div class="srow" style="margin-top:10px">
-          <button class="btn red" id="btnGenVid">Generate video</button>
-          <a class="btn ghost" href="editor.html">Open the Editor</a>
-        </div>
-      <div class="srow">
-        <input type="text" class="field" id="creditCode" placeholder="Credit code (optional)" style="max-width:420px">
-        <button class="btn sm ghost" id="btnCheckBal">Balance</button>
-        <span class="small" id="balMsg"></span>
-      </div>
-        <p class="price-note">Video clip 60 credits at 5s, 120 at 10s. Prepaid — you can never spend more than you have. Packs on <a href="pricing.html">Pricing</a>.</p>
-      <details class="adv" id="setupBox">
-        <summary>Where this renders</summary>
-        <p class="hint">Video renders on the M3XI render box (our own GPU, Wan 2.2) and is charged at the local price. If the box is off, your clip waits in the queue and lands in your Library when it is done. Nothing is sent to a paid cloud provider.</p>
-        <input type="hidden" id="epVidT2V" value="local/wan-2.2">
-        <input type="hidden" id="epVidI2V" value="local/wan-2.2">
-      </details>
-      <details class="adv" id="filmBox">
-        <summary>Film mode — short &amp; long AI films</summary>
-        <label>Film concept</label>
-        <textarea class="field" id="filmConcept" rows="2" placeholder="A lone lighthouse keeper discovers the light is attracting something from the sea…"></textarea>
-        <div class="srow"><button class="btn sm ghost" id="btnRefineFilm">Refine into scenes (AI)</button><span class="small">2 credits — the AI writes your shot list</span></div>
-        <label>Scenes — one per line, each becomes a clip</label>
-        <textarea class="field" id="filmScenes" rows="5" placeholder="Wide shot: storm waves crash against the lighthouse at dusk…"></textarea>
-        <div class="srow">
-          <button class="btn" id="btnFilmShort">Generate short film (≤3 scenes)</button>
-          <button class="btn" id="btnFilmLong">Generate long film (≤8 scenes)</button>
-        </div>
-        <p class="price-note">Every scene renders in order with a shared cinematic grade. When they are done, one button sends the whole set to the Editor as a single timeline.</p>
-      </details>
-      </div>
-    <div class="panel out tilt-r">
-      <span class="cap red">Output</span>
-      <h3>Result</h3>
-      <div id="genOut"><div class="empty">Nothing yet — your next generation lands here.</div></div>
-      <div id="genLog">M3XI Studio ready.</div>
-    </div>
-  </div>
-  </div>
-</section>
-
-<footer>
-  <div class="in">
-    <div>
-      <div class="fl">M3XI <span style="color:var(--red)">三X一</span> STUDIO</div>
-      <p style="margin-top:8px">Less ornament, more intent. M3XI Studio is an independent product of M3XI — early, honest, and built to work. Generation runs on prepaid credits; the walkthrough platform is sold as a negotiated business plan.</p>
-    </div>
-    <div>
-      <p><b>Contact</b><br><a href="mailto:m3xiteam@m3xi.com">m3xiteam@m3xi.com</a></p>
-      <p style="margin-top:10px"><b>Studio</b><br>
-        <a href="walkthrough.html">Spatial</a> ·
-        <a href="editor.html">Editor</a> ·
-        <a href="ugc.html">UGC Studio</a> ·
-        <a href="library.html">Library</a> ·
-        <a href="pricing.html">Credits</a></p>
-      <p style="margin-top:10px"><b>M3XI</b><br>
-        <a href="https://www.m3xi.com/">Home</a> ·
-        <a href="https://www.m3xi.com/cornelia.html">Cornelia</a> ·
-        <a href="https://www.m3xi.com/autouv.html">AutoUV</a> ·
-        <a href="https://www.m3xi.com/callme.html">CallMe</a> ·
-        <a href="https://www.m3xi.com/services/">Services</a> ·
-        <a href="https://www.m3xi.com/jobs/">Jobs</a> ·
-        <a href="https://www.m3xi.com/michael/">Michael</a> ·
-        <a href="https://www.m3xi.com/privacy/">Policies</a> ·
-        <a href="https://www.m3xi.com/terms/">Terms</a></p>
-    </div>
-  </div>
-</footer>
-
-<div id="lb"><div class="panel" id="lbPanel"><img id="lbImg" src="" alt="full size"><div class="strip"><span id="lbCap"></span><a class="btn sm ghost" id="lbOpen" href="#" target="_blank" rel="noopener">Open original</a></div></div></div>
-<div id="topupModal" style="display:none;position:fixed;inset:0;z-index:90;background:rgba(22,21,18,.55);align-items:center;justify-content:center;padding:20px">
-  <div style="position:relative;width:min(430px,94vw);background:var(--card);border:3px solid var(--line);box-shadow:10px 10px 0 rgba(22,21,18,.9);padding:26px 28px;text-align:left">
-    <button id="topupClose" aria-label="Close" style="position:absolute;top:8px;right:10px;width:30px;height:30px;border:2px solid var(--line);background:var(--paper);font-size:15px;font-weight:800;cursor:pointer;line-height:1">×</button>
-    <div style="font-family:var(--disp);font-size:19px;letter-spacing:.02em;margin-bottom:10px">Out of credits</div>
-    <p id="topupLine" style="font-size:14px;line-height:1.65;color:var(--mut);margin:0 0 18px"></p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button id="topupGo" class="btn red sm" style="border:3px solid var(--line)">See credit packs</button>
-      <button class="btn sm ghost" onclick="document.getElementById('topupModal').style.display='none'">Not now</button>
-    </div>
-  </div>
-</div>
-
-<script type="module" src="./studio-core.js"></script>
-
+<section id="studio"><div class="wrap">
+  <div class="sechead"><h2 class="sfx">Video moved</h2></div>
+  <p class="subline">Images, video and words share one prompt box now.
+    <a href="generate.html?mode=video">Open the Generation bench</a>.</p>
+</div></section>
 </body>
 </html>

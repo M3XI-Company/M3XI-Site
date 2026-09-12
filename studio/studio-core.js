@@ -124,8 +124,12 @@ onReady(function wireTopUp(){
   document.getElementById('topupClose').onclick=()=>{m.style.display='none';};
   document.getElementById('topupGo').onclick=()=>{
     m.style.display='none';
+    /* #plans lives on pricing.html and nowhere else, so on every page where
+       this modal actually appears — the generation benches — the one button
+       that sells anything used to close the dialog and do nothing at all. */
     const plans=document.querySelector('#plans');
     if(plans)plans.scrollIntoView({behavior:'smooth',block:'start'});
+    else location.href='pricing.html';
   };
   m.addEventListener('click',e=>{if(e.target===m)m.style.display='none';});
 });
@@ -136,7 +140,13 @@ onReady(function wireTopUp(){
 let imgPortrait=false;
 let vidAspect='9:16', vidDur='5';
 onReady(()=>{
-  const cost=()=>{const el=document.getElementById('vidCost');if(el)el.textContent=(vidDur==='10'?120:60)+' credits';};
+  const cost=()=>{
+    const n=(vidDur==='10'?120:60)+' credits';
+    const el=document.getElementById('vidCost');if(el)el.textContent=n;
+    /* The switch shows the price of each engine, so the video button has to
+       follow the length you chose rather than saying 60 for ever. */
+    const tab=document.querySelector('.modeBtn[data-gmode="video"] .mCost');if(tab)tab.textContent=n;
+  };
   document.querySelectorAll('.shapeBtn').forEach(b=>b.onclick=()=>{
     imgPortrait=b.dataset.shape==='portrait';
     document.querySelectorAll('.shapeBtn').forEach(x=>x.classList.toggle('on',x===b));
@@ -149,6 +159,101 @@ onReady(()=>{
   });
   cost();
 });
+
+/* ===================== THE ENGINE SWITCH =====================================
+   Images, video and words were three pages with the same prompt box drawn on
+   each. They are one page now. The switch changes the controls under the box
+   and nothing else: the prompt, the attachments, the credit code and the
+   output panel are shared, so changing your mind costs you nothing you typed.
+
+   The chosen engine rides in ?mode= so a link can open straight into video,
+   and is remembered per browser so the Studio opens where you left it.
+   ============================================================================ */
+const GEN_MODES=['image','video','text'];
+let genKind='image';
+const MODE_COPY={
+  image:{head:'Describe the shot',   note:'Up to 4 photos. The first steers the result.',
+         cost:'1 credit per image. Prepaid — you can never spend more than you have. Packs on <a href="pricing.html">Pricing</a>.',
+         ph:'A bright Scandinavian penthouse living room at golden hour, floor-to-ceiling windows, cinematic photoreal…'},
+  video:{head:'Describe the shot',   note:'Up to 4 photos. The first becomes the opening frame.',
+         cost:'Video clip 60 credits at 5s, 120 at 10s. Prepaid — you can never spend more than you have. Packs on <a href="pricing.html">Pricing</a>.',
+         ph:'Slow dolly through a sunlit kitchen, steam rising from a cup, morning light, 35mm…'},
+  text: {head:'What should it say',  note:'Photos are ignored when you are writing words.',
+         cost:'2 credits per piece of writing. It runs on a free language model, so this is the cheapest thing in the Studio.',
+         ph:'A listing description for a two-bedroom Victorian conversion in Peckham with a south-facing garden…'},
+};
+function applyGenMode(m,remember){
+  if(!GEN_MODES.includes(m))m='image';
+  genKind=m;
+  window.__genMode=m;
+  document.querySelectorAll('.modeBtn').forEach(b=>{
+    const on=b.dataset.gmode===m;
+    b.classList.toggle('on',on);
+    b.setAttribute('aria-selected',on?'true':'false');
+  });
+  document.querySelectorAll('.modePane').forEach(p=>{p.hidden=p.dataset.pane!==m;});
+  const c=MODE_COPY[m];
+  const head=document.getElementById('promptHead');if(head)head.textContent=c.head;
+  const note=document.getElementById('attachNote');if(note)note.textContent=c.note;
+  const cost=document.getElementById('costNote');if(cost)cost.innerHTML=c.cost;
+  const box=document.getElementById('genPrompt');if(box)box.placeholder=c.ph;
+  if(remember){try{localStorage.setItem('m3xi.genmode',m);}catch(_){}}
+  if(window.__updateIntentHint)window.__updateIntentHint();
+}
+onReady(()=>{
+  if(!document.querySelector('.modeBtn'))return;          // not the generation page
+  document.querySelectorAll('.modeBtn').forEach(b=>{
+    b.onclick=()=>applyGenMode(b.dataset.gmode,true);
+  });
+  let want=new URLSearchParams(location.search).get('mode');
+  if(!GEN_MODES.includes(want)){try{want=localStorage.getItem('m3xi.genmode');}catch(_){want=null;}}
+  applyGenMode(GEN_MODES.includes(want)?want:'image',false);
+});
+
+/* ===================== SHARPEN MY PROMPT =====================================
+   A toggle above every prompt box. On, the words you wrote are rewritten for
+   the engine you picked before anything is generated, and the rewrite is
+   PRINTED so you can see what was actually sent — a prompt that is silently
+   replaced is worse than no help at all, because you cannot tell whether a bad
+   result came from your idea or from the rewrite.
+
+   It is off by default and it never blocks: if the language model is down, the
+   generation goes ahead with your own words rather than failing.
+   ============================================================================ */
+const REFINE_KEY='m3xi.refine';
+onReady(()=>{
+  const t=document.getElementById('refineToggle');
+  if(!t)return;
+  try{t.checked=localStorage.getItem(REFINE_KEY)==='1';}catch(_){}
+  t.addEventListener('change',()=>{try{localStorage.setItem(REFINE_KEY,t.checked?'1':'0');}catch(_){}});
+});
+const REFINE_SYSTEM={
+  image:'You rewrite prompts for an image generator. Return ONE improved prompt and nothing else: no preamble, no quotes, no options, no explanation. Keep every concrete thing the writer asked for — subject, place, mood, named colours, camera or lens if given — and add only what a photographer would have decided anyway: lighting, lens, composition, materials, time of day. Never add people, text, logos or brands that were not asked for. Under 70 words.',
+  video:'You rewrite prompts for a video generator that makes one continuous shot of a few seconds. Return ONE improved prompt and nothing else: no preamble, no quotes, no shot list, no explanation. Keep everything the writer asked for and add camera movement, pacing, lighting and lens. It is a SINGLE shot: never describe a cut, a second scene or a montage. Never add people, text, logos or brands that were not asked for. Under 60 words.',
+  world:'You rewrite prompts for a generator that builds a whole walkable 3D place. Return ONE improved prompt and nothing else: no preamble, no quotes, no explanation. Keep every real detail the writer gave, especially anything describing an actual property, and add what a location scout would note: the layout, what is underfoot, the walls and ceiling, the light and where it comes from, what is visible through the openings. Describe the place in every direction, at standing eye level. Never invent an address, a price or a person. Under 90 words.',
+  text:'You rewrite a writing brief so another model can answer it well. Return ONE improved brief and nothing else. Keep the writer\'s subject, facts and intent exactly; add only the missing shape of the request: who it is for, how long, what tone, what to leave out. Never invent facts, prices, addresses or measurements. Under 60 words.',
+};
+/** Returns the prompt to actually send. Never throws: a refusal or an outage
+    falls back to what the person wrote. */
+async function maybeRefine(prompt,kind){
+  const t=document.getElementById('refineToggle');
+  if(!t||!t.checked)return prompt;
+  const text=String(prompt||'').trim();
+  if(text.length<3)return prompt;
+  try{
+    glog('  sharpening your prompt …');
+    const j=await backendCall({action:'refine',purpose:'prompt',code:creditCode()||undefined,
+      system:REFINE_SYSTEM[kind]||REFINE_SYSTEM.image,prompt:text});
+    const out=String(j.output||'').trim().replace(/^["'“‘]|["'”’]$/g,'').trim();
+    if(!out)return prompt;
+    glog('  sent instead: '+out);
+    return out;
+  }catch(e){
+    glog('  (kept your own words — the prompt helper is unavailable: '+e.message+')');
+    return prompt;
+  }
+}
+window.__maybeRefine=maybeRefine;
 
 /** Hand clips to the Editor. localStorage, not a query string: a provider URL
     is long and signed, and does not survive being put in an address bar. */
@@ -177,6 +282,22 @@ async function publishVideo(url,title,promptText){
   const j=await backendCall({action:'video_publish',video_url:pub,title:title||'Untitled',
     prompt:promptText,aspect:vidAspect,source:'studio'});
   return j;
+}
+
+/** The panel under a finished image: open it, or take it into the Editor.
+    Everything that comes out of the Studio except words and places can be cut
+    on a timeline, so the way through to the Editor is offered every time
+    rather than being something you have to know about. */
+function imageActions(url){
+  const box=document.createElement('div');box.className='srow';
+  const a=document.createElement('a');
+  a.className='btn sm ghost';a.href=url;a.target='_blank';a.rel='noopener';a.textContent='Open full size';
+  const ed=document.createElement('button');
+  ed.className='btn sm';ed.textContent='Open in the Editor';
+  ed.title='Put this image on a timeline — add clips, sound and titles around it';
+  ed.onclick=()=>{sendToEditor([{url,name:'Studio image',kind:'image'}]);glog('→ Sent to the Editor.');};
+  box.appendChild(a);box.appendChild(ed);
+  return box;
 }
 
 /** The panel under a finished clip: keep it, cut it, or show it to everyone. */
@@ -213,11 +334,29 @@ async function backendCall(payload){
     if(r.status===402)showTopUp(null,j.error);
     throw new Error(j.error||('Backend HTTP '+r.status));
   }
-  try{window.__refreshAccount&&window.__refreshAccount();}catch(e){}
+  /* A world takes ten minutes and is polled every six seconds. Refreshing the
+     whole account panel on every one of those answers meant a hundred polls,
+     several queries each, all to redraw a balance that had not moved since the
+     charge at the start. Refresh when the balance actually changes, and
+     otherwise at most once a minute. */
+  try{
+    const bal=(j&&j.credits_remaining!=null)?Number(j.credits_remaining):null;
+    const now=Date.now();
+    const changed=bal!=null&&bal!==backendCall._bal;
+    if(changed)backendCall._bal=bal;
+    if(changed||now-(backendCall._at||0)>60000){
+      backendCall._at=now;
+      window.__refreshAccount&&window.__refreshAccount();
+    }
+  }catch(e){}
   return j;
 }
 async function wapi(payload){
-  const r=await fetch(M3IX_BACKEND.fn.replace('m3ix-generate','m3ix-worlds'),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+M3IX_BACKEND.key,'apikey':M3IX_BACKEND.key},body:JSON.stringify(payload)});
+  /* The anon key identifies nobody, so a world created with it had no owner
+     and its enquiries reached no inbox. Send the session when there is one;
+     the public actions still answer the anon key. */
+  const tok=await sessionToken();
+  const r=await fetch(M3IX_BACKEND.fn.replace('m3ix-generate','m3ix-worlds'),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(tok||M3IX_BACKEND.key),'apikey':M3IX_BACKEND.key},body:JSON.stringify(payload)});
   const j=await r.json().catch(()=>({error:'Unreadable response'}));
   if(!r.ok||j.error)throw new Error(j.error||('HTTP '+r.status));
   return j;
@@ -229,11 +368,12 @@ async function wapi(payload){
 // (Marble, from a text prompt) and must be labelled as such wherever it is offered.
 const DEMO_WORLD_SLUG='generated-bedroom-first-marble-world-a2td';
 async function genWorld(){
-  const p=$('#genPrompt').value.trim();
+  let p=$('#genPrompt').value.trim();
   const imgs=attachments.map(a=>a.url);
-  if(!p&&!imgs.length)return glog('✗ Describe the world you want, or attach 1–4 photos of a real place (shots from different sides help), or both.');
-  if(genMode()!=='backend')return glog('✗ World generation runs through M3XI Cloud — switch Mode back under Advanced.');
+  if(!p&&!imgs.length)return glog('✗ Describe the place you want, or attach 1–8 photos of a real room (shots from different spots in the same room), or both.');
+  if(genMode()!=='backend')return glog('✗ Generation runs through M3XI Cloud — switch Mode back under Advanced.');
   try{
+    if(p)p=await maybeRefine(p,'world');
     const model=(($('#epWorld')&&$('#epWorld').value.trim())||'marble-1.1');
     glog('→ Generating a full walkable 3D world ('+model+')'+(imgs.length?' from '+imgs.length+' photo(s)':' from your prompt')+' … (typically 3–10 min)');
     const q=await backendCall({action:'world_submit',prompt:p,image_urls:imgs,model,code:creditCode()||undefined});
@@ -353,17 +493,60 @@ loadLibrary();
 loadVideoLibrary();
 
 /* ================= studio (generation) ================= */
-const glog=m=>{const l=$('#genLog');l.textContent+='\n'+m;l.scrollTop=l.scrollHeight;};
+const glog=m=>{
+  const l=document.getElementById('genLog');
+  if(l){l.textContent+='\n'+m;l.scrollTop=l.scrollHeight;return;}
+  /* No log panel on this page. pricing.html is the one that matters: its Buy
+     buttons report through here, so "Opening secure checkout" and, more to the
+     point, "checkout failed" were both going nowhere at all. Fall back to
+     whatever status line the page does have, then to the console. */
+  const alt=document.getElementById('balMsg2')||document.getElementById('acctMsg2')
+          ||document.getElementById('balMsg')||document.getElementById('acctMsg');
+  if(alt){alt.textContent=String(m).replace(/^[✓✗→▸\s]+/,'');return;}
+  try{console.log('[M3XI]',m);}catch(_){}
+};
 /* The bring-your-own-fal-key mode is gone. Everything renders through the
    backend, which routes to our own render box; there is no key to paste. */
 function falHeaders(){throw new Error('Direct provider mode has been removed.');}
 const attachments=[];let lastImageUrl=null,lastVideoUrl=null;
+/* WHAT AN ATTACHMENT LOOKS LIKE. A bare thumbnail told you a picture was
+   attached but not which one: eight photos of the same room are eight almost
+   identical squares. Each one is a card now — the picture, the file's real
+   name, its size, and a remove button — which is how every chat app that takes
+   files shows them, and it is legible at a glance. The picture is still there,
+   so nothing is lost for someone who recognises the shot. */
+function fmtBytes(n){
+  if(!n&&n!==0)return '';
+  if(n<1024)return n+' B';
+  if(n<1024*1024)return Math.round(n/1024)+' KB';
+  return (n/1048576).toFixed(n<10485760?1:0)+' MB';
+}
 function renderThumbs(){
-  const t=$('#thumbs');t.innerHTML='';
+  const t=$('#thumbs');
+  if(!t||t===__VOID)return;
+  t.innerHTML='';
+  t.classList.toggle('has',attachments.length>0);
   attachments.forEach((a,i)=>{
-    const d=document.createElement('div');d.className='thumb';
-    d.innerHTML='<img src="'+a.url+'" alt="ref '+(i+1)+'"><button title="Remove">×</button>';
-    d.querySelector('button').onclick=()=>{attachments.splice(i,1);renderThumbs();if(window.__updateIntentHint)window.__updateIntentHint();};
+    const d=document.createElement('div');
+    d.className='att';
+    const fig=document.createElement('span');fig.className='fig';
+    if(a.url&&/^data:image|^https?:/.test(a.url)){
+      const im=document.createElement('img');im.src=a.url;im.alt='';fig.appendChild(im);
+    }else{
+      fig.textContent='▢';fig.classList.add('gen');
+    }
+    const meta=document.createElement('span');meta.className='txt';
+    const nm=document.createElement('span');nm.className='nm';nm.textContent=a.name||('Reference '+(i+1));
+    nm.title=a.name||'';
+    const sz=document.createElement('span');sz.className='sz';
+    sz.textContent=[a.folder||'',fmtBytes(a.size)].filter(Boolean).join(' · ')||'image';
+    meta.appendChild(nm);meta.appendChild(sz);
+    const x=document.createElement('button');
+    x.className='x';x.type='button';x.title='Remove '+(a.name||'this reference');
+    x.setAttribute('aria-label','Remove '+(a.name||'this reference'));
+    x.textContent='×';
+    x.onclick=()=>{attachments.splice(i,1);renderThumbs();if(window.__updateIntentHint)window.__updateIntentHint();};
+    d.appendChild(fig);d.appendChild(meta);d.appendChild(x);
     t.appendChild(d);
   });
 }
@@ -372,15 +555,22 @@ function addFiles(files){
     if(attachments.length>=8)return;
     if(!f.type.startsWith('image/'))return;
     const img=new Image();
+    const blobUrl=URL.createObjectURL(f);
     img.onload=()=>{
       const mx=1600,s=Math.min(1,mx/Math.max(img.width,img.height));
       const c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);
       c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-      attachments.push({url:c.toDataURL('image/jpeg',0.9),name:f.name});
+      const url=c.toDataURL('image/jpeg',0.9);
+      /* The object URL held the whole file in memory for as long as the tab
+         lived; the data URI above is the copy we actually send. */
+      URL.revokeObjectURL(blobUrl);
+      const rel=(f.webkitRelativePath||'').split('/').slice(0,-1).pop()||'';
+      attachments.push({url,name:f.name,size:f.size,type:f.type,folder:rel});
       renderThumbs();glog('+ Attached '+f.name+(s<1?' (resized for upload)':''));
       if(window.__updateIntentHint)window.__updateIntentHint();
     };
-    img.src=URL.createObjectURL(f);
+    img.onerror=()=>{URL.revokeObjectURL(blobUrl);glog('✗ Could not read '+f.name+' — is it really an image?');};
+    img.src=blobUrl;
   });
 }
 $('#btnAttach').onclick=()=>$('#attachInput').click();
@@ -409,7 +599,7 @@ function takeFiles(list){
     }
   }
   if(scans.length){
-    glog('ℹ '+scans.length+' scan file'+(scans.length>1?'s':'')+' ('+scans[0].name+') — scans are published through the World Viewer, not generated here. Open it from “Open World Viewer” in the World Engine section and drop the file there.');
+    glog('ℹ '+scans.length+' scan file'+(scans.length>1?'s':'')+' ('+scans[0].name+') — scans are published through the viewer, not generated here. Open the Spatial Engine, press “Open the viewer” and drop the file there.');
   }
   if(!imgs.length&&!scans.length)glog('✗ Nothing usable in that drop — photos (jpg/png) or a folder of them.');
 }
@@ -462,8 +652,18 @@ function detectIntent(text){
   return INTENT_RULES[INTENT_RULES.length-1];
 }
 function currentIntent(){
-  const sel=$('#intentSel').value;
-  if(sel!=='auto')return INTENT_RULES.find(r=>r.k===sel);
+  /* getElementById, not $. The stand-in for a missing element answers '' to
+     .value, and '' is not 'auto', so this looked up a rule with an empty key,
+     found nothing, and every page WITHOUT the selector — which is every page —
+     answered Enter with "write what you want first" over a full prompt box.
+     Enter is preventDefault-ed, so there was not even a newline to show for
+     it. No selector means no override: read the words. */
+  const sel=document.getElementById('intentSel');
+  const v=sel?sel.value:'auto';
+  if(v&&v!=='auto'){
+    const picked=INTENT_RULES.find(r=>r.k===v);
+    if(picked)return picked;
+  }
   return detectIntent($('#genPrompt').value);
 }
 function updateIntentHint(){
@@ -482,6 +682,15 @@ window.__updateIntentHint=updateIntentHint;
 window.__detectIntent=detectIntent;
 $('#intentSel').addEventListener('change',updateIntentHint);
 function sendPromptNow(){
+  /* On the Generation page the engine is not guessed from the words — you
+     picked it with the switch — so Enter sends to that engine. The intent
+     router below is for the pages that still have one prompt box and no
+     switch. */
+  if(window.__genMode){
+    const byMode={image:'#btnGenImg',video:'#btnGenVid',text:'#btnGenText'};
+    const el=document.querySelector(byMode[window.__genMode]||'#btnGenImg');
+    if(el){el.click();return;}
+  }
   const r=currentIntent();
   if(!r){glog('✗ Write what you want first — or attach a photo and describe the change.');return;}
   const btn=$(r.btn);
@@ -558,7 +767,13 @@ async function refreshCredits(){
 const _tc=document.getElementById('topCredits');if(_tc)_tc.onclick=()=>{location.hash='#plans';};
 setTimeout(refreshCredits,600);
 codeFields.forEach(f=>f.addEventListener('change',refreshCredits));
-const creditCode=()=>($('#creditCode').value||'').trim().toUpperCase();
+/* pricing.html names its field creditCode2 (the page used to have two), so
+   reading only #creditCode meant Check balance there always answered "Enter a
+   code first" however long the code you pasted. Read whichever this page has. */
+const creditCode=()=>{
+  const a=document.getElementById('creditCode'),b=document.getElementById('creditCode2');
+  return String((a&&a.value)||(b&&b.value)||'').trim().toUpperCase();
+};
 async function checkBal(msgEl){
   if(!creditCode())return msgEl.textContent='Enter a code first.';
   try{const b=await backendCall({action:'balance',code:creditCode()});
@@ -600,9 +815,10 @@ $$('[data-pack]').forEach(btn=>btn.onclick=async()=>{
 
 $('#btnGenWorld').onclick=genWorld;
 $('#btnGenImg').onclick=async()=>{
-  const p=$('#genPrompt').value.trim();if(!p)return glog('✗ Write a prompt first.');
+  let p=$('#genPrompt').value.trim();if(!p)return glog('✗ Write a prompt first.');
   try{
     const ref=attachments[0],ep=ref?$('#epImgI2I').value:$('#epImgT2I').value;
+    p=await maybeRefine(p,'image');
     glog(ref?'Creating your image from "'+ref.name+'" …':'Creating your image …');
     if(attachments.length>1)glog('  note: this model takes one reference — using the first attachment.');
     let url;
@@ -618,22 +834,70 @@ $('#btnGenImg').onclick=async()=>{
     }
     if(!url)throw new Error('No image in response');
     glog('✓ Image ready.');lastImageUrl=url;
-    const openBtn='<div class="srow"><a class="btn sm ghost" href="'+url+'" target="_blank" rel="noopener">Open full size</a></div>';
     let shown=false;
     if(genMode()==='backend'){
       try{const a=await backendCall({action:'fetch_asset',url:url});
-        $('#genOut').innerHTML='<img src="'+a.dataUri+'" alt="generated">'+openBtn;shown=true;
+        $('#genOut').innerHTML='<img src="'+a.dataUri+'" alt="generated">';shown=true;
       }catch(_){glog('  note: inline preview blocked here — use Open full size.');}
     }
-    if(!shown)$('#genOut').innerHTML='<img src="'+url+'" alt="generated">'+openBtn;
+    if(!shown)$('#genOut').innerHTML='<img src="'+url+'" alt="generated">';
+    $('#genOut').appendChild(imageActions(url));
     const gi=$('#genOut img');
     if(gi){gi.style.cursor='zoom-in';gi.title='Click to view full screen';gi.onclick=()=>lbShow(gi.src,'Generated in M3XI Studio');}
   }catch(e){glog('✗ '+e.message);}
 };
+
+/* ===================== WORDS ================================================
+   The third engine. It writes rather than renders, so it costs a fraction of
+   the others, never reaches the Editor and never reaches the Library — it
+   lands in the output panel with a Copy button, which is all anyone wants
+   from a listing description or a caption.
+   ============================================================================ */
+const TEXT_BRIEF={
+  free:'You are a sharp, plain-spoken writer. Answer the request directly. No preamble, no sign-off, no markdown headings.',
+  listing:'You write UK property listing copy for an estate agent. Warm, factual, specific, British spelling. Never invent a measurement, a price, a tenure, a council-tax band, an EPC rating or a nearby school — if the writer did not give you a fact, leave it out rather than guessing. No exclamation marks. 120 to 180 words.',
+  script:'You write short video scripts. Give the spoken words only, in short lines a person can actually say out loud, with a bracketed note for anything that must appear on screen. Open on the strongest idea, never on a greeting. Keep it to the length asked for, or 30 seconds if none was given.',
+  caption:'You write social captions. Give five options, one per line, numbered. Each under 140 characters, plain, specific and free of hype. No hashtag walls: at most three, only if they are genuinely useful.',
+  shots:'You write shot lists. One shot per line, each a self-contained visual description under 40 words, in chronological order, no numbering and no commentary. Between three and eight lines.',
+};
+$('#btnGenText').onclick=async()=>{
+  let p=$('#genPrompt').value.trim();
+  if(!p)return glog('✗ Write what you want first.');
+  const kind=($('#textKind').value||'free');
+  try{
+    p=await maybeRefine(p,'text');
+    glog('Writing …');
+    const j=await backendCall({action:'refine',code:creditCode()||undefined,
+      system:TEXT_BRIEF[kind]||TEXT_BRIEF.free,prompt:p});
+    const out=String(j.output||'').trim();
+    if(!out)throw new Error('The language model returned nothing.');
+    if(j.credits_remaining!=null)glog('  credits left: '+j.credits_remaining);
+    glog('✓ Written.');
+    const box=document.createElement('div');
+    const pre=document.createElement('pre');
+    pre.className='textOut';pre.textContent=out;
+    const row=document.createElement('div');row.className='srow';
+    const copy=document.createElement('button');
+    copy.className='btn sm';copy.textContent='Copy';
+    copy.onclick=async()=>{
+      try{await navigator.clipboard.writeText(out);copy.textContent='Copied';}
+      catch(_){const r=document.createRange();r.selectNodeContents(pre);
+        const s=getSelection();s.removeAllRanges();s.addRange(r);copy.textContent='Select and copy';}
+      setTimeout(()=>{copy.textContent='Copy';},1600);
+    };
+    const again=document.createElement('button');
+    again.className='btn sm ghost';again.textContent='Write another';
+    again.onclick=()=>document.getElementById('btnGenText').click();
+    row.appendChild(copy);row.appendChild(again);
+    box.appendChild(pre);box.appendChild(row);
+    $('#genOut').innerHTML='';$('#genOut').appendChild(box);
+  }catch(e){glog('✗ '+e.message);}
+};
 $('#btnGenVid').onclick=async()=>{
-  const p=$('#genPrompt').value.trim();if(!p)return glog('✗ Write a prompt first.');
+  let p=$('#genPrompt').value.trim();if(!p)return glog('✗ Write a prompt first.');
   try{
     const ref=attachments[0],ep=ref?$('#epVidI2V').value:$('#epVidT2V').value;
+    p=await maybeRefine(p,'video');
     glog(ref?'Bringing "'+ref.name+'" to life — usually 1–3 minutes …':'Creating your video — usually 1–3 minutes …');
     let su,ru,st,resp,url;
     if(genMode()==='backend'){
@@ -762,7 +1026,7 @@ $('#btnGenAsset').onclick=async()=>{
 };
 
 /* the button you press glows red while it works */
-['btnGenImg','btnGenVid','btnGenAsset','btnGenWorld','btnFilmShort','btnFilmLong'].forEach(id=>{
+['btnGenImg','btnGenVid','btnGenText','btnGenAsset','btnGenWorld','btnFilmShort','btnFilmLong'].forEach(id=>{
   const el=document.getElementById(id);if(!el||!el.onclick)return;
   const orig=el.onclick;
   el.onclick=async e=>{el.classList.add('red');try{await orig.call(el,e);}finally{if(id!=='btnGenImg')el.classList.remove('red');}};
@@ -944,7 +1208,9 @@ async function refreshAccount(){
   if(!session){
     if(inEl)inEl.style.display='none';
     if(outEl)outEl.style.display='';
-    if(authBtn){authBtn.textContent='Sign in';authBtn.dataset.mode='in';authBtn.href='#account';}
+    /* #account is a section on account.html and nowhere else, so this quietly
+       turned the only sign-in button into a dead link on every other page. */
+    if(authBtn){authBtn.textContent='Sign in';authBtn.dataset.mode='in';authBtn.href='account.html';}
     if(profBtn)profBtn.style.display='none';
     const ch=$('#avatarChip');if(ch)ch.style.display='none';
     const w=$('#acctWorkList');if(w)w.innerHTML='<p class="price-note">Sign in to see the worlds you have made.</p>';
@@ -1084,10 +1350,18 @@ async function renderLibrary(){
       const d=document.createElement('div');
       d.className='panel wcard'+(i%3===1?' tilt-r':i%3===2?' tilt-l':'');
       const by=w.username?('@'+esc(w.username)):'M3XI Studio';
-      const soc=(w.socials&&(w.socials.instagram||w.socials.site))||'';
+      /* A maker's own website comes out of their profile, which they type.
+         Putting it straight into an href let anyone publish a world whose
+         byline ran javascript: in every visitor's browser — stored, on the
+         Library, on the front of the Studio. Only http and https ever become
+         a link; anything else is shown as text. */
+      const safeHref=u=>{
+        try{const p=new URL(String(u),location.origin);return /^https?:$/.test(p.protocol)?p.href:'';}
+        catch(_){return '';}
+      };
       const socHref=w.socials&&w.socials.instagram
-        ? 'https://instagram.com/'+String(w.socials.instagram).replace(/^@/,'')
-        : (w.socials&&w.socials.site)||'';
+        ? 'https://instagram.com/'+encodeURIComponent(String(w.socials.instagram).replace(/^@/,''))
+        : safeHref((w.socials&&w.socials.site)||'');
       d.innerHTML=
         '<a class="cov" href="'+url+'" target="_blank" rel="noopener">'+
           (w.cover?'<img loading="lazy" src="'+esc(w.cover)+'" alt="">':'<span class="ph">三X一</span>')+

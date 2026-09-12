@@ -107,6 +107,15 @@ button,input,textarea{font-family:inherit}
 #stick{position:fixed;z-index:18;width:110px;height:110px;border-radius:50%;border:2px solid rgba(22,21,18,.4);background:rgba(245,242,233,.25);display:none}
 #nub{position:absolute;left:50%;top:50%;width:46px;height:46px;border-radius:50%;background:rgba(208,64,43,.85);border:2px solid #fff;transform:translate(-50%,-50%)}
 .small{font-size:12px;color:var(--mut)}
+.ovToggle{display:inline-flex;align-items:flex-start;gap:9px;margin-top:12px;padding:8px 11px;cursor:pointer;
+  border:2px dashed rgba(22,21,18,.32);background:rgba(255,253,246,.55);text-align:left;font-size:13px;font-weight:700;color:var(--ink)}
+.ovToggle input{position:absolute;opacity:0;width:0;height:0}
+.ovToggle .sw{flex:none;width:34px;height:20px;margin-top:1px;border:2px solid var(--line);background:var(--paper2);position:relative}
+.ovToggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;background:var(--ink);transition:transform .12s}
+.ovToggle input:checked + .sw{background:var(--gold)}
+.ovToggle input:checked + .sw::after{transform:translateX(14px);background:#fff}
+.ovToggle input:focus-visible + .sw{outline:3px solid rgba(208,64,43,.45);outline-offset:2px}
+.ovToggle .small{font-weight:500}
 a{color:var(--gold)}
 #leadPanel h4,#overlay .hand{font-family:var(--disp)}
 </style>
@@ -309,6 +318,14 @@ a{color:var(--gold)}
       <input type="file" id="ovAttachInput" accept="image/*,.spz,.ply,.splat,.ksplat,.sog" multiple style="display:none">
       <input type="file" id="ovPlanInput" accept="image/*" style="display:none">
     </div>
+    <!-- The same switch as the rest of the Studio: on, your words are rewritten
+         as a location brief before the place is built, and the rewrite is shown
+         so you can see what was actually sent. Off by default. -->
+    <label class="ovToggle" for="ovRefine">
+      <input type="checkbox" id="ovRefine">
+      <span class="sw" aria-hidden="true"></span>
+      <span>Sharpen my prompt first <span class="small">&mdash; the AI writes it as a location brief and shows you. Free.</span></span>
+    </label>
     <!-- A real property: the floor plan says which rooms exist and which touch,
          the photos say what each looks like, the postcode fetches the street
          outside. Each room becomes its own world; doors join them. -->
@@ -2293,7 +2310,12 @@ const M3IX_W={
 };
 const worldState={slug:null,edit_key:null,published:false,owner:false,ai:false};
 async function wcall(payload){
-  const r=await fetch(M3IX_W.fn,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+M3IX_W.key,'apikey':M3IX_W.key},body:JSON.stringify(payload)});
+  /* Send WHO when we know who. The anon key is in this page, so it identifies
+     nobody: a world created with it has no owner, which is why an enquiry from
+     inside it reached nobody's inbox. Public actions (load, list_published)
+     still work with the anon key alone, so signed-out visitors are unaffected. */
+  const tok=await userToken();
+  const r=await fetch(M3IX_W.fn,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(tok||M3IX_W.key),'apikey':M3IX_W.key},body:JSON.stringify(payload)});
   const j=await r.json().catch(()=>({error:'Unreadable response'}));
   if(!r.ok||j.error)throw new Error(j.error||('HTTP '+r.status));
   return j;
@@ -2854,11 +2876,44 @@ async function buildHouse(p){
   }
   btn.disabled=false;btn.textContent=houseMode()?'Build house':'Generate world';
 }
+/* SHARPEN THE PROMPT. The same switch the rest of the Studio has. It runs on
+   the free language model, never blocks, and prints what it sent — a prompt
+   that is silently replaced makes a bad result impossible to diagnose. The
+   house builder writes its own per-room prompts from the plan, so this only
+   applies to the freeform path. */
+const WORLD_BRIEF='You rewrite prompts for a generator that builds a whole walkable 3D place. '+
+  'Return ONE improved prompt and nothing else: no preamble, no quotes, no explanation. '+
+  'Keep every real detail the writer gave, especially anything describing an actual property, and add what a '+
+  'location scout would note: the layout, what is underfoot, the walls and ceiling, the light and where it comes '+
+  'from, what is visible through the openings. Describe the place in every direction, at standing eye level. '+
+  'Never invent an address, a price or a person. Under 90 words.';
+async function ovRefine(text){
+  const t=document.getElementById('ovRefine');
+  if(!t||!t.checked)return text;
+  const src=String(text||'').trim();
+  if(src.length<3)return text;
+  try{
+    genSay('Sharpening your prompt …');
+    const j=await gcall({action:'refine',purpose:'prompt',system:WORLD_BRIEF,prompt:src});
+    const out=String(j.output||'').trim().replace(/^["'“‘]|["'”’]$/g,'').trim();
+    if(!out)return text;
+    const box=$('#ovPrompt');if(box)box.value=out;      // so you can see and edit what was sent
+    genSay('Sent instead: '+out.slice(0,220).replace(/</g,'&lt;'));
+    return out;
+  }catch(e){
+    genSay('Kept your own words — the prompt helper is unavailable.');
+    return text;
+  }
+}
 async function ovGenerate(){
-  const p=($('#ovPrompt').value||'').trim();
+  let p=($('#ovPrompt').value||'').trim();
   if(houseMode()){try{await buildHouse(p);}catch(e){genSay('✗ '+String(e&&e.message||'Could not read the plan').replace(/</g,'&lt;'),true);}return;}
   if(!p&&!ovAtt.length){genSay('Describe the world, attach photos of a real place, or both.',true);return;}
   const btn=$('#ovGenBtn');btn.disabled=true;
+  if(p&&document.getElementById('ovRefine')&&document.getElementById('ovRefine').checked){
+    btn.textContent='Sharpening …';
+    p=await ovRefine(p);
+  }
   const t0=Date.now();
   const elapsed=()=>{const s=((Date.now()-t0)/1000)|0;return ((s/60)|0)+':'+String(s%60).padStart(2,'0');};
   btn.textContent='Generating \u2026';
