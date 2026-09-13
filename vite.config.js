@@ -17,10 +17,10 @@ export default defineConfig({
     rollupOptions: {
       input: {
         ...privatePages,
+        // The front page is CallMe. Cornelia, AutoUV and the old CallMe
+        // waitlist page moved to _on_hold/ on 13 Sep 2026; vercel.json
+        // redirects their old URLs.
         index: resolve(__dirname, "index.html"),
-        cornelia: resolve(__dirname, "cornelia.html"),
-        autouv: resolve(__dirname, "autouv.html"),
-        callme: resolve(__dirname, "callme.html"),
         privacy: resolve(__dirname, "privacy/index.html"),
         terms: resolve(__dirname, "terms/index.html"),
         // Required by Google Play: a deletion route reachable WITHOUT installing
@@ -32,31 +32,17 @@ export default defineConfig({
         contact: resolve(__dirname, "contact/index.html"),
         services: resolve(__dirname, "services/index.html"),
         jobs: resolve(__dirname, "jobs/index.html"),
-        // Studio-first wiring: flagship product page and Michael's profile.
-        // team/ was never in this list, so /team/ silently vanished from every
-        // build — fixed while adding the new pages.
+        michael: resolve(__dirname, "michael/index.html"),
+        team: resolve(__dirname, "team/index.html"),
+        // M3XI SPATIAL — what M3XI Studio became: property walkthroughs for
+        // agencies. Generation, the Editor, UGC, Free, Library and creator
+        // pricing moved to _on_hold/. The viewer (walkthrough.html) lives in
+        // public/studio/ because its importmap does not survive Rollup, and
+        // capture, tours and the buyer-facing tour live in public/ too.
         studio: resolve(__dirname, "studio/index.html"),
-        // The Studio was one 1,900-line page until it was split by job. Each of
-        // these is its own entry; they share studio.css and studio-core.js, so
-        // Rollup emits the shared parts once.
-        // One bench for images, video and words. images.html and video.html
-        // stay in the build as redirects, because old links and bookmarks
-        // point at them.
-        studioGenerate: resolve(__dirname, "studio/generate.html"),
-        studioImages: resolve(__dirname, "studio/images.html"),
-        studioVideo: resolve(__dirname, "studio/video.html"),
         studioWorlds: resolve(__dirname, "studio/worlds.html"),
         studioBusiness: resolve(__dirname, "studio/business.html"),
-        studioLibrary: resolve(__dirname, "studio/library.html"),
-        studioPricing: resolve(__dirname, "studio/pricing.html"),
-        studioAccount: resolve(__dirname, "studio/account.html"),
-        // The video Editor. Its only module import is the Supabase client from
-        // a CDN, exactly like studio/index.html, so it bundles the same way —
-        // unlike walkthrough.html and ugc.html, which live under public/ because
-        // their importmaps do not survive Rollup.
-        studioEditor: resolve(__dirname, "studio/editor.html"),
-        michael: resolve(__dirname, "michael/index.html"),
-        team: resolve(__dirname, "team/index.html")
+        studioAccount: resolve(__dirname, "studio/account.html")
       }
     }
   }

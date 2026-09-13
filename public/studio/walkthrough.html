@@ -123,7 +123,7 @@ a{color:var(--gold)}
 <body>
 
 <div class="bar">
-  <a class="logo" href="index.html" title="M3XI Studio — home">M3<em>XI</em><span>Spatial</span></a>
+  <a class="logo" href="index.html" title="M3XI Spatial — home">M3<em>XI</em><span>Spatial</span></a>
   <a class="btn" href="https://www.m3xi.com/" title="m3xi.com">M3XI.com</a>
   <button class="btn gold" id="btnLoad">Load scan</button>
   <input type="file" id="fileInput" accept=".ply,.spz,.splat,.ksplat" style="display:none">
@@ -260,7 +260,7 @@ a{color:var(--gold)}
 </div>
 
 <button class="btn gold" id="btnEnquire" style="position:fixed;right:14px;bottom:14px;z-index:22;display:none">Enquire</button>
-<a class="btn" id="btnLibrary" href="/studio/#library" style="position:fixed;left:14px;bottom:14px;z-index:22;display:none">M3XI Library&nbsp;<span style="border:2px solid var(--line);background:var(--paper);padding:1px 7px;font-size:11px;font-weight:800;letter-spacing:.05em">ESC</span></a>
+<a class="btn" id="btnLibrary" href="/studio/worlds.html#library" style="position:fixed;left:14px;bottom:14px;z-index:22;display:none">M3XI Library&nbsp;<span style="border:2px solid var(--line);background:var(--paper);padding:1px 7px;font-size:11px;font-weight:800;letter-spacing:.05em">ESC</span></a>
 <a class="btn" id="btnBrandCta" target="_blank" rel="noopener" style="position:fixed;right:110px;bottom:14px;z-index:22;display:none"></a>
 <div id="leadPanel" style="position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:31;background:rgba(13,16,20,.97);border:1px solid rgba(232,193,90,.5);border-radius:14px;padding:16px;width:min(340px,92vw);display:none">
   <h4 style="color:var(--gold);font-size:13px;margin-bottom:8px">Enquire</h4>
@@ -298,7 +298,7 @@ a{color:var(--gold)}
   <h3>M3XI <em style="color:var(--gold);font-style:normal">SPATIAL</em> <span style="display:block;font-size:13px;letter-spacing:.14em;color:var(--mut);margin-top:6px">CREATE YOUR WORLD</span></h3>
   <p id="ovMsg">Describe it. Walk it. Publish it. Pick a style or write your own — and when the space is real, it works just as hard:
   showrooms, house tours and galleries walk the same way. Scan or photograph the place, drop it here, share the link —
-  visitors browse it in 3D and <b>Enquire</b> reaches you directly. <a href="/studio/#spatial" style="color:var(--gold);font-weight:700">M3XI Spatial</a> runs it for businesses.</p>
+  visitors browse it in 3D and <b>Enquire</b> reaches you directly. <a href="/studio/business.html" style="color:var(--gold);font-weight:700">M3XI Spatial</a> runs it for agencies.</p>
   <div id="ovGen">
     <!-- Style presets: the craft of a strong world prompt, one click. Each is a
          complete scene with an anchored ground-level camera — the two things
@@ -2063,7 +2063,7 @@ addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     // Esc also releases the pointer lock; only leave when we do not hold it.
     if(document.pointerLockElement)return;
-    e.preventDefault();location.href='/studio/#library';return;
+    e.preventDefault();location.href='/studio/worlds.html#library';return;
   }
   if(e.key==='r'||e.key==='R'){e.preventDefault();location.reload();return;}
 });
@@ -2871,7 +2871,7 @@ async function buildHouse(p){
   }catch(e){
     housePlan=null;
     if(e&&e.signup)genSay('Sign in to build — <a href="/studio/?panel=account" style="color:var(--gold);font-weight:700">create a free account or sign in</a>, then come back here.',true);
-    else if(e&&e.status===402)genSay(String(e.message||'Not enough credits.').replace(/</g,'&lt;')+' <a href="/studio/#plans" style="color:var(--gold);font-weight:700">Top up your credits</a>.'+(made.length?' The '+made.length+' room'+(made.length>1?'s':'')+' already built are in your library.':''),true);
+    else if(e&&e.status===402)genSay(String(e.message||'Not enough credits.').replace(/</g,'&lt;')+' <a href="/studio/business.html" style="color:var(--gold);font-weight:700">Build credits come with a business plan</a>.'+(made.length?' The '+made.length+' room'+(made.length>1?'s':'')+' already built are in your library.':''),true);
     else genSay('✗ '+String(e&&e.message||'Build failed').replace(/</g,'&lt;')+(made.length?' — the '+made.length+' room'+(made.length>1?'s':'')+' already built are in your library.':''),true);
   }
   btn.disabled=false;btn.textContent=houseMode()?'Build house':'Generate world';
@@ -2992,7 +2992,7 @@ async function ovGenerate(){
     if(e&&e.signup){
       genSay('Sign in to generate \u2014 it keeps every world in your own library. <a href="/studio/?panel=account" style="color:var(--gold);font-weight:700">Create a free account or sign in</a>, then come back here.',true);
     }else if(e&&e.status===402){
-      genSay(String(e.message||'Not enough credits.').replace(/</g,'&lt;')+' <a href="/studio/#plans" style="color:var(--gold);font-weight:700">Top up your credits</a> and come back \u2014 this page keeps your prompt.',true);
+      genSay(String(e.message||'Not enough credits.').replace(/</g,'&lt;')+' <a href="/studio/business.html" style="color:var(--gold);font-weight:700">Build credits come with a business plan</a> and come back \u2014 this page keeps your prompt.',true);
     }else genSay('\u2717 '+String(e&&e.message||'Generation failed').replace(/</g,'&lt;'),true);
   }
   btn.disabled=false;btn.textContent='Generate world';

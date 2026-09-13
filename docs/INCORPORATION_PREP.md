@@ -73,11 +73,11 @@ brand.
 | Field | Suggested | Why |
 |---|---|---|
 | Company type | Private limited by shares | The default for a trading company that will take revenue |
-| Shares | 100 ordinary shares of £1, all to you | Round number, leaves room to give Justin or an investor a clean percentage later without splitting pennies. Liability capped at £100 |
+| Shares | 100 ordinary shares of £1, all to you | Round number, leaves room to give a co-founder or an investor a clean percentage later without splitting pennies. Liability capped at £100 |
 | Director | Michael (you) | |
 | PSC | Michael, 75%+ of shares | "Person with significant control" — with 100% of shares this is just you |
 
-If Justin is to be a co-founder on paper, decide **before** filing. Adding a
+Leo Chi is the co-founder (decided 13 Sep 2026). If he is to hold shares or be a director on paper, record it with Companies House. Adding a
 shareholder later is a share transfer with tax questions attached; issuing at
 incorporation is free.
 

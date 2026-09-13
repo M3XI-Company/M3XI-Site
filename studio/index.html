@@ -3,93 +3,195 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>M3XI Studio — Interactions that matter</title>
+<title>M3XI Spatial — property walkthroughs for agencies</title>
 <link rel="icon" type="image/png" href="/M.png" />
-<meta name="description" content="M3XI Studio: cinematic AI images, video and words from one prompt box, a browser video editor, and the Spatial Engine — properties scanned on a phone and published as walkable tours.">
+<meta name="description" content="M3XI Spatial turns a property into a walkthrough a buyer can move through in the browser. Scan it on a phone or build it from photographs and a floor plan. Built for estate and letting agencies.">
+<link rel="canonical" href="https://www.m3xi.com/studio/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./studio.css">
+<style>
+  /* Only what this page needs beyond the shared sheet. */
+  .techGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:8px}
+  @media (max-width:900px){.techGrid{grid-template-columns:1fr 1fr}}
+  @media (max-width:620px){.techGrid{grid-template-columns:1fr}}
+  .tech{padding:22px 22px 20px}
+  .tech h3{font-family:var(--disp);font-size:16px;letter-spacing:.04em;text-transform:uppercase;margin:0 0 8px}
+  .tech p{font-size:14.5px;line-height:1.65;color:var(--mut);margin:0}
+  .tech .fig{font-family:var(--hand);font-size:20px;color:var(--red);margin:0 0 4px;display:block}
+  .kinds{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media (max-width:760px){.kinds{grid-template-columns:1fr}}
+  .kind{padding:24px}
+  .kind h3{font-family:var(--disp);font-size:19px;letter-spacing:.03em;margin:6px 0 10px}
+  .kind ul{margin:0;padding-left:18px;font-size:14.5px;line-height:1.7;color:var(--mut)}
+  .kind .tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:4px 9px;border:2px solid var(--line)}
+  .kind.gen .tag{background:var(--ink);color:var(--paper)}
+  .plansMini{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media (max-width:760px){.plansMini{grid-template-columns:1fr}}
+  .plansMini .panel{padding:20px}
+  .plansMini h3{font-family:var(--disp);font-size:15px;letter-spacing:.06em;text-transform:uppercase;margin:0}
+  .plansMini .amt{font-family:var(--disp);font-size:30px;margin:8px 0 4px;font-variant-numeric:tabular-nums}
+  .plansMini p{font-size:13.5px;color:var(--mut);margin:0}
+</style>
 </head>
 <body>
 
 <div class="bar">
   <div class="in">
-    <a class="logo" href="/studio/">M3XI <span class="jp">三X一</span> <span class="st">STUDIO</span></a>
+    <a class="logo" href="/studio/">M3XI <span class="jp">三X一</span> <span class="st">SPATIAL</span></a>
     <nav class="links">
-      <a href="https://www.m3xi.com/">M3XI</a>
-      <a href="free.html">Free</a>
-      <a href="generate.html">Generation</a>
-      <a href="worlds.html">Spatial</a>
-      <a href="editor.html">Editor</a>
-      <a href="ugc.html">UGC</a>
-      <a href="library.html">Library</a>
-      <a href="business.html">Business</a>
-      <a href="pricing.html">Pricing</a>
+      <a href="worlds.html">Spatial Engine</a>
+      <a href="walkthrough.html">The viewer</a>
+      <a href="/capture/">Capture</a>
+      <a href="/tours/">Your tours</a>
+      <a href="business.html">Business plans</a>
     </nav>
     <div class="acct">
       <a id="avatarChip" href="account.html" title="" style="display:none">&nbsp;</a>
       <a class="btn sm ghost" id="btnProfile" href="account.html" style="display:none">Profile</a>
       <a class="btn sm ghost" id="btnAuth" href="account.html">Sign in</a>
-      <a class="btn red sm" href="generate.html">Enter Studio</a>
+      <a class="btn red sm" href="business.html">Get a plan</a>
     </div>
   </div>
 </div>
 
-<section id="home">
+<section class="hero">
   <div class="wrap">
     <div class="heroGrid">
       <div class="heroCopy">
-        <span class="kicker">M3XI 三X一 — an independent studio</span>
-        <h1 class="sfx">Interactions that <span class="mk">matter</span>.<br>Worlds that <span class="mk">sell</span>.</h1>
-        <p class="lead">One studio, two engines. Images, video and words from a single prompt box on prepaid credits — and the Spatial Engine, where a property scanned on a phone becomes a tour a buyer can walk from the listing.</p>
+        <span class="kicker">M3XI Spatial 三X一 — for estate and letting agencies</span>
+        <h1 class="sfx">Walkthroughs that <span class="mk">sell</span> the viewing.</h1>
+        <p class="lead">M3XI Spatial is an online tool that turns a property into a walkthrough a buyer can move through in their browser. Scan it on a phone, or build it from photographs and a floor plan. One link on the listing, and every enquiry lands in your dashboard.</p>
         <div class="cta">
-          <a class="btn" href="generate.html">Enter Studio</a>
-          <a class="btn ghost" href="walkthrough.html?world=generated-bedroom-first-marble-world-a2td&amp;embed=1" target="_blank" rel="noopener">Walk an AI-generated demo</a>
+          <a class="btn red" href="business.html">See business plans</a>
+          <a class="btn ghost" href="walkthrough.html?world=meadow-valley-enq7&amp;embed=1" target="_blank" rel="noopener">Walk a real phone scan</a>
         </div>
         <div class="heroChips">
-          <span class="chip"><span class="dot"></span>Studio — live</span>
-          <span class="chip"><span class="dot"></span>Spatial Engine — live</span>
-          <span class="chip dev"><span class="dot"></span>AI Stories — in development</span>
+          <span class="chip"><span class="dot"></span>Phone scans — live</span>
+          <span class="chip"><span class="dot"></span>House from a floor plan — live</span>
+          <span class="chip dev"><span class="dot"></span>Measured floor plans — in development</span>
         </div>
       </div>
       <div class="heroArt">
-        <div class="dots" style="width:150px;height:150px;right:-30px;top:-34px"></div>
-        <div class="panel hp big"><span class="cap">Generated in Studio</span><img src="https://v3b.fal.media/files/b/0aa5ae21/Wda12B32TKVOD2l6I3cGC.jpg" alt="AI-generated luxury showroom at dusk"><div class="tape" style="top:-14px;left:38px;transform:rotate(-4deg)"></div></div>
-        <div class="panel hp s1"><span class="cap red">Anime theme</span><img src="https://v3b.fal.media/files/b/0aa5ae10/NOuG7If89h0Ldk5fok8QW.jpg" alt="Anime-styled interior at golden hour"></div>
-        <div class="panel hp s2"><span class="cap">Cinema</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/fJWJN-3OV2bBbT2ZHUj-4.jpg" alt="Cinematic night street film still"></div>
-        <div class="panel hp s3"><span class="cap">Manga</span><img src="https://v3b.fal.media/files/b/0aa5ae21/sFwKKyCA-DzH0i6bK0pB6.jpg" alt="Black and white manga cityscape"><div class="tape" style="bottom:-14px;right:30px;transform:rotate(5deg)"></div></div>
-        <div class="heroNote hand red">every image here came out of the Studio →</div>
+        <div class="dots" style="width:150px;height:150px;right:0;top:-34px"></div>
+        <div class="panel hp big"><span class="cap">Generated key art</span><img src="https://v3b.fal.media/files/b/0aa5ae20/2LANjv1jCQUgpSwlujnHM.jpg" alt="Twilight house exterior, AI-generated key art"><div class="tape" style="top:-14px;left:38px;transform:rotate(-4deg)"></div></div>
+        <div class="panel hp s1"><span class="cap red">Generated</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/XomPDS-MR8YNysdErl4nm.jpg" alt="Staged penthouse interior, AI-generated"></div>
+        <div class="panel hp s2"><span class="cap">Generated</span><img src="https://v3b.fal.media/files/b/0aa5ae0f/P_5hymWZreaaKZH5-XX2j.jpg" alt="Gallery space with daylight, AI-generated"></div>
+        <div class="heroNote hand red">every generated room carries its label →</div>
       </div>
     </div>
   </div>
 </section>
 
-<section id="hub">
+<!-- THE TECHNIQUES. Everything in this section is code M3XI wrote and runs:
+     the measuring pipeline in public/tour/scanfacts.js and the viewer, and the
+     house builder. It describes what is built today and nothing that is only
+     planned — keep it that way when editing. -->
+<section id="techniques">
   <div class="wrap">
-    <div class="sechead"><h2 class="sfx">The Studio</h2><span class="note hand">pick a bench</span></div>
-    <p class="subline">Each part of the Studio is its own page now, so it opens fast and shows only what that job needs.</p>
-    <div class="roadGrid">
-      <div class="panel rcard"><div class="txt"><h3>Free tier</h3><p>Runs in your browser — voice and images on your own machine. No account, no credits, no limit. Nothing is saved to the Library.</p><a class="btn sm" href="free.html">Try the free tier</a></div></div>
-      <div class="panel rcard"><div class="txt"><h3>Generation</h3><p>One prompt box for three engines: a still, a clip of five or ten seconds, or the words to go with them. Switch with a button; the prompt stays where it is.</p><a class="btn sm red" href="generate.html" style="color:#fff">Open Generation</a></div></div>
-      <div class="panel rcard"><div class="txt"><h3>Editor</h3><p>Cut clips together — trim, transitions, effects and sound — and export without leaving the browser. Anything you generate can be sent straight here.</p><a class="btn sm" href="editor.html">Open the Editor</a></div></div>
-      <div class="panel rcard"><div class="txt"><h3>Spatial Engine</h3><p>A property scanned on a phone and published as a tour a buyer can walk from the listing — or a place built from a floor plan when there is nothing to scan yet.</p><a class="btn sm red" href="worlds.html" style="color:#fff">Open the Spatial Engine</a></div></div>
-      <div class="panel rcard"><div class="txt"><h3>Library</h3><p>Everything published — videos to watch, places to walk, with their makers credited.</p><a class="btn sm" href="library.html">Browse the Library</a></div></div>
-      <div class="panel rcard"><div class="txt"><h3>Business</h3><p>Your real buildings captured and hosted as walkable tours, with enquiries landing in your dashboard. £200 or £500 a month.</p><a class="btn sm" href="business.html">M3XI Spatial</a></div></div>
+    <div class="sechead">
+      <h2 class="sfx">Built in-house</h2>
+      <span class="note hand">the part nobody else sells</span>
+    </div>
+    <p class="subline">A walkthrough is only as good as its geometry. Our own proprietary pipeline works out what a scanned space actually is before a buyer ever opens it, so rooms stand the right way up, walls stop you, and the parts the camera missed are admitted rather than papered over.</p>
+    <div class="techGrid">
+      <div class="panel tech">
+        <span class="fig">measured, not guessed</span>
+        <h3>Measured once</h3>
+        <p>When a scan is attached we measure it: which way is up, where the floor is, where every wall stands and how much the camera never reached. The answers are stored with the walkthrough, so every buyer walks the same room.</p>
+      </div>
+      <div class="panel tech">
+        <span class="fig">the right way up</span>
+        <h3>Reads the room</h3>
+        <p>We find up by looking for what makes a room a room: a floor, clear headroom above it, a ceiling over that, and things that rest on the floor rather than hang in the air. For an unusual capture, one click in the viewer fixes it for everyone.</p>
+      </div>
+      <div class="panel tech">
+        <span class="fig">solid walls</span>
+        <h3>A floor you can walk</h3>
+        <p>A map of the floor, sixteen centimetres to a square, decides where a person can stand. Walls block you, furniture you could not walk through stops you, and nothing taller than a stair can be climbed.</p>
+      </div>
+      <div class="panel tech">
+        <span class="fig">walk in, look along</span>
+        <h3>An entrance that faces the room</h3>
+        <p>A walkthrough opens where a person would walk in, looking along the longest clear view that ends at a wall — not at the carpet, and not out into a gap in the scan.</p>
+      </div>
+      <div class="panel tech">
+        <span class="fig">plan in, house out</span>
+        <h3>A house from its floor plan</h3>
+        <p>Upload the plan with photographs of each room. The plan is read into rooms and which of them connect, each room is built as its own walkable space, the rooms are joined by doors, and the street outside comes from the postcode.</p>
+      </div>
+      <div class="panel tech">
+        <span class="fig">holes stay holes</span>
+        <h3>Gaps are reported, never filled</h3>
+        <p>Where the camera never looked, we say how much is missing and whether to scan again. Nothing in a scanned walkthrough is invented, and the viewer says so in the frame.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<section id="roadmap" style="padding-top:20px">
+<section id="kinds" style="padding-top:0">
   <div class="wrap">
     <div class="sechead">
-      <h2 class="sfx">In the ink</h2>
-      <span class="note hand">what we're drawing next</span>
+      <h2 class="sfx">Two kinds, one label</h2>
+      <span class="note hand">a listing can never pass one off as the other</span>
     </div>
-    <div class="roadGrid">
-      <div class="panel rcard"><span class="stamp" style="top:12px;right:12px">in development</span><img src="https://v3b.fal.media/files/b/0aa5ae0f/ueiUaIJqI58-AWhodbd0C.jpg" alt="Storybook fox crossing a bridge"><div class="txt"><h3>AI Stories</h3><p>Paste a script, get a finished narrated film — consistent characters, panel-to-motion scenes, ready for YouTube. Zero manual editing.</p><form class="m3xi-waitlist wlForm" data-product="ai-stories" data-label="AI Stories" novalidate><label class="hp" aria-hidden="true">Company<input type="text" name="company" tabindex="-1" autocomplete="off"></label><input type="email" name="email" placeholder="you@email.com" required aria-label="Email address"><button type="submit" class="btn sm red" style="color:#fff">Register interest</button></form><p class="wl-msg" aria-live="polite"></p></div></div>
-      <div class="panel rcard"><span class="stamp" style="top:12px;right:12px">beta — live</span><img src="https://v3b.fal.media/files/b/0aa5ae0f/yowFMgeT752Y_rYwSyIP8.jpg" alt="Virtual presenter with a product"><div class="txt"><h3>Digital influencers</h3><p>Pick an AI creator, show your product, get UGC clips — singles or premium batches. Auto-posting and the performance dashboard are next.</p><a class="btn sm red" href="ugc.html" style="color:#fff">Open the UGC Studio (beta)</a></div></div>
-      <div class="panel rcard"><span class="stamp" style="top:12px;right:12px">live — on the web</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/6eRIKA4lSd-zb93Iq1F1x.jpg" alt="Studio render of a lounge chair"><div class="txt"><h3>Web capture</h3><p>Property capture already runs in the browser — open /capture/ on your phone, take one 360 photo per standpoint, pin it on the floorplan, upload. A native app with on-device coaching is the next step, not a prerequisite.</p><a class="btn sm ghost" href="/capture/">Open web capture</a></div></div>
+    <div class="kinds">
+      <div class="panel kind">
+        <span class="tag">Scanned</span>
+        <h3>A record of the property</h3>
+        <ul>
+          <li>Captured on a phone with Scaniverse, or from 360&deg; photographs taken on one visit.</li>
+          <li>What a buyer sees is what the camera recorded, at true scale in metres.</li>
+          <li>The right choice for any property that is actually on the market.</li>
+        </ul>
+      </div>
+      <div class="panel kind gen">
+        <span class="tag">AI-generated</span>
+        <h3>A visualisation, and it says so</h3>
+        <ul>
+          <li>Built from photographs of a room, a floor plan, or a written description.</li>
+          <li>For plots and new-builds that do not exist yet, refurbishment ideas and staging.</li>
+          <li>Carries an &ldquo;AI-generated&rdquo; mark wherever it appears. Never presented as the property itself.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how" style="padding-top:0">
+  <div class="wrap">
+    <div class="sechead">
+      <h2 class="sfx">How an agency uses it</h2>
+      <span class="note hand">from the viewing to the listing</span>
+    </div>
+    <div class="steps">
+      <div class="panel step"><span class="num">01</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/-W5THKxgRSpok6zaaPFsZ.jpg" alt="A room being captured"><div class="txt"><h3>Capture or build</h3><p>Walk the property with a phone, take 360&deg; photos at <a href="/capture/">/capture/</a>, or give the Spatial Engine a floor plan and photographs.</p></div></div>
+      <div class="panel step"><span class="num">02</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/XomPDS-MR8YNysdErl4nm.jpg" alt="A staged interior"><div class="txt"><h3>Check it privately</h3><p>A preview link for you and the vendor. Set the entrance, place notes on the fixtures that matter. Nothing is public until you press Go live.</p></div></div>
+      <div class="panel step"><span class="num">03</span><img src="https://v3b.fal.media/files/b/0aa5ae0f/P_5hymWZreaaKZH5-XX2j.jpg" alt="A bright gallery space"><div class="txt"><h3>Share and take enquiries</h3><p>One link or one embed on the listing. Every enquiry arrives in <a href="/tours/">your dashboard</a> with the buyer&rsquo;s details and the room they were standing in.</p></div></div>
+    </div>
+    <div class="srow" style="margin-top:22px">
+      <a class="btn red" href="worlds.html">Open the Spatial Engine</a>
+      <a class="btn ghost" href="/capture/">Capture a property</a>
+      <a class="btn ghost" href="/tours/">Your tours</a>
+    </div>
+  </div>
+</section>
+
+<section id="plans" style="padding-top:0">
+  <div class="wrap">
+    <div class="sechead">
+      <h2 class="sfx">Business plans</h2>
+      <span class="note hand">monthly, rolling, scanning quoted per site</span>
+    </div>
+    <div class="plansMini">
+      <div class="panel"><h3>Starter</h3><div class="amt">&pound;200<span class="small">/mo</span></div><p>One office or a first portfolio. Three live walkthroughs.</p></div>
+      <div class="panel"><h3>Growth</h3><div class="amt">&pound;500<span class="small">/mo</span></div><p>A working portfolio on your own brand. Ten live walkthroughs.</p></div>
+      <div class="panel"><h3>Enterprise</h3><div class="amt">Quoted</div><p>Chains and networks, with managed capture.</p></div>
+    </div>
+    <div class="srow" style="margin-top:18px">
+      <a class="btn red" href="business.html">Compare the plans</a>
+      <span class="small">Plans are arranged personally — you talk to the founder, not a sales form.</span>
     </div>
   </div>
 </section>
@@ -97,62 +199,44 @@
 <footer>
   <div class="in">
     <div>
-      <div class="fl">M3XI <span style="color:var(--red)">三X一</span> STUDIO</div>
-      <p style="margin-top:8px">Less ornament, more intent. M3XI Studio is an independent product of M3XI — early, honest, and built to work. Generation runs on prepaid credits; the walkthrough platform is sold as a negotiated business plan.</p>
+      <div class="fl">M3XI <span style="color:var(--red)">三X一</span> SPATIAL</div>
+      <p style="margin-top:8px">Property walkthroughs for agencies. M3XI Spatial is a product of M3XI LTD, London — company no. 17425819.</p>
     </div>
     <div>
       <p><b>Contact</b><br><a href="mailto:m3xiteam@m3xi.com">m3xiteam@m3xi.com</a></p>
-      <p style="margin-top:10px"><b>Studio</b><br>
+      <p style="margin-top:10px"><b>Spatial</b><br>
         <a href="worlds.html">Spatial Engine</a> ·
-        <a href="editor.html">Editor</a> ·
-        <a href="ugc.html">UGC Studio</a> ·
-        <a href="library.html">Library</a> ·
-        <a href="pricing.html">Credits</a></p>
-      <p style="margin-top:10px"><b>M3XI</b><br>
-        <a href="https://www.m3xi.com/">Home</a> ·
-        <a href="https://www.m3xi.com/cornelia.html">Cornelia</a> ·
-        <a href="https://www.m3xi.com/autouv.html">AutoUV</a> ·
-        <a href="https://www.m3xi.com/callme.html">CallMe</a> ·
-        <a href="https://www.m3xi.com/services/">Services</a> ·
-        <a href="https://www.m3xi.com/jobs/">Jobs</a> ·
-        <a href="https://www.m3xi.com/michael/">Michael</a> ·
-        <a href="https://www.m3xi.com/privacy/">Policies</a> ·
-        <a href="https://www.m3xi.com/terms/">Terms</a></p>
+        <a href="walkthrough.html">The viewer</a> ·
+        <a href="/capture/">Capture</a> ·
+        <a href="/tours/">Your tours</a> ·
+        <a href="business.html">Business plans</a> ·
+        <a href="account.html">Sign in</a></p>
+      <p style="margin-top:10px"><b>Legal</b><br>
+        <a href="/privacy/#spatial">Privacy</a> ·
+        <a href="/terms/#spatial-terms">Terms</a> ·
+        <a href="/contact/">Contact</a></p>
     </div>
   </div>
 </footer>
 
 <div id="lb"><div class="panel" id="lbPanel"><img id="lbImg" src="" alt="full size"><div class="strip"><span id="lbCap"></span><a class="btn sm ghost" id="lbOpen" href="#" target="_blank" rel="noopener">Open original</a></div></div></div>
-<div id="topupModal" style="display:none;position:fixed;inset:0;z-index:90;background:rgba(22,21,18,.55);align-items:center;justify-content:center;padding:20px">
-  <div style="position:relative;width:min(430px,94vw);background:var(--card);border:3px solid var(--line);box-shadow:10px 10px 0 rgba(22,21,18,.9);padding:26px 28px;text-align:left">
-    <button id="topupClose" aria-label="Close" style="position:absolute;top:8px;right:10px;width:30px;height:30px;border:2px solid var(--line);background:var(--paper);font-size:15px;font-weight:800;cursor:pointer;line-height:1">×</button>
-    <div style="font-family:var(--disp);font-size:19px;letter-spacing:.02em;margin-bottom:10px">Out of credits</div>
-    <p id="topupLine" style="font-size:14px;line-height:1.65;color:var(--mut);margin:0 0 18px"></p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button id="topupGo" class="btn red sm" style="border:3px solid var(--line)">See credit packs</button>
-      <button class="btn sm ghost" onclick="document.getElementById('topupModal').style.display='none'">Not now</button>
-    </div>
-  </div>
-</div>
 
 <script>
-/* Old links still point at the single-page Studio: /studio/#studio, #plans and
-   friends are in shared posts, in the main site's nav and in search results. A
-   hash never reaches the server, so Vercel cannot redirect it — this can. */
+/* Old links still point at sections of the single-page Studio (/studio/#worlds
+   and friends) in shared posts and search results. A hash never reaches the
+   server, so Vercel cannot redirect it — this does. The generation benches are
+   gone, so their hashes simply stay on this page. */
 (function(){
   var GONE = {
-    '#studio':'generate.html', '#video':'generate.html?mode=video', '#images':'generate.html',
-    '#worlds':'worlds.html', '#spatial':'worlds.html', '#business':'business.html',
-    '#library':'library.html', '#plans':'pricing.html', '#pricing':'pricing.html',
-    '#account':'account.html', '#engines':'generate.html', '#pipeline':'worlds.html',
-    '#property-tours':'business.html#property-tours'
+    '#worlds':'worlds.html', '#spatial':'worlds.html', '#pipeline':'worlds.html',
+    '#library':'worlds.html#library', '#business':'business.html', '#pricing':'business.html',
+    '#account':'account.html', '#property-tours':'business.html#property-tours'
   };
   var to = GONE[location.hash];
   if (to) location.replace(to);
 })();
 </script>
 <script type="module" src="./studio-core.js"></script>
-<script src="/waitlist.js" defer></script>
 
 </body>
 </html>

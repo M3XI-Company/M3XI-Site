@@ -116,7 +116,7 @@ function showTopUp(balance,message){
   const line=document.getElementById('topupLine');
   if(line)line.textContent=message
     ? message
-    : 'That was your last credit. Top up to keep generating — everything you have made stays in your library.';
+    : 'That was the last of your build credits. Credits come with a business plan — everything you have built stays in your account.';
   m.style.display='flex';
 }
 onReady(function wireTopUp(){
@@ -129,7 +129,7 @@ onReady(function wireTopUp(){
        that sells anything used to close the dialog and do nothing at all. */
     const plans=document.querySelector('#plans');
     if(plans)plans.scrollIntoView({behavior:'smooth',block:'start'});
-    else location.href='pricing.html';
+    else location.href='business.html';   // credit packs are gone; plans are the only way to buy
   };
   m.addEventListener('click',e=>{if(e.target===m)m.style.display='none';});
 });
@@ -173,10 +173,10 @@ const GEN_MODES=['image','video','text'];
 let genKind='image';
 const MODE_COPY={
   image:{head:'Describe the shot',   note:'Up to 4 photos. The first steers the result.',
-         cost:'1 credit per image. Prepaid — you can never spend more than you have. Packs on <a href="pricing.html">Pricing</a>.',
+         cost:'1 credit per image. Prepaid — you can never spend more than you have. Credits come with a <a href="business.html">business plan</a>.',
          ph:'A bright Scandinavian penthouse living room at golden hour, floor-to-ceiling windows, cinematic photoreal…'},
   video:{head:'Describe the shot',   note:'Up to 4 photos. The first becomes the opening frame.',
-         cost:'Video clip 60 credits at 5s, 120 at 10s. Prepaid — you can never spend more than you have. Packs on <a href="pricing.html">Pricing</a>.',
+         cost:'Video clip 60 credits at 5s, 120 at 10s. Prepaid — you can never spend more than you have. Credits come with a <a href="business.html">business plan</a>.',
          ph:'Slow dolly through a sunlit kitchen, steam rising from a cup, morning light, 35mm…'},
   text: {head:'What should it say',  note:'Photos are ignored when you are writing words.',
          cost:'2 credits per piece of writing. It runs on a free language model, so this is the cheapest thing in the Studio.',
@@ -388,7 +388,7 @@ async function genWorld(){
       'You can leave this tab open — it publishes to your Library the moment it is ready.</p>'+
       '<div class="srow" style="margin-top:0">'+
       '<a class="btn sm red" href="walkthrough.html?world='+encodeURIComponent(DEMO_WORLD_SLUG)+'" target="_blank" rel="noopener">Walk the AI-generated demo meanwhile</a>'+
-      '<a class="btn sm ghost" href="#library">See the Library</a>'+
+      '<a class="btn sm ghost" href="#library">See published walkthroughs</a>'+
       '</div></div>';
     let st=null;
     for(let i=0;i<120;i++){
@@ -402,7 +402,7 @@ async function genWorld(){
     if(st.error)throw new Error('Generation failed on the provider side.');
     glog('✓ World generated — importing into your Library …');
     const im=await backendCall({action:'world_import',operation_id:q.operation_id});
-    glog('✓ Published to the Library. World code: '+im.slug+(im.size_mb?' · '+im.size_mb+' MB':''));
+    glog('✓ Published. World code: '+im.slug+(im.size_mb?' · '+im.size_mb+' MB':''));
     const wurl='walkthrough.html?world='+encodeURIComponent(im.slug)+'&embed=1';
     $('#genOut').innerHTML=(im.cover?'<img src="'+esc(im.cover)+'" alt="world cover">':'')+
       '<div class="srow"><a class="btn red" href="'+wurl+'" target="_blank" rel="noopener">Walk this world</a>'+
@@ -1258,7 +1258,7 @@ async function loadMyWork(){
       .order('created_at',{ascending:false}).limit(24);
     if(error)throw error;
     if(!data||!data.length){
-      el.innerHTML='<p class="price-note">Nothing yet — make a world in the Studio and it lands here.</p>';return;
+      el.innerHTML='<p class="price-note">Nothing yet — build a walkthrough in the Spatial Engine and it lands here.</p>';return;
     }
     el.innerHTML='<div class="libGrid">'+data.map(w=>{
       const url='walkthrough.html?world='+encodeURIComponent(w.embed_slug);
@@ -1349,7 +1349,7 @@ async function renderLibrary(){
       const url='walkthrough.html?world='+encodeURIComponent(w.slug)+'&embed=1';
       const d=document.createElement('div');
       d.className='panel wcard'+(i%3===1?' tilt-r':i%3===2?' tilt-l':'');
-      const by=w.username?('@'+esc(w.username)):'M3XI Studio';
+      const by=w.username?('@'+esc(w.username)):'M3XI Spatial';
       /* A maker's own website comes out of their profile, which they type.
          Putting it straight into an href let anyone publish a world whose
          byline ran javascript: in every visitor's browser — stored, on the

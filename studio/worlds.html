@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>M3XI Studio — Spatial Engine</title>
+<title>M3XI Spatial — Spatial Engine</title>
 <link rel="icon" type="image/png" href="/M.png" />
 <meta name="description" content="Scan a property on a phone and publish it as a walkable tour anyone can open from a listing. One engine for scanned places and generated ones, and it always says which is which.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,23 +15,19 @@
 
 <div class="bar">
   <div class="in">
-    <a class="logo" href="/studio/">M3XI <span class="jp">三X一</span> <span class="st">STUDIO</span></a>
+    <a class="logo" href="/studio/">M3XI <span class="jp">三X一</span> <span class="st">SPATIAL</span></a>
     <nav class="links">
-      <a href="https://www.m3xi.com/">M3XI</a>
-      <a href="free.html">Free</a>
-      <a href="generate.html">Generation</a>
-      <a href="worlds.html" class="on">Spatial</a>
-      <a href="editor.html">Editor</a>
-      <a href="ugc.html">UGC</a>
-      <a href="library.html">Library</a>
-      <a href="business.html">Business</a>
-      <a href="pricing.html">Pricing</a>
+      <a href="worlds.html" class="on">Spatial Engine</a>
+      <a href="walkthrough.html">The viewer</a>
+      <a href="/capture/">Capture</a>
+      <a href="/tours/">Your tours</a>
+      <a href="business.html">Business plans</a>
     </nav>
     <div class="acct">
       <a id="avatarChip" href="account.html" title="" style="display:none">&nbsp;</a>
       <a class="btn sm ghost" id="btnProfile" href="account.html" style="display:none">Profile</a>
       <a class="btn sm ghost" id="btnAuth" href="account.html">Sign in</a>
-      <a class="btn red sm" href="generate.html">Enter Studio</a>
+      <a class="btn red sm" href="business.html">Get a plan</a>
     </div>
   </div>
 </div>
@@ -132,9 +128,8 @@
 
         <div class="srow" style="margin-top:10px">
           <button class="btn red" id="btnGenWorld">Generate the place</button>
-          <button class="btn ghost" id="btnGenAsset">Generate a 3D object</button>
         </div>
-        <p class="price-note">Finished place 150 credits, draft 40. A 3D object is 15 credits, built from your first attachment or your last generated image. Finished places publish to the <a href="library.html">Library</a> with an AI-generated badge. Packs on <a href="pricing.html">Pricing</a>.</p>
+        <p class="price-note">Finished place 150 credits, draft 40. Credits come with your <a href="business.html">business plan</a>. Finished places publish with an AI-generated badge.</p>
 
         <div class="srow">
           <input type="text" class="field" id="creditCode" placeholder="Credit code (optional)" style="max-width:420px">
@@ -158,7 +153,7 @@
         <span class="cap red">Output</span>
         <h3>Result</h3>
         <div id="genOut"><div class="empty">Nothing yet — your next place lands here.</div></div>
-        <div id="genLog">M3XI Studio ready.</div>
+        <div id="genLog">M3XI Spatial ready.</div>
       </div>
     </div>
   </div>
@@ -179,28 +174,23 @@
 <footer>
   <div class="in">
     <div>
-      <div class="fl">M3XI <span style="color:var(--red)">三X一</span> STUDIO</div>
-      <p style="margin-top:8px">Less ornament, more intent. M3XI Studio is an independent product of M3XI — early, honest, and built to work. Generation runs on prepaid credits; the Spatial Engine's hosted tours are sold as a business plan.</p>
+      <div class="fl">M3XI <span style="color:var(--red)">三X一</span> SPATIAL</div>
+      <p style="margin-top:8px">Property walkthroughs for agencies. M3XI Spatial is a product of M3XI LTD, London — company no. 17425819.</p>
     </div>
     <div>
       <p><b>Contact</b><br><a href="mailto:m3xiteam@m3xi.com">m3xiteam@m3xi.com</a></p>
-      <p style="margin-top:10px"><b>Studio</b><br>
-        <a href="generate.html">Generation</a> ·
+      <p style="margin-top:10px"><b>Spatial</b><br>
+        <a href="/studio/">About Spatial</a> ·
+        <a href="worlds.html">Spatial Engine</a> ·
         <a href="walkthrough.html">The viewer</a> ·
-        <a href="editor.html">Editor</a> ·
-        <a href="ugc.html">UGC Studio</a> ·
-        <a href="library.html">Library</a> ·
-        <a href="pricing.html">Credits</a></p>
-      <p style="margin-top:10px"><b>M3XI</b><br>
-        <a href="https://www.m3xi.com/">Home</a> ·
-        <a href="https://www.m3xi.com/cornelia.html">Cornelia</a> ·
-        <a href="https://www.m3xi.com/autouv.html">AutoUV</a> ·
-        <a href="https://www.m3xi.com/callme.html">CallMe</a> ·
-        <a href="https://www.m3xi.com/services/">Services</a> ·
-        <a href="https://www.m3xi.com/jobs/">Jobs</a> ·
-        <a href="https://www.m3xi.com/michael/">Michael</a> ·
-        <a href="https://www.m3xi.com/privacy/">Policies</a> ·
-        <a href="https://www.m3xi.com/terms/">Terms</a></p>
+        <a href="/capture/">Capture</a> ·
+        <a href="/tours/">Your tours</a> ·
+        <a href="business.html">Business plans</a> ·
+        <a href="account.html">Account</a></p>
+      <p style="margin-top:10px"><b>Legal</b><br>
+        <a href="/privacy/#spatial">Privacy</a> ·
+        <a href="/terms/#spatial-terms">Terms</a> ·
+        <a href="/contact/">Contact</a></p>
     </div>
   </div>
 </footer>
@@ -212,7 +202,7 @@
     <div style="font-family:var(--disp);font-size:19px;letter-spacing:.02em;margin-bottom:10px">Out of credits</div>
     <p id="topupLine" style="font-size:14px;line-height:1.65;color:var(--mut);margin:0 0 18px"></p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button id="topupGo" class="btn red sm" style="border:3px solid var(--line)">See credit packs</button>
+      <button id="topupGo" class="btn red sm" style="border:3px solid var(--line)">See business plans</button>
       <button class="btn sm ghost" onclick="document.getElementById('topupModal').style.display='none'">Not now</button>
     </div>
   </div>

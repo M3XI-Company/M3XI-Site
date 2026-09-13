@@ -1,29 +1,39 @@
 {
   "redirects": [
     {
+      "source": "/cornelia.html",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/cornelia",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/cornelia/",
+      "destination": "/",
+      "permanent": false
+    },
+    {
       "source": "/takenote",
-      "destination": "/cornelia.html",
-      "permanent": true
+      "destination": "/",
+      "permanent": false
     },
     {
       "source": "/takenote/",
-      "destination": "/cornelia.html",
-      "permanent": true
+      "destination": "/",
+      "permanent": false
     },
     {
       "source": "/notetaker",
-      "destination": "/cornelia.html",
-      "permanent": true
+      "destination": "/",
+      "permanent": false
     },
     {
       "source": "/notetaker/",
-      "destination": "/cornelia.html",
-      "permanent": true
-    },
-    {
-      "source": "/privacy.html",
-      "destination": "/privacy/",
-      "permanent": true
+      "destination": "/",
+      "permanent": false
     },
     {
       "source": "/cornelia/privacy",
@@ -36,6 +46,186 @@
       "permanent": false
     },
     {
+      "source": "/notetaker/privacy",
+      "destination": "/privacy/#cornelia",
+      "permanent": false
+    },
+    {
+      "source": "/notetaker/privacy/",
+      "destination": "/privacy/#cornelia",
+      "permanent": false
+    },
+    {
+      "source": "/cornelia/terms",
+      "destination": "/terms/#paused",
+      "permanent": false
+    },
+    {
+      "source": "/autouv.html",
+      "destination": "/autouv/",
+      "permanent": false
+    },
+    {
+      "source": "/callme.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/callme",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/callme/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/products",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/products/",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/generate.html",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/generate",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/generate/",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/images.html",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/images",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/images/",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/video.html",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/video",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/video/",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/free.html",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/free",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/free/",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/ugc.html",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/ugc",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/ugc/",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/editor.html",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/editor",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/editor/",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
+      "source": "/studio/pricing.html",
+      "destination": "/studio/business.html",
+      "permanent": false
+    },
+    {
+      "source": "/studio/pricing",
+      "destination": "/studio/business.html",
+      "permanent": false
+    },
+    {
+      "source": "/studio/pricing/",
+      "destination": "/studio/business.html",
+      "permanent": false
+    },
+    {
+      "source": "/studio/library.html",
+      "destination": "/studio/worlds.html#library",
+      "permanent": false
+    },
+    {
+      "source": "/studio/library",
+      "destination": "/studio/worlds.html#library",
+      "permanent": false
+    },
+    {
+      "source": "/studio/library/",
+      "destination": "/studio/worlds.html#library",
+      "permanent": false
+    },
+    {
+      "source": "/studio/:page(account|business|walkthrough|worlds)",
+      "destination": "/studio/:page.html",
+      "permanent": false
+    },
+    {
+      "source": "/studio/:page(account|business|walkthrough|worlds)/",
+      "destination": "/studio/:page.html",
+      "permanent": false
+    },
+    {
+      "source": "/privacy.html",
+      "destination": "/privacy/",
+      "permanent": true
+    },
+    {
       "source": "/callme/privacy",
       "destination": "/privacy/#callme",
       "permanent": false
@@ -46,28 +236,8 @@
       "permanent": false
     },
     {
-      "source": "/notetaker/privacy",
-      "destination": "/privacy/#cornelia",
-      "permanent": false
-    },
-    {
-      "source": "/cornelia/terms",
-      "destination": "/terms/",
-      "permanent": false
-    },
-    {
       "source": "/callme/terms",
       "destination": "/terms/",
-      "permanent": false
-    },
-    {
-      "source": "/products",
-      "destination": "/#products",
-      "permanent": false
-    },
-    {
-      "source": "/products/",
-      "destination": "/#products",
       "permanent": false
     },
     {
@@ -84,16 +254,6 @@
       "source": "/projects/:path*",
       "destination": "/services/:path*",
       "permanent": true
-    },
-    {
-      "source": "/studio/:page(account|business|editor|free|generate|images|library|pricing|ugc|video|walkthrough|worlds)",
-      "destination": "/studio/:page.html",
-      "permanent": false
-    },
-    {
-      "source": "/studio/:page(account|business|editor|free|generate|images|library|pricing|ugc|video|walkthrough|worlds)/",
-      "destination": "/studio/:page.html",
-      "permanent": false
     },
     {
       "source": "/walk",

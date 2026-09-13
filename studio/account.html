@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>M3XI Studio — Your account</title>
+<title>M3XI Spatial — Your account</title>
 <link rel="icon" type="image/png" href="/M.png" />
 <meta name="description" content="Sign in, check your credit balance, redeem a code and manage your Studio profile.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,23 +15,19 @@
 
 <div class="bar">
   <div class="in">
-    <a class="logo" href="/studio/">M3XI <span class="jp">三X一</span> <span class="st">STUDIO</span></a>
+    <a class="logo" href="/studio/">M3XI <span class="jp">三X一</span> <span class="st">SPATIAL</span></a>
     <nav class="links">
-      <a href="https://www.m3xi.com/">M3XI</a>
-      <a href="free.html">Free</a>
-      <a href="generate.html">Generation</a>
-      <a href="worlds.html">Spatial</a>
-      <a href="editor.html">Editor</a>
-      <a href="ugc.html">UGC</a>
-      <a href="library.html">Library</a>
-      <a href="business.html">Business</a>
-      <a href="pricing.html">Pricing</a>
+      <a href="worlds.html">Spatial Engine</a>
+      <a href="walkthrough.html">The viewer</a>
+      <a href="/capture/">Capture</a>
+      <a href="/tours/">Your tours</a>
+      <a href="business.html">Business plans</a>
     </nav>
     <div class="acct">
       <a id="avatarChip" href="account.html" title="" style="display:none">&nbsp;</a>
       <a class="btn sm ghost" id="btnProfile" href="account.html" style="display:none">Profile</a>
       <a class="btn sm ghost" id="btnAuth" href="account.html">Sign in</a>
-      <a class="btn red sm" href="generate.html">Enter Studio</a>
+      <a class="btn red sm" href="business.html">Get a plan</a>
     </div>
   </div>
 </div>
@@ -42,14 +38,14 @@
       <h2 class="sfx">Your account</h2>
       <span class="note hand">credits that stay yours</span>
     </div>
-    <p class="subline">Sign in and your credits live on your account instead of in a code you have to keep somewhere. No password to choose or lose — we email you a link.</p>
+    <p class="subline">Your walkthroughs, your property tours and their enquiries, and the build credits that come with your plan. No password to choose or lose — sign in with Google or a link we email you.</p>
 
     <div class="studioGrid">
       <div class="panel notebook tilt-l" id="acctPanel">
         <span class="cap">Account</span>
         <div id="acctSignedOut">
           <h3>Sign in</h3>
-          <p class="price-note" style="margin-top:0">New here? Either way makes the account, and it starts with <b>25 credits</b>.</p>
+          <p class="price-note" style="margin-top:0">New here? Either way makes the account. Build credits come with a <a href="business.html">business plan</a>.</p>
           <div class="srow">
             <button class="btn ghost" id="btnGoogle" style="gap:10px">
               <svg viewBox="0 0 18 18" width="17" height="17" aria-hidden="true">
@@ -99,54 +95,11 @@
             <h3 style="font-size:15px;margin-top:12px">This week</h3>
             <div class="meter"><span id="barWeek"></span></div>
             <p class="small" id="txtWeek">—</p>
-            <p class="price-note" style="margin-top:8px">Heavier work costs more of the allowance: an image is 1, a video clip 60, a world 150. Limits reset on a rolling window, not at midnight.</p>
-          </div>
-
-
-          <div style="border-top:2px dashed rgba(22,21,18,.3);margin-top:18px;padding-top:14px">
-            <h3 style="font-size:15px">Invite people, pay less</h3>
-            <p class="small" style="opacity:.75;margin-bottom:8px">Share your link. When someone you invited makes their first purchase, <b>15% comes off your next one</b> — up to 50%.</p>
-            <div class="srow">
-              <input type="text" class="field" id="refLink" readonly style="max-width:330px" value="">
-              <button class="btn sm ghost" id="btnCopyRef">Copy</button>
-            </div>
-            <p class="small" id="refStat" style="margin-top:8px">—</p>
-          </div>
-
-          <div style="border-top:2px dashed rgba(22,21,18,.3);margin-top:18px;padding-top:14px">
-            <h3 style="font-size:15px">Posting to socials</h3>
-            <p class="small" style="opacity:.75;margin-bottom:8px">Clips can be released on a schedule instead of all at once — a batch of five landing on a feed together reads as spam.</p>
-            <label class="small" style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-              <input type="checkbox" id="setAutoPost"> Post automatically when a clip is ready
-            </label>
-            <div class="srow" style="gap:14px;flex-wrap:wrap">
-              <label class="small">Platforms
-                <span style="display:flex;gap:10px;margin-top:4px">
-                  <label><input type="checkbox" class="plat" value="tiktok"> TikTok</label>
-                  <label><input type="checkbox" class="plat" value="instagram"> Instagram</label>
-                  <label><input type="checkbox" class="plat" value="youtube"> YouTube</label>
-                </span>
-              </label>
-            </div>
-            <div class="srow" style="gap:14px;flex-wrap:wrap;margin-top:10px">
-              <label class="small">Per batch<br><input type="number" class="field" id="setBatch" min="1" max="10" value="1" style="max-width:90px"></label>
-              <label class="small">Hours apart<br><input type="number" class="field" id="setSpacing" min="0.25" max="24" step="0.25" value="3" style="max-width:110px"></label>
-              <label class="small">Start hour<br><input type="number" class="field" id="setStart" min="0" max="23" value="9" style="max-width:90px"></label>
-            </div>
-            <label class="small" style="display:flex;gap:8px;align-items:center;margin-top:10px">
-              <input type="checkbox" id="setAutoGen"> Auto-generate
-              <input type="number" class="field" id="setAutoGenN" min="0" max="20" value="0" style="max-width:80px"> clips a week
-            </label>
-            <div class="srow" style="margin-top:10px">
-              <button class="btn" id="btnSaveSocial">Save posting settings</button>
-              <span class="small" id="socialMsg"></span>
-            </div>
-            <p class="price-note" id="socialNote" style="margin-top:8px"></p>
-            <div id="queueBox" style="margin-top:10px"></div>
+            <p class="price-note" style="margin-top:8px">A finished room uses 150 of the allowance and a draft 40. Limits reset on a rolling window, not at midnight.</p>
           </div>
           <div style="border-top:2px dashed rgba(22,21,18,.3);margin-top:18px;padding-top:14px">
             <h3 style="font-size:15px">How you appear</h3>
-            <p class="small" style="opacity:.75;margin-bottom:8px">Shown on anything of yours featured in the Library.</p>
+            <p class="small" style="opacity:.75;margin-bottom:8px">Shown on walkthroughs you publish.</p>
             <div class="avatars" id="avatarPick"></div>
             <div class="srow" style="margin-top:10px">
               <input type="text" class="field" id="pfUser" placeholder="username" maxlength="24" style="max-width:220px">
@@ -163,7 +116,7 @@
 
       <div class="panel out" id="acctWork">
         <h3>Your work</h3>
-        <div id="acctWorkList"><p class="price-note">Sign in to see the worlds you have made.</p></div>
+        <div id="acctWorkList"><p class="price-note">Sign in to see the walkthroughs you have made.</p></div>
       </div>
     </div>
   </div>
@@ -172,27 +125,23 @@
 <footer>
   <div class="in">
     <div>
-      <div class="fl">M3XI <span style="color:var(--red)">三X一</span> STUDIO</div>
-      <p style="margin-top:8px">Less ornament, more intent. M3XI Studio is an independent product of M3XI — early, honest, and built to work. Generation runs on prepaid credits; the walkthrough platform is sold as a negotiated business plan.</p>
+      <div class="fl">M3XI <span style="color:var(--red)">三X一</span> SPATIAL</div>
+      <p style="margin-top:8px">Property walkthroughs for agencies. M3XI Spatial is a product of M3XI LTD, London — company no. 17425819.</p>
     </div>
     <div>
       <p><b>Contact</b><br><a href="mailto:m3xiteam@m3xi.com">m3xiteam@m3xi.com</a></p>
-      <p style="margin-top:10px"><b>Studio</b><br>
+      <p style="margin-top:10px"><b>Spatial</b><br>
+        <a href="/studio/">About Spatial</a> ·
         <a href="worlds.html">Spatial Engine</a> ·
-        <a href="editor.html">Editor</a> ·
-        <a href="ugc.html">UGC Studio</a> ·
-        <a href="library.html">Library</a> ·
-        <a href="pricing.html">Credits</a></p>
-      <p style="margin-top:10px"><b>M3XI</b><br>
-        <a href="https://www.m3xi.com/">Home</a> ·
-        <a href="https://www.m3xi.com/cornelia.html">Cornelia</a> ·
-        <a href="https://www.m3xi.com/autouv.html">AutoUV</a> ·
-        <a href="https://www.m3xi.com/callme.html">CallMe</a> ·
-        <a href="https://www.m3xi.com/services/">Services</a> ·
-        <a href="https://www.m3xi.com/jobs/">Jobs</a> ·
-        <a href="https://www.m3xi.com/michael/">Michael</a> ·
-        <a href="https://www.m3xi.com/privacy/">Policies</a> ·
-        <a href="https://www.m3xi.com/terms/">Terms</a></p>
+        <a href="walkthrough.html">The viewer</a> ·
+        <a href="/capture/">Capture</a> ·
+        <a href="/tours/">Your tours</a> ·
+        <a href="business.html">Business plans</a> ·
+        <a href="account.html">Account</a></p>
+      <p style="margin-top:10px"><b>Legal</b><br>
+        <a href="/privacy/#spatial">Privacy</a> ·
+        <a href="/terms/#spatial-terms">Terms</a> ·
+        <a href="/contact/">Contact</a></p>
     </div>
   </div>
 </footer>
@@ -204,7 +153,7 @@
     <div style="font-family:var(--disp);font-size:19px;letter-spacing:.02em;margin-bottom:10px">Out of credits</div>
     <p id="topupLine" style="font-size:14px;line-height:1.65;color:var(--mut);margin:0 0 18px"></p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button id="topupGo" class="btn red sm" style="border:3px solid var(--line)">See credit packs</button>
+      <button id="topupGo" class="btn red sm" style="border:3px solid var(--line)">See business plans</button>
       <button class="btn sm ghost" onclick="document.getElementById('topupModal').style.display='none'">Not now</button>
     </div>
   </div>

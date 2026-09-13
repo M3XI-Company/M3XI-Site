@@ -3,827 +3,430 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="M3XI — interactions that matter. M3XI Studio, our AI generation platform — plus the apps we build alongside it: Cornelia, CallMe and AutoUV. Software that lowers barriers and gets things done." />
-<title>M3XI — Interactions that matter</title>
+<title>CallMe by M3XI — Ditch the card games</title>
+<meta name="description" content="CallMe is a video call app for meeting new people. Get matched and you are talking in seconds, and the cameras come on when you both say yes. 18+ and age-verified. On Android now." />
 <meta name="msvalidate.01" content="194ECDA09D7B5CBE4E3E13235EFACE76" />
 <meta name="google-site-verification" content="9v3aYIwxrSEWOek880TLcnJFXPImABmA29SwVJunnz4" />
+<link rel="canonical" href="https://www.m3xi.com/" />
 <link rel="icon" type="image/png" href="/M.png" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="M3XI" />
+<meta property="og:title" content="CallMe — Ditch the card games" />
+<meta property="og:description" content="A video call app for meeting new people. No swiping. Get matched and talk." />
+<meta property="og:url" content="https://www.m3xi.com/" />
+<meta property="og:image" content="https://www.m3xi.com/img/callme/screen-04.webp" />
+<meta name="twitter:card" content="summary_large_image" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
+
+<!-- Every question and answer below is also in the visible FAQ, word for word.
+     Search engines may show these as answers; they must never say more than
+     the page does. If you change one, change both. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type":"Question","name":"What is CallMe?","acceptedAnswer":{"@type":"Answer","text":"CallMe is a video call app for meeting new people. Instead of swiping through profiles and waiting for replies, you get matched with someone and you are talking to them straight away."}},
+    {"@type":"Question","name":"What does “ditch the card games” mean?","acceptedAnswer":{"@type":"Answer","text":"Most apps for meeting people are a card game: swipe through profiles, collect matches, then wait on a chat that dies after two messages. CallMe skips all of that. The first thing you do with someone new is talk to them."}},
+    {"@type":"Question","name":"Is CallMe a dating app?","acceptedAnswer":{"@type":"Answer","text":"No. CallMe is for meeting people and having a conversation. Dating is welcome if that is where a conversation goes, but it is not the point, and nobody on CallMe is a profile to be sorted through."}},
+    {"@type":"Question","name":"How does matching work?","acceptedAnswer":{"@type":"Answer","text":"You choose the age range, the distance and who you would like to meet. The same preferences are checked for both people before anyone is introduced, so a match is never one-sided. You can change them whenever you like."}},
+    {"@type":"Question","name":"Does my camera come on straight away?","acceptedAnswer":{"@type":"Answer","text":"No. Every call opens on voice. Video turns on only when both of you ask for it. One person can never switch on the other person's camera, and you can turn yours off at any time without ending the call."}},
+    {"@type":"Question","name":"What if the conversation isn't going anywhere?","acceptedAnswer":{"@type":"Answer","text":"Skip. You are both on your way to someone new in seconds, and nobody has to explain themselves. If it was a good conversation, you can ask to be friends instead."}},
+    {"@type":"Question","name":"Can I talk to more than one person?","acceptedAnswer":{"@type":"Answer","text":"Yes. Open a table around a topic and a few people can sit down together, or pull up a chair at someone else's. Whoever is in your party comes with you."}},
+    {"@type":"Question","name":"Are there things to do on a call?","acceptedAnswer":{"@type":"Answer","text":"Nine games you can start mid-call for everyone on it at once: two truths and a lie, charades, categories, would you rather, 21 questions, sketch together, memory, a crossword and a quick quiz."}},
+    {"@type":"Question","name":"Who can use CallMe?","acceptedAnswer":{"@type":"Answer","text":"Adults aged 18 and over. Everyone verifies their age before they can call anyone, with an identity document, a live selfie and a face match. The check is carried out by our verification provider, and we receive the result rather than your documents."}},
+    {"@type":"Question","name":"How do I stay safe on a call?","acceptedAnswer":{"@type":"Answer","text":"On every call you can silence someone for yourself, block them, or report them. A report never tells the other person who filed it, and a block is mutual and final. Verification proves someone is a real adult. It is not a background check, so never share financial details or your home address."}},
+    {"@type":"Question","name":"Are calls recorded?","acceptedAnswer":{"@type":"Answer","text":"No. CallMe does not record the audio or video of your calls."}},
+    {"@type":"Question","name":"How much does CallMe cost?","acceptedAnswer":{"@type":"Answer","text":"CallMe is free to use, with five calls a day. You can earn more by watching an advert or by completing weekly achievements. CallMe Premium removes the daily limit and gives you priority matching and extra card styles, for £8.49 a month or £71.99 a year in the UK; other countries are priced by the store. Coins are optional, sold in packs from £4.99, and spent on extras in the app."}},
+    {"@type":"Question","name":"Is CallMe on iPhone?","acceptedAnswer":{"@type":"Answer","text":"CallMe is on Android through Google Play now. The iPhone version is being prepared for the App Store."}},
+    {"@type":"Question","name":"How do I delete my account?","acceptedAnswer":{"@type":"Answer","text":"In the app, go to Settings, then Delete account and data. If you no longer have the app, use the request form at m3xi.com/delete-account."}},
+    {"@type":"Question","name":"Who makes CallMe?","acceptedAnswer":{"@type":"Answer","text":"M3XI LTD, a small company in London. It was founded by Michael and co-founded with Leo Chi."}}
+  ]
+}
+</script>
+
 <style>
 :root{
-  --paper:#F0E8D8; --paper2:#F6F0E3; --panel:#FBF6EC; --white:#fff;
-  --ink:#19150F; --ink2:#605747; --blue:#2B4257; --blue2:#3E6079;
-  --gold:#B6892F; --gold2:#CBA14A; --line:rgba(25,21,15,.14); --ok:#2f6b46; --err:#9b3030;
-  --maxw:1140px;
+  --paper:#F0E8D8; --panel:#FBF6EC; --white:#FFFDF8;
+  --ink:#19150F; --ink2:#605747; --ink3:#8A8173;
+  --blue:#2B4257; --gold:#B6892F;
+  --rose:#B7566B; --rose-deep:#963F54; --rose-soft:#F3DEDF;
+  --line:rgba(25,21,15,.14); --line2:rgba(25,21,15,.22);
+  --maxw:1100px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;color:var(--ink);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-  font-weight:400;line-height:1.62;-webkit-font-smoothing:antialiased;
-  background-color:#EFE7D6;
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{margin:0;color:var(--ink);font:400 16px/1.65 'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;background-color:#EFE7D6;
   background-image:
     linear-gradient(rgba(43,66,87,.045) 1px, transparent 1px),
     linear-gradient(90deg, rgba(43,66,87,.045) 1px, transparent 1px),
-    radial-gradient(1200px 700px at 80% -8%, rgba(255,253,247,.9), transparent 60%);
-  background-size:30px 30px, 30px 30px, 100% 100%;
-}
-a{color:inherit;text-decoration:none}
-img{max-width:100%}
+    radial-gradient(1200px 700px at 85% -10%, rgba(255,253,247,.92), transparent 60%);
+  background-size:30px 30px,30px 30px,100% 100%}
+a{color:inherit}
+img{max-width:100%;display:block}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
-.eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 14px;display:flex;align-items:center;gap:10px}
+h1,h2,h3{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;margin:0;text-wrap:balance}
+h1 em,h2 em{font-style:italic;font-weight:500;color:var(--rose)}
+.eyebrow{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 14px;display:flex;align-items:center;gap:10px}
 .eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
-.eyebrow.c{justify-content:center}.eyebrow.c::after{content:"";width:26px;height:1px;background:var(--gold)}
-h1,h2,h3,h4{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;color:var(--ink);margin:0}
-h1{font-size:clamp(40px,6.2vw,68px);line-height:1.05;font-weight:600}
-h1 em,h2 em{font-style:italic;color:var(--gold);font-weight:500}
-h2{font-size:clamp(28px,4vw,42px);line-height:1.12;font-weight:600}
-p{margin:0 0 16px}
-.lede{font-size:clamp(16px,2vw,19px);color:#3c382f;max-width:62ch}
-.jp{font-family:'Noto Serif JP',serif;color:var(--ink2)}
-.muted{color:var(--ink2)}
-.btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:15px;padding:14px 26px;border-radius:3px;cursor:pointer;border:1px solid transparent;transition:transform .12s ease, box-shadow .2s ease, background .2s, color .2s;box-shadow:0 2px 0 rgba(25,21,15,.10)}
-.btn-primary{background:linear-gradient(180deg,#2c2a22,#19150F);color:#F4EEDF;border-color:#0c0b08}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(25,21,15,.18)}
-.btn-ghost{background:var(--panel);color:var(--ink);border-color:var(--line)}
-.btn-ghost:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 10px 20px rgba(43,66,87,.14)}
-.btn-gold{background:linear-gradient(180deg,#E3C271,#B6892F);color:#1c1606;border:none}
-.btn-gold:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(182,137,47,.30)}
+.jp{font-family:'Noto Serif JP',serif;font-weight:500;font-size:.8em;color:var(--gold);letter-spacing:.05em}
+:focus-visible{outline:3px solid rgba(183,86,107,.45);outline-offset:3px;border-radius:4px}
 
 /* header */
-header.site{position:sticky;top:0;z-index:40;backdrop-filter:saturate(180%) blur(9px);
-  background:rgba(241,234,221,.82);border-bottom:1px solid var(--line)}
-.nav{display:flex;align-items:center;justify-content:space-between;height:64px;gap:14px}
-.brand{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-weight:600;font-size:19px}
-.brand .mk{width:30px;height:30px;border-radius:8px;display:block}
-.brand .jp{font-size:13px;margin-left:1px}
-.menu{display:flex;align-items:center;gap:24px;font-size:14px;color:var(--ink2)}
-.menu a:hover{color:var(--ink)}
-.menu a.active{color:var(--ink)}
-.menu .cta{padding:8px 15px;border:1px solid var(--ink);border-radius:999px;color:var(--ink);font-weight:600}
-.menu .cta:hover{background:var(--ink);color:var(--paper)}
-@media(max-width:880px){.menu a.lnk{display:none}}
+header.site{position:sticky;top:0;z-index:20;background:rgba(240,232,216,.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;height:66px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:'Playfair Display',serif;font-weight:600;font-size:20px}
+.brand img{width:30px;height:30px;border-radius:8px}
+.menu{display:flex;align-items:center;gap:6px}
+.menu a{text-decoration:none;font-size:14px;font-weight:500;color:var(--ink2);padding:8px 12px;border-radius:8px}
+.menu a:hover{color:var(--ink);background:rgba(25,21,15,.05)}
+.menu a.get{background:var(--ink);color:var(--white);padding:9px 16px}
+.menu a.get:hover{background:var(--rose-deep)}
+@media (max-width:760px){.menu a:not(.get){display:none}}
 
-/* sections */
-section{padding:64px 0;position:relative}
-.center{text-align:center}
-.dim{display:flex;align-items:center;gap:14px;color:var(--blue);opacity:.6;font-size:11px;letter-spacing:.2em;text-transform:uppercase;margin:0 auto;max-width:var(--maxw);padding:0 24px}
-.dim::before,.dim::after{content:"";height:1px;background:repeating-linear-gradient(90deg,var(--blue),var(--blue) 4px,transparent 4px,transparent 9px);flex:1;opacity:.5}
-
-
-/* ---------- studio showcase (real Studio output) ---------- */
-.sheet{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.sheet figure{margin:0;background:var(--panel);border:1px solid var(--line);padding:8px;
-  box-shadow:0 18px 34px rgba(43,66,87,.10);transition:transform .5s ease}
-.sheet figure:hover{transform:translateY(-3px)}
-.sheet img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
-.sheet figcaption{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2);margin-top:7px}
-.sheet figure:nth-child(1){transform:translateY(-12px)}
-.sheet figure:nth-child(1):hover{transform:translateY(-16px)}
-.sheet figure:nth-child(4){transform:translateY(12px)}
-.sheet figure:nth-child(4):hover{transform:translateY(8px)}
-@media(max-width:880px){.sheet figure:nth-child(n){transform:none}}
-.engines{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:34px}
-@media(max-width:880px){.engines{grid-template-columns:1fr}}
-.eng{background:var(--panel);border:1px solid var(--line);border-radius:2px;overflow:hidden;display:flex;flex-direction:column}
-.eng>img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border-bottom:1px solid var(--line)}
-.eng .in{padding:24px 24px 26px}
-.eng .kick{font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--blue);font-weight:600}
-.eng h3{font-size:22px;margin:8px 0 0;font-weight:600}
-.eng ul{list-style:none;padding:0;margin:14px 0 0}
-.eng li{font-size:14.5px;color:var(--ink2);padding:9px 0;border-top:1px solid var(--line);display:flex;gap:10px}
-.eng li:before{content:"";flex:none;width:5px;height:5px;border-radius:50%;background:var(--gold);margin-top:9px}
-.eng .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
-.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
-@media(max-width:880px){.gal{grid-template-columns:1fr 1fr}}
-@media(max-width:520px){.gal{grid-template-columns:1fr}}
-.gal figure{margin:0;background:var(--panel);border:1px solid var(--line);padding:7px}
-.gal img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
-.gal figcaption{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:12.5px;color:var(--ink2)}
-.gal figcaption b{color:var(--ink);font-weight:600}
-.gal figcaption span{font-size:10px;letter-spacing:.14em;text-transform:uppercase}
-.wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
-@media(max-width:880px){.wgrid{grid-template-columns:1fr 1fr}}
-.wcard{background:var(--panel);border:1px solid var(--line);overflow:hidden;display:block;transition:transform .2s ease,box-shadow .2s ease}
-.wcard:hover{transform:translateY(-2px);box-shadow:0 16px 30px rgba(43,66,87,.12)}
-.wcard img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block;border-bottom:1px solid var(--line)}
-.wcard .m{padding:12px 14px}
-.wcard .m b{display:block;font-size:14.5px}
-.wcard .m span{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
-.wcard.more{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--ink2);font-size:14.5px}
-/* A scanned world with no cover image yet: say what it is rather than borrow a render. */
-.wcard .nocov{display:flex;align-items:center;justify-content:center;aspect-ratio:3/2;border-bottom:1px solid var(--line);background:var(--paper2);color:var(--ink2);font-size:11px;letter-spacing:.18em;text-transform:uppercase;text-align:center;padding:16px}
-.tourRow{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;margin-top:28px;padding:22px 24px;border:1px solid var(--line);background:var(--panel);border-left:4px solid var(--gold)}
-.tourRow .kick{font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--blue);font-weight:600}
-.tourRow h3{font-size:20px;margin:6px 0 6px;font-weight:600}
-.tourRow p{font-size:14.5px;color:var(--ink2);margin:0;max-width:62ch}
-@media(max-width:720px){.tourRow{grid-template-columns:1fr}}
-.pipe{display:grid;grid-template-columns:repeat(4,1fr);margin-top:34px;border:1px solid var(--line);background:var(--panel)}
-@media(max-width:820px){.pipe{grid-template-columns:1fr 1fr}}
-.pipe>div{padding:20px 20px 22px;border-left:1px solid var(--line)}
-.pipe>div:first-child{border-left:0}
-.pipe .n{font-size:11px;letter-spacing:.2em;color:var(--gold);font-weight:600}
-.pipe h4{font-family:'Playfair Display',Georgia,serif;font-size:17px;font-weight:600;margin:6px 0 4px}
-.pipe p{font-size:13.5px;color:var(--ink2);margin:0}
-.subhead{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink2);margin:44px 0 0;font-weight:600}
-
-
-/* ---------- background concept art ---------- */
-section{position:relative}
-.wrap{position:relative;z-index:1}
-.dim{position:relative;z-index:1}
-.has-band{overflow:hidden}
-.bgband{position:absolute;left:0;right:0;bottom:0;width:100%;height:clamp(190px,34vw,470px);
-  pointer-events:none;z-index:0;opacity:.24;
-  -webkit-mask-image:linear-gradient(to top,#000 46%,rgba(0,0,0,.35) 78%,transparent 100%);
-  mask-image:linear-gradient(to top,#000 46%,rgba(0,0,0,.35) 78%,transparent 100%)}
-.bgband.soft{opacity:.14;height:clamp(150px,26vw,340px)}
-.bgart{position:absolute;height:auto;pointer-events:none;z-index:0}
-.bgart.phone{bottom:24px;right:calc(50% - 730px);width:470px;opacity:.28;
-  -webkit-mask-image:radial-gradient(120% 90% at 40% 50%,#000 52%,transparent 100%);
-  mask-image:radial-gradient(120% 90% at 40% 50%,#000 52%,transparent 100%)}
-.bgart.robot{top:70px;left:calc(50% - 700px);width:250px;opacity:.34;z-index:1;
-  -webkit-mask-image:radial-gradient(110% 95% at 55% 45%,#000 55%,transparent 100%);
-  mask-image:radial-gradient(110% 95% at 55% 45%,#000 55%,transparent 100%)}
-@media(max-width:1560px){.bgart.phone{right:-120px}.bgart.robot{left:-46px}}
-@media(max-width:1080px){.bgart{display:none}}
-@media(max-width:760px){.bgband{opacity:.18}.bgband.soft{display:none}}
-@media(prefers-reduced-motion:no-preference){.bgart,.bgband{transition:opacity .6s ease}}
-.sk-ln{fill:none;stroke:#2B4257;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.sk-gd{fill:none;stroke:#B6892F;stroke-width:1.5;stroke-linecap:round}
-.sk-dsh{fill:none;stroke:#2B4257;stroke-width:1;stroke-dasharray:3 5;opacity:.55}
-.sk-t{font-family:'Inter',sans-serif;font-size:8.5px;letter-spacing:.2em;fill:#B6892F}
-.bgart.robot .sk-ln{stroke-width:1.25}
-.bgart.robot .sk-gd{stroke-width:1.1}
-.bgart.robot .sk-dsh{stroke-width:.7;stroke-dasharray:2.2 3.6}
-.bgart.robot .sk-t{font-size:5.4px}
-
-/* reveal */
-.reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
-.reveal.visible{opacity:1;transform:none}
-@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:600;font-size:15px;
+  padding:13px 20px;border-radius:10px;border:1.5px solid var(--ink);transition:transform .12s,box-shadow .12s,background .12s}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--rose);border-color:var(--rose-deep);color:#fff;box-shadow:0 3px 0 var(--rose-deep)}
+.btn-primary:hover{box-shadow:0 4px 0 var(--rose-deep)}
+.btn-ghost{background:var(--panel);color:var(--ink)}
+.btn svg{width:18px;height:18px;flex:none}
 
 /* hero */
 .hero{padding:64px 0 40px}
-.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center}
-.hero-cta{display:flex;gap:13px;flex-wrap:wrap;margin-top:26px}
-.hero-art{width:100%;height:auto;filter:drop-shadow(0 30px 50px rgba(43,66,87,.14))}
-@media(max-width:880px){.hero-grid{grid-template-columns:1fr;gap:18px}.hero-art{max-width:440px;margin:0 auto;order:-1}}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+@media (max-width:900px){.hero-grid{grid-template-columns:1fr;gap:36px}}
+.hero h1{font-size:clamp(46px,7vw,84px);line-height:1.0;font-weight:600}
+.hero .lede{font-size:clamp(17px,1.6vw,19px);color:var(--ink2);max-width:520px;margin:22px 0 28px}
+.hero .cta{display:flex;flex-wrap:wrap;gap:12px}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px;padding:0;list-style:none}
+.facts li{font-size:13px;color:var(--ink2);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.facts li b{color:var(--ink);font-weight:600}
+.phones{position:relative;height:560px}
+.phones figure{position:absolute;margin:0;width:260px;border-radius:26px;overflow:hidden;
+  box-shadow:0 1px 0 var(--line2),0 22px 44px -18px rgba(25,21,15,.45)}
+.phones .p1{right:6%;top:0;transform:rotate(3deg);z-index:2}
+.phones .p2{left:4%;top:70px;transform:rotate(-4deg)}
+@media (max-width:900px){.phones{height:auto;display:flex;gap:14px;justify-content:center}
+  .phones figure{position:static;width:46%;max-width:240px;transform:none!important}}
 
-/* ---------------------------------------------------------------------------
-   STUDIO FLAGSHIP BAND — carries M3XI Studio's own house style, not the site's.
-   Studio brand rules (apps/web/src/app/globals.css): off-white paper, near-black
-   ink, exactly ONE muted red, flat surfaces, hairline rules, catalogue plate
-   numbers. No gradients and no shadows — separation is a 1px rule, always.
-   Scoped to this block so the rest of the page keeps the M3XI site palette.
-   --------------------------------------------------------------------------- */
-.apps-group{margin-top:44px}.apps-group:first-of-type{margin-top:30px}
-.apps-head{display:grid;grid-template-columns:auto 1fr;gap:6px 22px;align-items:baseline;border-top:1px solid var(--line);padding-top:18px;margin-bottom:18px}
-.apps-head .eyebrow{margin:0}.apps-title{font-size:22px;font-weight:600;margin:0}.apps-sub{grid-column:2;margin:0;color:#3c382f;font-size:14.5px}
-@media(max-width:640px){.apps-head{grid-template-columns:1fr}.apps-sub{grid-column:1}}
-.studio-feature{--s-paper:#F9F7F3;--s-paper2:#F1EEE7;--s-ink:#1A1714;--s-ink-muted:#77706A;
-  --s-ink-faint:#A9A29A;--s-rule:#E2DDD4;--s-red:#BC423B;
-  display:grid;grid-template-columns:1.08fr .92fr;gap:0;margin-top:34px;
-  background:var(--s-paper);border:1px solid var(--s-ink);border-radius:0;color:var(--s-ink)}
-.studio-feature .sf-body{padding:40px 42px;display:flex;flex-direction:column}
-.studio-feature .sf-plate{display:flex;align-items:baseline;justify-content:space-between;gap:14px;
-  border-bottom:1px solid var(--s-ink);padding-bottom:8px;margin-bottom:22px}
-.studio-feature .sf-fig{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10px;letter-spacing:.18em;
-  text-transform:uppercase;color:var(--s-ink-faint)}
-.studio-feature .sf-status{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;letter-spacing:.06em;
-  text-transform:uppercase;color:var(--s-red);border:1px solid currentColor;border-radius:999px;padding:3px 10px;
-  display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-.studio-feature .sf-status::before{content:"";width:5px;height:5px;border-radius:999px;background:currentColor}
-.studio-feature .sf-kicker{font-family:'Playfair Display',serif;font-style:italic;color:var(--s-red);font-size:15px;margin:0 0 6px}
-.studio-feature h3{font-family:'Playfair Display',serif;font-size:clamp(30px,3.8vw,44px);line-height:1.04;
-  letter-spacing:-.025em;color:var(--s-ink);margin:0 0 14px;font-weight:600}
-.studio-feature h3 em{font-style:italic;color:var(--s-red);font-weight:500}
-.studio-feature p{color:var(--s-ink-muted);font-size:15.5px;max-width:54ch;margin:0 0 18px}
-.studio-feature .sf-engines{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--s-rule);margin-top:2px}
-.studio-feature .sf-engines div{padding:16px 20px 4px 0}
-.studio-feature .sf-engines div+div{padding-left:24px;border-left:1px solid var(--s-rule)}
-.studio-feature .sf-engines h4{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--s-ink);margin:0 0 6px;font-weight:600}
-.studio-feature .sf-engines p{font-size:13.5px;color:var(--s-ink-muted);margin:0}
-.studio-feature .sf-go{margin-top:22px;display:inline-flex;align-items:center;gap:9px;align-self:flex-start;
-  background:var(--s-red);color:var(--s-paper);font-weight:600;font-size:14.5px;padding:12px 22px;border-radius:0;border:1px solid var(--s-red)}
-.studio-feature:hover .sf-go{background:var(--s-ink);border-color:var(--s-ink)}
-.studio-feature .sf-visual{position:relative;background:var(--s-paper2);border-left:1px solid var(--s-rule);
-  display:flex;align-items:center;justify-content:center;padding:34px}
-.studio-feature .sf-visual svg{width:100%;max-width:360px;height:auto}
-@media(max-width:880px){.studio-feature{grid-template-columns:1fr}
-  .studio-feature .sf-body{padding:30px 24px}
-  .studio-feature .sf-visual{order:-1;border-left:none;border-bottom:1px solid var(--s-rule);padding:26px}
-  .studio-feature .sf-engines{grid-template-columns:1fr}
-  .studio-feature .sf-engines div+div{padding-left:0;border-left:none;border-top:1px solid var(--s-rule)}}
+/* sections */
+section{padding:72px 0}
+.sec-head{max-width:720px;margin-bottom:34px}
+.sec-head h2{font-size:clamp(32px,4.2vw,46px);line-height:1.08}
+.sec-head p{color:var(--ink2);font-size:17px;margin:14px 0 0}
+.band{background:rgba(251,246,236,.62);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 
-/* app gallery */
-.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
-@media(max-width:980px){.gallery{grid-template-columns:1fr}}
-.gallery-web{grid-template-columns:repeat(3,1fr)}.gallery-web .app-card{grid-column:span 1}@media(max-width:980px){.gallery-web{grid-template-columns:1fr}}
-#mobile+.gallery{margin-top:0}.apps-group#web{margin-top:44px}.apps-group#web+.studio-feature{margin-top:0}
-.app-card{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:22px;overflow:hidden;
-  box-shadow:0 30px 60px -46px rgba(43,66,87,.5);transition:transform .18s ease,box-shadow .18s ease}
-.app-card:hover{transform:translateY(-4px);box-shadow:0 34px 64px -42px rgba(43,66,87,.6)}
-.app-visual{display:block;position:relative;border-bottom:1px solid var(--line);background:var(--paper2)}
-.app-visual svg{display:block;width:100%;height:auto}
-.app-badge{position:absolute;top:12px;left:12px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;
-  color:var(--paper2);background:var(--blue);padding:5px 12px;border-radius:999px}
-.app-badge.gold{background:var(--gold);color:#1c1606}
-.app-body{display:flex;flex-direction:column;flex:1;padding:22px 24px 26px}
-.app-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-.app-head h3{font-size:24px}
-.app-head .tag{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:600;white-space:nowrap}
-.app-body p{color:var(--ink2);font-size:14.5px;margin:10px 0 18px}
-.app-actions{margin-top:auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.app-actions .btn{padding:10px 18px;font-size:14px}
-.app-link{font-size:13.5px;font-weight:600;color:var(--blue);border-bottom:1px solid var(--line)}
-.app-link:hover{color:var(--ink);border-color:var(--gold)}
+/* how it works — a real sequence, so the steps are numbered */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;list-style:none;margin:0;padding:0;counter-reset:step}
+@media (max-width:820px){.steps{grid-template-columns:1fr}}
+.steps li{background:var(--white);border:1.5px solid var(--line2);border-radius:14px;padding:24px 22px;counter-increment:step}
+.steps li::before{content:counter(step);display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;
+  background:var(--rose-soft);color:var(--rose-deep);font:600 16px 'Playfair Display',serif;margin-bottom:14px}
+.steps h3{font-size:22px;margin-bottom:8px}
+.steps p{margin:0;color:var(--ink2);font-size:15.5px}
 
-/* value cards */
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px 24px}
-.card h3{font-size:20px;margin-bottom:8px}
-.card p{color:var(--ink2);font-size:14.5px;margin:0}
-.card .ic{width:42px;height:42px;border-radius:11px;background:#e9e0cd;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
-.card .ic svg{width:22px;height:22px;stroke:var(--blue);fill:none;stroke-width:1.6}
-.logo-visual{display:flex;align-items:center;justify-content:center;background:
-  radial-gradient(120% 120% at 50% 20%, #FFFDF7 0%, #F3ECDD 60%, #EDE4D2 100%);min-height:250px;padding:30px}
-.logo-visual .app-logo{width:min(206px,64%);aspect-ratio:1;object-fit:contain;display:block;
-  filter:drop-shadow(0 18px 30px rgba(25,21,15,.22));transition:transform .35s ease}
-.app-card:hover .logo-visual .app-logo{transform:translateY(-4px) scale(1.03)}
-.logo-visual .app-logo.tile{border-radius:23%}
-.logo-visual .logo-fb{display:none;font-family:'Playfair Display',Georgia,serif;font-size:38px;font-weight:600;color:var(--blue);letter-spacing:.01em;line-height:1;text-align:center}
-.logo-visual .rule{position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--line)}
-@media(max-width:820px){.grid3{grid-template-columns:1fr}}
+/* screens */
+.screens{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:6px}
+@media (max-width:820px){.screens{grid-template-columns:repeat(2,1fr)}}
+.screens img{border-radius:18px;border:1px solid var(--line);box-shadow:0 14px 30px -18px rgba(25,21,15,.45)}
 
-/* steps */
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:34px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel)}
-.step{padding:28px 24px;border-right:1px dashed var(--line);position:relative}
-.step:last-child{border-right:none}
-.step .no{font-family:'Playfair Display',serif;color:var(--gold);font-size:14px;letter-spacing:.1em;margin-bottom:12px}
-.step h3{font-size:19px;margin-bottom:6px}
-.step p{color:var(--ink2);font-size:14px;margin:0}
-.step svg{width:30px;height:30px;stroke:var(--blue);fill:none;stroke-width:1.5;margin-bottom:14px}
-@media(max-width:820px){.steps{grid-template-columns:1fr}.step{border-right:none;border-bottom:1px dashed var(--line)}.step:last-child{border-bottom:none}}
+/* FAQ */
+.faq{display:grid;grid-template-columns:240px 1fr;gap:48px;align-items:start}
+@media (max-width:860px){.faq{grid-template-columns:1fr;gap:18px}}
+.faq-nav{position:sticky;top:90px;display:flex;flex-direction:column;gap:4px}
+@media (max-width:860px){.faq-nav{position:static;flex-direction:row;flex-wrap:wrap}}
+.faq-nav a{text-decoration:none;font-size:14px;color:var(--ink2);padding:7px 12px;border-radius:8px;border-left:2px solid transparent}
+.faq-nav a:hover{color:var(--ink);background:rgba(25,21,15,.04);border-left-color:var(--rose)}
+.qgroup{margin-bottom:34px;scroll-margin-top:90px}
+.qgroup h3{font-size:14px;font-family:'Inter',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 8px}
+details{border-bottom:1px solid var(--line2)}
+details:first-of-type{border-top:1px solid var(--line2)}
+summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px 2px;
+  font:500 clamp(18px,1.8vw,21px)/1.35 'Playfair Display',serif;color:var(--ink)}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"";flex:none;width:12px;height:12px;border-right:2px solid var(--rose);border-bottom:2px solid var(--rose);
+  transform:rotate(45deg) translate(-3px,-3px);transition:transform .18s}
+details[open] summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
+summary:hover{color:var(--rose-deep)}
+.answer{padding:0 2px 20px;color:var(--ink2);max-width:66ch}
+.answer p{margin:0 0 10px}
+.answer p:last-child{margin-bottom:0}
+.answer a{color:var(--rose-deep);text-decoration-thickness:1px;text-underline-offset:3px}
+.answer b{color:var(--ink);font-weight:600}
+.price{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 4px}
+@media (max-width:560px){.price{grid-template-columns:1fr}}
+.price div{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.price b{display:block;font:600 18px 'Playfair Display',serif;color:var(--ink);font-variant-numeric:tabular-nums}
+.price span{font-size:13.5px}
 
-/* get involved */
-.involve{display:grid;grid-template-columns:1.1fr .9fr;gap:26px;margin-top:30px;align-items:start}
-@media(max-width:820px){.involve{grid-template-columns:1fr}}
-.honest{background:var(--white);border:1px dashed var(--gold);border-radius:18px;padding:26px}
-.honest h3{font-size:20px;margin-bottom:8px}
-.honest p{color:var(--ink2);font-size:14.5px}
-.tags{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 20px}
-.tags span{font-size:12.5px;color:var(--ink2);background:#efe7d4;border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+/* safety strip */
+.safety{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media (max-width:860px){.safety{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.safety{grid-template-columns:1fr}}
+.safety a{display:block;text-decoration:none;background:var(--white);border:1.5px solid var(--line2);border-radius:12px;padding:18px}
+.safety a:hover{border-color:var(--rose)}
+.safety b{display:block;font:600 18px 'Playfair Display',serif;margin-bottom:4px}
+.safety span{font-size:14px;color:var(--ink2)}
 
 /* team */
-.people{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px}
-.person{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px}
+.people{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media (max-width:820px){.people{grid-template-columns:1fr}}
+.person{background:var(--white);border:1.5px solid var(--line2);border-radius:14px;padding:22px;display:flex;gap:16px;align-items:center;text-decoration:none}
+.person .av{flex:none;width:64px;height:64px;border-radius:14px;overflow:hidden;background:var(--rose-soft);display:flex;align-items:center;justify-content:center;
+  font:600 22px 'Playfair Display',serif;color:var(--rose-deep)}
+.person .av img{width:100%;height:100%;object-fit:cover}
+.person .role{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0}
+.person h3{font-size:22px}
+.person .more{font-size:14px;color:var(--rose-deep)}
 .person.open{border-style:dashed;background:transparent}
-.person .av{width:54px;height:54px;border-radius:14px;background:#e9e0cd;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--blue);font-family:'Playfair Display',serif;font-size:20px;margin-bottom:14px}
-.person .role{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600}
-.person h3{font-size:22px;margin:2px 0 8px}.person p{color:var(--ink2);font-size:14.5px;margin:0}
-@media(max-width:820px){.people{grid-template-columns:1fr}}
 
-/* contact */
-.contact-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px;margin-top:30px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
-.contact-card a.email{font-family:'Playfair Display',serif;font-size:22px;color:var(--ink)}
-.socials{display:flex;gap:10px}
-.socials a{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;background:var(--white)}
-.socials a:hover{border-color:var(--gold)}
-.socials svg{width:18px;height:18px;fill:var(--ink)}
-
-/* footer */
-footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);font-size:13px;background:rgba(246,240,227,.6)}
-.foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
-.foot a:hover{color:var(--ink)}
-.foot .lnks{display:flex;gap:16px;flex-wrap:wrap}
+/* contact + footer */
+.contact{display:flex;flex-wrap:wrap;gap:24px 48px}
+.contact div{min-width:240px}
+.contact b{display:block;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px}
+.contact a{font:500 20px 'Playfair Display',serif;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line2)}
+.contact a:hover{color:var(--rose-deep)}
+footer.site{border-top:1px solid var(--line);padding:28px 0 36px;font-size:14px;color:var(--ink2)}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px;align-items:center}
+.foot nav{display:flex;flex-wrap:wrap;gap:6px 16px}
+.foot nav a{text-decoration:none}
+.foot nav a:hover{color:var(--ink)}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute;left:-9999px" aria-hidden="true" focusable="false"><defs>
-<g id="artSkyline">
-  <g fill="none" stroke="#2B4257" stroke-width="1.3" stroke-dasharray="7 11" opacity=".5">
-    <path d="M210 24V430M620 24V430M1010 24V430M1390 24V430"/>
-    <path d="M0 452H1600"/>
-  </g>
-  <g fill="none" stroke="#2B4257" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M0 430H1600"/>
-    <!-- A sawtooth works -->
-    <path d="M30 430V352l55-30v30l55-30v30l55-30v30l55-30v30l-55 0"/>
-    <path d="M30 352h220V430"/>
-    <path d="M126 396h34v34"/>
-    <!-- B stack -->
-    <path d="M272 430V300l10-42h18l10 42v130M276 258h30M274 292h32M275 322h30"/>
-    <!-- C scaffolded tower -->
-    <path d="M340 430V162h130v268"/>
-    <path d="M340 196h130M340 230h130M340 264h130M340 298h130M340 332h130M340 366h130M340 400h130"/>
-    <!-- D skyscraper -->
-    <path d="M500 430V80h168v350M540 80V46h88v34M584 46V14"/>
-    <path d="M500 146h168M500 236h168M500 326h168"/>
-    <!-- E tower crane -->
-    <path d="M706 430V70M740 430V70M706 108h34M706 160h34M706 212h34M706 264h34M706 316h34M706 368h34"/>
-    <path d="M706 108l34 52M740 108l-34 52M706 212l34 52M740 212l-34 52M706 316l34 52M740 316l-34 52"/>
-    <path d="M706 70l17-36 17 36"/>
-    <path d="M636 76h330M636 90h330"/>
-    <path d="M723 34l232 44M723 34l-84 44"/>
-    <path d="M740 90h34v28h-34"/>
-    <!-- F frame under construction -->
-    <path d="M790 430V182M826 430V182M862 430V182M898 430V182M930 430V182"/>
-    <path d="M790 182h140M790 238h140M790 294h140M790 350h140M790 406h140"/>
-    <path d="M790 238l36-56M826 238l-36-56M862 350l36-56M898 350l-36-56"/>
-    <!-- G water tower -->
-    <path d="M972 430l16-128M1032 430l-16-128M1002 430V302"/>
-    <path d="M962 302h80v-38c0-16-18-26-40-26s-40 10-40 26z"/>
-    <path d="M974 372h56M974 358l56 30M1030 358l-56 30"/>
-    <!-- H second skyscraper -->
-    <path d="M1070 430V104h140v326M1090 104V72h100v32"/>
-    <path d="M1070 170h140M1070 236h140M1070 302h140M1070 368h140"/>
-    <!-- I gantry -->
-    <path d="M1250 430V226M1290 430V226M1400 430V226M1440 430V226"/>
-    <path d="M1236 212h218M1236 226h218"/>
-    <path d="M1250 300l40 62M1290 300l-40 62M1400 300l40 62M1440 300l-40 62"/>
-    <path d="M1330 226h36v22h-36zM1348 248v54"/>
-    <path d="M1300 430v-64h90v64M1294 366l51-26 51 26"/>
-    <!-- J silos -->
-    <path d="M1470 430V300c0-18 8-26 18-26s18 8 18 26v130"/>
-    <path d="M1514 430V314c0-16 7-24 16-24s16 8 16 24v116"/>
-    <path d="M1472 336h32M1472 376h32M1516 350h32M1516 390h32M1506 322h8"/>
-    <!-- K edge tower -->
-    <path d="M1560 430V150h40M1560 206h40M1560 262h40M1560 318h40M1560 374h40"/>
-  </g>
-  <g fill="none" stroke="#2B4257" stroke-width="1.25" opacity=".72">
-    <path d="M520 96V430M542 96V430M564 96V430M586 96V430M608 96V430M630 96V430M652 96V430"/>
-    <path d="M1092 118V430M1114 118V430M1136 118V430M1158 118V430M1180 118V430"/>
-    <path d="M348 172V430M362 172V430M348 208h14M348 254h14M348 300h14M348 346h14M348 392h14"/>
-  </g>
-  <g fill="#B6892F" opacity=".55">
-    <rect x="46" y="378" width="24" height="26"/><rect x="94" y="378" width="24" height="26"/>
-    <rect x="182" y="378" width="24" height="26"/><rect x="218" y="378" width="24" height="26"/>
-    <rect x="522" y="158" width="18" height="26"/><rect x="588" y="248" width="18" height="26"/>
-    <rect x="632" y="338" width="18" height="26"/>
-    <rect x="1094" y="182" width="18" height="24"/><rect x="1160" y="248" width="18" height="24"/>
-    <rect x="1116" y="314" width="18" height="24"/>
-    <rect x="392" y="278" width="16" height="22"/><rect x="428" y="346" width="16" height="22"/>
-  </g>
-  <g fill="none" stroke="#B6892F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M880 90v66M858 156h44v34h-44z"/>
-    <path d="M1348 302h-20v30h40v-30z"/>
-    <path d="M40 444h210M40 438v12M250 438v12"/>
-    <path d="M500 444h168M500 438v12M668 438v12"/>
-  </g>
-  <text x="300" y="458" font-family="Inter,sans-serif" font-size="12" letter-spacing="3" fill="#B6892F" opacity=".85">FIG. B &#8212; DEVELOPMENT</text>
-  <text x="1180" y="458" font-family="Inter,sans-serif" font-size="12" letter-spacing="3" fill="#B6892F" opacity=".85">SITE 01 &#8212; M3XI</text>
-</g>
-</defs></svg>
 
 <header class="site"><div class="wrap nav">
-  <a class="brand" href="/"><img class="mk" src="/M.png" alt="M3XI"/> M3XI <span class="jp">三X一</span></a>
-  <nav class="menu">
-    <a class="lnk active" href="/">Home</a>
-    <a class="lnk" href="/studio/">Studio</a>
-    <a class="lnk" href="/studio/business.html">Business</a>
-    <a class="lnk" href="#products">Apps</a>
-    <a class="lnk" href="/services/">Services</a>
-    <a class="lnk" href="/jobs/">Jobs</a>
-    <a class="lnk" href="#contact">Contact</a>
-    <a class="cta" href="/studio/">Enter the Studio</a>
+  <a class="brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="jp">三X一</span></a>
+  <nav class="menu" aria-label="Main">
+    <a href="#how">How it works</a>
+    <a href="#faq">Questions</a>
+    <a href="#safety">Safety</a>
+    <a href="/team/">Team</a>
+    <a class="get" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get CallMe</a>
   </nav>
 </div></header>
 
-<section class="hero has-band"><svg class="bgband soft" viewBox="0 0 1600 460" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false"><use href="#artSkyline"/></svg><div class="wrap hero-grid">
+<main>
+
+<section class="hero"><div class="wrap hero-grid">
   <div>
-    <p class="eyebrow">M3XI Studio &middot; 三X一</p>
-    <h1>Interactions that <em>matter.</em> Worlds that sell.</h1>
-    <p class="lede">M3XI Studio is our platform and AI generation tool &mdash; one studio with two engines. Cinematic images, video and 3D assets from a single prompt, and real spaces scanned on a phone and published as walkable photoreal worlds. It powers everything we make.</p>
-    <div class="hero-cta"><a class="btn btn-gold" href="/studio/">Enter the Studio &rarr;</a><a class="btn btn-ghost" href="#products">See our apps</a></div>
+    <p class="eyebrow">CallMe by M3XI</p>
+    <h1>Ditch the <em>card games.</em></h1>
+    <p class="lede">CallMe is a video call app for meeting new people. No swiping through profiles, no chat that dies after two messages. You get matched, and you are talking in seconds.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M4.6 2.2c-.3.3-.5.8-.5 1.4v16.8c0 .6.2 1.1.5 1.4l.1.1 9.4-9.4v-.2L4.7 2.1l-.1.1Zm12.6 12.9-3.1-3.1v-.2l3.1-3.1.1.1 3.7 2.1c1.1.6 1.1 1.6 0 2.2l-3.7 2.1-.1-.1Zm-.1.1-3.2-3.2-9.3 9.3c.3.4.9.4 1.6 0l10.9-6.1Zm0-6.5L6.2 2.6c-.7-.4-1.3-.4-1.6 0l9.3 9.3 3.2-3.2Z"/></svg>
+        Get it on Google Play
+      </a>
+      <a class="btn btn-ghost" href="#faq">Read the questions</a>
+    </div>
+    <ul class="facts" aria-label="At a glance">
+      <li><b>Free</b> · five calls a day</li>
+      <li><b>18+</b> · age-verified</li>
+      <li><b>Voice first</b> · video when you both say yes</li>
+      <li><b>Android</b> now · iPhone on the way</li>
+    </ul>
   </div>
-  <div>
-<div class="sheet hero-art" style="filter:none">
-  <figure><img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/m3xi-site-assets-y53k/msn83ule-showroom.jpg" alt="Generated showroom interior" loading="eager"><figcaption>Fig. a &mdash; prompt to picture</figcaption></figure>
-  <figure><img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/m3xi-site-assets-y53k/msn845g0-film.jpg" alt="Cinematic night-street still" loading="eager"><figcaption>Fig. b &mdash; film still</figcaption></figure>
-  <figure><img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/m3xi-site-assets-y53k/msn841wk-anime.jpg" alt="Anime-styled interior" loading="lazy"><figcaption>Fig. c &mdash; style preset</figcaption></figure>
-  <figure><img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/m3xi-site-assets-y53k/msn83x9h-penthouse.jpg" alt="Photoreal penthouse interior" loading="lazy"><figcaption>Fig. d &mdash; walkable world</figcaption></figure>
-</div>
-
-</div>
+  <div class="phones" aria-hidden="false">
+    <figure class="p1"><img src="/img/callme/screen-04.webp" width="540" height="960" alt="A CallMe call in progress: voice only, with Add friend and Skip buttons and the camera off" loading="eager"></figure>
+    <figure class="p2"><img src="/img/callme/screen-02.webp" width="540" height="960" alt="CallMe asking how you would like to meet someone: at a table with a few people, or one to one" loading="eager"></figure>
+  </div>
 </div></section>
 
-<div class="dim">The flagship</div>
-<section id="studio-showcase"><div class="wrap reveal">
-  <p class="eyebrow">Fig. 00 &mdash; M3XI Studio</p>
-  <h2>One studio, <em>two engines.</em></h2>
-  <p class="lede">Every picture on this page came out of it &mdash; no stock, no retouching. Write a prompt and the Studio returns finished work: a picture, a scene, a film, or a place you can walk through in the browser.</p>
+<section id="how" class="band"><div class="wrap">
+  <div class="sec-head">
+    <p class="eyebrow">How it works</p>
+    <h2>Three steps to a <em>real conversation.</em></h2>
+    <p>No profile to write, no opening line to agonise over. Set yourself up once, then let the app find someone.</p>
+  </div>
+  <ol class="steps">
+    <li>
+      <h3>Verify once</h3>
+      <p>Everyone on CallMe is an adult who has passed an age check. You do it one time, in the app, and it is done.</p>
+    </li>
+    <li>
+      <h3>Get matched both ways</h3>
+      <p>Say who you would like to meet. A match only happens when your preferences suit each other, so it is never one-sided.</p>
+    </li>
+    <li>
+      <h3>Talk</h3>
+      <p>The call opens on voice. Cameras come on when you both ask. Not clicking? Skip, and you are both somewhere new in seconds.</p>
+    </li>
+  </ol>
+  <div class="screens" style="margin-top:34px">
+    <img src="/img/callme/screen-01.webp" width="540" height="960" alt="The CallMe lobby, where you send a letter to start a conversation" loading="lazy">
+    <img src="/img/callme/screen-03.webp" width="540" height="960" alt="CallMe matching, checking preferences, distance and age both ways" loading="lazy">
+    <img src="/img/callme/screen-04.webp" width="540" height="960" alt="A voice-only call with the camera off until both people agree" loading="lazy">
+    <img src="/img/callme/screen-02.webp" width="540" height="960" alt="Choosing between a table with a few people or one new person" loading="lazy">
+  </div>
+</div></section>
 
-  <div class="engines">
-    <div class="eng">
-      <img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/m3xi-site-assets-y53k/msn846ze-story.jpg" alt="Storybook animation still" loading="lazy">
-      <div class="in">
-        <div class="kick">Engine A &mdash; Studio</div>
-        <h3>Prompt to picture, picture to film</h3>
-        <ul>
-          <li>Full-HD stills, video clips and downloadable 3D assets</li>
-          <li>Film mode &mdash; the AI writes the shot list, then renders scene by scene</li>
-          <li>UGC Product Studio &mdash; an AI creator presents your product</li>
-          <li>Prepaid credits, so a bill can never outrun what you bought</li>
-        </ul>
-        <div class="row"><a class="btn btn-gold" href="/studio/">Open the Studio</a><a class="btn btn-ghost" href="/studio/ugc.html">UGC Studio</a></div>
-      </div>
-    </div>
-    <div class="eng">
-      <img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/generated-bedroom-first-marble-world-a2td/cover.jpg" alt="AI-generated bedroom world" loading="lazy">
-      <div class="in">
-        <div class="kick">Engine B &mdash; Worlds</div>
-        <h3>Real places, and places that never existed</h3>
-        <ul>
-          <li>Scan a room on a phone, or generate a world from a prompt</li>
-          <li>Walk it first-person in any browser &mdash; solid floors, walls and stairs</li>
-          <li>Publish to the Library, share one link, embed it anywhere</li>
-          <li>True scale in metres &mdash; a doorway stays a doorway</li>
-        </ul>
-        <div class="row"><a class="btn btn-gold" href="/studio/walkthrough.html">Open Spatial</a><a class="btn btn-ghost" href="/studio/#worlds">How it works</a></div>
-      </div>
-    </div>
+<section id="faq"><div class="wrap">
+  <div class="sec-head">
+    <p class="eyebrow">Questions</p>
+    <h2>Everything people <em>ask us.</em></h2>
+    <p>If yours is not here, email <a href="mailto:support@m3xi.com" style="color:var(--rose-deep)">support@m3xi.com</a> and a person will answer.</p>
   </div>
 
-  <p class="subhead">What comes out</p>
-  <div class="gal">
-    <figure><img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/m3xi-site-assets-y53k/msn83z09-museum.jpg" alt="Gallery interior" loading="lazy"><figcaption><b>Gallery light</b><span>Photoreal</span></figcaption></figure>
-    <figure><img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/m3xi-site-assets-y53k/msn843vu-manga.jpg" alt="Manga cityscape" loading="lazy"><figcaption><b>Spread: the city</b><span>Manga</span></figcaption></figure>
-    <figure><img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/m3xi-site-assets-y53k/msn8407b-study.jpg" alt="Sunlit study room" loading="lazy"><figcaption><b>Morning study</b><span>Interior</span></figcaption></figure>
-    <figure><img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/m3xi-site-assets-y53k/msn849tk-chair.jpg" alt="Product render of a lounge chair" loading="lazy"><figcaption><b>Chair, studio</b><span>Product</span></figcaption></figure>
-    <figure><img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/m3xi-site-assets-y53k/msn848j9-avatar.jpg" alt="Virtual presenter with a product" loading="lazy"><figcaption><b>Presenter 01</b><span>UGC avatar</span></figcaption></figure>
-    <figure><img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/m3xi-site-assets-y53k/msn84bjx-twilight.jpg" alt="Twilight house exterior" loading="lazy"><figcaption><b>Twilight listing</b><span>Key art</span></figcaption></figure>
-  </div>
+  <div class="faq">
+    <nav class="faq-nav" aria-label="Question topics">
+      <a href="#q-basics">The basics</a>
+      <a href="#q-calls">Calls and matching</a>
+      <a href="#q-safety">Safety and privacy</a>
+      <a href="#q-cost">Cost and devices</a>
+    </nav>
 
-  <p class="subhead">Walk one now &mdash; published to the Library</p>
-  <div class="wgrid">
-    <a class="wcard" href="/studio/walkthrough.html?world=meadow-valley-enq7&amp;embed=1">
-      <div class="nocov" aria-hidden="true">Phone scan &middot; real place</div>
-      <div class="m"><b>Meadow Valley</b><span>Real scan &middot; walkable</span></div>
-    </a>
-    <a class="wcard" href="/studio/walkthrough.html?world=generated-bedroom-first-marble-world-a2td&amp;embed=1">
-      <img src="https://tnlcuptfldwxtxajudoq.supabase.co/storage/v1/object/public/worlds/generated-bedroom-first-marble-world-a2td/cover.jpg" alt="AI-generated sunlit bedroom world" loading="lazy">
-      <div class="m"><b>Sunlit Bedroom</b><span>AI-generated &middot; walkable</span></div>
-    </a>
-    <a class="wcard more" href="/studio/#library"><b>The Library &rarr;</b><span style="margin-top:6px">every world published with M3XI</span></a>
-  </div>
-
-  <div class="tourRow" id="property-tours">
     <div>
-      <div class="kick">For estate agents</div>
-      <h3>Property tours</h3>
-      <p>Real 360&deg; photographs of the property, walkable on the floorplan, every enquiry kept in your dashboard. No AI imagery &mdash; a buyer only ever sees what the camera recorded.</p>
-    </div>
-    <div><a class="btn btn-gold" href="/studio/#spatial">Property tours &rarr;</a></div>
-  </div>
-
-  <div class="pipe">
-    <div><div class="n">01</div><h4>Prompt</h4><p>Write it plainly, or attach photos of a real place.</p></div>
-    <div><div class="n">02</div><h4>Direction</h4><p>The AI writes the shot list and holds the look steady.</p></div>
-    <div><div class="n">03</div><h4>Render</h4><p>Stills, clips, 3D assets and worlds come back finished.</p></div>
-    <div><div class="n">04</div><h4>Publish</h4><p>Download it, share a link, or embed it on your own site.</p></div>
-  </div>
-</div></section>
-
-<div class="dim">The gallery</div>
-<section id="products" class="has-band"><svg class="bgart phone" viewBox="0 0 420 640" aria-hidden="true" focusable="false">
-  <g class="sk-dsh" style="stroke-width:1.6;stroke-dasharray:5 9"><path d="M18 40V612M18 330h388M96 26V44M348 26V44"/></g>
-  <g transform="rotate(-9 250 300)" opacity=".5">
-    <path class="sk-ln" style="stroke-width:2.2" d="M262 96h124a22 22 0 0 1 22 22v300a22 22 0 0 1-22 22H262"/>
-    <path class="sk-dsh" style="stroke-width:1.4;stroke-dasharray:5 8" d="M280 140h112M280 168h84M280 196h100M280 236h112v92H280z"/>
-  </g>
-  <rect class="sk-ln" style="stroke-width:2.8" x="96" y="44" width="252" height="520" rx="38"/>
-  <rect class="sk-dsh" style="stroke-width:1.4;stroke-dasharray:5 8" x="110" y="58" width="224" height="492" rx="28"/>
-  <path class="sk-ln" style="stroke-width:3.4" d="M188 84h68"/>
-  <rect class="sk-gd" style="stroke-width:2" x="136" y="118" width="172" height="60" rx="9"/>
-  <path class="sk-ln" style="stroke-width:2" d="M152 140h84M152 158h58"/>
-  <path class="sk-ln" style="stroke-width:2.2" d="M136 202h172M136 220h114M136 238h146"/>
-  <rect class="sk-ln" style="stroke-width:2.2" x="136" y="262" width="80" height="66" rx="7"/>
-  <rect class="sk-ln" style="stroke-width:2.2" x="228" y="262" width="80" height="66" rx="7"/>
-  <rect class="sk-ln" style="stroke-width:2.2" x="136" y="342" width="80" height="66" rx="7"/>
-  <rect class="sk-ln" style="stroke-width:2.2" x="228" y="342" width="80" height="66" rx="7"/>
-  <g class="sk-gd" style="stroke-width:3;stroke-linecap:round">
-    <path d="M252 306v-22M264 312v-34M276 302v-14M288 310v-30"/>
-  </g>
-  <path class="sk-ln" style="stroke-width:2" d="M152 288h48M152 300h32"/>
-  <rect class="sk-ln" style="stroke-width:2.2" x="136" y="436" width="172" height="46" rx="12"/>
-  <g class="sk-ln" style="stroke-width:2.2"><circle cx="176" cy="459" r="8"/><circle cx="222" cy="459" r="8"/><circle cx="268" cy="459" r="8"/></g>
-  <path class="sk-ln" style="stroke-width:5;stroke-linecap:round" d="M186 524h72"/>
-  <path fill="#B6892F" opacity=".75" d="M300 460l26 36-13 3 10 21-10 5-10-21-11 8z"/>
-  <path class="sk-dsh" style="stroke-width:1.4;stroke-dasharray:5 8" d="M64 44v520M56 44h16M56 564h16"/>
-  <text class="sk-t" style="font-size:13px;letter-spacing:3.2px" x="18" y="626">FIG. A &#8212; APPS</text>
-</svg><div class="wrap reveal">
-  <p class="eyebrow">Our apps</p>
-  <h2>What we&rsquo;re <em>building.</em></h2>
-  <p class="lede" style="margin-bottom:6px">A small studio with a growing shelf of apps. Each one is its own world &mdash; step in to explore, or join a waitlist and be first through the door. <a href="/services/" style="color:var(--blue);border-bottom:1px solid var(--line)">See all our services &rarr;</a></p>
-
-  <div class="apps-group" id="mobile">
-    <div class="apps-head"><p class="eyebrow">Mobile</p><h3 class="apps-title">Apps for your phone</h3><p class="apps-sub">Android first, iOS to follow. Built with Expo and React Native.</p></div>
-  </div>
-
-  <div class="gallery">
-
-    <!-- Cornelia -->
-    <article class="app-card">
-      <a class="app-visual logo-visual" href="/cornelia.html" aria-label="Open the Cornelia page">
-        <span class="app-badge">Working on</span>
-        <img class="app-logo tile" src="/cornelia-app-icon.svg" alt="Cornelia app logo" loading="lazy" onerror="this.style.display='none';this.parentNode.querySelector('.logo-fb').style.display='block'"><span class="logo-fb">Cornelia</span><span class="rule"></span>
-      </a>
-      <div class="app-body">
-        <div class="app-head"><h3>Cornelia</h3><span class="tag">Study notes</span></div>
-        <p>Our note-taking app for students &mdash; record lectures, transcribe, and organise everything into calm, Cornell-style notes. Android first, production ready and heading to the store.</p>
-        <div class="app-actions">
-          <a class="btn btn-primary" href="/cornelia.html">Explore</a>
-          <a class="app-link" href="/cornelia.html#waitlist">Join waitlist &rarr;</a>
-        </div>
+      <div class="qgroup" id="q-basics">
+        <h3>The basics</h3>
+        <details open>
+          <summary>What is CallMe?</summary>
+          <div class="answer"><p>CallMe is a video call app for meeting new people. Instead of swiping through profiles and waiting for replies, you get matched with someone and you are talking to them straight away.</p></div>
+        </details>
+        <details>
+          <summary>What does &ldquo;ditch the card games&rdquo; mean?</summary>
+          <div class="answer"><p>Most apps for meeting people are a card game: swipe through profiles, collect matches, then wait on a chat that dies after two messages. CallMe skips all of that. The first thing you do with someone new is talk to them.</p></div>
+        </details>
+        <details>
+          <summary>Is CallMe a dating app?</summary>
+          <div class="answer"><p>No. CallMe is for meeting people and having a conversation. Dating is welcome if that is where a conversation goes, but it is not the point, and nobody on CallMe is a profile to be sorted through.</p></div>
+        </details>
+        <details>
+          <summary>Who makes CallMe?</summary>
+          <div class="answer"><p>M3XI LTD, a small company in London. It was founded by Michael and co-founded with Leo Chi. <a href="/team/">Meet the team</a>.</p></div>
+        </details>
       </div>
-    </article>
 
-    <!-- CallMe -->
-    <article class="app-card">
-      <a class="app-visual logo-visual" href="/callme.html" aria-label="Open the CallMe page">
-        <span class="app-badge gold">Ready</span>
-        <img class="app-logo tile" src="/callme-icon.png" alt="CallMe app logo" loading="lazy" onerror="this.style.display='none';this.parentNode.querySelector('.logo-fb').style.display='block'"><span class="logo-fb">CallMe</span><span class="rule"></span>
-      </a>
-      <div class="app-body">
-        <div class="app-head"><h3>CallMe</h3><span class="tag">Dating, by voice</span></div>
-        <p>Call-first dating &mdash; the opposite of swiping. Set your preferences once, tap Start, and you&rsquo;re in a live voice call with someone compatible.</p>
-        <div class="app-actions">
-          <a class="btn btn-primary" href="/callme.html">Explore</a>
-          <a class="app-link" href="/callme.html#waitlist">Join waitlist &rarr;</a>
-        </div>
+      <div class="qgroup" id="q-calls">
+        <h3>Calls and matching</h3>
+        <details open>
+          <summary>How does matching work?</summary>
+          <div class="answer"><p>You choose the age range, the distance and who you would like to meet. The same preferences are checked for both people before anyone is introduced, so a match is never one-sided. You can change them whenever you like.</p></div>
+        </details>
+        <details>
+          <summary>Does my camera come on straight away?</summary>
+          <div class="answer"><p>No. Every call opens on voice. Video turns on only when <b>both</b> of you ask for it. One person can never switch on the other person's camera, and you can turn yours off at any time without ending the call.</p></div>
+        </details>
+        <details>
+          <summary>What if the conversation isn't going anywhere?</summary>
+          <div class="answer"><p>Skip. You are both on your way to someone new in seconds, and nobody has to explain themselves. If it was a good conversation, you can ask to be friends instead.</p></div>
+        </details>
+        <details>
+          <summary>Can I talk to more than one person?</summary>
+          <div class="answer"><p>Yes. Open a table around a topic and a few people can sit down together, or pull up a chair at someone else's. Whoever is in your party comes with you.</p></div>
+        </details>
+        <details>
+          <summary>Are there things to do on a call?</summary>
+          <div class="answer"><p>Nine games you can start mid-call for everyone on it at once: two truths and a lie, charades, categories, would you rather, 21 questions, sketch together, memory, a crossword and a quick quiz.</p></div>
+        </details>
       </div>
-    </article>
 
-  </div>
-
-  <div class="apps-group" id="web">
-    <div class="apps-head"><p class="eyebrow">Web &amp; desktop</p><h3 class="apps-title">In the browser and on the workbench</h3><p class="apps-sub">The Studio runs in any modern browser. AutoUV installs into Blender.</p></div>
-  </div>
-
-  <a class="studio-feature" href="/studio/" aria-label="Open the M3XI Studio page">
-    <div class="sf-body">
-      <div class="sf-plate">
-        <span class="sf-fig">Fig. 00 — Flagship / main service</span>
-        <span class="sf-status">In pre-release</span>
+      <div class="qgroup" id="q-safety">
+        <h3>Safety and privacy</h3>
+        <details open>
+          <summary>Who can use CallMe?</summary>
+          <div class="answer"><p>Adults aged 18 and over. Everyone verifies their age before they can call anyone, with an identity document, a live selfie and a face match. The check is carried out by our verification provider, and we receive the result rather than your documents.</p></div>
+        </details>
+        <details>
+          <summary>How do I stay safe on a call?</summary>
+          <div class="answer"><p>On every call you can silence someone for yourself, block them, or report them. A report never tells the other person who filed it, and a block is mutual and final. Verification proves someone is a real adult. It is not a background check, so never share financial details or your home address.</p><p>Our <a href="/child-safety/">child safety standards</a> explain how we keep under-18s out.</p></div>
+        </details>
+        <details>
+          <summary>Are calls recorded?</summary>
+          <div class="answer"><p>No. CallMe does not record the audio or video of your calls.</p><p>What we do collect, and why, is set out in the <a href="/privacy/#callme">CallMe privacy policy</a>.</p></div>
+        </details>
+        <details>
+          <summary>How do I delete my account?</summary>
+          <div class="answer"><p>In the app, go to <b>Settings</b>, then <b>Delete account and data</b>. If you no longer have the app, use the request form at <a href="/delete-account/">m3xi.com/delete-account</a>.</p></div>
+        </details>
       </div>
-      <p class="sf-kicker">One studio, two engines.</p>
-      <h3>M3XI <em>Studio</em></h3>
-      <p>Our platform and AI generation tool. Cinematic images, video and 3D assets on prepaid credits &mdash; and real spaces, scanned on a phone, published as walkable photoreal worlds.</p>
-      <div class="sf-engines">
-        <div>
-          <h4>Studio engine</h4>
-          <p>Prompt to script to storyboard to finished film &mdash; character-locked, voiced and scored.</p>
-        </div>
-        <div>
-          <h4>World engine</h4>
-          <p>Scan a real room on a phone; get a photoreal twin anyone can walk through.</p>
-        </div>
-      </div>
-      <span class="sf-go">Enter the Studio &rarr;</span>
-    </div>
-    <div class="sf-visual">
-      <svg viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three storyboard frames resolving into a single finished film frame">
-        <!-- storyboard row: sketch, ink, final -->
-        <g fill="none" stroke="#1A1714" stroke-width="1.4">
-          <rect x="14" y="26" width="100" height="70"/>
-          <rect x="130" y="26" width="100" height="70"/>
-          <rect x="246" y="26" width="100" height="70"/>
-        </g>
-        <g fill="none" stroke="#1A1714" stroke-width="1.4" stroke-linecap="round" opacity=".45">
-          <circle cx="46" cy="52" r="9"/><path d="M26 86 q18 -26 34 -8 q12 14 26 6"/>
-        </g>
-        <g fill="none" stroke="#1A1714" stroke-width="1.6" stroke-linecap="round" opacity=".75">
-          <circle cx="162" cy="52" r="9"/><path d="M142 86 q18 -28 36 -8 q12 14 26 6"/><path d="M150 68 h34" opacity=".5"/>
-        </g>
-        <g fill="none" stroke="#1A1714" stroke-width="1.8" stroke-linecap="round">
-          <circle cx="278" cy="52" r="9"/><path d="M258 86 q18 -30 38 -8 q12 14 26 6"/><path d="M266 68 h34"/>
-          <circle cx="300" cy="40" r="2.2" fill="#BC423B" stroke="none"/>
-        </g>
-        <!-- plate numbers under each frame -->
-        <g font-family="ui-monospace,Menlo,monospace" font-size="8" letter-spacing="1.6" fill="#A9A29A">
-          <text x="14" y="110">01 SCRIPT</text><text x="130" y="110">02 BOARD</text><text x="246" y="110">03 LOCK</text>
-        </g>
-        <!-- routing rules down to the render -->
-        <path d="M64 120 v16 M180 120 v16 M296 120 v16 M64 136 h232 M180 136 v18" stroke="#1A1714" stroke-width="1.2" fill="none" opacity=".55"/>
-        <!-- finished frame -->
-        <rect x="60" y="154" width="240" height="112" fill="none" stroke="#1A1714" stroke-width="1.8"/>
-        <path d="M60 176 h240 M60 244 h240" stroke="#1A1714" stroke-width="1" opacity=".35"/>
-        <g fill="none" stroke="#1A1714" stroke-width="1" opacity=".35">
-          <rect x="70" y="162" width="9" height="7"/><rect x="94" y="162" width="9" height="7"/><rect x="118" y="162" width="9" height="7"/>
-          <rect x="142" y="162" width="9" height="7"/><rect x="166" y="162" width="9" height="7"/><rect x="190" y="162" width="9" height="7"/>
-          <rect x="214" y="162" width="9" height="7"/><rect x="238" y="162" width="9" height="7"/><rect x="262" y="162" width="9" height="7"/>
-          <rect x="70" y="251" width="9" height="7"/><rect x="94" y="251" width="9" height="7"/><rect x="118" y="251" width="9" height="7"/>
-          <rect x="142" y="251" width="9" height="7"/><rect x="166" y="251" width="9" height="7"/><rect x="190" y="251" width="9" height="7"/>
-          <rect x="214" y="251" width="9" height="7"/><rect x="238" y="251" width="9" height="7"/><rect x="262" y="251" width="9" height="7"/>
-        </g>
-        <polygon points="170,198 170,222 194,210" fill="#BC423B"/>
-        <text x="60" y="284" font-family="ui-monospace,Menlo,monospace" font-size="8" letter-spacing="1.6" fill="#A9A29A">04 RENDER — VOICE, SCORE, EXPORT</text>
-      </svg>
-    </div>
-  </a>
 
-
-  <div class="gallery gallery-web">
-    <!-- AutoUV -->
-    <article class="app-card">
-      <a class="app-visual logo-visual" href="/autouv.html" aria-label="Open the AutoUV page">
-        <span class="app-badge">In development</span>
-        <img class="app-logo" src="/autouv/icon.png" alt="AutoUV app logo" loading="lazy" onerror="this.style.display='none';this.parentNode.querySelector('.logo-fb').style.display='block'"><span class="logo-fb">AutoUV</span><span class="rule"></span>
-      </a>
-      <div class="app-body">
-        <div class="app-head"><h3>AutoUV</h3><span class="tag">Blender add-on</span></div>
-        <p>Game-ready UV unwrapping for 3D artists &mdash; Adaptive UV Intelligence, a full seam toolbox, quality scoring and one-click engine export.</p>
-        <div class="app-actions">
-          <a class="btn btn-primary" href="/autouv.html">Explore</a>
-          <a class="app-link" href="/autouv.html#waitlist">Join waitlist &rarr;</a>
-        </div>
-      </div>
-    </article>
-  </div>
-</div></section>
-
-<section id="vision-anchor" style="position:relative;height:0"><svg class="bgart robot" viewBox="0 0 132 210" aria-hidden="true">
-  <g class="sk-dsh"><line x1="12" y1="8" x2="12" y2="200"/><line x1="12" y1="104" x2="120" y2="104"/></g>
-  <rect class="sk-ln" x="38" y="26" width="54" height="42" rx="8"/>
-  <circle class="sk-gd" cx="54" cy="47" r="5"/><circle class="sk-gd" cx="76" cy="47" r="5"/>
-  <line class="sk-ln" x1="65" y1="26" x2="65" y2="14"/><circle class="sk-gd" cx="65" cy="11" r="3.5"/>
-  <path class="sk-ln" d="M46 68 h38 v40 a10 10 0 0 1-10 10 H56 a10 10 0 0 1-10-10 z"/>
-  <path class="sk-gd" d="M57 84 h16 M57 94 h16"/>
-  <path class="sk-ln" d="M46 76 H30 l-8 16 8 14"/>
-  <path class="sk-ln" d="M84 76 h16 l8 16-8 14"/>
-  <path class="sk-ln" d="M104 120 l-6 8 M104 120 l6 8"/>
-  <path class="sk-ln" d="M56 118 v34 M74 118 v34"/>
-  <path class="sk-ln" d="M48 152 h16 M66 152 h16"/>
-  <text class="sk-t" x="12" y="182">FIG. R —</text><text class="sk-t" x="12" y="194">ROBOTICS</text>
-</svg></section>
-<!-- Most-liked world this week, straight from the Library -->
-<section id="featured" style="padding-top:0"><div class="wrap reveal" id="featWrap" hidden>
-  <p class="eyebrow">Made in M3XI Studio</p>
-  <h2>This week&rsquo;s most <em>liked.</em></h2>
-  <p class="lede" id="featBy" style="margin-bottom:18px"></p>
-  <a class="app-card" id="featCard" href="/studio/#library" style="display:block;max-width:640px">
-    <span class="app-visual" style="display:block"><img id="featImg" alt="" style="display:block;width:100%;height:auto"></span>
-    <div class="app-body"><div class="app-head"><h3 id="featTitle"></h3><span class="tag" id="featLikes"></span></div>
-      <div class="app-actions"><span class="btn btn-primary">Walk this world &rarr;</span></div></div>
-  </a>
-</div></section>
-<script type="module">
-/* The homepage should show what people actually made this week, not a fixed
-   picture. Anonymous read: the Library is public, so this needs no sign-in. */
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
-/* Anonymous read, but the client still initialises auth — and its default
-   cross-tab navigator.locks can wedge behind a frozen tab and stall this
-   module. Per-page lock, same as every other page; see studio/index.html. */
-const tabLock=(_n,_t,fn)=>fn();   // passthrough — see studio/index.html
-const sb=createClient('https://tnlcuptfldwxtxajudoq.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRubGN1cHRmbGR3eHR4YWp1ZG9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODcxNDEsImV4cCI6MjEwMDA2MzE0MX0.mgS1gDa7qeBsTCaXmefpogg02kw7tCzn0uEYPAAuC90',{auth:{lock:tabLock}});
-try{
-  const{data,error}=await sb.rpc('m3ix_featured_world');
-  if(!error&&data&&data.slug){
-    const esc=t=>String(t==null?'':t).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
-    document.getElementById('featTitle').textContent=data.title||'Untitled world';
-    document.getElementById('featLikes').textContent=(data.likes||0)+' likes';
-    const img=document.getElementById('featImg');
-    if(data.cover)img.src=data.cover; else img.remove();
-    const who=data.username?('@'+data.username):'the M3XI Studio community';
-    const ig=data.socials&&data.socials.instagram;
-    const site=data.socials&&data.socials.site;
-    const link=ig?('https://instagram.com/'+String(ig).replace(/^@/,'')):(site||'');
-    document.getElementById('featBy').innerHTML=
-      'By '+(link?('<a href="'+esc(link)+'" target="_blank" rel="noopener" style="border-bottom:1px solid var(--line)">'+esc(who)+'</a>'):esc(who))+
-      ' — made with the Studio and published to the Library.';
-    document.getElementById('featCard').href='/studio/walkthrough.html?world='+encodeURIComponent(data.slug);
-    document.getElementById('featWrap').hidden=false;
-  }
-}catch(e){ /* homepage must never break over a decoration */ }
-</script>
-
-<section id="vision" style="background:rgba(251,246,236,.55);border-top:1px solid var(--line);border-bottom:1px solid var(--line)"><div class="wrap center reveal">
-  <p class="eyebrow c">M3XI vision</p>
-  <h2>We are working on <em>interaction.</em></h2>
-  <p class="lede" style="margin:8px auto 0">Our dream is to make technology our collaborator &mdash; not a tool that sits waiting to be operated, but something that understands what you meant, carries its share of the work, and hands it back better than it arrived.</p>
-  <div class="grid3">
-    <div class="card"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h13l-4-4"/><path d="M20 15H7l4 4"/></svg></div><h3>Interaction</h3><p>Everything we build starts where a person meets a machine. Close the gap between what you meant and what it did, and software stops feeling like operation.</p></div>
-    <div class="card"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="12" r="5.5"/><circle cx="14.5" cy="12" r="5.5"/></svg></div><h3>Collaborators, not tools</h3><p>A tool waits to be used. A collaborator contributes &mdash; it holds the context, takes the parts you shouldn&rsquo;t have to do, and gives you back the decision that actually matters.</p></div>
-    <div class="card"><div class="ic"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16 16 3l5 5L8 21z"/><path d="M7 12l2 2M10 9l2 2M13 6l2 2"/></svg></div><h3>Restraint</h3><p>A collaborator that talks too much is just noise. Fewer surfaces, cleaner type, products that respect your time. &#25216;&#34899;&#12392;&#33464;&#34899;&#12398;&#34701;&#21512; &mdash; the fusion of technology and art.</p></div>
-  </div>
-</div></section>
-
-<section><div class="wrap reveal">
-  <p class="eyebrow">How we build</p>
-  <h2>From sketch to <em>shipped.</em></h2>
-  <div class="steps">
-    <div class="step"><div class="no">01</div><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16 16 3l5 5L8 21z"/><path d="M7 12l2 2M10 9l2 2M13 6l2 2"/></svg><h3>Design</h3><p>Start from the problem and the person. Draw it, pressure-test it, keep it simple.</p></div>
-    <div class="step"><div class="no">02</div><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16M6 21V9l6-4 6 4v12"/><path d="M10 21v-5h4v5"/></svg><h3>Build</h3><p>Real software on real infrastructure &mdash; Expo, React Native, Supabase. Built to last.</p></div>
-    <div class="step"><div class="no">03</div><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l-2 5h18l-2-5M12 3v13M12 3l5 5M12 3l-5 5"/></svg><h3>Ship</h3><p>Put it in hands, listen, refine. Momentum over perfection.</p></div>
-  </div>
-</div></section>
-
-<div class="dim">Get involved</div>
-<section id="involved" class="has-band"><svg class="bgband" viewBox="0 0 1600 460" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false"><use href="#artSkyline"/></svg><div class="wrap reveal">
-  <p class="eyebrow">Join the group</p>
-  <h2>Come build <em>with us.</em></h2>
-  <div class="involve">
-    <div>
-      <p class="lede">We&rsquo;re a small team with big plans, and we&rsquo;re hoping more people will join and help us grow. Whether you want to make websites, design apps, tinker with robotics, or just lend a hand &mdash; there&rsquo;s room for you here.</p>
-      <p class="muted">You don&rsquo;t need to be an expert. If you&rsquo;re curious and kind, that&rsquo;s a great start.</p>
-      <div class="tags">
-        <span>Developers</span><span>Designers</span><span>Makers</span><span>Robotics tinkerers</span><span>Writers</span><span>Students</span><span>Anyone curious</span>
-      </div>
-      <div class="hero-cta" style="margin-top:0">
-        <a class="btn btn-gold" href="/jobs/">See open roles &rarr;</a>
-        <a class="btn btn-ghost" href="mailto:M3xiTeam@m3xi.com?subject=I'd like to join M3XI">Say hello</a>
+      <div class="qgroup" id="q-cost">
+        <h3>Cost and devices</h3>
+        <details open>
+          <summary>How much does CallMe cost?</summary>
+          <div class="answer">
+            <p>CallMe is free to use, with five calls a day. You can earn more by watching an advert or by completing weekly achievements. CallMe Premium removes the daily limit and gives you priority matching and extra card styles, for &pound;8.49 a month or &pound;71.99 a year in the UK; other countries are priced by the store. Coins are optional, sold in packs from &pound;4.99, and spent on extras in the app.</p>
+            <div class="price" aria-label="Prices in the UK">
+              <div><b>Free</b><span>Five calls a day, more from adverts and achievements</span></div>
+              <div><b>&pound;8.49 / month</b><span>Premium, or &pound;71.99 a year</span></div>
+              <div><b>From &pound;4.99</b><span>Optional coin packs</span></div>
+            </div>
+          </div>
+        </details>
+        <details>
+          <summary>Is CallMe on iPhone?</summary>
+          <div class="answer"><p>CallMe is on Android through Google Play now. The iPhone version is being prepared for the App Store.</p></div>
+        </details>
       </div>
     </div>
-    <aside class="honest">
-      <h3>Just getting started</h3>
-      <p>Full honesty: M3XI isn&rsquo;t a registered company yet, and we&rsquo;re not funded &mdash; we&rsquo;re a passionate group making real things and figuring it out as we go.</p>
-      <p style="margin-bottom:0">That means early supporters genuinely shape what we become. If that sounds exciting, say hello.</p>
-    </aside>
   </div>
 </div></section>
 
-<section id="team" style="padding-top:0"><div class="wrap reveal">
-  <p class="eyebrow">The team</p>
-  <h2>Who&rsquo;s behind <em>M3XI.</em></h2>
+<section id="safety" class="band"><div class="wrap">
+  <div class="sec-head">
+    <p class="eyebrow">The small print, in plain English</p>
+    <h2>Read it <em>before you call.</em></h2>
+  </div>
+  <div class="safety">
+    <a href="/privacy/#callme"><b>Privacy</b><span>What CallMe collects, why, and how long it is kept.</span></a>
+    <a href="/terms/#callme-terms"><b>Terms</b><span>The rules on calls, and what happens when someone breaks them.</span></a>
+    <a href="/child-safety/"><b>Child safety</b><span>How we keep CallMe adults-only, and how to report a concern.</span></a>
+    <a href="/delete-account/"><b>Delete your account</b><span>From the app, or without it.</span></a>
+  </div>
+</div></section>
+
+<section id="team"><div class="wrap">
+  <div class="sec-head">
+    <p class="eyebrow">The team</p>
+    <h2>Who is behind <em>CallMe.</em></h2>
+  </div>
   <div class="people">
-    <article class="person">
-      <a href="/michael/" aria-label="Meet Michael — CEO profile" style="display:block">
-        <span class="av" style="overflow:hidden"><img src="/michael-photos/model-01.jpg" onerror="this.onerror=null;this.src='/M.png'" alt="Michael, founder of M3XI" style="width:100%;height:100%;border-radius:14px;object-fit:cover" /></span>
-        <p class="role">Founder &amp; CEO</p>
-        <h3>Michael</h3>
-        <p>Model, engineer and Creative Robotics student at UAL. Started M3XI to build a long-term home for software, apps, and one day robotics.</p>
-        <p style="margin-top:12px"><span class="app-link">Meet Michael &rarr;</span></p>
-      </a>
-    </article>
-    <article class="person">
-      <span class="av" style="overflow:hidden"><img src="/M.png" alt="M3XI" style="width:100%;height:100%;border-radius:14px;object-fit:cover" /></span>
-      <p class="role">Co-Founder &amp; CMO</p>
-      <h3>Justin</h3>
-      <p>Helps tell the M3XI story and bring people in, so the studio can grow into something bigger together.</p>
-    </article>
-    <article class="person open">
-      <span class="av">+</span>
-      <p class="role">Open spot</p>
-      <h3>This could be you</h3>
-      <p>We&rsquo;re hoping to welcome more builders, makers and dreamers. <a href="/jobs/" style="border-bottom:1px solid var(--line)">See open roles &rarr;</a></p>
-    </article>
+    <a class="person" href="/michael/">
+      <span class="av"><img src="/michael-photos/model-01.jpg" onerror="this.onerror=null;this.src='/M.png'" alt="Michael" width="64" height="64"></span>
+      <span><p class="role">Founder &amp; CEO</p><h3>Michael</h3><span class="more">Meet Michael &rarr;</span></span>
+    </a>
+    <div class="person">
+      <span class="av" aria-hidden="true">LC</span>
+      <span><p class="role">Co-Founder</p><h3>Leo Chi</h3></span>
+    </div>
+    <a class="person open" href="/jobs/">
+      <span class="av" aria-hidden="true">+</span>
+      <span><p class="role">Open roles</p><h3>Build it with us</h3><span class="more">See the jobs &rarr;</span></span>
+    </a>
   </div>
 </div></section>
 
-<section id="contact" style="background:rgba(251,246,236,.55);border-top:1px solid var(--line)"><div class="wrap reveal">
-  <p class="eyebrow">Say hello</p>
-  <h2>Let&rsquo;s make something <em>together.</em></h2>
-  <div class="contact-card">
-    <a class="email" href="mailto:M3xiTeam@m3xi.com">M3xiTeam@m3xi.com</a>
-    <div class="socials" aria-label="M3XI social media links">
-      <a href="https://www.instagram.com/m3xicorp/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2Zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5a4.25 4.25 0 0 0 4.25 4.25h8.5a4.25 4.25 0 0 0 4.25-4.25v-8.5a4.25 4.25 0 0 0-4.25-4.25h-8.5Zm9.12 1.6a1.12 1.12 0 1 1 0 2.24 1.12 1.12 0 0 1 0-2.24ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/></svg>
-      </a>
-      <a href="https://www.tiktok.com/@m3xicorp?lang=en-GB" target="_blank" rel="noopener noreferrer" aria-label="TikTok" title="TikTok">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 3h2.2c.16 1.35.92 2.5 2.3 3.1.82.35 1.64.5 2.5.46v2.3a7.15 7.15 0 0 1-4.8-1.62v6.03a5.95 5.95 0 1 1-5.18-5.9v2.35a3.6 3.6 0 1 0 2.98 3.55V3Z"/></svg>
-      </a>
-      <a href="https://www.linkedin.com/company/111653431/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.1 8.5v12H2.5v-12h3.6ZM4.3 2A2.3 2.3 0 1 1 4.3 6.6 2.3 2.3 0 0 1 4.3 2Zm5.1 6.5H13v1.64h.05c.5-.95 1.73-1.95 3.56-1.95 3.8 0 4.5 2.4 4.5 5.52v6.74h-3.6v-5.98c0-1.43-.03-3.27-2.1-3.27-2.1 0-2.42 1.56-2.42 3.16v6.09H9.4v-12Z"/></svg>
-      </a>
-    </div>
+<section id="contact" class="band" style="padding:56px 0"><div class="wrap">
+  <div class="contact">
+    <div><b>Help with CallMe</b><a href="mailto:support@m3xi.com">support@m3xi.com</a></div>
+    <div><b>Everything else</b><a href="mailto:m3xiteam@m3xi.com">m3xiteam@m3xi.com</a></div>
   </div>
 </div></section>
+
+</main>
 
 <footer class="site"><div class="wrap foot">
-  <div>M3XI <span class="jp">三X一</span> · creating interactions that matter</div>
-  <nav class="lnks">
-    <a href="/">Home</a><a href="/studio/">Studio</a><a href="/cornelia.html">Cornelia</a><a href="/autouv.html">AutoUV</a><a href="/callme.html">CallMe</a>
-    <a href="/michael/">Michael</a><a href="/services/">Services</a><a href="/jobs/">Jobs</a><a href="/privacy/">Policies</a><a href="/terms/">Terms</a>
+  <div>&copy; <span id="year">2026</span> M3XI LTD &middot; London</div>
+  <nav aria-label="Footer">
+    <a href="#faq">Questions</a>
+    <a href="/team/">Team</a>
+    <a href="/jobs/">Jobs</a>
+    <a href="/services/">Services</a>
+    <a href="/contact/">Contact</a>
+    <a href="/privacy/">Privacy</a>
+    <a href="/terms/">Terms</a>
+    <a href="/child-safety/">Child safety</a>
+    <a href="/delete-account/">Delete account</a>
   </nav>
-  <div>© <span id="year">2026</span> M3XI</div>
 </div></footer>
 
-<script>
-  document.getElementById('year').textContent = new Date().getFullYear();
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
-  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
-  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-  /* opening the file straight off disk? rewrite site-absolute links so previews work */
-  if (location.protocol === 'file:') {
-    var map = {
-      '/studio/': 'studio/index.html',
-      '/studio/ugc.html': 'public/studio/ugc.html',
-      '/studio/walkthrough.html': 'public/studio/walkthrough.html'
-    };
-    document.querySelectorAll('a[href^="/"]').forEach(function(a){
-      var href = a.getAttribute('href');
-      var base = href.split('?')[0].split('#')[0];
-      var rest = href.slice(base.length);
-      if (map[base]) a.setAttribute('href', map[base] + rest);
-      else if (base === '/') a.setAttribute('href', 'index.html' + rest);
-      else if (base.slice(-1) === '/') a.setAttribute('href', base.slice(1) + 'index.html' + rest);
-      else a.setAttribute('href', base.slice(1) + rest);
-    });
-  }
-</script>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>
 </html>
