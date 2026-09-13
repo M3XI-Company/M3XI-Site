@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>You're invited to CallMe — M3XI</title>
+<meta name="description" content="A friend invited you to CallMe: real voice calls with new people, no swiping. Join with their invite." />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="M3XI" />
+<meta property="og:title" content="You're invited to CallMe" />
+<meta property="og:description" content="Real voice calls with new people. No swiping, no endless chat — just a conversation. Join with a friend's invite." />
+<meta property="og:image" content="https://www.m3xi.com/callme-icon.png" />
+<meta name="twitter:card" content="summary" />
+<meta name="robots" content="noindex" />
+<meta name="theme-color" content="#EFE7D6" />
+<link rel="icon" type="image/png" href="/M.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F0E8D8; --panel:#FBF6EC; --white:#fff;
+  --ink:#19150F; --ink2:#605747; --blue:#2B4257;
+  --gold:#B6892F; --line:rgba(25,21,15,.14);
+  --callme:#B7566B; --callme2:#9C4357; --wax:#C0392B;
+}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;
+  background-color:#EFE7D6;
+  background-image:
+    linear-gradient(rgba(43,66,87,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(43,66,87,.045) 1px, transparent 1px),
+    radial-gradient(1200px 700px at 80% -8%, rgba(255,253,247,.9), transparent 60%);
+  background-size:30px 30px, 30px 30px, 100% 100%;
+}
+a{color:inherit}
+.jp{font-family:'Noto Serif JP',serif;color:var(--ink2)}
+header.site{border-bottom:1px solid var(--line);background:rgba(241,234,221,.82)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:64px;max-width:1140px;margin:0 auto;padding:0 24px}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-weight:600;font-size:19px;text-decoration:none}
+.brand img{width:30px;height:30px;border-radius:8px}
+.brand .jp{font-size:13px}
+main{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:48px 20px 64px}
+
+/* The invitation itself: a letter, taped down, sealed at the top. */
+.letter{position:relative;width:100%;max-width:520px;background:#FFFDF8;border:2px solid #2A2320;border-radius:14px;
+  padding:52px clamp(22px,5vw,40px) 30px;box-shadow:0 34px 70px -46px rgba(43,66,87,.55)}
+.tape{position:absolute;top:-12px;left:34px;width:110px;height:26px;background:rgba(197,123,78,.32);transform:rotate(-4deg);border-radius:2px}
+.seal{position:absolute;top:-28px;left:50%;transform:translateX(-50%);width:56px;height:56px;border-radius:50%;
+  background:var(--wax);border:2px solid #9E2F1F;display:grid;place-items:center;box-shadow:0 4px 10px rgba(35,28,24,.25)}
+.seal svg{width:28px;height:28px}
+.eyebrow{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--callme);font-weight:600;text-align:center;margin:4px 0 10px}
+h1{font-family:'Playfair Display',Georgia,serif;font-weight:600;font-size:clamp(30px,6vw,42px);line-height:1.08;text-align:center;margin:0;letter-spacing:-.012em}
+h1 i{color:var(--callme);font-weight:500}
+.rules{margin:16px auto 6px;width:200px}
+.rules span{display:block;height:1.5px;background:#2A2320;opacity:.14;margin:7px auto;border-radius:1px}
+.rules span:nth-child(2){width:74%}
+.lede{text-align:center;color:#3c382f;font-size:16.5px;margin:12px auto 0;max-width:40ch}
+
+.code{margin:26px auto 0;text-align:center;border:1.5px dashed #2A2320;border-radius:12px;padding:14px 16px;max-width:320px;background:#FFFEFA}
+.code small{display:block;font-size:12.5px;color:var(--ink2);letter-spacing:.04em}
+.code strong{display:block;font:600 30px 'Inter',system-ui,sans-serif;font-variant-numeric:lining-nums tabular-nums;letter-spacing:.2em;margin:2px 0 6px}
+.copy{font:500 13px 'Inter',sans-serif;color:var(--blue);background:none;border:0;cursor:pointer;padding:6px 10px;border-radius:10px}
+.copy:hover{background:rgba(43,66,87,.07)}
+
+.actions{display:grid;gap:10px;margin:24px 0 0}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:12px 18px;border-radius:10px;
+  border:1.5px solid #2A2320;background:#FFFDF8;color:var(--ink);font:600 16px 'Inter',sans-serif;text-decoration:none;cursor:pointer}
+.btn:hover{background:#fff}
+.btn.primary{background:var(--callme);border-color:var(--callme2);color:#fff}
+.btn.primary:hover{background:var(--callme2)}
+.btn svg{width:20px;height:20px;flex:none}
+.hint{font-size:13.5px;color:var(--ink2);text-align:center;margin:10px 0 0}
+
+.steps{list-style:none;margin:28px 0 0;padding:20px 0 0;border-top:1px solid var(--line);display:grid;gap:14px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;font-size:15px;color:#46412f}
+.steps li::before{counter-increment:s;content:counter(s);width:30px;height:30px;border-radius:50%;border:1.5px solid #2A2320;
+  display:grid;place-items:center;font-family:'Playfair Display',serif;font-weight:600;color:var(--ink);background:#FFFEFA}
+.steps b{color:var(--ink);font-weight:600}
+.fine{font-size:12.5px;color:var(--ink2);text-align:center;margin:24px 0 0}
+.fine a{color:var(--blue)}
+.notice{background:#FBF1E6;border:1px solid rgba(183,86,107,.35);border-radius:12px;padding:12px 14px;font-size:14px;color:#5b3a34;margin:18px 0 0;text-align:center}
+[hidden]{display:none!important}
+footer.site{border-top:1px solid var(--line);padding:26px 24px;color:var(--ink2);font-size:13px;text-align:center;background:rgba(246,240,227,.6)}
+footer.site a{margin:0 8px}
+</style>
+</head>
+<body>
+<header class="site"><div class="nav">
+  <a class="brand" href="/"><img src="/M.png" alt="" /> M3XI <span class="jp">三X一</span></a>
+</div></header>
+
+<main>
+  <article class="letter" aria-labelledby="title">
+    <span class="tape" aria-hidden="true"></span>
+    <span class="seal" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 21c-.6 0-1-.4-1-1v-5.2C7.6 14.3 5 11.4 5 8c0-.5.4-.9.9-.9 1.5 0 2.9.6 3.9 1.5C10.3 6.6 11 4.6 11.4 3.5c.2-.4.8-.4 1 0 .5 1.1 1.2 3.1 1.7 5.1 1-.9 2.4-1.5 3.9-1.5.5 0 .9.4.9.9 0 3.4-2.6 6.3-6 6.8V20c0 .6-.4 1-.9 1z"/></svg>
+    </span>
+
+    <p class="eyebrow">CallMe · by M3XI</p>
+    <h1 id="title"><span id="who">You're invited</span> <i>to CallMe.</i></h1>
+    <div class="rules" aria-hidden="true"><span></span><span></span></div>
+    <p class="lede" id="lede">Real voice calls with new people. No swiping, no endless chat — just a conversation, with someone who's actually there.</p>
+
+    <div class="code" id="codeBox" hidden>
+      <small>Your one-time invite code</small>
+      <strong id="code">—</strong>
+      <button class="copy" id="copy" type="button">Copy code</button>
+    </div>
+
+    <p class="notice" id="invalid" hidden>This invite isn't valid any more — but you can still join CallMe.</p>
+
+    <div class="actions">
+      <a class="btn primary" id="play" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M4.2 2.6c-.3.3-.4.7-.4 1.2v16.4c0 .5.1.9.4 1.2l9.2-9.4-9.2-9.4zm10.5 8.1 2.6-2.6L6.4 1.9c-.4-.2-.8-.3-1.1-.2l9.4 9zm0 2.6-9.4 9c.3.1.7 0 1.1-.2l10.9-6.2-2.6-2.6zm5.5-2.9-2.2-1.3-2.9 2.9 2.9 2.9 2.2-1.3c.9-.5.9-2.7 0-3.2z"/></svg>
+        Get CallMe on Google Play
+      </a>
+      <a class="btn" id="open" href="callme://" hidden>I already have CallMe — open it</a>
+    </div>
+    <p class="hint" id="iosHint" hidden>On iPhone? CallMe is coming to the App Store soon. Keep your code — you'll be able to enter it when you sign up.</p>
+
+    <ol class="steps">
+      <li><span><b>Install CallMe</b> from Google Play using the button above, so your invite comes with you.</span></li>
+      <li><span><b>Create your account</b> and pass the quick 18+ check. If the app asks, tap “Got an invite code?” and enter the code.</span></li>
+      <li><span><b>You're connected.</b> <span id="rewardWho">Your friend</span> gets three days of Premium, and you'll find each other in Friends.</span></li>
+    </ol>
+
+    <p class="fine">CallMe is for adults (18+) and every account is age-verified. Each invite works once, for a new account, within two weeks.<br>
+      <a href="/privacy/#callme">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/safety/">Safety</a></p>
+  </article>
+</main>
+
+<footer class="site">M3XI <span class="jp">三X一</span> · creating interactions that matter · <a href="/">m3xi.com</a></footer>
+
+<script>
+(function () {
+  var LOOKUP = 'https://cwjspmhgspiavyzrtosl.supabase.co/functions/v1/referral-lookup';
+  var PLAY = 'https://play.google.com/store/apps/details?id=com.m3xi.callme';
+
+  // The code comes in the path (/invite/ABCD2345) or as ?c= — whichever the link used.
+  var fromPath = (location.pathname.match(/\/invite\/([A-Za-z0-9]{6,16})\/?$/) || [])[1];
+  var fromQuery = new URLSearchParams(location.search).get('c') || new URLSearchParams(location.search).get('code');
+  var code = String(fromPath || fromQuery || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+  var ua = navigator.userAgent || '';
+  var isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && 'ontouchend' in document);
+  var $ = function (id) { return document.getElementById(id); };
+
+  function showCode(c) {
+    $('code').textContent = c;
+    $('codeBox').hidden = false;
+    // Google Play hands this string to the app on first launch (install referrer).
+    $('play').href = PLAY + '&referrer=' + encodeURIComponent('invite=' + c);
+    $('open').href = 'callme://invite/' + c;
+    $('open').hidden = isIOS;
+    if (isIOS) $('iosHint').hidden = false;
+  }
+
+  $('copy').addEventListener('click', function () {
+    var c = $('code').textContent;
+    var done = function () { $('copy').textContent = 'Copied'; setTimeout(function () { $('copy').textContent = 'Copy code'; }, 1800); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(c).then(done, function () {});
+    else {
+      var r = document.createRange(); r.selectNodeContents($('code'));
+      var sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    }
+  });
+
+  if (isIOS) $('iosHint').hidden = false;
+  if (code.length < 6 || code.length > 16) { if (code) $('invalid').hidden = false; return; }
+
+  // Show the code straight away; the lookup only adds a name, or says it is no good.
+  showCode(code);
+  fetch(LOOKUP + '?code=' + encodeURIComponent(code), { headers: { Accept: 'application/json' } })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d && d.valid) {
+        var name = d.inviter_first_name;
+        if (name) {
+          $('who').textContent = name + ' invited you';
+          document.title = name + ' invited you to CallMe — M3XI';
+          $('rewardWho').textContent = name;
+        }
+        return;
+      }
+      // No verdict about the link itself (busy, or our server had a problem):
+      // keep the code on screen, it may well be fine.
+      if (!d || !d.state || d.reason === 'rate_limited' || d.reason === 'unavailable' || d.reason === 'error') return;
+      $('codeBox').hidden = true;
+      $('open').hidden = true;
+      $('invalid').textContent = d && d.state === 'used'
+        ? 'This invite has already been used — each one works for one person. Ask your friend to send you a new one, or join CallMe anyway.'
+        : d && d.state === 'expired'
+          ? 'This invite has expired. Ask your friend to send you a new one, or join CallMe anyway.'
+          : 'This invite isn’t valid any more — but you can still join CallMe.';
+      $('invalid').hidden = false;
+      $('play').href = PLAY;
+    })
+    .catch(function () { /* offline or blocked: the code is still shown and still works */ });
+})();
+</script>
+</body>
+</html>

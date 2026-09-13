@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CallMe staff console — M3XI</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" type="image/png" href="/M.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#19150F;--ink2:#605747;--blue:#2B4257;--line:rgba(25,21,15,.14);--panel:#FBF6EC;--callme:#B7566B;--callme2:#9C4357;--danger:#B3402A;--ok:#2E7D4F;--gold:#B6892F}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font:14.5px/1.55 'Inter',system-ui,sans-serif;background:#EFE7D6;
+  background-image:linear-gradient(rgba(43,66,87,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(43,66,87,.045) 1px,transparent 1px);background-size:30px 30px}
+h1,h2,h3{font-family:'Playfair Display',Georgia,serif;margin:0;font-weight:600}
+h1{font-size:26px}h2{font-size:21px;margin-bottom:10px}h3{font-size:17px}
+a{color:var(--blue)}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 22px;border-bottom:1px solid var(--line);background:rgba(241,234,221,.9);position:sticky;top:0;z-index:5}
+header .who{font-size:13px;color:var(--ink2)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand img{width:28px;height:28px;border-radius:8px}
+main{max-width:1100px;margin:0 auto;padding:22px}
+nav.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+nav.tabs button{border:1.5px solid #2A2320;background:#FFFDF8;border-radius:10px;padding:8px 14px;font:500 14px 'Inter';cursor:pointer}
+nav.tabs button[aria-selected=true]{background:var(--callme);border-color:var(--callme2);color:#fff}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:14px;box-shadow:0 20px 40px -36px rgba(43,66,87,.5)}
+.card.urgent{border-left:5px solid var(--callme)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.spread{justify-content:space-between}
+.pill{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:6px;padding:1px 7px;background:#fff;color:var(--ink2)}
+.pill.sev{color:#fff;background:var(--danger);border-color:var(--danger)}
+.pill.ser{color:#fff;background:var(--gold);border-color:var(--gold)}
+.pill.shadow{background:#e8e3d6}
+.muted{color:var(--ink2);font-size:13px}
+.quote{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;white-space:pre-wrap;margin:8px 0;font-size:14px}
+pre{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;overflow:auto;font-size:12px;max-height:260px;margin:8px 0}
+input,select,textarea{font:14px 'Inter';color:var(--ink);background:#FFFEFA;border:1.5px solid #2A2320;border-radius:10px;padding:8px 10px}
+textarea{width:100%;min-height:70px}
+label{font-size:13px;font-weight:600;display:block;margin:10px 0 4px}
+.btn{border:1.5px solid #2A2320;background:#FFFDF8;border-radius:10px;padding:8px 14px;font:600 14px 'Inter';cursor:pointer}
+.btn.primary{background:var(--callme);border-color:var(--callme2);color:#fff}
+.btn.good{background:var(--ok);border-color:#1f5a38;color:#fff}
+.btn.bad{border-color:var(--danger);color:var(--danger)}
+.btn[disabled]{opacity:.55;cursor:default}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#231C18;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;z-index:20;max-width:90vw}
+.center{max-width:420px;margin:60px auto;text-align:center}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><img src="/M.png" alt="" /><h1>CallMe staff</h1></div>
+  <div class="row"><span class="who" id="who"></span><button class="btn" id="signout" hidden>Sign out</button></div>
+</header>
+
+<main>
+  <section id="signin" class="card center" hidden>
+    <h2>Sign in</h2>
+    <p class="muted">Use your CallMe account. Only accounts on the staff list get past this page, and every action is recorded against your name.</p>
+    <button class="btn primary" id="google" style="width:100%;margin-top:8px">Continue with Google</button>
+    <p class="muted" style="margin:14px 0 6px">or with an email and password</p>
+    <input id="em" type="email" placeholder="Email" style="width:100%;margin-bottom:8px" autocomplete="username" />
+    <input id="pw" type="password" placeholder="Password" style="width:100%;margin-bottom:8px" autocomplete="current-password" />
+    <button class="btn" id="pwgo" style="width:100%">Sign in</button>
+  </section>
+
+  <section id="denied" class="card center" hidden>
+    <h2>Not on the staff list</h2>
+    <p class="muted">You are signed in, but this account is not a CallMe staff member. An admin can add you from the Staff tab.</p>
+  </section>
+
+  <section id="app" hidden>
+    <nav class="tabs" role="tablist">
+      <button data-tab="appeals" aria-selected="true">Appeals</button>
+      <button data-tab="actions" aria-selected="false">Decisions</button>
+      <button data-tab="people" aria-selected="false">People</button>
+      <button data-tab="announce" aria-selected="false">Announcements</button>
+      <button data-tab="settings" aria-selected="false">Switches</button>
+      <button data-tab="staff" aria-selected="false">Staff</button>
+    </nav>
+    <div id="view"></div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+(function () {
+  var URL_ = 'https://cwjspmhgspiavyzrtosl.supabase.co';
+  var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN3anNwbWhnc3BpYXZ5enJ0b3NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1MTI5NTQsImV4cCI6MjA5OTA4ODk1NH0.jhS5adiCcZFbfq5zRXQdRLN1k1hCOQ-Ft5ZhcLJO1zc';
+  var sb = window.supabase.createClient(URL_, KEY, { auth: { persistSession: true, detectSessionInUrl: true, flowType: 'implicit' } });
+  var role = null;
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* Everything user-written is set as text, never as HTML. */
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) {
+      if (k === 'text') n.textContent = attrs[k];
+      else if (k === 'class') n.className = attrs[k];
+      else if (k.indexOf('on') === 0) n.addEventListener(k.slice(2), attrs[k]);
+      else if (attrs[k] !== undefined && attrs[k] !== null && attrs[k] !== false) n.setAttribute(k, attrs[k] === true ? '' : attrs[k]);
+    });
+    (kids || []).forEach(function (c) { if (c) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function toast(t) {
+    var d = el('div', { class: 'toast', text: t }); document.body.appendChild(d);
+    setTimeout(function () { d.remove(); }, 4200);
+  }
+  function when(ts) { return ts ? new Date(ts).toLocaleString() : '—'; }
+  function tierPill(t) { return el('span', { class: 'pill ' + (t === 'severe' ? 'sev' : t === 'serious' ? 'ser' : ''), text: t || 'tier?' }); }
+  async function rpc(name, args) {
+    var r = await sb.rpc(name, args || {});
+    if (r.error) { toast(r.error.message); throw r.error; }
+    return r.data;
+  }
+  async function signed(fullPath) {
+    // Paths are stored as "bucket/rest" (frames) or bare inside appeal-evidence.
+    var bucket = 'appeal-evidence', path = fullPath;
+    if (fullPath.indexOf('moderation-evidence/') === 0) { bucket = 'moderation-evidence'; path = fullPath.slice(20); }
+    else if (fullPath.indexOf('appeal-evidence/') === 0) { path = fullPath.slice(16); }
+    var r = await sb.storage.from(bucket).createSignedUrl(path, 600);
+    return r.data ? r.data.signedUrl : null;
+  }
+  function evidenceBlock(ev) {
+    var box = el('div');
+    if (!ev) return box;
+    if (Array.isArray(ev.excerpts) && ev.excerpts.length) {
+      box.appendChild(el('div', { class: 'muted', text: 'What they said (from the transcript):' }));
+      ev.excerpts.forEach(function (x) { box.appendChild(el('div', { class: 'quote', text: '“' + x + '”' })); });
+    }
+    if (ev.explanation) box.appendChild(el('div', { class: 'muted', text: 'Reviewer: ' + ev.explanation }));
+    if (ev.frame_path) {
+      var b = el('button', { class: 'btn', text: 'View flagged frame', onclick: async function () {
+        var u = await signed(ev.frame_path); if (u) window.open(u, '_blank', 'noopener'); else toast('Could not open the frame.');
+      } });
+      box.appendChild(el('div', { class: 'row' }, [b]));
+    }
+    box.appendChild(el('details', {}, [el('summary', { class: 'muted', text: 'Raw evidence' }), el('pre', { text: JSON.stringify(ev, null, 2) })]));
+    return box;
+  }
+
+  /* ── Appeals ─────────────────────────────────────────── */
+  async function viewAppeals(root) {
+    var filter = el('select', {}, [el('option', { value: 'open', text: 'Waiting for a decision' }), el('option', { value: 'all', text: 'All appeals' })]);
+    var list = el('div');
+    root.appendChild(el('div', { class: 'row spread' }, [el('h2', { text: 'Appeals' }), filter]));
+    root.appendChild(list);
+    async function load() {
+      list.textContent = 'Loading…';
+      var rows = await rpc('staff_appeals_list', { p_status: null, p_limit: 200 });
+      if (filter.value === 'open') rows = rows.filter(function (r) { return r.appeal_status === 'pending' || r.appeal_status === 'ai_recommends_reject'; });
+      list.textContent = '';
+      if (!rows.length) list.appendChild(el('p', { class: 'muted', text: 'Nothing waiting. 🌷' }));
+      rows.forEach(function (a) {
+        var open = a.appeal_status === 'pending' || a.appeal_status === 'ai_recommends_reject';
+        var note = el('textarea', { placeholder: 'Your note. Required to reject — the person is told the reason.' });
+        var files = el('div', { class: 'row' });
+        (a.evidence_paths || []).forEach(function (p, i) {
+          files.appendChild(el('button', { class: 'btn', text: 'Proof ' + (i + 1), onclick: async function () {
+            var u = await signed(p); if (u) window.open(u, '_blank', 'noopener'); else toast('Could not open that file.');
+          } }));
+        });
+        async function decide(d) {
+          if (d === 'reject' && note.value.trim().length < 10) return toast('Write the reason (10+ characters) before rejecting.');
+          if (!confirm((d === 'grant' ? 'Grant' : 'Reject') + ' the appeal for ' + a.reference + '?')) return;
+          var res = await rpc('staff_appeal_decide', { p_appeal: a.appeal_id, p_decision: d, p_note: note.value.trim() || null });
+          toast(res && res.decided ? 'Decided: ' + d : 'Already decided');
+          load();
+        }
+        var ai = a.ai_verdict ? el('details', {}, [el('summary', { class: 'muted', text: 'Automated review: ' + (a.ai_verdict.decision || a.ai_verdict.verdict || 'see details') }), el('pre', { text: JSON.stringify(a.ai_verdict, null, 2) })]) : null;
+        list.appendChild(el('div', { class: 'card' + (open ? ' urgent' : '') }, [
+          el('div', { class: 'row spread' }, [
+            el('h3', { text: a.reference }),
+            el('div', { class: 'row' }, [tierPill(a.tier), el('span', { class: 'pill', text: a.kind }), el('span', { class: 'pill', text: a.category }), el('span', { class: 'pill', text: 'by ' + a.source }), el('span', { class: 'pill', text: a.appeal_status })]),
+          ]),
+          el('div', { class: 'muted', text: 'Decision ' + when(a.action_created_at) + ' · appeal ' + when(a.created_at) + ' · decision now ' + a.action_status }),
+          el('div', { class: 'muted', text: 'What we told them:' }),
+          el('div', { class: 'quote', text: a.action_statement || '' }),
+          evidenceBlock(a.action_evidence),
+          el('div', { class: 'muted', text: 'Their appeal — ' }, [el('a', { href: 'mailto:' + a.contact_email + '?subject=' + encodeURIComponent('Your CallMe appeal ' + a.reference), text: a.contact_email })]),
+          el('div', { class: 'quote', text: a.appeal_statement || '' }),
+          files, ai,
+          a.decided_at ? el('div', { class: 'muted', text: 'Decided ' + when(a.decided_at) + ' by ' + (a.decided_by || '?') + (a.decision_note ? ' — ' + a.decision_note : '') }) : null,
+          open ? note : null,
+          open ? el('div', { class: 'row' }, [
+            el('button', { class: 'btn good', text: 'Grant — lift it', onclick: function () { decide('grant'); } }),
+            el('button', { class: 'btn bad', text: 'Reject — decision stands', onclick: function () { decide('reject'); } }),
+          ]) : null,
+        ]));
+      });
+    }
+    filter.addEventListener('change', load);
+    await load();
+  }
+
+  /* ── Decisions ───────────────────────────────────────── */
+  async function viewActions(root) {
+    var only = el('select', {}, [el('option', { value: 'human', text: 'Needs a person' }), el('option', { value: 'all', text: 'All decisions' })]);
+    var list = el('div');
+    root.appendChild(el('div', { class: 'row spread' }, [el('h2', { text: 'Decisions' }), only]));
+    root.appendChild(el('p', { class: 'muted', text: 'Shadow decisions were recorded but not applied — the switch was on shadow. Reversing lifts a ban, removes its identity block, and lifts any bans it caused on other accounts.' }));
+    root.appendChild(list);
+    async function load() {
+      list.textContent = 'Loading…';
+      var rows = await rpc('staff_enforcement_list', { p_needs_human_only: only.value === 'human', p_limit: 300 });
+      list.textContent = '';
+      if (!rows.length) list.appendChild(el('p', { class: 'muted', text: 'Nothing here.' }));
+      rows.forEach(function (e) {
+        var reason = el('input', { type: 'text', placeholder: 'Your note: why you are reversing or confirming it', style: 'flex:1;min-width:220px' });
+        list.appendChild(el('div', { class: 'card' + (e.needs_human ? ' urgent' : '') }, [
+          el('div', { class: 'row spread' }, [
+            el('h3', { text: e.reference + ' · ' + (e.display_name || e.subject_id) }),
+            el('div', { class: 'row' }, [tierPill(e.tier), el('span', { class: 'pill', text: e.kind }), el('span', { class: 'pill', text: e.category }),
+              el('span', { class: 'pill', text: e.source }), el('span', { class: 'pill' + (e.mode === 'shadow' ? ' shadow' : ''), text: e.mode }), el('span', { class: 'pill', text: e.status }),
+              e.evidence && e.evidence.live ? el('span', { class: 'pill ser', text: 'during call' }) : null,
+              e.evidence && e.evidence.provisional ? el('span', { class: 'pill sev', text: 'provisional — confirm or reverse' }) : null,
+              e.evidence && e.evidence.frame_decision ? el('span', { class: 'pill', text: 'video: ' + e.evidence.frame_decision }) : null]),
+          ]),
+          el('div', { class: 'muted', text: when(e.created_at) + (e.ends_at ? ' · ends ' + when(e.ends_at) : '') + (e.confidence != null ? ' · confidence ' + Number(e.confidence).toFixed(2) : '') + ' · account ' + e.subject_id }),
+          el('div', { class: 'quote', text: e.statement || '' }),
+          evidenceBlock(e.evidence),
+          e.status === 'reversed' ? el('div', { class: 'muted', text: 'Reversed by ' + (e.reversed_by || '?') + ': ' + (e.reversal_reason || '') }) :
+          el('div', { class: 'row' }, [reason, el('button', { class: 'btn bad', text: 'Reverse', onclick: async function () {
+            if (reason.value.trim().length < 5) return toast('Give a reason (5+ characters).');
+            if (!confirm('Reverse ' + e.reference + '?')) return;
+            await rpc('staff_enforcement_reverse', { p_action: e.action_id, p_reason: reason.value.trim() });
+            toast('Reversed ' + e.reference); load();
+          } }),
+          e.status === 'active' && e.mode === 'enforce' && e.needs_human ? el('button', {
+            class: 'btn good',
+            text: e.evidence && e.evidence.provisional ? 'Confirm — make it permanent' : 'Confirm — decision was right',
+            onclick: async function () {
+              if (!confirm((e.evidence && e.evidence.provisional ? 'Make ' + e.reference + ' a permanent ban?' : 'Mark ' + e.reference + ' as reviewed and correct?'))) return;
+              var res = await rpc('staff_confirm_action', { p_action: e.action_id, p_note: reason.value.trim() || null });
+              toast(res && res.confirmed ? 'Confirmed ' + e.reference : 'Not changed: ' + ((res && res.reason) || '')); load();
+            },
+          }) : null]),
+        ]));
+      });
+    }
+    only.addEventListener('change', load);
+    await load();
+  }
+
+  /* ── People ──────────────────────────────────────────── */
+  var CATEGORIES = [
+    ['sexual_content_directed', 'Unwanted sexual messages (severe → permanent)'],
+    ['nudity_exposure', 'Nudity on camera (severe → permanent)'],
+    ['threat_violence', 'Threats of violence (severe → permanent)'],
+    ['sextortion', 'Sextortion (severe → permanent)'],
+    ['doxxing', 'Sharing private details (severe → permanent)'],
+    ['suspected_minor_sexual', 'Sexual content involving a minor (severe → permanent)'],
+    ['ban_evasion', 'Ban evasion (severe → permanent)'],
+    ['harassment', 'Harassment (serious → suspension)'],
+    ['hate_slur', 'Hateful language (serious → suspension)'],
+    ['unwanted_sexual_comment', 'Unwanted sexual comments (serious → suspension)'],
+    ['abusive_language', 'Abusive language (minor → strike)'],
+    ['abusive_tone', 'Abusive behaviour (minor → strike)'],
+  ];
+  async function viewPeople(root) {
+    var q = el('input', { type: 'search', placeholder: 'Email, name or account id', style: 'flex:1;min-width:240px' });
+    var go = el('button', { class: 'btn primary', text: 'Find' });
+    var list = el('div');
+    root.appendChild(el('h2', { text: 'People' }));
+    root.appendChild(el('div', { class: 'row' }, [q, go]));
+    root.appendChild(list);
+    async function find() {
+      list.textContent = 'Searching…';
+      var rows = await rpc('staff_find_user', { p_query: q.value.trim() });
+      list.textContent = '';
+      if (!rows.length) list.appendChild(el('p', { class: 'muted', text: 'No accounts match.' }));
+      rows.forEach(function (u) {
+        var cat = el('select', {}, CATEGORIES.map(function (c) { return el('option', { value: c[0], text: c[1] }); }));
+        var days = el('input', { type: 'number', min: '1', max: '365', placeholder: 'Days (optional)', style: 'width:150px' });
+        var statement = el('textarea', { placeholder: 'What they will read on their letter: what happened, in plain words.' });
+        list.appendChild(el('div', { class: 'card' }, [
+          el('div', { class: 'row spread' }, [
+            el('h3', { text: (u.display_name || '(no name)') + ' · ' + (u.email || '') }),
+            el('div', { class: 'row' }, [
+              el('span', { class: 'pill', text: u.id_verified ? 'verified' : 'unverified' }),
+              u.banned ? el('span', { class: 'pill sev', text: u.ban_permanent ? 'banned' : 'suspended until ' + when(u.banned_until) }) : null,
+              el('span', { class: 'pill', text: u.live_strikes + ' live strike(s)' }),
+            ]),
+          ]),
+          el('div', { class: 'muted', text: 'Account ' + u.user_id + ' · joined ' + when(u.created_at) }),
+          el('details', {}, [el('summary', { text: 'Take action on this account' }),
+            el('label', { text: 'Rule broken' }), cat,
+            el('label', { text: 'Length' }), days,
+            el('div', { class: 'muted', text: 'Leave days empty to follow the ladder: severe is permanent, serious is a suspension that grows with each one, minor is a strike.' }),
+            el('label', { text: 'Statement' }), statement,
+            el('button', { class: 'btn bad', text: 'Apply', onclick: async function () {
+              if (statement.value.trim().length < 20) return toast('Write the statement they will read (20+ characters).');
+              if (!confirm('Apply this to ' + (u.display_name || u.email) + '? It takes effect immediately.')) return;
+              var res = await rpc('staff_enforcement_apply', { p_subject: u.user_id, p_category: cat.value, p_statement: statement.value.trim(), p_days: days.value ? Number(days.value) : null });
+              toast(res && res.applied ? 'Applied ' + (res.reference || '') : 'Not applied: ' + JSON.stringify(res));
+              find();
+            } }),
+          ]),
+        ]));
+      });
+    }
+    go.addEventListener('click', find);
+    q.addEventListener('keydown', function (e) { if (e.key === 'Enter') find(); });
+  }
+
+  /* ── Announcements ───────────────────────────────────── */
+  async function viewAnnounce(root) {
+    var list = el('div');
+    var form = el('div', { class: 'card' });
+    root.appendChild(el('h2', { text: 'Announcements' }));
+    root.appendChild(el('p', { class: 'muted', text: 'A letter that pops up in the app — no update needed. Links can only go to m3xi.com. The safety notice must be switched on before enforcement goes live.' }));
+    root.appendChild(form);
+    root.appendChild(list);
+    function f(label, input) { return el('div', {}, [el('label', { text: label }), input]); }
+    function buildForm(a) {
+      a = a || {};
+      form.textContent = '';
+      var kind = el('select', {}, [el('option', { value: 'announcement', text: 'Announcement' }), el('option', { value: 'safety_notice', text: 'Safety notice (must be acknowledged)' })]); kind.value = a.kind || 'announcement';
+      var title = el('input', { type: 'text', maxlength: '80', value: a.title || '', style: 'width:100%' });
+      var body = el('textarea', { maxlength: '800' }); body.value = a.body || '';
+      var ctaLabel = el('input', { type: 'text', value: a.cta_label || '', placeholder: 'Find out more' });
+      var ctaUrl = el('input', { type: 'url', value: a.cta_url || '', placeholder: 'https://www.m3xi.com/…', style: 'width:100%' });
+      var qr = el('input', { type: 'checkbox' }); qr.checked = !!a.show_qr;
+      var platform = el('select', {}, [el('option', { value: 'all', text: 'Android and iPhone' }), el('option', { value: 'android', text: 'Android only' }), el('option', { value: 'ios', text: 'iPhone only' })]); platform.value = a.platform || 'all';
+      var starts = el('input', { type: 'datetime-local', value: a.starts_at ? new Date(a.starts_at).toISOString().slice(0, 16) : '' });
+      var ends = el('input', { type: 'datetime-local', value: a.ends_at ? new Date(a.ends_at).toISOString().slice(0, 16) : '' });
+      var priority = el('input', { type: 'number', value: String(a.priority || 0), style: 'width:90px' });
+      var active = el('input', { type: 'checkbox' }); active.checked = a.active !== false;
+      var minV = el('input', { type: 'text', value: a.min_app_version || '', placeholder: '0.7.0' });
+      var maxV = el('input', { type: 'text', value: a.max_app_version || '' });
+      form.appendChild(el('h3', { text: a.id ? 'Edit announcement' : 'New announcement' }));
+      form.appendChild(el('div', { class: 'grid2' }, [f('Kind', kind), f('Who sees it', platform), f('Priority (higher first)', priority), f('Live', el('div', { class: 'row' }, [active, el('span', { class: 'muted', text: 'switched on' })]))]));
+      form.appendChild(f('Title (80)', title));
+      form.appendChild(f('Letter text (800)', body));
+      form.appendChild(el('div', { class: 'grid2' }, [f('Button label', ctaLabel), f('Show QR code of the link', el('div', { class: 'row' }, [qr, el('span', { class: 'muted', text: 'for scanning from another phone' })]))]));
+      form.appendChild(f('Link (m3xi.com only)', ctaUrl));
+      form.appendChild(el('div', { class: 'grid2' }, [f('Starts (blank = now)', starts), f('Ends (blank = no end)', ends), f('From app version', minV), f('Up to app version', maxV)]));
+      form.appendChild(el('div', { class: 'row', style: 'margin-top:12px' }, [
+        el('button', { class: 'btn primary', text: a.id ? 'Save changes' : 'Create', onclick: async function () {
+          if (!title.value.trim() || !body.value.trim()) return toast('Title and text are needed.');
+          if (ctaUrl.value && !/^https:\/\/(www\.)?m3xi\.com(\/\S*)?$/i.test(ctaUrl.value.trim())) return toast('Links must start https://www.m3xi.com');
+          if (qr.checked && !ctaUrl.value) return toast('A QR code needs a link.');
+          await rpc('staff_announcement_upsert', {
+            p_id: a.id || null, p_kind: kind.value, p_title: title.value.trim(), p_body: body.value.trim(),
+            p_cta_label: ctaLabel.value.trim() || null, p_cta_url: ctaUrl.value.trim() || null, p_show_qr: qr.checked,
+            p_platform: platform.value, p_starts_at: starts.value ? new Date(starts.value).toISOString() : null,
+            p_ends_at: ends.value ? new Date(ends.value).toISOString() : null, p_priority: Number(priority.value || 0),
+            p_active: active.checked, p_min_app_version: minV.value.trim() || null, p_max_app_version: maxV.value.trim() || null,
+          });
+          toast('Saved'); buildForm(); load();
+        } }),
+        a.id ? el('button', { class: 'btn', text: 'Cancel', onclick: function () { buildForm(); } }) : null,
+      ]));
+    }
+    async function load() {
+      list.textContent = 'Loading…';
+      var rows = await rpc('staff_announcements_list');
+      list.textContent = '';
+      rows.forEach(function (a) {
+        list.appendChild(el('div', { class: 'card' }, [
+          el('div', { class: 'row spread' }, [el('h3', { text: a.title }), el('div', { class: 'row' }, [
+            el('span', { class: 'pill' + (a.active ? '' : ' shadow'), text: a.active ? 'live' : 'off' }), el('span', { class: 'pill', text: a.kind }), el('span', { class: 'pill', text: a.platform }),
+            el('span', { class: 'pill', text: a.seen + ' seen · ' + a.clicked + ' tapped' })])]),
+          el('div', { class: 'quote', text: a.body }),
+          a.cta_url ? el('div', { class: 'muted', text: (a.cta_label || 'Link') + ' → ' + a.cta_url + (a.show_qr ? ' (with QR)' : '') }) : null,
+          el('div', { class: 'muted', text: 'From ' + when(a.starts_at) + (a.ends_at ? ' to ' + when(a.ends_at) : '') }),
+          el('button', { class: 'btn', text: 'Edit', onclick: function () { buildForm(a); window.scrollTo({ top: 0, behavior: 'smooth' }); } }),
+        ]));
+      });
+    }
+    buildForm();
+    await load();
+  }
+
+  /* ── Switches ────────────────────────────────────────── */
+  var IMPORTANT = ['enforcement_mode', 'moderation_speech_enabled', 'moderation_speech_rooms_enabled', 'moderation_video_enabled', 'ai_appeals_enabled', 'min_version_android', 'min_version_ios', 'latest_version_android', 'latest_version_ios'];
+  async function viewSettings(root) {
+    root.appendChild(el('h2', { text: 'Switches' }));
+    root.appendChild(el('p', { class: 'muted', text: 'Values are JSON: text in quotes ("shadow"), true/false, numbers. enforcement_mode: "off", "shadow" (record only) or "enforce". Turn on the safety notice before "enforce".' }));
+    var table = el('table');
+    root.appendChild(el('div', { class: 'card' }, [table]));
+    var rows = await rpc('staff_config_list');
+    rows.sort(function (a, b) { return (IMPORTANT.indexOf(a.key) < 0) - (IMPORTANT.indexOf(b.key) < 0) || a.key.localeCompare(b.key); });
+    table.appendChild(el('tr', {}, [el('th', { text: 'Setting' }), el('th', { text: 'Value' }), el('th', { text: '' })]));
+    rows.forEach(function (c) {
+      var input = el('input', { type: 'text', value: JSON.stringify(c.value), style: 'width:100%' });
+      table.appendChild(el('tr', {}, [
+        el('td', {}, [el('b', { text: c.key }), el('div', { class: 'muted', text: c.description || '' }), el('div', { class: 'muted', text: c.updated_by ? 'Changed ' + when(c.updated_at) + ' by ' + c.updated_by : '' })]),
+        el('td', { style: 'min-width:220px' }, [input]),
+        el('td', {}, [el('button', { class: 'btn', text: 'Save', onclick: async function () {
+          var v; try { v = JSON.parse(input.value); } catch (e) { return toast('Not valid JSON — text needs "quotes".'); }
+          if (!confirm('Set ' + c.key + ' to ' + input.value + '?')) return;
+          await rpc('staff_config_set', { p_key: c.key, p_value: v }); toast('Saved ' + c.key);
+        } })]),
+      ]));
+    });
+  }
+
+  /* ── Staff ───────────────────────────────────────────── */
+  async function viewStaff(root) {
+    root.appendChild(el('h2', { text: 'Staff' }));
+    var table = el('table');
+    root.appendChild(el('div', { class: 'card' }, [table]));
+    var rows = await rpc('staff_members_list');
+    table.appendChild(el('tr', {}, [el('th', { text: 'Person' }), el('th', { text: 'Role' }), el('th', { text: 'Added' })]));
+    rows.forEach(function (m) {
+      table.appendChild(el('tr', {}, [el('td', { text: (m.display_name || '') + ' · ' + m.email }), el('td', { text: m.role }), el('td', { text: when(m.created_at) + ' by ' + (m.added_by || '?') })]));
+    });
+    if (role !== 'admin') { root.appendChild(el('p', { class: 'muted', text: 'Only admins can change who is staff.' })); return; }
+    var email = el('input', { type: 'email', placeholder: 'Their CallMe sign-in email', style: 'flex:1;min-width:240px' });
+    var r = el('select', {}, [el('option', { value: 'moderator', text: 'Moderator' }), el('option', { value: 'admin', text: 'Admin' }), el('option', { value: '', text: 'Remove from staff' })]);
+    root.appendChild(el('div', { class: 'card' }, [el('h3', { text: 'Add, change or remove' }), el('div', { class: 'row', style: 'margin-top:8px' }, [email, r,
+      el('button', { class: 'btn primary', text: 'Save', onclick: async function () {
+        var res = await rpc('staff_member_set', { p_email: email.value.trim(), p_role: r.value || null });
+        toast(res && res.ok ? 'Done' : (res && res.message) || 'Not changed'); show('staff');
+      } })])]));
+  }
+
+  var VIEWS = { appeals: viewAppeals, actions: viewActions, people: viewPeople, announce: viewAnnounce, settings: viewSettings, staff: viewStaff };
+  function show(tab) {
+    document.querySelectorAll('nav.tabs button').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === tab)); });
+    var root = $('view'); root.textContent = '';
+    VIEWS[tab](root).catch(function () {});
+  }
+  document.querySelectorAll('nav.tabs button').forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.tab); }); });
+
+  var booting = null;
+  function boot() {
+    // Sign-in fires its own event while the first check is still running.
+    if (!booting) booting = realBoot().finally(function () { booting = null; });
+    return booting;
+  }
+  async function realBoot() {
+    var s = (await sb.auth.getSession()).data.session;
+    $('signin').hidden = !!s; $('signout').hidden = !s; $('app').hidden = true; $('denied').hidden = true;
+    $('who').textContent = s ? s.user.email : '';
+    if (!s) return;
+    var r = await sb.rpc('my_staff_role');
+    role = r.data || null;
+    if (!role) { $('denied').hidden = false; return; }
+    $('who').textContent = s.user.email + ' · ' + role;
+    $('app').hidden = false;
+    show('appeals');
+  }
+  $('google').addEventListener('click', function () {
+    sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + '/staff/' } });
+  });
+  $('pwgo').addEventListener('click', async function () {
+    var r = await sb.auth.signInWithPassword({ email: $('em').value.trim(), password: $('pw').value });
+    if (r.error) return toast(r.error.message);
+    boot();
+  });
+  $('signout').addEventListener('click', async function () { await sb.auth.signOut(); boot(); });
+  sb.auth.onAuthStateChange(function (evt) { if (evt === 'SIGNED_IN' || evt === 'SIGNED_OUT') boot(); });
+  boot();
+})();
+</script>
+</body>
+</html>

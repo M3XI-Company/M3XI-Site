@@ -15,7 +15,7 @@
   --ink:#19150F; --ink2:#605747; --blue:#2B4257; --blue2:#3E6079;
   --gold:#B6892F; --gold2:#CBA14A; --line:rgba(25,21,15,.14);
   --callme:#B7566B; --spatial:#2F6B5A; --paused:#8A8173;
-  --maxw:980px;
+  --maxw:720px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -40,7 +40,7 @@ h3{font-size:19px;margin:26px 0 8px;scroll-margin-top:84px}
 p{margin:0 0 14px}
 ul{margin:0 0 14px;padding-left:22px}
 li{margin-bottom:6px}
-.lede{font-size:clamp(16px,2vw,18px);color:#3c382f;max-width:64ch}
+.lede{font-size:clamp(16px,2vw,18px);color:#3c382f;max-width:64ch;margin-top:clamp(14px,1.6vw,22px)}
 .jp{font-family:'Noto Serif JP',serif;color:var(--ink2)}
 .muted{color:var(--ink2)}
 small.upd{display:block;color:var(--ink2);font-size:13px;margin-top:10px}
@@ -54,7 +54,16 @@ header.site{position:sticky;top:0;z-index:40;backdrop-filter:saturate(180%) blur
 .menu{display:flex;align-items:center;gap:24px;font-size:14px;color:var(--ink2)}
 .menu a:hover{color:var(--ink)}
 .menu a.active{color:var(--ink)}
-@media(max-width:880px){.menu a.lnk{display:none}}
+/* phones: the links drop to a second row under the logo and scroll sideways; the edge fade is an overlay, never a mask */
+@media(max-width:640px){
+  .nav{position:relative;flex-wrap:wrap;row-gap:0;height:auto}
+  .brand{height:56px}
+  .menu{flex:0 0 calc(100% + 48px);margin:-4px -24px 0;padding:0 24px 2px;gap:22px;overflow-x:auto;scrollbar-width:none}
+  .menu::-webkit-scrollbar{display:none}
+  .menu::after{content:"";flex:0 0 14px}
+  .menu a.lnk{flex:none;white-space:nowrap;padding:8px 0}
+  .nav::after{content:"";position:absolute;right:0;bottom:0;width:36px;height:40px;background:linear-gradient(90deg,rgba(241,234,221,0),rgba(241,234,221,.95));pointer-events:none}
+}
 
 section{padding:48px 0;position:relative}
 .toc{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
@@ -73,6 +82,9 @@ section{padding:48px 0;position:relative}
 .policy.paused{border-top:5px solid var(--paused);background:rgba(251,246,236,.7)}
 .p-tag{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--ink2)}
 .policy p,.policy li{color:#46412f;font-size:15px}
+/* reading measure: a 720px column (--maxw), and card text stops near 78 characters (Inter's ch is wide, so 52ch) */
+.policy p,.policy li,.policy .note{max-width:52ch}
+.policy h2+p,.policy h2+ul{margin-top:12px}
 .policy .backtop{font-size:13px;color:var(--blue);border-bottom:1px solid var(--line)}
 .policy .note{background:rgba(47,107,90,.07);border-left:3px solid var(--spatial);padding:12px 16px;border-radius:0 10px 10px 0;margin:0 0 14px}
 .policy a.inl{border-bottom:1px solid var(--line)}
@@ -83,6 +95,8 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 .foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;max-width:1140px;margin:0 auto;padding:0 24px}
 .foot a:hover{color:var(--ink)}
 .foot .lnks{display:flex;gap:16px;flex-wrap:wrap}
+/* the header is taller on phones, so anchored cards stop below it; footer links get a thumb-sized row */
+@media(max-width:640px){.policy,h3{scroll-margin-top:110px}.foot .lnks{row-gap:0}.foot .lnks a{padding:10px 0}}
 </style>
 </head>
 <body>
@@ -165,16 +179,32 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
       <li><b>Call metadata.</b> Who was matched with whom, call start and end times, whether video was mutually enabled, and connection quality — needed to run the service, prevent abuse and improve matching.</li>
       <li><b>Connections and friends.</b> When you and another person both choose to connect, each of you can see the social handle the other chose to share. We also keep the friend requests you send and accept, and your friends list.</li>
       <li><b>Safety reports.</b> If you report, block or mute someone, we store the report and enough context to act on it, plus any moderation flags raised against your content.</li>
+      <li><b>Safety decisions and appeals.</b> Strikes, suspensions and bans on your account with the evidence behind them, a keyed identity fingerprint (see "Safety monitoring, strikes and bans"), and any appeal you send &mdash; your email address, what you wrote and the files you attach.</li>
+      <li><b>Invites.</b> The one-time invite links you create, whether each was used and when, and how many friends joined; if you joined through an invite, which link and whether it qualified. When you install through an invite link, Google Play passes the code to the app.</li>
       <li><b>Purchases.</b> Your Premium subscription status, the coin packs you buy, and how you spend coins in the app. Card details are handled entirely by Apple or Google and never reach us.</li>
       <li><b>Sticker searches.</b> What you type into the sticker and GIF picker is sent to GIPHY to return results.</li>
       <li><b>Advertising.</b> CallMe shows ads via Google AdMob, which uses your device's advertising ID. See "Advertising &amp; consent" below.</li>
     </ul>
     <h3>Your calls</h3>
     <ul>
-      <li><b>We do not record call audio or video.</b></li>
+      <li><b>We do not record call audio or video.</b> No recording of a call is ever kept.</li>
+      <li>To keep calls safe, what is said may be turned into text while the call is live, and still frames of video may be checked for nudity. How that works, and what is kept, is set out in "Safety monitoring, strikes and bans" below. The app tells you before it applies to you.</li>
       <li>Every call opens on voice. Video turns on only when <b>both</b> people opt in during the call, and you can turn your camera off at any time.</li>
-      <li>If any moderation or safety feature ever requires audio processing, it will be clearly disclosed in-app before it applies, and this policy will be updated first.</li>
       <li>Your phone number and email are never shown to other users; calls connect through the app.</li>
+    </ul>
+
+    <h3 id="callme-safety">Safety monitoring, strikes and bans</h3>
+    <p>CallMe uses automated safety tools on calls and at tables, because people meeting strangers deserve protection that does not depend on someone managing to report in the moment.</p>
+    <ul>
+      <li><b>Speech.</b> While a call is live, its audio is passed through a speech-to-text service (<b>Agora</b>) to produce a transcript. No audio is kept. After the call ends, the transcript is read by an AI safety reviewer (<b>Anthropic's Claude</b>) that looks for sexual messages someone did not want, sexual pressure or threats, threats of violence, sharing someone's private details, harassment, slurs, and anything sexual involving someone who may be under 18. Speakers are labelled anonymously for the review. Sentences that trip a list of hateful, sexual or threatening words are also read <i>during</i> the call, so serious harm can be stopped while it happens.</li>
+      <li><b>During a call.</b> Hateful language that is unmistakable gets an instant in-call warning and a strike; doing it again removes and bans the person. Serious harm &mdash; unwanted sexual messages, sexual pressure, threats, sharing private details, or sexual talk involving a possible minor &mdash; removes the person at once with a short provisional ban while a person on our safety team reviews it. The live check acts only when it is certain: never on tone of voice or accent, never on quotes, song lyrics or discussion of racism, and never on words the speech recogniser may have misheard. Anything less certain waits for the full review after the call.</li>
+      <li><b>Video.</b> When video is on, the apps of the <i>other</i> people on the call may send occasional still frames of your video (including a shared screen) to an image moderation service (<b>Sightengine</b>) to check for nudity and sexual content. A frame that looks explicit hides that video from the person watching straight away, with no penalty, and asks the person's own app for a frame of their own camera. A permanent ban needs that frame to agree (or three different people's apps at a table); if their own frame is only suspicious they are removed with a provisional ban pending review, and if it is clean nothing happens to them and a person looks. A frame is kept only when it is evidence of a breach; clean frames are not stored anywhere. Frames that may show a minor are never sent to an AI model and go straight to a person.</li>
+      <li><b>If it happens on your call.</b> When someone on your call is warned or removed, you get a short letter saying so &mdash; without their name or details &mdash; and the two of you are never matched again. You never need to report it yourself.</li>
+      <li><b>Nobody can be framed.</b> Every app on a call forwards what the speech-to-text service sent it, yours included, and words only count as evidence when <i>your own app</i> received the same words (or, at a table, several other people's did). A suspicious frame of your video asks your own app for a frame of your own camera, and a ban needs the two to agree. What one person's phone alone reports about you is never enough to sanction you; at most it is looked at by a person.</li>
+      <li><b>What can happen.</b> The tools can give a strike, suspend an account or ban it permanently, automatically, and a person on our safety team reviews every permanent ban they make. Serious direct harm &mdash; unwanted sexual messages, nudity on camera, sexual threats, threats of violence, sharing private details, or anything sexual involving a minor &mdash; is a permanent ban. Abuse, slurs or harassment lead to a strike or a suspension of a few days to a few weeks, and a second strike within 90 days leads to a suspension. When it happens you are taken out of the call, told the reason, how long it lasts and a reference, and the app locks until the ban ends or is lifted.</li>
+      <li><b>Identity fingerprint.</b> To stop a banned person returning with a new account, we keep a one-way keyed fingerprint (an HMAC) derived from the document details your verification returns &mdash; never the document or its number in readable form. A new account whose fingerprint matches a banned one is banned too. A looser match, on name and date of birth only, is never acted on automatically; it is flagged for a person to review. The same fingerprint stops one person claiming a friend's invite reward more than once.</li>
+      <li><b>Appeals and human review.</b> You can appeal any decision at <a href="/appeal/" class="inl">m3xi.com/appeal</a> or by emailing <a href="mailto:safety@m3xi.com" class="inl">safety@m3xi.com</a>, with anything that shows what happened. An automated reviewer can accept an appeal; only a person on our safety team can refuse one, and they will tell you why. This is how we meet your rights under UK GDPR to human intervention in, and to contest, a decision made automatically about you.</li>
+      <li><b>Legal basis.</b> Our legitimate interests in keeping people safe, and our duties under the Online Safety Act 2023. Suspected child sexual abuse material is reported to the National Crime Agency, as the law requires.</li>
     </ul>
 
     <h3>Photos, stickers and moderation</h3>
@@ -196,7 +226,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
       <li>During a call: your display name, age, city, interests and the MeCard you were dealt.</li>
       <li>For <b>24 hours</b> after a call, the person you spoke to may see one of your MeCards on their home screen. It disappears on its own.</li>
       <li>Your social handle is revealed <b>only</b> when both of you have chosen to connect. A one-sided request never reveals it.</li>
-      <li>People you block or mute cannot be matched with you again and do not appear anywhere in your app.</li>
+      <li>People you block or mute cannot be matched with you unless you undo it, and apart from your lists in Settings they do not appear in your app.</li>
     </ul>
 
     <h3>How long we keep things</h3>
@@ -206,21 +236,24 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
       <li><b>MeCard wall in the app</b> — visible for 24 hours.</li>
       <li><b>Call metadata</b> — up to 12 months, so we can investigate reports.</li>
       <li><b>Verification outcome</b> — while your account exists; it is what keeps you verified.</li>
+      <li><b>Call transcripts</b> — deleted as soon as they have been reviewed, normally within minutes of the call ending. Only the sentences behind a decision are kept, with that decision.</li>
+      <li><b>Evidence frames and appeal files</b> — kept with the decision they relate to, for as long as that decision is on record.</li>
+      <li><b>Identity fingerprint</b> — while your account exists, and after it closes, so that a ban cannot be escaped and an invite reward cannot be claimed twice by deleting an account.</li>
       <li><b>Purchase records</b> — kept after an account closes where we need them for tax, accounting and to stop a store transaction being credited twice.</li>
-      <li><b>Blocks, reports and moderation flags</b> — retained after an account closes, so that a banned user cannot simply come back.</li>
+      <li><b>Reports, the decisions made on them, and any ban</b> — retained after an account closes, together with a minimal record of the closed account (its verification session references and any sanction on it, with no name, photo or profile), so that a banned user cannot simply come back.</li>
     </ul>
     <h3>Ground rules</h3>
     <ul>
       <li><b>18+ only.</b> CallMe is strictly for adults. Accounts found to belong to minors are removed.</li>
       <li>We never sell your matching preferences or match history, and we never share them with advertisers. Ads in CallMe are not targeted using your profile, preferences or who you matched with.</li>
       <li>Blocking someone prevents them from being matched with you again.</li>
-      <li>Delete your account from <b>Settings → Delete account &amp; data</b>, or at <a href="/delete-account/" class="inl">m3xi.com/delete-account</a> if you no longer have the app installed. We erase your profile, MeCards, photos, preferences and match history within 30 days, except the safety and purchase records described above.</li>
+      <li>Delete your account from <b>Settings → Delete account &amp; data</b>, or, if you no longer have the app installed, by emailing us as explained at <a href="/delete-account/" class="inl">m3xi.com/delete-account</a>. We erase your profile, MeCards, photos, preferences and match history within 30 days, except the safety and purchase records described above.</li>
       <li>You must not create an account for anyone else, use another person's identity document, or attempt to defeat the verification check.</li>
     </ul>
     <h3>Advertising &amp; consent</h3>
     <p>Ads are served by Google AdMob. In the UK and EEA you will see a consent form when the app first opens, provided by Google's User Messaging Platform, and can change your answer any time from <b>Settings → Ad privacy options</b>. On iOS you will also see Apple's tracking prompt; declining still leaves every feature available. You can also choose to watch a rewarded advert to earn an extra call. As above, your matching data is never used to target ads.</p>
     <h3>Subprocessors</h3>
-    <p>Supabase (auth, database, storage — EU region) · Didit (identity document, liveness and face-match verification — EU) · Agora (live voice and video transport only — calls are not recorded or stored) · Google AdMob (advertising) · GIPHY (sticker and GIF search — USA) · content moderation provider (automated image and text scanning) · ElevenLabs (the synthesised host voice used in call intros) · Google Play &amp; Apple (purchase verification) · Vercel or similar (hosting).</p>
+    <p>Supabase (auth, database, storage — EU region) · Didit (identity document, liveness and face-match verification — EU) · Agora (live voice and video transport, and live speech-to-text for safety — calls are not recorded or stored) · Anthropic (AI safety review of call transcripts and appeals — USA) · Sightengine (image and video-frame moderation — EU) · Resend (appeal emails — USA) · Google AdMob (advertising) · GIPHY (sticker and GIF search — USA) · content moderation provider (automated image and text scanning) · ElevenLabs (the synthesised host voice used in call intros) · Google Play &amp; Apple (purchase verification) · Vercel or similar (hosting).</p>
     <p>Where a provider processes data outside the UK or EEA, we rely on Standard Contractual Clauses or the UK International Data Transfer Addendum.</p>
     <p><a class="backtop" href="#top">↑ Back to all policies</a></p>
   </article>
@@ -319,7 +352,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 <footer class="site"><div class="foot">
   <div>M3XI <span class="jp">三X一</span> · M3XI LTD, London</div>
   <nav class="lnks">
-    <a href="/">CallMe</a><a href="/studio/">M3XI Spatial</a><a href="/team/">Team</a>
+    <a href="/">CallMe</a><a href="/questions/">Questions</a><a href="/safety/">Safety</a><a href="/studio/">M3XI Spatial</a><a href="/team/">Team</a>
     <a href="/services/">Services</a><a href="/jobs/">Jobs</a><a href="/terms/">Terms</a>
     <a href="/child-safety/">Child safety</a><a href="/delete-account/">Delete account</a>
   </nav>

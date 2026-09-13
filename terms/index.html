@@ -28,7 +28,7 @@ body{margin:0;color:var(--ink);font-family:'Inter',system-ui,-apple-system,Segoe
   background-size:30px 30px, 30px 30px, 100% 100%;
 }
 a{color:inherit;text-decoration:none}
-img{max-width:100%}
+img{max-width:100%;height:auto}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
 .eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 14px;display:flex;align-items:center;gap:10px}
 .eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
@@ -61,7 +61,18 @@ header.site{position:sticky;top:0;z-index:40;backdrop-filter:saturate(180%) blur
 .menu a.active{color:var(--ink)}
 .menu .cta{padding:8px 15px;border:1px solid var(--ink);border-radius:999px;color:var(--ink);font-weight:600}
 .menu .cta:hover{background:var(--ink);color:var(--paper)}
-@media(max-width:780px){.menu a.lnk{display:none}}
+/* phones: the links drop to a second row under the logo and scroll sideways, and the CTA stays beside the logo.
+   The edge fade is an overlay, never a mask: a mask would also hide the CTA, which sits outside the menu box. */
+@media(max-width:720px){
+  .nav{position:relative;flex-wrap:wrap;row-gap:0;height:auto}
+  .brand{height:56px}
+  .menu{flex:0 0 calc(100% + 48px);margin:-4px -24px 0;padding:0 24px 2px;gap:22px;overflow-x:auto;scrollbar-width:none}
+  .menu::-webkit-scrollbar{display:none}
+  .menu::after{content:"";flex:0 0 14px}
+  .menu a.lnk{flex:none;white-space:nowrap;padding:8px 0}
+  .menu .cta{position:absolute;right:24px;top:28px;transform:translateY(-50%);max-width:calc(100% - 196px);line-height:1.25;text-align:center}
+  .nav::after{content:"";position:absolute;right:0;bottom:0;width:36px;height:40px;background:linear-gradient(90deg,rgba(241,234,221,0),rgba(241,234,221,.95));pointer-events:none}
+}
 
 /* sections */
 section{padding:64px 0;position:relative}
@@ -181,9 +192,10 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 .foot a:hover{color:var(--ink)}
 .foot .lnks{display:flex;gap:16px;flex-wrap:wrap}
 
-.legal{max-width:790px;margin:0 auto}
-.legal .eff{color:var(--ink2);font-size:13px;margin:-2px 0 22px}
-.legal h2{font-size:22px;margin:32px 0 10px;padding-top:18px;border-top:1px solid var(--line)}
+/* 540px keeps the 15px body copy near 78 characters a line */
+.legal{max-width:540px;margin:0 auto}
+.legal .eff{color:var(--ink2);font-size:13px;margin:10px 0 22px}
+.legal h2{font-size:22px;margin:32px 0 10px;padding-top:18px;border-top:1px solid var(--line);scroll-margin-top:76px}
 .legal h3{font-size:15.5px;margin:18px 0 6px;font-family:'Inter',sans-serif;font-weight:600}
 .legal p,.legal li{color:#403b32;font-size:15px}
 .legal ul{margin:0 0 14px;padding-left:20px}.legal li{margin:5px 0}
@@ -192,6 +204,8 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 .legal td:first-child{font-weight:600;width:32%;background:var(--paper2)}
 .legal a{color:var(--blue);text-decoration:underline}
 .legal .lead{font-size:16px;color:#3a362d}
+/* the header is taller on phones, so anchored sections stop below it; footer links get a thumb-sized row */
+@media(max-width:720px){.legal h2{scroll-margin-top:104px}.foot .lnks{row-gap:0}.foot .lnks a{padding:10px 0}}
 </style>
 </head>
 <body>
@@ -286,6 +300,9 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 
   <h3>13.4 Reporting and enforcement</h3>
   <p>You can block, mute or report anyone, during or after a call. We review reports and may warn, suspend or permanently ban an account, remove content, or refer a matter to the police. We may act on a single serious report without prior warning. Where a ban is applied, the associated records are retained in order to enforce it.</p>
+  <p><b>Automated safety tools.</b> Calls and tables are monitored by automated tools, as described in the <a href="/privacy/#callme-safety">privacy policy</a>: speech is transcribed live and reviewed by AI during and after the call, and video frames may be checked for nudity. These tools can warn you during a call, remove you from it, and give a strike, suspend or permanently ban an account without a person being involved first; a person reviews every permanent ban afterwards. Unmistakable hateful language on a call earns an instant warning and a strike, and continuing after the warning means removal and a ban. Explicit video is hidden from the other person at once. Serious direct harm to another person &mdash; unwanted sexual content, nudity, sexual threats or pressure, threats of violence, sharing private details, or anything sexual involving a minor &mdash; is a permanent ban. Lesser breaches, such as abuse, slurs or harassment, lead to a strike or a suspension of a few days to a few weeks, and a second strike within 90 days leads to a suspension. A banned or suspended account is removed from any call or table and cannot use CallMe until the ban ends.</p>
+  <p><b>One person, one account.</b> A ban applies to the person, not only the account. Creating another account after a ban &mdash; with a different email address or otherwise &mdash; is ban evasion, and the new account will be banned as well.</p>
+  <p><b>Appeals.</b> Every decision comes with a reason and a reference. You can appeal at <a href="/appeal/">m3xi.com/appeal</a> or by emailing <a href="mailto:safety@m3xi.com">safety@m3xi.com</a> from the address you sign in with. If the evidence shows a decision was wrong, we lift it. An appeal may be accepted automatically, but it is only ever refused by a person on our safety team, who will give you the reason.</p>
 
   <h3>13.5 Your content on CallMe</h3>
   <p>You keep ownership of your photographs, MeCards and profile text. You grant M3XI a worldwide, non-exclusive, royalty-free licence to host, display and transmit that content to other users in order to operate the service, including automated safety scanning. You confirm you own or have the right to share everything you upload, including any image of another person.</p>
@@ -294,6 +311,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
   <p><b>Premium</b> is a recurring subscription billed by Apple or Google and renews until cancelled. Cancel through your App Store or Google Play account; cancelling stops future renewals and does not refund the current period.</p>
   <p><b>Coins</b> are bought in packs through Apple or Google and spent on optional extras inside CallMe. Coins have no cash value, cannot be exchanged for money, and cannot be sold or transferred to another account. Unused coins are lost if you delete your account.</p>
   <p>Refunds for Premium and coins are handled by the store you bought them from, under its own policy.</p>
+  <p><b>Invites.</b> When a friend joins CallMe through your invite, creates a new account and passes the age check, you receive three days of Premium, and you are added as friends. Each invite link works once, for one person, and expires after 14 days if unused. Only new accounts, in their first week, can use an invite; each person can be invited once, however many accounts they make; and invite Premium cannot be banked beyond 30 days or exchanged for anything. We may withhold or remove invite rewards obtained by abusing the scheme.</p>
 
   <h3>13.7 Safety</h3>
   <p>Verification confirms that a person is a real, unique adult. <b>It is not a background check and does not make anyone safe.</b> Take the usual precautions: do not share financial details or your home address, be careful about revealing where you live or work, and meet in public if you choose to meet at all. You are responsible for your own decisions about who you speak to and what you share.</p>
@@ -331,7 +349,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 <footer class="site"><div class="wrap foot">
   <div>M3XI <span class="jp">三X一</span> · M3XI LTD, London</div>
   <nav class="lnks">
-    <a href="/">CallMe</a><a href="/studio/">M3XI Spatial</a><a href="/team/">Team</a>
+    <a href="/">CallMe</a><a href="/questions/">Questions</a><a href="/safety/">Safety</a><a href="/studio/">M3XI Spatial</a><a href="/team/">Team</a>
     <a href="/services/">Services</a><a href="/jobs/">Jobs</a><a href="/privacy/">Policies</a><a href="/terms/">Terms</a>
   </nav>
   <div>© 2026 · England &amp; Wales</div>

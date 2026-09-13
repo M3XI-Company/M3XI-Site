@@ -274,6 +274,10 @@
     {
       "source": "/tour/:slug((?!index[.]html$|tour[.]js$|embed[.]js$)[a-z0-9-]+)",
       "destination": "/api/tour?slug=:slug"
+    },
+    {
+      "source": "/invite/:code([A-Za-z0-9]{6,16})",
+      "destination": "/invite/index.html"
     }
   ]
 }

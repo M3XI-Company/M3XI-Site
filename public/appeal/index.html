@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Appeal a CallMe decision — M3XI</title>
+<meta name="description" content="If CallMe gave your account a strike, a suspension or a ban and you think it was wrong, appeal here. A person on our safety team reviews every appeal we cannot accept." />
+<meta name="robots" content="noindex" />
+<link rel="icon" type="image/png" href="/M.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --panel:#FBF6EC; --ink:#19150F; --ink2:#605747; --blue:#2B4257; --gold:#B6892F;
+  --line:rgba(25,21,15,.14); --callme:#B7566B; --callme2:#9C4357; --danger:#B3402A; --ok:#2E7D4F;
+}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.62;
+  -webkit-font-smoothing:antialiased;background-color:#EFE7D6;
+  background-image:linear-gradient(rgba(43,66,87,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(43,66,87,.045) 1px,transparent 1px),
+    radial-gradient(1200px 700px at 80% -8%,rgba(255,253,247,.9),transparent 60%);
+  background-size:30px 30px,30px 30px,100% 100%}
+a{color:var(--blue)}
+.jp{font-family:'Noto Serif JP',serif;color:var(--ink2)}
+header.site{border-bottom:1px solid var(--line);background:rgba(241,234,221,.82)}
+.nav{display:flex;align-items:center;height:64px;max-width:1140px;margin:0 auto;padding:0 24px}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-weight:600;font-size:19px;text-decoration:none;color:var(--ink)}
+.brand img{width:30px;height:30px;border-radius:8px}
+.brand .jp{font-size:13px}
+.wrap{max-width:720px;margin:0 auto;padding:44px 22px 64px}
+.eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 14px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
+h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(32px,5vw,48px);line-height:1.08;font-weight:600;margin:0;letter-spacing:-.012em}
+h1 i{color:var(--callme);font-weight:500}
+h2{font-family:'Playfair Display',Georgia,serif;font-size:22px;margin:0 0 10px;font-weight:600}
+.lede{font-size:17px;color:#3c382f;max-width:60ch;margin:16px 0 0}
+.card{background:var(--panel);border:1px solid var(--line);border-top:5px solid var(--callme);border-radius:22px;padding:clamp(22px,4vw,36px);margin-top:28px;box-shadow:0 30px 60px -50px rgba(43,66,87,.5)}
+.how{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin-top:22px;font-size:14.5px;color:#46412f}
+.how ol{margin:6px 0 0;padding-left:20px}
+.how li{margin-bottom:6px}
+label{display:block;font-weight:600;font-size:14.5px;margin:18px 0 6px}
+label small{font-weight:400;color:var(--ink2)}
+input[type=text],input[type=email],textarea{width:100%;font:16px 'Inter',sans-serif;color:var(--ink);background:#FFFEFA;
+  border:1.5px solid #2A2320;border-radius:10px;padding:12px 14px;outline:none}
+input:focus,textarea:focus{border-color:var(--callme);box-shadow:0 0 0 3px rgba(183,86,107,.18)}
+#reference{font-weight:600;font-size:19px;font-variant-numeric:lining-nums tabular-nums;letter-spacing:.12em;text-transform:uppercase}
+textarea{min-height:180px;resize:vertical;line-height:1.55}
+.count{font-size:12.5px;color:var(--ink2);text-align:right;margin-top:4px}
+.files{border:1.5px dashed #2A2320;border-radius:12px;padding:14px;background:#FFFEFA}
+.files input{font:14px 'Inter',sans-serif;max-width:100%}
+.filelist{list-style:none;padding:0;margin:10px 0 0;font-size:13.5px;color:#46412f}
+.filelist li{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px solid var(--line)}
+.filelist button{background:none;border:0;color:var(--danger);cursor:pointer;font:500 13px 'Inter',sans-serif}
+.check{display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:14px;color:#46412f;margin-top:20px}
+.check input{margin-top:4px;width:18px;height:18px;accent-color:var(--callme)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:12px 24px;border-radius:10px;border:1.5px solid var(--callme2);
+  background:var(--callme);color:#fff;font:600 16px 'Inter',sans-serif;cursor:pointer;margin-top:22px;width:100%}
+.btn:hover{background:var(--callme2)}
+.btn[disabled]{opacity:.6;cursor:default}
+.msg{border-radius:12px;padding:14px 16px;margin-top:18px;font-size:15px}
+.msg.bad{background:#FBEDE8;border:1px solid rgba(179,64,42,.35);color:#6b2a1d}
+.msg.good{background:#EAF4EC;border:1px solid rgba(46,125,79,.35);color:#1f4d33}
+.alt{font-size:14px;color:var(--ink2);margin-top:18px}
+[hidden]{display:none!important}
+footer.site{border-top:1px solid var(--line);padding:26px 24px;color:var(--ink2);font-size:13px;text-align:center;background:rgba(246,240,227,.6)}
+footer.site a{margin:0 8px;color:inherit}
+</style>
+</head>
+<body>
+<header class="site"><div class="nav">
+  <a class="brand" href="/"><img src="/M.png" alt="" /> M3XI <span class="jp">三X一</span></a>
+</div></header>
+
+<main class="wrap">
+  <p class="eyebrow">CallMe safety</p>
+  <h1>Appeal a <i>decision.</i></h1>
+  <p class="lede">If CallMe gave your account a strike, a suspension or a ban and you think it was wrong, tell us what happened. We look at every appeal.</p>
+
+  <div class="how">
+    <b>How it works</b>
+    <ol>
+      <li>Use the reference from your letter in the app (it looks like <b>CM-7KQ4-P2XZ</b>) and the email address you sign in to CallMe with.</li>
+      <li>Explain what really happened, and attach anything that shows it — screenshots, messages, anything relevant.</li>
+      <li>If the evidence shows the decision was wrong, it is lifted and your account unlocks by itself. Automated review can accept an appeal; only a person on our safety team can turn one down, and they will tell you why.</li>
+    </ol>
+  </div>
+
+  <section class="card" aria-labelledby="formTitle">
+    <h2 id="formTitle">Your appeal</h2>
+    <form id="form" novalidate>
+      <label for="reference">Reference <small>— from your letter</small></label>
+      <input id="reference" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="CM-XXXX-XXXX" maxlength="12" required />
+
+      <label for="email">Email address <small>— the one you sign in to CallMe with</small></label>
+      <input id="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+
+      <label for="statement">What happened</label>
+      <textarea id="statement" maxlength="4000" placeholder="Tell us in your own words. What was said or shown, and what the context was." required></textarea>
+      <div class="count"><span id="count">0</span> / 4,000</div>
+
+      <label>Proof <small>— up to 3 files, images or PDF, 5 MB each (optional)</small></label>
+      <div class="files">
+        <input id="files" type="file" accept="image/jpeg,image/png,image/webp,image/heic,.heic,application/pdf" multiple />
+        <ul class="filelist" id="filelist"></ul>
+      </div>
+
+      <label class="check"><input id="truth" type="checkbox" required /> <span>What I have written is true, and the files are mine to share.</span></label>
+
+      <button class="btn" id="send" type="submit">Send my appeal</button>
+      <div class="msg" id="msg" role="status" aria-live="polite" hidden></div>
+    </form>
+    <p class="alt">Rather email? Write to <a id="mail" href="mailto:safety@m3xi.com?subject=CallMe%20appeal">safety@m3xi.com</a> from the address you sign in with, quoting your reference.</p>
+  </section>
+</main>
+
+<footer class="site">M3XI <span class="jp">三X一</span> · <a href="/privacy/#callme">Privacy</a><a href="/terms/">Terms</a><a href="/safety/">Safety</a></footer>
+
+<script>
+(function () {
+  var ENDPOINT = 'https://cwjspmhgspiavyzrtosl.supabase.co/functions/v1/appeal-submit';
+  var MAX_FILES = 3, MAX_BYTES = 5 * 1024 * 1024;
+  var TYPES = { 'image/jpeg': 1, 'image/png': 1, 'image/webp': 1, 'image/heic': 1, 'application/pdf': 1 };
+  var $ = function (id) { return document.getElementById(id); };
+  var files = [];
+
+  var ref = new URLSearchParams(location.search).get('ref');
+  if (ref) $('reference').value = ref.toUpperCase().slice(0, 12);
+
+  function formatRef(v) {
+    var raw = v.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (raw.indexOf('CM') === 0) raw = raw.slice(2);
+    raw = raw.slice(0, 8);
+    return raw ? 'CM-' + raw.slice(0, 4) + (raw.length > 4 ? '-' + raw.slice(4) : '') : '';
+  }
+  $('reference').addEventListener('input', function (e) {
+    var f = formatRef(e.target.value);
+    if (f !== e.target.value) e.target.value = f;
+    $('mail').href = 'mailto:safety@m3xi.com?subject=' + encodeURIComponent('Appeal ' + (f || ''));
+  });
+  if (ref) $('reference').dispatchEvent(new Event('input'));
+
+  $('statement').addEventListener('input', function () { $('count').textContent = $('statement').value.length.toLocaleString(); });
+
+  function typeOf(f) {
+    if (f.type) return f.type.toLowerCase();
+    return /\.heic$/i.test(f.name) ? 'image/heic' : '';
+  }
+  function renderFiles() {
+    var ul = $('filelist'); ul.innerHTML = '';
+    files.forEach(function (f, i) {
+      var li = document.createElement('li');
+      var name = document.createElement('span');
+      name.textContent = f.name + ' (' + Math.max(1, Math.round(f.size / 1024)) + ' KB)';
+      var rm = document.createElement('button'); rm.type = 'button'; rm.textContent = 'Remove';
+      rm.addEventListener('click', function () { files.splice(i, 1); renderFiles(); });
+      li.appendChild(name); li.appendChild(rm); ul.appendChild(li);
+    });
+  }
+  $('files').addEventListener('change', function (e) {
+    var picked = Array.prototype.slice.call(e.target.files || []);
+    var refused = [];
+    picked.forEach(function (f) {
+      if (files.length >= MAX_FILES) { refused.push(f.name + ' (only 3 files)'); return; }
+      if (!TYPES[typeOf(f)]) { refused.push(f.name + ' (not an image or PDF)'); return; }
+      if (f.size > MAX_BYTES) { refused.push(f.name + ' (over 5 MB)'); return; }
+      files.push(f);
+    });
+    e.target.value = '';
+    renderFiles();
+    if (refused.length) show('bad', 'Not added: ' + refused.join(', ') + '.');
+    else hide();
+  });
+
+  function show(kind, text) { var m = $('msg'); m.className = 'msg ' + kind; m.textContent = text; m.hidden = false; }
+  function hide() { $('msg').hidden = true; }
+
+  function readBase64(f) {
+    return new Promise(function (resolve, reject) {
+      var r = new FileReader();
+      r.onload = function () { var s = String(r.result || ''); resolve(s.slice(s.indexOf(',') + 1)); };
+      r.onerror = reject;
+      r.readAsDataURL(f);
+    });
+  }
+
+  $('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var reference = $('reference').value.trim().toUpperCase();
+    var email = $('email').value.trim();
+    var statement = $('statement').value.trim();
+    if (!/^CM-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(reference)) return show('bad', 'The reference looks like CM-XXXX-XXXX. You will find it on the letter in the app.');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return show('bad', 'Enter the email address you sign in to CallMe with.');
+    if (statement.length < 20) return show('bad', 'Please tell us what happened in at least 20 characters.');
+    if (!$('truth').checked) return show('bad', 'Please confirm that what you have written is true.');
+
+    $('send').disabled = true; $('send').textContent = 'Sending…'; hide();
+    Promise.all(files.map(function (f) {
+      return readBase64(f).then(function (b64) { return { type: typeOf(f), base64: b64 }; });
+    }))
+      .then(function (evidence) {
+        return fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reference: reference, email: email, statement: statement, evidence: evidence }),
+        });
+      })
+      .then(function (r) { return r.json().catch(function () { return { ok: false }; }); })
+      .then(function (d) {
+        if (d && d.ok) {
+          $('form').querySelectorAll('input,textarea,button').forEach(function (el) { el.disabled = true; });
+          $('send').textContent = 'Appeal sent';
+          show('good', 'Thank you — your appeal for ' + reference + ' has reached our safety team. We have emailed you a receipt. If the decision is lifted, your account unlocks by itself; otherwise a person on our team will email you the reason.');
+          return;
+        }
+        $('send').disabled = false; $('send').textContent = 'Send my appeal';
+        show('bad', (d && d.message) || 'We could not send your appeal. Please try again, or email safety@m3xi.com.');
+      })
+      .catch(function () {
+        $('send').disabled = false; $('send').textContent = 'Send my appeal';
+        show('bad', 'We could not reach our server. Check your connection and try again, or email safety@m3xi.com.');
+      });
+  });
+})();
+</script>
+</body>
+</html>
