@@ -19,7 +19,10 @@ body{
   background-size:22px 22px;
   -webkit-font-smoothing:antialiased;line-height:1.55;
 }
-img{display:block;max-width:100%}
+/* height:auto matters: without it an <img width height> narrowed by max-width
+   keeps its attribute height and renders tall and thin. Rules that want a
+   fixed box (.step img, .wcard .cov img...) set height and object-fit:cover. */
+img,video{display:block;max-width:100%;height:auto}
 a{color:inherit}
 ::selection{background:var(--ink);color:var(--paper)}
 
@@ -60,18 +63,26 @@ a{color:inherit}
 .wrap{max-width:1240px;margin:0 auto;padding:0 22px}
 section{padding:74px 0 84px;position:relative}
 .sechead{display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:14px}
-.sechead h2{font-size:clamp(30px,4.6vw,54px)}
+/* balance: a heading that wraps splits evenly instead of leaving one word
+   ("IT") alone on the last line. */
+.sechead h2{font-size:clamp(30px,4.6vw,54px);text-wrap:balance}
+/* At 30px a 276px phone column broke "BUILT IN-" / "HOUSE"; a notch smaller
+   on the smallest phones. */
+@media(max-width:360px){.sechead h2{font-size:26px}}
 .sechead .note{font-size:19px;transform:rotate(-1.6deg);margin-bottom:6px}
 .subline{color:var(--mut);font-size:15px;max-width:640px;margin-bottom:30px}
 
 /* ---------- topbar ---------- */
 .bar{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:3px solid var(--line)}
-.bar .in{max-width:1240px;margin:0 auto;padding:13px 22px;display:flex;align-items:center;gap:22px}
-.logo{font-family:var(--disp);font-size:19px;letter-spacing:.02em;text-decoration:none;display:flex;align-items:baseline;gap:9px}
+/* flex-wrap is the safety net: if the bar ever holds more than fits, the
+   account cluster drops to a second row instead of pushing the page sideways. */
+.bar .in{max-width:1240px;margin:0 auto;padding:13px 22px;display:flex;flex-wrap:wrap;align-items:center;gap:22px}
+.logo{font-family:var(--disp);font-size:19px;letter-spacing:.02em;text-decoration:none;display:flex;align-items:baseline;gap:9px;
+  white-space:nowrap;flex-shrink:0}
 .logo .jp{font-family:var(--body);font-weight:600;font-size:13px;color:var(--red)}
 .logo .st{font-size:11px;letter-spacing:.3em;color:var(--mut)}
 nav.links{display:flex;gap:4px;margin-left:auto}
-nav.links a{text-decoration:none;font-weight:600;font-size:13.5px;padding:8px 12px;border:2px solid transparent}
+nav.links a{text-decoration:none;font-weight:600;font-size:13.5px;padding:8px 12px;border:2px solid transparent;white-space:nowrap}
 nav.links a:hover{border-color:var(--line);background:var(--paper)}
 /* The right-hand account cluster: avatar, balance, sign in/out, Enter Studio.
    One flex container with one gap, instead of per-button margins that drifted
@@ -80,19 +91,50 @@ nav.links a:hover{border-color:var(--line);background:var(--paper)}
 #avatarChip{width:32px;height:32px;border:2px solid var(--line);background:var(--red);color:#fff;
   font-weight:800;font-size:12px;align-items:center;justify-content:center;text-decoration:none;
   box-shadow:3px 3px 0 rgba(22,21,18,.9)}
-@media(max-width:920px){nav.links{display:none}.bar .acct{margin-left:auto}}
+/* Signed in, the cluster grows by an avatar, a credits button and Sign out.
+   Below a wide desktop the links tighten; the credits button only goes where
+   it truly cannot fit (measured with a six-digit balance: one row down to
+   ~1130px), and then the avatar chip opens the account page and Sign out
+   carries the balance as its title. */
+@media(max-width:1240px){
+  .bar .in{gap:14px}
+  nav.links{gap:0}
+  nav.links a{padding:8px 9px}
+}
+@media(max-width:1160px){#btnProfile{display:none}}
+@media(max-width:1000px){nav.links{display:none}.bar .acct{margin-left:auto}}
+/* Phones: still one row, down to 320px. Smaller logo and buttons, the 三X一
+   mark steps out below 400px, and Sign out waits on the account page (the
+   avatar chip goes straight there). */
+@media(max-width:560px){
+  .bar .in{padding:10px 16px;gap:8px 12px}
+  .logo{font-size:17px;gap:7px}
+  .logo .st{letter-spacing:.22em}
+  .bar .acct{gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .bar .btn.sm{padding:7px 11px;font-size:12.5px;box-shadow:3px 3px 0 rgba(22,21,18,.9)}
+  .bar .btn.sm:hover{box-shadow:1px 1px 0 rgba(22,21,18,.9)}
+  #btnAuth[data-mode="out"]{display:none}
+}
+@media(max-width:400px){.logo .jp{display:none}}
+@media(max-width:340px){
+  .bar .in{padding:10px 12px;gap:8px 10px}
+  .logo .st{letter-spacing:.16em}
+  .bar .btn.sm{padding:7px 9px}
+}
 
 /* ---------- hero ---------- */
 #home{padding:56px 0 70px;overflow:hidden}
 .heroGrid{display:grid;grid-template-columns:repeat(12,1fr);gap:26px;align-items:start}
-.heroCopy{grid-column:1/6;padding-top:26px}
+/* Copy takes half the grid: at five columns "WALKTHROUGHS" had 1px to spare
+   at 1024 and the headline had to sit smaller than the section headings. */
+.heroCopy{grid-column:1/7;padding-top:26px}
 .heroCopy h1{font-size:clamp(38px,5.2vw,64px);margin:14px 0 18px}
 .heroCopy h1 .mk{color:var(--red);position:relative;white-space:nowrap}
 .heroCopy h1 .mk:after{content:'*';font-size:.55em;vertical-align:super;margin-left:2px}
 .heroCopy p.lead{color:var(--mut);font-size:16.5px;max-width:430px;margin-bottom:26px}
 .heroCopy .cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:26px}
 .heroChips{display:flex;gap:10px;flex-wrap:wrap}
-.heroArt{grid-column:6/13;display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:88px;gap:22px;position:relative}
+.heroArt{grid-column:7/13;display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:88px;gap:22px;position:relative}
 .hp{overflow:hidden}
 .hp img{width:100%;height:100%;object-fit:cover}
 .hp.big{grid-column:1/6;grid-row:1/5;transform:rotate(-.7deg)}
@@ -101,8 +143,23 @@ nav.links a:hover{border-color:var(--line);background:var(--paper)}
 .hp.s3{grid-column:2/6;grid-row:5/7;transform:rotate(.8deg)}
 .heroNote{position:absolute;right:-6px;bottom:-34px;font-size:23px;transform:rotate(-3deg)}
 @media(max-width:980px){
+  /* Both halves span all twelve columns here, so the column gaps only add a
+     286px minimum that is wider than a 320px phone's content box. */
+  .heroGrid{column-gap:0}
   .heroCopy{grid-column:1/13}
   .heroArt{grid-column:1/13;grid-auto-rows:60px}
+}
+/* Phones: seven columns left the two side pictures 60-90px wide, each showing
+   a sliver of a landscape photo with its GENERATED label cut to "GENERA", and
+   the note ran over them. The key art goes full width, the two rooms sit side
+   by side under it, and the note follows as a line of its own. The labels are
+   the AI disclosure, so they must always be whole. */
+@media(max-width:620px){
+  .heroArt{grid-template-columns:1fr 1fr;grid-auto-rows:auto;gap:18px 16px;margin-top:8px}
+  .hp.big{grid-column:1/3;grid-row:1;aspect-ratio:16/10}
+  .hp.s1{grid-column:1/2;grid-row:2;aspect-ratio:4/3}
+  .hp.s2{grid-column:2/3;grid-row:2;aspect-ratio:4/3}
+  .heroNote{position:static;grid-column:1/3;grid-row:3;text-align:right;font-size:19px;line-height:1.2;transform:rotate(-2deg)}
 }
 
 /* ---------- portfolio ---------- */
@@ -128,6 +185,7 @@ nav.links a:hover{border-color:var(--line);background:var(--paper)}
 
 /* ---------- studio ---------- */
 .studioGrid{display:grid;grid-template-columns:1.05fr .95fr;gap:32px;align-items:start}
+.studioGrid > *{min-width:0}
 @media(max-width:960px){.studioGrid{grid-template-columns:1fr}}
 .notebook{padding:26px}
 .notebook h3{font-family:var(--disp);font-size:18px;margin-bottom:14px;letter-spacing:.03em}
@@ -194,6 +252,12 @@ details.adv{margin-top:18px;border-top:2px dashed rgba(22,21,18,.3);padding-top:
 details.adv summary{cursor:pointer;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
 details.adv label{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin:12px 0 4px}
 .out{padding:22px;min-height:420px}
+/* Signed out (or nothing made yet) Your work is one line of text, not a
+   420px empty box; it keeps the height once it lists work. */
+#acctWork{min-height:0}
+#acctWork:has(.libGrid){min-height:420px}
+/* "Continue with Google" wrapped to two lines inside a 320px phone's panel. */
+@media(max-width:360px){#btnGoogle{white-space:nowrap;padding-left:14px;padding-right:14px}}
 .out h3{font-family:var(--disp);font-size:18px;margin-bottom:12px;letter-spacing:.03em}
 #genOut img,#genOut video{width:100%;border:3px solid var(--line);box-shadow:6px 6px 0 rgba(22,21,18,.9)}
 #genOut model-viewer{border:3px solid var(--line);box-shadow:6px 6px 0 rgba(22,21,18,.9)}
@@ -285,9 +349,15 @@ details.adv label{display:block;font-size:11px;font-weight:700;letter-spacing:.1
 .tourCard li b{color:var(--ink)}
 .tourCard .side h4{font-family:var(--disp);font-size:13px;letter-spacing:.08em;margin-bottom:6px}
 @media(max-width:820px){.tourCard{grid-template-columns:1fr;gap:18px}}
+/* A card with no side column is one column, its text at a reading measure,
+   rather than the left half of a two-column grid with the right half empty. */
+.tourCard.single{grid-template-columns:1fr}
+.tourCard.single ul{max-width:60ch}
 
 /* ---------- library ---------- */
-.libGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:26px}
+/* min(270px,100%): inside a narrow panel (Your work on account.html at 320px)
+   a hard 270px minimum pushed the card out past the panel's edge. */
+.libGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(270px,100%),1fr));gap:26px}
 .wcard{overflow:hidden}
 .wcard .cov{position:relative;height:170px;border-bottom:3px solid var(--line);background:var(--paper2);display:flex;align-items:center;justify-content:center;overflow:hidden}
 /* Generated worlds say so on the card, so nobody mistakes a Marble world for a scan. */
@@ -295,9 +365,16 @@ details.adv label{display:block;font-size:11px;font-weight:700;letter-spacing:.1
   font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;line-height:1.2;pointer-events:none}
 .wcard .cov img{width:100%;height:100%;object-fit:cover}
 .wcard .cov .ph{font-family:var(--disp);font-size:26px;color:rgba(22,21,18,.25);letter-spacing:.1em}
-.wcard .meta{padding:13px 15px;display:flex;align-items:center;gap:10px}
-.wcard .meta .nm{font-weight:700;font-size:14.5px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wcard .meta a.by{font-size:12.5px;color:var(--mut);text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+/* The name gets the whole top row. Sharing one row with the byline, the like
+   count and Walk left it seventy pixels on a phone ("Meadow Val…") and none at
+   all on a four-across desktop grid. Byline, likes and Walk sit underneath;
+   the ellipsis is only for names longer than the card. */
+.wcard .meta{padding:13px 15px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.wcard .meta .nm{font-weight:700;font-size:14.5px;flex:1 0 100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wcard .meta .by{font-size:12.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1 1 auto;min-width:0}
+.wcard .meta a.by{text-decoration:underline;text-underline-offset:3px}
+.wcard .meta .likeBtn,.wcard .meta .chip{flex:none}
+.wcard .meta .btn{flex:none;margin-left:auto}
 .libSub{font-family:var(--disp);font-size:13px;letter-spacing:.09em;text-transform:uppercase;margin:26px 0 14px;
   padding-bottom:7px;border-bottom:2px solid var(--line)}
 .libSub:first-of-type{margin-top:6px}

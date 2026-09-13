@@ -28,7 +28,7 @@ body{margin:0;color:var(--ink);font-family:'Inter',system-ui,-apple-system,Segoe
   background-size:30px 30px, 30px 30px, 100% 100%;
 }
 a{color:inherit;text-decoration:none}
-img{max-width:100%}
+img{max-width:100%;height:auto}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
 .eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 14px;display:flex;align-items:center;gap:10px}
 .eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
@@ -36,8 +36,9 @@ h1,h2,h3,h4{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;
 h1{font-size:clamp(40px,6.2vw,68px);line-height:1.05;font-weight:600}
 h1 em,h2 em{font-style:italic;color:var(--gold);font-weight:500}
 h2{font-size:clamp(28px,4vw,42px);line-height:1.12;font-weight:600}
+h3{line-height:1.22} /* card titles that wrap on phones keep their lines together */
 p{margin:0 0 16px}
-.lede{font-size:clamp(16px,2vw,19px);color:#3c382f;max-width:62ch}
+.lede{font-size:clamp(16px,2vw,19px);color:#3c382f;max-width:62ch;margin-top:clamp(14px,1.6vw,22px)}
 .jp{font-family:'Noto Serif JP',serif;color:var(--ink2)}
 .muted{color:var(--ink2)}
 .btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:15px;padding:13px 24px;border-radius:999px;cursor:pointer;border:1px solid transparent;transition:transform .08s, background .2s, color .2s}
@@ -59,9 +60,22 @@ header.site{position:sticky;top:0;z-index:40;backdrop-filter:saturate(180%) blur
 .menu a.active{color:var(--ink)}
 .menu .cta{padding:8px 15px;border:1px solid var(--ink);border-radius:999px;color:var(--ink);font-weight:600}
 .menu .cta:hover{background:var(--ink);color:var(--paper)}
-@media(max-width:880px){.menu a.lnk{display:none}}
+/* phones: the links drop to a second row under the logo and scroll sideways, and the CTA stays beside the logo.
+   The edge fade is an overlay, never a mask: a mask would also hide the CTA, which sits outside the menu box. */
+@media(max-width:720px){
+  .nav{position:relative;flex-wrap:wrap;row-gap:0;height:auto}
+  .brand{height:56px}
+  .menu{flex:0 0 calc(100% + 48px);margin:-4px -24px 0;padding:0 24px 2px;gap:22px;overflow-x:auto;scrollbar-width:none}
+  .menu::-webkit-scrollbar{display:none}
+  .menu::after{content:"";flex:0 0 14px}
+  .menu a.lnk{flex:none;white-space:nowrap;padding:8px 0}
+  .menu .cta{position:absolute;right:24px;top:28px;transform:translateY(-50%);max-width:calc(100% - 196px);line-height:1.25;text-align:center}
+  .nav::after{content:"";position:absolute;right:0;bottom:0;width:36px;height:40px;background:linear-gradient(90deg,rgba(241,234,221,0),rgba(241,234,221,.95));pointer-events:none}
+}
 
 section{padding:64px 0;position:relative}
+section[id]{scroll-margin-top:24px} /* #story and #contact open with their eyebrow clear of the sticky header */
+@media(max-width:720px){section[id]{scroll-margin-top:56px}}
 .dim{display:flex;align-items:center;gap:14px;color:var(--blue);opacity:.6;font-size:11px;letter-spacing:.2em;text-transform:uppercase;margin:0 auto;max-width:var(--maxw);padding:0 24px}
 .dim::before,.dim::after{content:"";height:1px;background:repeating-linear-gradient(90deg,var(--blue),var(--blue) 4px,transparent 4px,transparent 9px);flex:1;opacity:.5}
 
@@ -87,19 +101,22 @@ section{padding:64px 0;position:relative}
 .cover-art svg{position:absolute;inset:0;width:100%;height:100%}
 .roles{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 22px}
 .roles span{font-size:12.5px;font-weight:600;letter-spacing:.06em;background:#fff;border:2.5px solid var(--ink);border-radius:4px;padding:6px 12px;box-shadow:3px 3px 0 rgba(25,21,15,.85)}
-@media(max-width:880px){.cover-grid{grid-template-columns:1fr}.cover-art{min-height:280px;border-left:none;border-top:4px solid var(--ink)}}
+/* stacked: the art's height follows the width (the drawing is 460x520, shown whole) instead of a fixed 280px strip */
+@media(max-width:880px){.cover-grid{grid-template-columns:1fr}.cover-art{height:clamp(280px,calc(100vw - 20px),440px);border-left:none;border-top:4px solid var(--ink)}}
 
 /* panels grid */
 .chapter{font-family:'Bangers',cursive;font-size:clamp(24px,3.4vw,34px);letter-spacing:.06em;color:var(--ink);margin:0 0 6px}
 .chapter .no{color:var(--gold)}
 .panels{display:grid;grid-template-columns:repeat(12,1fr);gap:20px;margin-top:28px}
-.panel{position:relative;background:#fff;border:3.5px solid var(--ink);border-radius:5px;padding:24px;
+/* bottom padding leaves the FIG caption its own line, clear of the last paragraph or bubble */
+.panel{position:relative;background:#fff;border:3.5px solid var(--ink);border-radius:5px;padding:24px 24px 34px;
   box-shadow:6px 6px 0 rgba(25,21,15,.85);overflow:hidden}
 .panel.tilt-l{transform:rotate(-.7deg)}
 .panel.tilt-r{transform:rotate(.6deg)}
 .panel .fig{position:absolute;right:10px;bottom:8px;font-size:10px;letter-spacing:.2em;color:var(--gold);font-weight:600}
 .panel h3{font-size:21px;margin:0 0 8px}
 .panel p{color:#3c382f;font-size:14.5px;margin:0}
+/* the kanji deliberately bleeds 8px past the right edge and 18px past the top, cropped by the panel like manga art */
 .panel .kanji-bg{position:absolute;right:-8px;top:-18px;font-family:'Noto Serif JP',serif;font-weight:700;font-size:110px;color:rgba(43,66,87,.07);line-height:1;pointer-events:none;user-select:none}
 .span-7{grid-column:span 7}.span-5{grid-column:span 5}.span-6{grid-column:span 6}
 .span-4{grid-column:span 4}.span-8{grid-column:span 8}.span-12{grid-column:span 12}
@@ -112,7 +129,8 @@ section{padding:64px 0;position:relative}
 
 /* halftone photo slots */
 .photo-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:26px}
-@media(max-width:880px){.photo-strip{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:880px){.photo-strip{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.photo-strip{grid-template-columns:repeat(2,1fr)}}
 .ph{position:relative;aspect-ratio:3/4;background:
   radial-gradient(circle at 30% 30%, rgba(43,66,87,.16) 1.6px, transparent 1.8px),
   radial-gradient(circle at 70% 70%, rgba(182,137,47,.14) 1.6px, transparent 1.8px),
@@ -128,7 +146,9 @@ section{padding:64px 0;position:relative}
 .ph.filled .empty-note{display:none}
 
 /* portfolio cards */
-.works{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:26px}
+/* three cards: three across on desktop; at two across the odd last card takes the full row rather than sitting alone */
+.works{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:26px}
+@media(max-width:999px){.works{grid-template-columns:repeat(2,1fr)}.work:last-child:nth-child(odd){grid-column:1/-1}}
 @media(max-width:880px){.works{grid-template-columns:1fr}}
 .work{display:block;background:#fff;border:3.5px solid var(--ink);border-radius:5px;padding:24px;box-shadow:6px 6px 0 rgba(25,21,15,.85);transition:transform .15s ease}
 .work:hover{transform:translate(-2px,-2px)}
@@ -152,6 +172,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 .foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
 .foot a:hover{color:var(--ink)}
 .foot .lnks{display:flex;gap:16px;flex-wrap:wrap}
+@media(max-width:720px){.foot .lnks{row-gap:0}.foot .lnks a{padding:10px 0}} /* thumb-sized footer rows */
 </style>
 </head>
 <body>
@@ -183,7 +204,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
   </div>
   <div class="cover-art">
     <div class="speedlines"></div>
-    <svg viewBox="0 0 460 520" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Manga-style ink portrait silhouette with drafting marks">
+    <svg viewBox="0 0 460 520" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Manga-style ink portrait silhouette with drafting marks">
       <g stroke="#2B4257" stroke-width="1" opacity=".3">
         <line x1="40" y1="30" x2="40" y2="490" stroke-dasharray="2 7"/>
         <line x1="420" y1="30" x2="420" y2="490" stroke-dasharray="2 7"/>
@@ -256,7 +277,6 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
     <div class="ph"><img src="/michael-photos/model-06.jpg" alt="Michael — portfolio" loading="lazy" onerror="this.remove()"/><div class="cap">Modelling &middot; 06</div></div>
     <div class="ph"><img src="/michael-photos/model-07.jpg" alt="Michael — portfolio" loading="lazy" onerror="this.remove()"/><div class="cap">Stage &middot; 01</div></div>
     <div class="ph"><img src="/michael-photos/project-01.jpg" alt="Michael — current project" onerror="this.remove()"/><div class="empty-note"><span class="sfx">ドン!</span>Current project panel<br/><span class="muted" style="font-size:11px">robotics / studio work-in-progress</span></div><div class="cap">Projects &middot; 01</div></div>
-  </div></div>
   </div>
   <p class="muted" style="font-size:12.5px;margin-top:12px">Panels fill automatically from <code>/michael-photos/</code> &mdash; drop in <code>project-01.jpg</code> to fill the last frame.</p>
 </div></section>
@@ -298,7 +318,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 <footer class="site"><div class="wrap foot">
   <div>M3XI <span class="jp">三X一</span> · creating interactions that matter</div>
   <nav class="lnks">
-    <a href="/">CallMe</a><a href="/studio/">M3XI Spatial</a><a href="/team/">Team</a>
+    <a href="/">CallMe</a><a href="/questions/">Questions</a><a href="/safety/">Safety</a><a href="/studio/">M3XI Spatial</a><a href="/team/">Team</a>
     <a href="/services/">Services</a><a href="/jobs/">Jobs</a><a href="/privacy/">Policies</a><a href="/terms/">Terms</a>
   </nav>
   <div>© <span id="year">2026</span> M3XI</div>

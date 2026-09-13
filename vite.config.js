@@ -21,6 +21,10 @@ export default defineConfig({
         // waitlist page moved to _on_hold/ on 13 Sep 2026; vercel.json
         // redirects their old URLs.
         index: resolve(__dirname, "index.html"),
+        // CallMe questions and safety have their own pages; the front page
+        // forwards the old #faq / #safety links to them.
+        questions: resolve(__dirname, "questions/index.html"),
+        safety: resolve(__dirname, "safety/index.html"),
         privacy: resolve(__dirname, "privacy/index.html"),
         terms: resolve(__dirname, "terms/index.html"),
         // Required by Google Play: a deletion route reachable WITHOUT installing

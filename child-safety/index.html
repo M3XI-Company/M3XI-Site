@@ -15,7 +15,7 @@
   --ink:#19150F; --ink2:#605747; --blue:#2B4257; --blue2:#3E6079;
   --gold:#B6892F; --gold2:#CBA14A; --line:rgba(25,21,15,.14);
   --cornelia:#C64B3C; --autouv:#B6892F; --callme:#B7566B;
-  --maxw:980px;
+  --maxw:720px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -30,6 +30,8 @@ body{margin:0;color:var(--ink);font-family:'Inter',system-ui,-apple-system,Segoe
 }
 a{color:inherit;text-decoration:none}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+.eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 14px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
 h1,h2,h3,h4{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;color:var(--ink);margin:0}
 h1{font-size:clamp(34px,5vw,54px);line-height:1.06;font-weight:600}
 h1 em,h2 em,h1 i{font-style:italic;color:var(--gold);font-weight:500}
@@ -38,7 +40,7 @@ h3{font-size:19px;margin:26px 0 8px}
 p{margin:0 0 14px}
 ul,ol{margin:0 0 14px;padding-left:22px}
 li{margin-bottom:6px}
-.lede{font-size:clamp(16px,2vw,18px);color:#3c382f;max-width:64ch}
+.lede{font-size:clamp(16px,2vw,18px);color:#3c382f;max-width:64ch;margin-top:clamp(14px,1.6vw,22px)}
 .jp{font-family:'Noto Serif JP',serif;color:var(--ink2)}
 .meta{color:var(--ink2);font-size:14px}
 
@@ -50,14 +52,27 @@ header.site{position:sticky;top:0;z-index:40;backdrop-filter:saturate(180%) blur
 .brand .jp{font-size:13px;margin-left:1px}
 .menu{display:flex;align-items:center;gap:24px;font-size:14px;color:var(--ink2)}
 .menu a:hover{color:var(--ink)}
-@media(max-width:880px){.menu a.lnk{display:none}}
+/* phones: the links drop to a second row under the logo and scroll sideways; the edge fade is an overlay, never a mask */
+@media(max-width:640px){
+  .nav{position:relative;flex-wrap:wrap;row-gap:0;height:auto}
+  .brand{height:56px}
+  .menu{flex:0 0 calc(100% + 48px);margin:-4px -24px 0;padding:0 24px 2px;gap:22px;overflow-x:auto;scrollbar-width:none}
+  .menu::-webkit-scrollbar{display:none}
+  .menu::after{content:"";flex:0 0 14px}
+  .menu a.lnk{flex:none;white-space:nowrap;padding:8px 0}
+  .nav::after{content:"";position:absolute;right:0;bottom:0;width:36px;height:40px;background:linear-gradient(90deg,rgba(241,234,221,0),rgba(241,234,221,.95));pointer-events:none}
+}
 
 section{padding:48px 0;position:relative}
+section.wrap{padding:48px 24px} /* this page's section is also the .wrap, whose 0 24px would drop the top padding */
 .policy{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:clamp(26px,4vw,42px);margin-top:30px;
   box-shadow:0 30px 60px -50px rgba(43,66,87,.5);scroll-margin-top:84px}
 .policy.callme{border-top:5px solid var(--callme)}
 .p-tag{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--ink2)}
 .policy p,.policy li{color:#46412f;font-size:15px}
+/* reading measure: a 720px column (--maxw), and card text stops near 78 characters (Inter's ch is wide, so 52ch) */
+.policy p,.policy li{max-width:52ch}
+.policy h2+p,.policy h2+ul{margin-top:12px}
 .policy .backtop{font-size:13px;color:var(--blue);border-bottom:1px solid var(--line)}
 .contact{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin:18px 0 0}
 .contact b{display:block;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);margin-bottom:6px}
@@ -66,6 +81,8 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 .foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;max-width:1140px;margin:0 auto;padding:0 24px}
 .foot a:hover{color:var(--ink)}
 .foot .lnks{display:flex;gap:16px;flex-wrap:wrap}
+/* the header is taller on phones, so anchored cards stop below it; footer links get a thumb-sized row */
+@media(max-width:640px){.policy{scroll-margin-top:110px}.foot .lnks{row-gap:0}.foot .lnks a{padding:10px 0}}
 </style>
 </head>
 <body>
@@ -82,7 +99,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 
 <section class="wrap" id="top">
 <div class="head">
-  <p class="p-tag">Safety</p>
+  <p class="eyebrow">Safety</p>
   <h1>Child safety <i>standards.</i></h1>
   <p class="lede">CallMe is a voice-first app for meeting new people. It is strictly for adults, and we treat any risk to children as the most serious thing that could happen on it. These are the standards we hold ourselves to, published so that anyone can check them.</p>
   <p class="meta">Last updated: 2 September 2026 · Operated by M3XI LTD (company no. 17425819), 128 City Road, London EC1V 2NX</p>
@@ -105,7 +122,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
   <ul>
     <li>Every call and every profile can be reported from inside CallMe, during the call and afterwards, without leaving the app. Reports about possible child safety concerns are prioritised above all other reports.</li>
     <li>Anyone — whether or not they use CallMe — can report a concern to us at <a href="mailto:support@m3xi.com?subject=Child%20safety%20report">support@m3xi.com</a>. Reports are read by a person.</li>
-    <li>Users can block anyone at any time. A block is immediate and is kept even if the blocked person deletes and recreates their account.</li>
+    <li>Users can block anyone at any time, and a block takes effect immediately. Reports made about an account are kept even if that person deletes it and signs up again.</li>
   </ul>
 
   <h3>3. What we do when we find it</h3>
@@ -141,7 +158,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 <footer class="site"><div class="foot">
   <div>M3XI <span class="jp">三X一</span> · creating interactions that matter</div>
   <nav class="lnks">
-    <a href="/">CallMe</a><a href="/studio/">M3XI Spatial</a><a href="/team/">Team</a>
+    <a href="/">CallMe</a><a href="/questions/">Questions</a><a href="/safety/">Safety</a><a href="/studio/">M3XI Spatial</a><a href="/team/">Team</a>
     <a href="/services/">Services</a><a href="/jobs/">Jobs</a><a href="/privacy/">Policies</a><a href="/terms/">Terms</a>
   </nav>
   <div>© <span id="year">2026</span> M3XI</div>

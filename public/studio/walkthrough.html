@@ -92,6 +92,17 @@ button,input,textarea{font-family:inherit}
 .ovArt .hand{position:absolute;font-family:var(--hand);font-weight:700;font-size:24px;color:var(--gold)}
 .ovArt .tape{position:absolute;width:90px;height:24px;background:rgba(226,220,196,.9);border-left:1px dashed rgba(22,21,18,.25);border-right:1px dashed rgba(22,21,18,.25);box-shadow:0 2px 3px rgba(22,21,18,.15);z-index:3}
 .ovArt .dots{position:absolute;background-image:radial-gradient(var(--ink) 1.4px,transparent 1.7px);background-size:9px 9px;opacity:.13}
+/* The collage is placed in fixed percentages behind a 470px card. Below a wide
+   desktop the card lands on the hand-lettered captions and on the photo labels,
+   which then read as cut-off text: the captions go, the two middle frames
+   (only a strip of them clears the card) go, and the right-hand labels move to
+   the outer corner. At tablet-portrait widths and below even those labels end
+   under the card, and on phones only slivers poke out, so none of it shows. */
+@media (max-width:1280px){
+  .ovArt .hand,.ovArt .pp.mid{display:none}
+  .ovArt .pp.r .pcap{left:auto;right:-3px}
+}
+@media (max-width:840px){.ovArt{display:none}}
 .panel{position:fixed;right:12px;top:64px;z-index:25;width:250px;background:var(--card);border:3px solid var(--line);box-shadow:6px 6px 0 rgba(22,21,18,.85);padding:14px;display:none}
 .panel h4{font-size:13px;margin-bottom:10px;color:var(--gold);font-family:var(--disp);letter-spacing:.04em}
 .panel label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);margin:10px 0 4px;font-weight:700}
@@ -279,10 +290,10 @@ a{color:var(--gold)}
   <div class="dots" style="width:150px;height:150px;right:36%;bottom:5%"></div>
   <div class="pp" style="left:2.5%;top:7%;width:24%;height:34%;transform:rotate(-2deg)"><span class="pcap">Showroom world</span><img src="https://v3b.fal.media/files/b/0aa5ae21/Wda12B32TKVOD2l6I3cGC.jpg" alt=""><div class="tape" style="top:-13px;right:26px;transform:rotate(4deg)"></div></div>
   <div class="pp" style="left:4%;bottom:9%;width:21%;height:30%;transform:rotate(1.6deg)"><span class="pcap red">Anime theme</span><img src="https://v3b.fal.media/files/b/0aa5ae10/NOuG7If89h0Ldk5fok8QW.jpg" alt=""></div>
-  <div class="pp" style="right:3%;top:8%;width:22%;height:31%;transform:rotate(2deg)"><span class="pcap">Penthouse world</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/XomPDS-MR8YNysdErl4nm.jpg" alt=""><div class="tape" style="bottom:-13px;left:30px;transform:rotate(-5deg)"></div></div>
-  <div class="pp" style="right:4.5%;bottom:7%;width:24%;height:34%;transform:rotate(-1.7deg)"><span class="pcap">Gallery world</span><img src="https://v3b.fal.media/files/b/0aa5ae0f/P_5hymWZreaaKZH5-XX2j.jpg" alt=""></div>
-  <div class="pp" style="left:28.5%;top:-5%;width:17%;height:23%;transform:rotate(1deg)"><span class="pcap">Home world</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/-W5THKxgRSpok6zaaPFsZ.jpg" alt=""></div>
-  <div class="pp" style="right:29%;bottom:-6%;width:17%;height:24%;transform:rotate(-1.2deg)"><span class="pcap">Twilight listing</span><img src="https://v3b.fal.media/files/b/0aa5ae20/2LANjv1jCQUgpSwlujnHM.jpg" alt=""></div>
+  <div class="pp r" style="right:3%;top:8%;width:22%;height:31%;transform:rotate(2deg)"><span class="pcap">Penthouse world</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/XomPDS-MR8YNysdErl4nm.jpg" alt=""><div class="tape" style="bottom:-13px;left:30px;transform:rotate(-5deg)"></div></div>
+  <div class="pp r" style="right:4.5%;bottom:7%;width:24%;height:34%;transform:rotate(-1.7deg)"><span class="pcap">Gallery world</span><img src="https://v3b.fal.media/files/b/0aa5ae0f/P_5hymWZreaaKZH5-XX2j.jpg" alt=""></div>
+  <div class="pp mid" style="left:28.5%;top:-5%;width:17%;height:23%;transform:rotate(1deg)"><span class="pcap">Home world</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/-W5THKxgRSpok6zaaPFsZ.jpg" alt=""></div>
+  <div class="pp mid" style="right:29%;bottom:-6%;width:17%;height:24%;transform:rotate(-1.2deg)"><span class="pcap">Twilight listing</span><img src="https://v3b.fal.media/files/b/0aa5ae20/2LANjv1jCQUgpSwlujnHM.jpg" alt=""></div>
   <div class="hand" style="left:3.5%;top:46%;transform:rotate(-3.5deg)">simulated Spatial demos ↓</div>
   <div class="hand" style="right:4%;top:44%;transform:rotate(2.5deg)">scan it → walk it ★</div>
 </div>

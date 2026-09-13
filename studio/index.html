@@ -13,6 +13,20 @@
 <link rel="stylesheet" href="./studio.css">
 <style>
   /* Only what this page needs beyond the shared sheet. */
+  /* "WALKTHROUGHS" is one unbreakable word nearly ten ems wide. At the shared
+     hero size it ran out of its column into the pictures on a desktop and off
+     the edge of a phone, so the size here follows the column it sits in. */
+  /* In the build the shared sheet loads after this block, so these rules
+     need the extra .heroGrid (and .wrap) to win. */
+  /* The headline is the biggest type on the page at every width, and the word
+     keeps roughly a tenth of its column spare; section headings sit a step
+     below it. */
+  .heroGrid .heroCopy h1{font-size:clamp(40px,4.3vw,54px)}
+  @media (max-width:980px){.heroGrid .heroCopy h1{font-size:clamp(26px,8vw,64px)}}
+  .wrap .sechead h2{font-size:clamp(26px,4vw,48px)}
+  @media (max-width:360px){.wrap .sechead h2{font-size:23px}}
+  /* The disclosure label always sits on top of the decoration. */
+  .heroArt .hp .cap{z-index:4}
   .techGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:8px}
   @media (max-width:900px){.techGrid{grid-template-columns:1fr 1fr}}
   @media (max-width:620px){.techGrid{grid-template-columns:1fr}}
@@ -75,7 +89,7 @@
       </div>
       <div class="heroArt">
         <div class="dots" style="width:150px;height:150px;right:0;top:-34px"></div>
-        <div class="panel hp big"><span class="cap">Generated key art</span><img src="https://v3b.fal.media/files/b/0aa5ae20/2LANjv1jCQUgpSwlujnHM.jpg" alt="Twilight house exterior, AI-generated key art"><div class="tape" style="top:-14px;left:38px;transform:rotate(-4deg)"></div></div>
+        <div class="panel hp big"><span class="cap">Generated key art</span><img src="https://v3b.fal.media/files/b/0aa5ae20/2LANjv1jCQUgpSwlujnHM.jpg" alt="Twilight house exterior, AI-generated key art"><div class="tape" style="top:-14px;right:16px;transform:rotate(4deg)"></div></div>
         <div class="panel hp s1"><span class="cap red">Generated</span><img src="https://v3b.fal.media/files/b/0aa5ae0e/XomPDS-MR8YNysdErl4nm.jpg" alt="Staged penthouse interior, AI-generated"></div>
         <div class="panel hp s2"><span class="cap">Generated</span><img src="https://v3b.fal.media/files/b/0aa5ae0f/P_5hymWZreaaKZH5-XX2j.jpg" alt="Gallery space with daylight, AI-generated"></div>
         <div class="heroNote hand red">every generated room carries its label →</div>
@@ -91,7 +105,7 @@
 <section id="techniques">
   <div class="wrap">
     <div class="sechead">
-      <h2 class="sfx">Built in-house</h2>
+      <h2 class="sfx">Built <span style="white-space:nowrap">in-house</span></h2>
       <span class="note hand">the part nobody else sells</span>
     </div>
     <p class="subline">A walkthrough is only as good as its geometry. Our own proprietary pipeline works out what a scanned space actually is before a buyer ever opens it, so rooms stand the right way up, walls stop you, and the parts the camera missed are admitted rather than papered over.</p>

@@ -20,33 +20,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
 
-<!-- Every question and answer below is also in the visible FAQ, word for word.
-     Search engines may show these as answers; they must never say more than
-     the page does. If you change one, change both. -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {"@type":"Question","name":"What is CallMe?","acceptedAnswer":{"@type":"Answer","text":"CallMe is a video call app for meeting new people. Instead of swiping through profiles and waiting for replies, you get matched with someone and you are talking to them straight away."}},
-    {"@type":"Question","name":"What does “ditch the card games” mean?","acceptedAnswer":{"@type":"Answer","text":"Most apps for meeting people are a card game: swipe through profiles, collect matches, then wait on a chat that dies after two messages. CallMe skips all of that. The first thing you do with someone new is talk to them."}},
-    {"@type":"Question","name":"Is CallMe a dating app?","acceptedAnswer":{"@type":"Answer","text":"No. CallMe is for meeting people and having a conversation. Dating is welcome if that is where a conversation goes, but it is not the point, and nobody on CallMe is a profile to be sorted through."}},
-    {"@type":"Question","name":"How does matching work?","acceptedAnswer":{"@type":"Answer","text":"You choose the age range, the distance and who you would like to meet. The same preferences are checked for both people before anyone is introduced, so a match is never one-sided. You can change them whenever you like."}},
-    {"@type":"Question","name":"Does my camera come on straight away?","acceptedAnswer":{"@type":"Answer","text":"No. Every call opens on voice. Video turns on only when both of you ask for it. One person can never switch on the other person's camera, and you can turn yours off at any time without ending the call."}},
-    {"@type":"Question","name":"What if the conversation isn't going anywhere?","acceptedAnswer":{"@type":"Answer","text":"Skip. You are both on your way to someone new in seconds, and nobody has to explain themselves. If it was a good conversation, you can ask to be friends instead."}},
-    {"@type":"Question","name":"Can I talk to more than one person?","acceptedAnswer":{"@type":"Answer","text":"Yes. Open a table around a topic and a few people can sit down together, or pull up a chair at someone else's. Whoever is in your party comes with you."}},
-    {"@type":"Question","name":"Are there things to do on a call?","acceptedAnswer":{"@type":"Answer","text":"Nine games you can start mid-call for everyone on it at once: two truths and a lie, charades, categories, would you rather, 21 questions, sketch together, memory, a crossword and a quick quiz."}},
-    {"@type":"Question","name":"Who can use CallMe?","acceptedAnswer":{"@type":"Answer","text":"Adults aged 18 and over. Everyone verifies their age before they can call anyone, with an identity document, a live selfie and a face match. The check is carried out by our verification provider, and we receive the result rather than your documents."}},
-    {"@type":"Question","name":"How do I stay safe on a call?","acceptedAnswer":{"@type":"Answer","text":"On every call you can silence someone for yourself, block them, or report them. A report never tells the other person who filed it, and a block is mutual and final. Verification proves someone is a real adult. It is not a background check, so never share financial details or your home address."}},
-    {"@type":"Question","name":"Are calls recorded?","acceptedAnswer":{"@type":"Answer","text":"No. CallMe does not record the audio or video of your calls."}},
-    {"@type":"Question","name":"How much does CallMe cost?","acceptedAnswer":{"@type":"Answer","text":"CallMe is free to use, with five calls a day. You can earn more by watching an advert or by completing weekly achievements. CallMe Premium removes the daily limit and gives you priority matching and extra card styles, for £8.49 a month or £71.99 a year in the UK; other countries are priced by the store. Coins are optional, sold in packs from £4.99, and spent on extras in the app."}},
-    {"@type":"Question","name":"Is CallMe on iPhone?","acceptedAnswer":{"@type":"Answer","text":"CallMe is on Android through Google Play now. The iPhone version is being prepared for the App Store."}},
-    {"@type":"Question","name":"How do I delete my account?","acceptedAnswer":{"@type":"Answer","text":"In the app, go to Settings, then Delete account and data. If you no longer have the app, use the request form at m3xi.com/delete-account."}},
-    {"@type":"Question","name":"Who makes CallMe?","acceptedAnswer":{"@type":"Answer","text":"M3XI LTD, a small company in London. It was founded by Michael and co-founded with Leo Chi."}}
-  ]
-}
-</script>
-
 <style>
 :root{
   --paper:#F0E8D8; --panel:#FBF6EC; --white:#FFFDF8;
@@ -67,7 +40,8 @@ body{margin:0;color:var(--ink);font:400 16px/1.65 'Inter',system-ui,-apple-syste
     radial-gradient(1200px 700px at 85% -10%, rgba(255,253,247,.92), transparent 60%);
   background-size:30px 30px,30px 30px,100% 100%}
 a{color:inherit}
-img{max-width:100%;display:block}
+/* height:auto matters: without it the height="960" attribute wins when CSS narrows an image, and screenshots stretch */
+img{max-width:100%;height:auto;display:block}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
 h1,h2,h3{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;margin:0;text-wrap:balance}
 h1 em,h2 em{font-style:italic;font-weight:500;color:var(--rose)}
@@ -84,9 +58,24 @@ header.site{position:sticky;top:0;z-index:20;background:rgba(240,232,216,.88);ba
 .menu{display:flex;align-items:center;gap:6px}
 .menu a{text-decoration:none;font-size:14px;font-weight:500;color:var(--ink2);padding:8px 12px;border-radius:8px}
 .menu a:hover{color:var(--ink);background:rgba(25,21,15,.05)}
+.menu a[aria-current="page"]{color:var(--ink);background:rgba(25,21,15,.05)}
 .menu a.get{background:var(--ink);color:var(--white);padding:9px 16px}
 .menu a.get:hover{background:var(--rose-deep)}
-@media (max-width:760px){.menu a:not(.get){display:none}}
+@media (max-width:900px){.menu{gap:2px}.menu a:not(.get){padding:8px 9px}}
+/* Phones: the links drop to a second row that scrolls sideways, and Get
+   CallMe stays on the first row beside the logo. */
+@media (max-width:760px){
+  .nav{position:relative;flex-wrap:wrap;row-gap:0;height:auto;padding-top:10px}
+  .menu{flex:0 0 calc(100% + 18px);margin:4px -9px 0;padding:0 28px 6px 0;overflow-x:auto;scrollbar-width:none}
+  /* The fade is an overlay on the link row only: a mask on .menu would also
+     hide Get CallMe, which is positioned outside the menu's box. */
+  .nav::after{content:"";position:absolute;top:46px;bottom:0;right:15px;width:40px;pointer-events:none;
+    background:linear-gradient(90deg,rgba(240,232,216,0),rgba(240,232,216,.96) 80%)}
+  .menu::-webkit-scrollbar{display:none}
+  .menu a:not(.get){flex:none;white-space:nowrap}
+  .menu a[href$="#how"]{display:none} /* the section is just below; this keeps Business in view */
+  .menu a.get{position:absolute;right:24px;top:6px} /* .wrap side padding */
+}
 
 /* buttons */
 .btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:600;font-size:15px;
@@ -107,19 +96,22 @@ header.site{position:sticky;top:0;z-index:20;background:rgba(240,232,216,.88);ba
 .facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px;padding:0;list-style:none}
 .facts li{font-size:13px;color:var(--ink2);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
 .facts li b{color:var(--ink);font-weight:600}
-.phones{position:relative;height:560px}
-.phones figure{position:absolute;margin:0;width:260px;border-radius:26px;overflow:hidden;
+/* the pair scales as one picture: at the full 477px column the phones are 260px wide (9:16, so 462px tall)
+   inside a 560px box, and below that every size and offset shrinks in proportion */
+.phones{position:relative;aspect-ratio:477/560}
+.phones figure{position:absolute;margin:0;width:54.5%;max-width:260px;border-radius:26px;overflow:hidden;
   box-shadow:0 1px 0 var(--line2),0 22px 44px -18px rgba(25,21,15,.45)}
+.phones img{width:100%;height:auto}
 .phones .p1{right:6%;top:0;transform:rotate(3deg);z-index:2}
-.phones .p2{left:4%;top:70px;transform:rotate(-4deg)}
-@media (max-width:900px){.phones{height:auto;display:flex;gap:14px;justify-content:center}
+.phones .p2{left:4%;top:12.5%;transform:rotate(-4deg)}
+@media (max-width:900px){.phones{aspect-ratio:auto;display:flex;gap:14px;justify-content:center}
   .phones figure{position:static;width:46%;max-width:240px;transform:none!important}}
 
 /* sections */
 section{padding:72px 0}
 .sec-head{max-width:720px;margin-bottom:34px}
 .sec-head h2{font-size:clamp(32px,4.2vw,46px);line-height:1.08}
-.sec-head p{color:var(--ink2);font-size:17px;margin:14px 0 0}
+.sec-head p:not(.eyebrow){color:var(--ink2);font-size:17px;margin:14px 0 0}
 .band{background:rgba(251,246,236,.62);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 
 /* how it works — a real sequence, so the steps are numbered */
@@ -133,18 +125,16 @@ section{padding:72px 0}
 
 /* screens */
 .screens{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:6px}
-@media (max-width:820px){.screens{grid-template-columns:repeat(2,1fr)}}
-.screens img{border-radius:18px;border:1px solid var(--line);box-shadow:0 14px 30px -18px rgba(25,21,15,.45)}
+@media (max-width:820px){.screens{grid-template-columns:repeat(2,minmax(0,240px));justify-content:center}}
+.screens img{width:100%;height:auto;border-radius:18px;border:1px solid var(--line);box-shadow:0 14px 30px -18px rgba(25,21,15,.45)}
 
-/* FAQ */
-.faq{display:grid;grid-template-columns:240px 1fr;gap:48px;align-items:start}
-@media (max-width:860px){.faq{grid-template-columns:1fr;gap:18px}}
-.faq-nav{position:sticky;top:90px;display:flex;flex-direction:column;gap:4px}
-@media (max-width:860px){.faq-nav{position:static;flex-direction:row;flex-wrap:wrap}}
-.faq-nav a{text-decoration:none;font-size:14px;color:var(--ink2);padding:7px 12px;border-radius:8px;border-left:2px solid transparent}
-.faq-nav a:hover{color:var(--ink);background:rgba(25,21,15,.04);border-left-color:var(--rose)}
-.qgroup{margin-bottom:34px;scroll-margin-top:90px}
-.qgroup h3{font-size:14px;font-family:'Inter',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 8px}
+/* questions teaser — four answers here, the full set lives on /questions/ */
+.band + .band{border-top:0}
+.qa{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:48px;align-items:start}
+@media (max-width:860px){.qa{grid-template-columns:1fr;gap:30px}}
+.qa .sec-head{margin-bottom:0}
+.qa-links{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px;margin-top:24px}
+.qa-links .safe{font-size:15px;font-weight:500;color:var(--rose-deep);text-decoration-thickness:1px;text-underline-offset:3px}
 details{border-bottom:1px solid var(--line2)}
 details:first-of-type{border-top:1px solid var(--line2)}
 summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px 2px;
@@ -157,22 +147,7 @@ summary:hover{color:var(--rose-deep)}
 .answer{padding:0 2px 20px;color:var(--ink2);max-width:66ch}
 .answer p{margin:0 0 10px}
 .answer p:last-child{margin-bottom:0}
-.answer a{color:var(--rose-deep);text-decoration-thickness:1px;text-underline-offset:3px}
 .answer b{color:var(--ink);font-weight:600}
-.price{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 4px}
-@media (max-width:560px){.price{grid-template-columns:1fr}}
-.price div{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
-.price b{display:block;font:600 18px 'Playfair Display',serif;color:var(--ink);font-variant-numeric:tabular-nums}
-.price span{font-size:13.5px}
-
-/* safety strip */
-.safety{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-@media (max-width:860px){.safety{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:520px){.safety{grid-template-columns:1fr}}
-.safety a{display:block;text-decoration:none;background:var(--white);border:1.5px solid var(--line2);border-radius:12px;padding:18px}
-.safety a:hover{border-color:var(--rose)}
-.safety b{display:block;font:600 18px 'Playfair Display',serif;margin-bottom:4px}
-.safety span{font-size:14px;color:var(--ink2)}
 
 /* team */
 .people{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
@@ -197,17 +172,19 @@ footer.site{border-top:1px solid var(--line);padding:28px 0 36px;font-size:14px;
 .foot nav{display:flex;flex-wrap:wrap;gap:6px 16px}
 .foot nav a{text-decoration:none}
 .foot nav a:hover{color:var(--ink)}
+@media (max-width:760px){.foot nav{gap:0 16px}.foot nav a{padding:10px 0}}
 </style>
 </head>
 <body>
 
 <header class="site"><div class="wrap nav">
-  <a class="brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="jp">三X一</span></a>
+  <a class="brand" href="/" aria-current="page"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="jp">三X一</span></a>
   <nav class="menu" aria-label="Main">
     <a href="#how">How it works</a>
-    <a href="#faq">Questions</a>
-    <a href="#safety">Safety</a>
+    <a href="/questions/">Questions</a>
+    <a href="/safety/">Safety</a>
     <a href="/team/">Team</a>
+    <a href="/studio/">Business</a>
     <a class="get" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get CallMe</a>
   </nav>
 </div></header>
@@ -224,7 +201,7 @@ footer.site{border-top:1px solid var(--line);padding:28px 0 36px;font-size:14px;
         <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M4.6 2.2c-.3.3-.5.8-.5 1.4v16.8c0 .6.2 1.1.5 1.4l.1.1 9.4-9.4v-.2L4.7 2.1l-.1.1Zm12.6 12.9-3.1-3.1v-.2l3.1-3.1.1.1 3.7 2.1c1.1.6 1.1 1.6 0 2.2l-3.7 2.1-.1-.1Zm-.1.1-3.2-3.2-9.3 9.3c.3.4.9.4 1.6 0l10.9-6.1Zm0-6.5L6.2 2.6c-.7-.4-1.3-.4-1.6 0l9.3 9.3 3.2-3.2Z"/></svg>
         Get it on Google Play
       </a>
-      <a class="btn btn-ghost" href="#faq">Read the questions</a>
+      <a class="btn btn-ghost" href="/questions/">Read the questions</a>
     </div>
     <ul class="facts" aria-label="At a glance">
       <li><b>Free</b> · five calls a day</li>
@@ -267,118 +244,33 @@ footer.site{border-top:1px solid var(--line);padding:28px 0 36px;font-size:14px;
   </div>
 </div></section>
 
-<section id="faq"><div class="wrap">
+<section id="questions" class="band"><div class="wrap qa">
   <div class="sec-head">
     <p class="eyebrow">Questions</p>
-    <h2>Everything people <em>ask us.</em></h2>
-    <p>If yours is not here, email <a href="mailto:support@m3xi.com" style="color:var(--rose-deep)">support@m3xi.com</a> and a person will answer.</p>
-  </div>
-
-  <div class="faq">
-    <nav class="faq-nav" aria-label="Question topics">
-      <a href="#q-basics">The basics</a>
-      <a href="#q-calls">Calls and matching</a>
-      <a href="#q-safety">Safety and privacy</a>
-      <a href="#q-cost">Cost and devices</a>
-    </nav>
-
-    <div>
-      <div class="qgroup" id="q-basics">
-        <h3>The basics</h3>
-        <details open>
-          <summary>What is CallMe?</summary>
-          <div class="answer"><p>CallMe is a video call app for meeting new people. Instead of swiping through profiles and waiting for replies, you get matched with someone and you are talking to them straight away.</p></div>
-        </details>
-        <details>
-          <summary>What does &ldquo;ditch the card games&rdquo; mean?</summary>
-          <div class="answer"><p>Most apps for meeting people are a card game: swipe through profiles, collect matches, then wait on a chat that dies after two messages. CallMe skips all of that. The first thing you do with someone new is talk to them.</p></div>
-        </details>
-        <details>
-          <summary>Is CallMe a dating app?</summary>
-          <div class="answer"><p>No. CallMe is for meeting people and having a conversation. Dating is welcome if that is where a conversation goes, but it is not the point, and nobody on CallMe is a profile to be sorted through.</p></div>
-        </details>
-        <details>
-          <summary>Who makes CallMe?</summary>
-          <div class="answer"><p>M3XI LTD, a small company in London. It was founded by Michael and co-founded with Leo Chi. <a href="/team/">Meet the team</a>.</p></div>
-        </details>
-      </div>
-
-      <div class="qgroup" id="q-calls">
-        <h3>Calls and matching</h3>
-        <details open>
-          <summary>How does matching work?</summary>
-          <div class="answer"><p>You choose the age range, the distance and who you would like to meet. The same preferences are checked for both people before anyone is introduced, so a match is never one-sided. You can change them whenever you like.</p></div>
-        </details>
-        <details>
-          <summary>Does my camera come on straight away?</summary>
-          <div class="answer"><p>No. Every call opens on voice. Video turns on only when <b>both</b> of you ask for it. One person can never switch on the other person's camera, and you can turn yours off at any time without ending the call.</p></div>
-        </details>
-        <details>
-          <summary>What if the conversation isn't going anywhere?</summary>
-          <div class="answer"><p>Skip. You are both on your way to someone new in seconds, and nobody has to explain themselves. If it was a good conversation, you can ask to be friends instead.</p></div>
-        </details>
-        <details>
-          <summary>Can I talk to more than one person?</summary>
-          <div class="answer"><p>Yes. Open a table around a topic and a few people can sit down together, or pull up a chair at someone else's. Whoever is in your party comes with you.</p></div>
-        </details>
-        <details>
-          <summary>Are there things to do on a call?</summary>
-          <div class="answer"><p>Nine games you can start mid-call for everyone on it at once: two truths and a lie, charades, categories, would you rather, 21 questions, sketch together, memory, a crossword and a quick quiz.</p></div>
-        </details>
-      </div>
-
-      <div class="qgroup" id="q-safety">
-        <h3>Safety and privacy</h3>
-        <details open>
-          <summary>Who can use CallMe?</summary>
-          <div class="answer"><p>Adults aged 18 and over. Everyone verifies their age before they can call anyone, with an identity document, a live selfie and a face match. The check is carried out by our verification provider, and we receive the result rather than your documents.</p></div>
-        </details>
-        <details>
-          <summary>How do I stay safe on a call?</summary>
-          <div class="answer"><p>On every call you can silence someone for yourself, block them, or report them. A report never tells the other person who filed it, and a block is mutual and final. Verification proves someone is a real adult. It is not a background check, so never share financial details or your home address.</p><p>Our <a href="/child-safety/">child safety standards</a> explain how we keep under-18s out.</p></div>
-        </details>
-        <details>
-          <summary>Are calls recorded?</summary>
-          <div class="answer"><p>No. CallMe does not record the audio or video of your calls.</p><p>What we do collect, and why, is set out in the <a href="/privacy/#callme">CallMe privacy policy</a>.</p></div>
-        </details>
-        <details>
-          <summary>How do I delete my account?</summary>
-          <div class="answer"><p>In the app, go to <b>Settings</b>, then <b>Delete account and data</b>. If you no longer have the app, use the request form at <a href="/delete-account/">m3xi.com/delete-account</a>.</p></div>
-        </details>
-      </div>
-
-      <div class="qgroup" id="q-cost">
-        <h3>Cost and devices</h3>
-        <details open>
-          <summary>How much does CallMe cost?</summary>
-          <div class="answer">
-            <p>CallMe is free to use, with five calls a day. You can earn more by watching an advert or by completing weekly achievements. CallMe Premium removes the daily limit and gives you priority matching and extra card styles, for &pound;8.49 a month or &pound;71.99 a year in the UK; other countries are priced by the store. Coins are optional, sold in packs from &pound;4.99, and spent on extras in the app.</p>
-            <div class="price" aria-label="Prices in the UK">
-              <div><b>Free</b><span>Five calls a day, more from adverts and achievements</span></div>
-              <div><b>&pound;8.49 / month</b><span>Premium, or &pound;71.99 a year</span></div>
-              <div><b>From &pound;4.99</b><span>Optional coin packs</span></div>
-            </div>
-          </div>
-        </details>
-        <details>
-          <summary>Is CallMe on iPhone?</summary>
-          <div class="answer"><p>CallMe is on Android through Google Play now. The iPhone version is being prepared for the App Store.</p></div>
-        </details>
-      </div>
+    <h2>The short <em>answers.</em></h2>
+    <p>Four to start with. The rest are on the questions page, and if yours is not there, email <a href="mailto:support@m3xi.com" style="color:var(--rose-deep)">support@m3xi.com</a> and a person will answer.</p>
+    <div class="qa-links">
+      <a class="btn btn-ghost" href="/questions/">All questions</a>
+      <a class="safe" href="/safety/">How we keep calls safe &rarr;</a>
     </div>
   </div>
-</div></section>
-
-<section id="safety" class="band"><div class="wrap">
-  <div class="sec-head">
-    <p class="eyebrow">The small print, in plain English</p>
-    <h2>Read it <em>before you call.</em></h2>
-  </div>
-  <div class="safety">
-    <a href="/privacy/#callme"><b>Privacy</b><span>What CallMe collects, why, and how long it is kept.</span></a>
-    <a href="/terms/#callme-terms"><b>Terms</b><span>The rules on calls, and what happens when someone breaks them.</span></a>
-    <a href="/child-safety/"><b>Child safety</b><span>How we keep CallMe adults-only, and how to report a concern.</span></a>
-    <a href="/delete-account/"><b>Delete your account</b><span>From the app, or without it.</span></a>
+  <div>
+    <details open>
+      <summary>What is CallMe?</summary>
+      <div class="answer"><p>CallMe is a video call app for meeting new people. Instead of swiping through profiles and waiting for replies, you get matched with someone and you are talking to them straight away.</p></div>
+    </details>
+    <details>
+      <summary>Does my camera come on straight away?</summary>
+      <div class="answer"><p>No. Every call opens on voice. Video turns on only when <b>both</b> of you ask for it. One person can never switch on the other person's camera, and you can turn yours off at any time without ending the call.</p></div>
+    </details>
+    <details>
+      <summary>Who can use CallMe?</summary>
+      <div class="answer"><p>Adults aged 18 and over. Everyone verifies their age before they can call anyone, with an identity document, a live selfie and a face match. The check is carried out by our verification provider, and we receive the result rather than your documents.</p></div>
+    </details>
+    <details>
+      <summary>How much does CallMe cost?</summary>
+      <div class="answer"><p>CallMe is free to use, with five calls a day. You can earn more by watching an advert or by completing weekly achievements. CallMe Premium removes the daily limit and gives you priority matching and extra card styles, for &pound;8.49 a month or &pound;71.99 a year in the UK; other countries are priced by the store. Coins are optional, sold in packs from &pound;4.99, and spent on extras in the app.</p></div>
+    </details>
   </div>
 </div></section>
 
@@ -415,18 +307,30 @@ footer.site{border-top:1px solid var(--line);padding:28px 0 36px;font-size:14px;
 <footer class="site"><div class="wrap foot">
   <div>&copy; <span id="year">2026</span> M3XI LTD &middot; London</div>
   <nav aria-label="Footer">
-    <a href="#faq">Questions</a>
+    <a href="/" aria-current="page">CallMe</a>
+    <a href="/questions/">Questions</a>
+    <a href="/safety/">Safety</a>
+    <a href="/studio/">Business</a>
     <a href="/team/">Team</a>
     <a href="/jobs/">Jobs</a>
-    <a href="/services/">Services</a>
-    <a href="/contact/">Contact</a>
-    <a href="/privacy/">Privacy</a>
+    <a href="/privacy/">Policies</a>
     <a href="/terms/">Terms</a>
-    <a href="/child-safety/">Child safety</a>
-    <a href="/delete-account/">Delete account</a>
   </nav>
 </div></footer>
 
-<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+<script>
+/* The full FAQ and the safety strip moved to their own pages; old deep links follow them there */
+(function(){
+  function forward(){
+    var h = location.hash;
+    if (h === '#faq') location.replace('/questions/');
+    else if (/^#q-(basics|calls|safety|cost)$/.test(h)) location.replace('/questions/' + h);
+    else if (h === '#safety') location.replace('/safety/');
+  }
+  forward();
+  window.addEventListener('hashchange', forward);
+})();
+document.getElementById('year').textContent = new Date().getFullYear();
+</script>
 </body>
 </html>

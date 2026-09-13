@@ -23,7 +23,7 @@ body{
   background-image:radial-gradient(rgba(22,21,18,.055) 1px,transparent 1.3px);
   background-size:22px 22px;-webkit-font-smoothing:antialiased;line-height:1.55;min-height:100vh;
 }
-img{display:block;max-width:100%}
+img{display:block;max-width:100%;height:auto}
 a{color:inherit}
 ::selection{background:var(--ink);color:var(--paper)}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -124,7 +124,9 @@ textarea.code{width:100%;border:3px solid var(--line);background:#fff;padding:10
 .links{display:flex;gap:8px 14px;flex-wrap:wrap;margin-top:8px}
 .links label{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer}
 .links input{width:16px;height:16px;accent-color:var(--red)}
-.planbox{position:relative;width:100%;max-width:720px;border:3px solid var(--line);background:#fff;overflow:hidden;touch-action:none}
+/* content-box, so the aspect ratio tours.js sets from the image lands on the image area itself,
+   not on image + border; with border-box a wide plan was squashed a few percent on a phone */
+.planbox{position:relative;box-sizing:content-box;width:calc(100% - 6px);max-width:714px;border:3px solid var(--line);background:#fff;overflow:hidden;touch-action:none}
 .planbox img{width:100%;height:100%;display:block;object-fit:fill;pointer-events:none;user-select:none}
 .planbox.placing{cursor:crosshair}
 .pin{position:absolute;transform:translate(-50%,-100%);background:var(--red);color:#fff;font-size:11px;

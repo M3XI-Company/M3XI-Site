@@ -15,7 +15,7 @@
   --ink:#19150F; --ink2:#605747; --blue:#2B4257; --blue2:#3E6079;
   --gold:#B6892F; --gold2:#CBA14A; --line:rgba(25,21,15,.14);
   --cornelia:#C64B3C; --autouv:#B6892F; --callme:#B7566B;
-  --maxw:980px;
+  --maxw:720px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -34,15 +34,16 @@ a{color:inherit;text-decoration:none}
 .eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
 h1,h2,h3,h4{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;color:var(--ink);margin:0}
 h1{font-size:clamp(34px,5vw,54px);line-height:1.06;font-weight:600}
-h1 em,h2 em{font-style:italic;color:var(--gold);font-weight:500}
+h1 em,h2 em,h1 i{font-style:italic;color:var(--gold);font-weight:500}
 h2{font-size:clamp(24px,3.2vw,34px);line-height:1.14;font-weight:600}
 h3{font-size:19px;margin:26px 0 8px}
 p{margin:0 0 14px}
-ul{margin:0 0 14px;padding-left:22px}
+ul,ol{margin:0 0 14px;padding-left:22px}
 li{margin-bottom:6px}
-.lede{font-size:clamp(16px,2vw,18px);color:#3c382f;max-width:64ch}
+.lede{font-size:clamp(16px,2vw,18px);color:#3c382f;max-width:64ch;margin-top:clamp(14px,1.6vw,22px)}
 .jp{font-family:'Noto Serif JP',serif;color:var(--ink2)}
 .muted{color:var(--ink2)}
+.meta{color:var(--ink2);font-size:14px}
 small.upd{display:block;color:var(--ink2);font-size:13px;margin-top:10px}
 
 header.site{position:sticky;top:0;z-index:40;backdrop-filter:saturate(180%) blur(9px);
@@ -54,9 +55,19 @@ header.site{position:sticky;top:0;z-index:40;backdrop-filter:saturate(180%) blur
 .menu{display:flex;align-items:center;gap:24px;font-size:14px;color:var(--ink2)}
 .menu a:hover{color:var(--ink)}
 .menu a.active{color:var(--ink)}
-@media(max-width:880px){.menu a.lnk{display:none}}
+/* phones: the links drop to a second row under the logo and scroll sideways; the edge fade is an overlay, never a mask */
+@media(max-width:640px){
+  .nav{position:relative;flex-wrap:wrap;row-gap:0;height:auto}
+  .brand{height:56px}
+  .menu{flex:0 0 calc(100% + 48px);margin:-4px -24px 0;padding:0 24px 2px;gap:22px;overflow-x:auto;scrollbar-width:none}
+  .menu::-webkit-scrollbar{display:none}
+  .menu::after{content:"";flex:0 0 14px}
+  .menu a.lnk{flex:none;white-space:nowrap;padding:8px 0}
+  .nav::after{content:"";position:absolute;right:0;bottom:0;width:36px;height:40px;background:linear-gradient(90deg,rgba(241,234,221,0),rgba(241,234,221,.95));pointer-events:none}
+}
 
 section{padding:48px 0;position:relative}
+section.wrap{padding:48px 24px} /* this page's section is also the .wrap, whose 0 24px would drop the top padding */
 .toc{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
 .toc a{font-size:13.5px;font-weight:600;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:var(--panel)}
 .toc a:hover{border-color:var(--blue)}
@@ -73,6 +84,9 @@ section{padding:48px 0;position:relative}
 .policy.callme{border-top:5px solid var(--callme)}
 .p-tag{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--ink2)}
 .policy p,.policy li{color:#46412f;font-size:15px}
+/* reading measure: a 720px column (--maxw), and card text stops near 78 characters (Inter's ch is wide, so 52ch) */
+.policy p,.policy li{max-width:52ch}
+.policy h2+p,.policy h2+ul{margin-top:12px}
 .policy .backtop{font-size:13px;color:var(--blue);border-bottom:1px solid var(--line)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px 26px}
 @media(max-width:720px){.grid2{grid-template-columns:1fr}}
@@ -81,6 +95,8 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 .foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;max-width:1140px;margin:0 auto;padding:0 24px}
 .foot a:hover{color:var(--ink)}
 .foot .lnks{display:flex;gap:16px;flex-wrap:wrap}
+/* the header is taller on phones, so anchored cards stop below it; footer links get a thumb-sized row */
+@media(max-width:640px){.policy{scroll-margin-top:110px}.foot .lnks{row-gap:0}.foot .lnks a{padding:10px 0}}
 </style>
 </head>
 <body>
@@ -97,7 +113,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 
 <section class="wrap" id="top">
 <div class="head">
-  <p class="p-tag">Account &amp; data</p>
+  <p class="eyebrow">Account &amp; data</p>
   <h1>Delete your <i>account.</i></h1>
   <p class="lede">You can delete your M3XI account and its data at any time — from inside the app, or by asking us here if you no longer have it installed. No account is required to make the request.</p>
   <p class="meta">Last updated: 6 August 2026 · Contact: <a href="mailto:support@m3xi.com">support@m3xi.com</a></p>
@@ -129,7 +145,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 
   <h3>What we keep, and why</h3>
   <ul>
-    <li><b>Safety records</b> — bans, blocks and reports made about your account. These are kept so that a removed account cannot simply be recreated, and so we can still act on a report made by someone else. They are held for up to 24 months.</li>
+    <li><b>Safety records</b> — bans and reports made about your account. These are kept so that a removed account cannot simply be recreated, and so we can still act on a report made by someone else. They are held for up to 24 months.</li>
     <li><b>Records we are legally required to retain</b>, such as purchase records needed for tax and accounting.</li>
   </ul>
   <p>Everything else is erased or irreversibly anonymised within <b>30 days</b>.</p>
@@ -148,7 +164,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
   <ul>
     <li><b>Your subscription is separate.</b> Deleting your account does not cancel Premium — that is billed by Apple or Google. Cancel it in your App Store or Google Play account, or it will keep renewing.</li>
     <li><b>Unused coins go with the account.</b> Coins cannot be refunded or moved to another account, so spend them first if you want to.</li>
-    <li><b>Your ID documents were never ours to delete.</b> Verification is carried out by Didit; document images and selfies go to them and never reach our servers. We only ever held the outcome, and that is deleted with your account.</li>
+    <li><b>Your ID documents were never ours to delete.</b> Verification is carried out by Didit; document images and selfies go to them and never reach our servers. We only ever held the outcome, and that is deleted with your account; the safety records above keep only a reference to the verification session, never the result or any document.</li>
   </ul>
   <p><a class="backtop" href="#top">↑ Back to top</a></p>
 </article>
@@ -176,7 +192,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 <footer class="site"><div class="foot">
   <div>M3XI <span class="jp">三X一</span> · creating interactions that matter</div>
   <nav class="lnks">
-    <a href="/">CallMe</a><a href="/studio/">M3XI Spatial</a><a href="/team/">Team</a>
+    <a href="/">CallMe</a><a href="/questions/">Questions</a><a href="/safety/">Safety</a><a href="/studio/">M3XI Spatial</a><a href="/team/">Team</a>
     <a href="/services/">Services</a><a href="/jobs/">Jobs</a><a href="/privacy/">Policies</a><a href="/terms/">Terms</a>
   </nav>
   <div>© <span id="year">2026</span> M3XI</div>

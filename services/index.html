@@ -28,7 +28,7 @@ body{margin:0;color:var(--ink);font-family:'Inter',system-ui,-apple-system,Segoe
   background-size:30px 30px, 30px 30px, 100% 100%;
 }
 a{color:inherit;text-decoration:none}
-img{max-width:100%}
+img{max-width:100%;height:auto}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
 .eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 14px;display:flex;align-items:center;gap:10px}
 .eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
@@ -37,7 +37,7 @@ h1{font-size:clamp(38px,5.6vw,60px);line-height:1.05;font-weight:600}
 h1 em,h2 em{font-style:italic;color:var(--gold);font-weight:500}
 h2{font-size:clamp(26px,3.6vw,38px);line-height:1.12;font-weight:600}
 p{margin:0 0 16px}
-.lede{font-size:clamp(16px,2vw,19px);color:#3c382f;max-width:62ch}
+.lede{font-size:clamp(16px,2vw,19px);color:#3c382f;max-width:62ch;margin-top:clamp(14px,1.6vw,22px)}
 .jp{font-family:'Noto Serif JP',serif;color:var(--ink2)}
 .muted{color:var(--ink2)}
 .btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:15px;padding:12px 22px;border-radius:999px;cursor:pointer;border:1px solid transparent;transition:transform .08s, background .2s, color .2s}
@@ -57,11 +57,26 @@ header.site{position:sticky;top:0;z-index:40;backdrop-filter:saturate(180%) blur
 .menu a.active{color:var(--ink)}
 .menu .cta{padding:8px 15px;border:1px solid var(--ink);border-radius:999px;color:var(--ink);font-weight:600}
 .menu .cta:hover{background:var(--ink);color:var(--paper)}
-@media(max-width:880px){.menu a.lnk{display:none}}
+/* phones: the links drop to a second row under the logo and scroll sideways, and the CTA stays beside the logo.
+   The edge fade is an overlay, never a mask: a mask would also hide the CTA, which sits outside the menu box. */
+@media(max-width:740px){
+  .nav{position:relative;flex-wrap:wrap;row-gap:0;height:auto}
+  .brand{height:56px}
+  .menu{flex:0 0 calc(100% + 48px);margin:-4px -24px 0;padding:0 24px 2px;gap:22px;overflow-x:auto;scrollbar-width:none}
+  .menu::-webkit-scrollbar{display:none}
+  .menu::after{content:"";flex:0 0 14px}
+  .menu a.lnk{flex:none;white-space:nowrap;padding:8px 0}
+  .menu .cta{position:absolute;right:24px;top:28px;transform:translateY(-50%);max-width:calc(100% - 196px);line-height:1.25;text-align:center}
+  .nav::after{content:"";position:absolute;right:0;bottom:0;width:36px;height:40px;background:linear-gradient(90deg,rgba(241,234,221,0),rgba(241,234,221,.95));pointer-events:none}
+}
 
 section{padding:56px 0;position:relative}
+section[id]{scroll-margin-top:60px} /* in-page links stop below the sticky header */
+@media(max-width:740px){section[id]{scroll-margin-top:88px}}
 .dim{display:flex;align-items:center;gap:14px;color:var(--blue);opacity:.6;font-size:11px;letter-spacing:.2em;text-transform:uppercase;margin:0 auto;max-width:var(--maxw);padding:0 24px}
 .dim::before,.dim::after{content:"";height:1px;background:repeating-linear-gradient(90deg,var(--blue),var(--blue) 4px,transparent 4px,transparent 9px);flex:1;opacity:.5}
+/* narrow phones: a caption that wraps sits centred between short rules instead of squeezing them to nothing */
+@media(max-width:480px){.dim{justify-content:center;text-align:center}.dim::before,.dim::after{flex:0 0 18px}}
 
 .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
 .reveal.visible{opacity:1;transform:none}
@@ -90,8 +105,8 @@ section{padding:56px 0;position:relative}
 .sheet-actions{display:flex;gap:12px;flex-wrap:wrap}
 
 /* services grid */
-.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:28px}
-@media(max-width:960px){.svc-grid{grid-template-columns:repeat(2,1fr)}}
+/* four cards, so two across: three across left the fourth alone on its row */
+.svc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:28px}
 @media(max-width:620px){.svc-grid{grid-template-columns:1fr}}
 .svc{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px 24px 22px;
   box-shadow:0 24px 50px -44px rgba(43,66,87,.5)}
@@ -132,6 +147,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 .foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
 .foot a:hover{color:var(--ink)}
 .foot .lnks{display:flex;gap:16px;flex-wrap:wrap}
+@media(max-width:740px){.foot .lnks{row-gap:0}.foot .lnks a{padding:10px 0}} /* thumb-sized footer rows */
 </style>
 </head>
 <body>
@@ -300,7 +316,7 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 <footer class="site"><div class="wrap foot">
   <div>M3XI <span class="jp">三X一</span> · M3XI LTD, London</div>
   <nav class="lnks">
-    <a href="/">CallMe</a><a href="/studio/">M3XI Spatial</a><a href="/team/">Team</a>
+    <a href="/">CallMe</a><a href="/questions/">Questions</a><a href="/safety/">Safety</a><a href="/studio/">M3XI Spatial</a><a href="/team/">Team</a>
     <a href="/jobs/">Jobs</a><a href="/privacy/">Policies</a><a href="/terms/">Terms</a>
   </nav>
   <div>© <span id="year">2026</span> M3XI</div>
