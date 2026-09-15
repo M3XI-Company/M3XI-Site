@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.m3xi.callme",
+      "sha256_cert_fingerprints": [
+        "03:92:78:C0:F8:C3:EF:8E:BF:A8:AD:89:D8:45:0F:38:4E:8D:70:34:07:0E:7A:5F:FD:14:66:72:70:07:35:B5",
+        "C3:9D:55:48:27:86:8D:C1:C0:9D:D9:92:B1:69:79:7D:01:76:5B:CE:24:13:79:D6:03:9C:AF:A4:6D:F5:EB:91"
+      ]
+    }
+  }
+]

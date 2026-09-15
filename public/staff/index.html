@@ -159,7 +159,7 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
       if (!rows.length) list.appendChild(el('p', { class: 'muted', text: 'Nothing waiting. 🌷' }));
       rows.forEach(function (a) {
         var open = a.appeal_status === 'pending' || a.appeal_status === 'ai_recommends_reject';
-        var note = el('textarea', { placeholder: 'Your note. Required to reject — the person is told the reason.' });
+        var note = el('textarea', { placeholder: 'Your note — emailed to the person either way. Required to reject.' });
         var files = el('div', { class: 'row' });
         (a.evidence_paths || []).forEach(function (p, i) {
           files.appendChild(el('button', { class: 'btn', text: 'Proof ' + (i + 1), onclick: async function () {
@@ -170,7 +170,14 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
           if (d === 'reject' && note.value.trim().length < 10) return toast('Write the reason (10+ characters) before rejecting.');
           if (!confirm((d === 'grant' ? 'Grant' : 'Reject') + ' the appeal for ' + a.reference + '?')) return;
           var res = await rpc('staff_appeal_decide', { p_appeal: a.appeal_id, p_decision: d, p_note: note.value.trim() || null });
-          toast(res && res.decided ? 'Decided: ' + d : 'Already decided');
+          if (res && res.decided) {
+            // The person is owed the decision and, for a rejection, the reason.
+            var sent = await sb.functions.invoke('appeal-decision-notify', { body: { appeal_id: a.appeal_id } });
+            var ok = sent && sent.data && sent.data.ok;
+            toast('Decided: ' + d + (ok ? ' — they have been emailed.' : ' — the email did not send, so write to ' + a.contact_email + ' yourself.'));
+          } else {
+            toast('Already decided');
+          }
           load();
         }
         var ai = a.ai_verdict ? el('details', {}, [el('summary', { class: 'muted', text: 'Automated review: ' + (a.ai_verdict.decision || a.ai_verdict.verdict || 'see details') }), el('pre', { text: JSON.stringify(a.ai_verdict, null, 2) })]) : null;
@@ -212,31 +219,40 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
       list.textContent = '';
       if (!rows.length) list.appendChild(el('p', { class: 'muted', text: 'Nothing here.' }));
       rows.forEach(function (e) {
-        var reason = el('input', { type: 'text', placeholder: 'Your note: why you are reversing or confirming it', style: 'flex:1;min-width:220px' });
+        var open = e.status === 'active' || e.status === 'expired';
+        var applying = open && e.needs_human && (e.mode === 'shadow' || (e.evidence && e.evidence.provisional));
+        var otherPhoneOnly = e.source === 'ai_video' && e.evidence && e.evidence.corroboration && e.evidence.corroboration !== 'own_frame_and_witness_agree';
+        var reason = el('input', { type: 'text', placeholder: applying ? 'Your reason — if you confirm, the person reads this' : 'Your note: why you are reversing or confirming it', style: 'flex:1;min-width:220px' });
         list.appendChild(el('div', { class: 'card' + (e.needs_human ? ' urgent' : '') }, [
           el('div', { class: 'row spread' }, [
             el('h3', { text: e.reference + ' · ' + (e.display_name || e.subject_id) }),
             el('div', { class: 'row' }, [tierPill(e.tier), el('span', { class: 'pill', text: e.kind }), el('span', { class: 'pill', text: e.category }),
               el('span', { class: 'pill', text: e.source }), el('span', { class: 'pill' + (e.mode === 'shadow' ? ' shadow' : ''), text: e.mode }), el('span', { class: 'pill', text: e.status }),
               e.evidence && e.evidence.live ? el('span', { class: 'pill ser', text: 'during call' }) : null,
-              e.evidence && e.evidence.provisional ? el('span', { class: 'pill sev', text: 'provisional — confirm or reverse' }) : null,
+              open && e.evidence && e.evidence.provisional ? el('span', { class: 'pill sev', text: 'provisional — confirm or reverse' }) : null,
+              open && e.mode === 'shadow' && e.needs_human ? el('span', { class: 'pill sev', text: 'not applied — confirm to apply it' }) : null,
+              otherPhoneOnly ? el('span', { class: 'pill ser', text: 'picture came from another person’s phone — their own camera did not confirm it' }) : null,
               e.evidence && e.evidence.frame_decision ? el('span', { class: 'pill', text: 'video: ' + e.evidence.frame_decision }) : null]),
           ]),
           el('div', { class: 'muted', text: when(e.created_at) + (e.ends_at ? ' · ends ' + when(e.ends_at) : '') + (e.confidence != null ? ' · confidence ' + Number(e.confidence).toFixed(2) : '') + ' · account ' + e.subject_id }),
           el('div', { class: 'quote', text: e.statement || '' }),
           evidenceBlock(e.evidence),
           e.status === 'reversed' ? el('div', { class: 'muted', text: 'Reversed by ' + (e.reversed_by || '?') + ': ' + (e.reversal_reason || '') }) :
-          el('div', { class: 'row' }, [reason, el('button', { class: 'btn bad', text: 'Reverse', onclick: async function () {
+          // A replaced decision is handled by the one that replaced it. Reversing it
+          // here would lift that one too, so it is not offered.
+          e.status === 'superseded' ? el('div', { class: 'muted', text: 'Replaced' + (e.evidence && e.evidence.superseded_by ? ' (' + e.evidence.superseded_by + ')' : '') + '. Review or reverse the decision that replaced it instead.' }) :
+          el('div', { class: 'row' }, [reason, el('button', { class: 'btn bad', text: e.mode === 'shadow' ? 'Dismiss — no action' : 'Reverse', onclick: async function () {
             if (reason.value.trim().length < 5) return toast('Give a reason (5+ characters).');
-            if (!confirm('Reverse ' + e.reference + '?')) return;
+            if (!confirm((e.mode === 'shadow' ? 'Dismiss ' : 'Reverse ') + e.reference + '?')) return;
             await rpc('staff_enforcement_reverse', { p_action: e.action_id, p_reason: reason.value.trim() });
-            toast('Reversed ' + e.reference); load();
+            toast((e.mode === 'shadow' ? 'Dismissed ' : 'Reversed ') + e.reference); load();
           } }),
-          e.status === 'active' && e.mode === 'enforce' && e.needs_human ? el('button', {
+          open && e.needs_human ? el('button', {
             class: 'btn good',
-            text: e.evidence && e.evidence.provisional ? 'Confirm — make it permanent' : 'Confirm — decision was right',
+            text: e.mode === 'shadow' ? (otherPhoneOnly ? 'Confirm — remove them for now' : 'Confirm — apply it') : e.evidence && e.evidence.provisional ? 'Confirm — make it permanent' : 'Confirm — decision was right',
             onclick: async function () {
-              if (!confirm((e.evidence && e.evidence.provisional ? 'Make ' + e.reference + ' a permanent ban?' : 'Mark ' + e.reference + ' as reviewed and correct?'))) return;
+              if (applying && reason.value.trim().length < 10) return toast('Write the reason the person will read (10+ characters) before confirming.');
+              if (!confirm(e.mode === 'shadow' ? 'Apply ' + e.reference + ' to this account now (' + e.kind + ' for ' + e.category + ')?' : (e.evidence && e.evidence.provisional ? 'Make ' + e.reference + ' a permanent ban?' : 'Mark ' + e.reference + ' as reviewed and correct?'))) return;
               var res = await rpc('staff_confirm_action', { p_action: e.action_id, p_note: reason.value.trim() || null });
               toast(res && res.confirmed ? 'Confirmed ' + e.reference : 'Not changed: ' + ((res && res.reason) || '')); load();
             },

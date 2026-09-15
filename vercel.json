@@ -278,6 +278,10 @@
     {
       "source": "/invite/:code([A-Za-z0-9]{6,16})",
       "destination": "/invite/index.html"
+    },
+    {
+      "source": "/invite/:code([A-Za-z0-9]{6,16})/",
+      "destination": "/invite/index.html"
     }
   ]
 }
