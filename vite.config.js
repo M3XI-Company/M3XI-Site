@@ -28,6 +28,20 @@ const capturePage = resolve(spatialRoot, "apps/capture/index.html");
 const spatialInstalled =
   existsSync(resolve(spatialRoot, "node_modules/three")) &&
   existsSync(resolve(spatialRoot, "node_modules/@sparkjsdev/spark"));
+// Absence is survivable, but it must not be SILENT. A build that quietly drops
+// two of the three apps looks exactly like a build that shipped them, and that
+// is precisely what happened on 20 Sep 2026: the deploy went green and /view
+// and /console returned 404. `npm run build` installs spatial/ first, so this
+// warning firing means something is wrong with that step, not with the guard.
+if (!spatialInstalled) {
+  console.warn(
+    "\n[m3xi] spatial/node_modules is missing, so the World Viewer (/view) and "
+    + "the operator console (/console) are NOT in this build.\n"
+    + "       Run `npm --prefix spatial install`, or use `npm run build`, which does it.\n"
+    + "       The capture app does not need it and is built regardless.\n",
+  );
+}
+
 const spatialPages = {
   ...(spatialInstalled && existsSync(viewerPage) ? { worldViewer: viewerPage } : {}),
   // The operator console. Guarded on spatialInstalled for the same reason as

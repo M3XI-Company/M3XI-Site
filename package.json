@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "//build": "spatial/ is a separate npm workspace root and is NOT a workspace of this package, so Vercel's own `npm install` never reaches it. Without this step three.js and Spark are absent on the build server, vite.config.js's guards skip the viewer and the console, and the deploy SUCCEEDS while silently shipping neither -- which is how /view and /console 404'd in production on 20 Sep 2026. The install is cheap when the cache is warm and it is what makes the guard a safety net rather than the normal path.",
+    "build": "npm --prefix spatial install --no-audit --no-fund && vite build",
+    "build:site-only": "vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
