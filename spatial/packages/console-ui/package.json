@@ -1,0 +1,14 @@
+{
+  "name": "@m3xi/console-ui",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./logic": { "types": "./dist/logic/index.d.ts", "default": "./dist/logic/index.js" }
+  },
+  "scripts": { "build": "tsc -b" },
+  "dependencies": { "@m3xi/world-core": "*" }
+}

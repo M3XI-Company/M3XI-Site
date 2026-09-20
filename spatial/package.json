@@ -1,0 +1,16 @@
+{
+  "name": "@m3xi/spatial",
+  "private": true,
+  "type": "module",
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "vitest run",
+    "typecheck": "tsc -b packages/world-core packages/spatial-engine packages/capture-core packages/console-ui packages/agent packages/viewer packages/review packages/compliance"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0",
+    "@types/node": "^22.7.0"
+  }
+}

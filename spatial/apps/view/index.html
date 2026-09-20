@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>World Viewer — M3XI</title>
+    <meta name="description" content="Walk a property from your browser. Every dimension carries the standard it was measured to, and anything the cameras did not see is marked." />
+    <meta name="color-scheme" content="light dark" />
+    <!--
+      The page is the viewer and nothing else. No header, no footer, no cookie
+      bar: the property dominates, and a host page that wants chrome puts this
+      in an iframe. `?embed=1` is the mode for exactly that.
+    -->
+    <style>
+      html, body { margin: 0; height: 100%; background: #f3f1ee; }
+      @media (prefers-color-scheme: dark) { html, body { background: #0f1113; } }
+      #viewer { position: fixed; inset: 0; }
+      /* Shown only if the module never boots. Real content, not a spinner. */
+      #boot {
+        position: fixed; inset: 0; display: flex; align-items: center;
+        justify-content: center; padding: 24px; text-align: center;
+        font: 14px/1.6 ui-sans-serif, system-ui, sans-serif; color: #55595e;
+      }
+      @media (prefers-color-scheme: dark) { #boot { color: #a4a9ae; } }
+    </style>
+  </head>
+  <body>
+    <div id="boot">
+      <p>
+        Loading the property.
+        <noscript>This tour needs JavaScript. The written tour of this property is available from the listing.</noscript>
+      </p>
+    </div>
+    <main id="viewer" aria-label="Property walkthrough"></main>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "m3xi-worldengine"
+version = "0.1.0"
+description = "M3XI World Viewer reconstruction pipeline: phone walkthrough video to a persistent, metric, semantically-understood spatial world."
+requires-python = ">=3.10"
+license = { text = "UNLICENSED" }
+authors = [{ name = "M3XI" }]
+
+# Runtime dependencies are deliberately split. These are what the CPU half of
+# the pipeline and the worker need, and they are the only ones a developer
+# needs installed to run the test suite. The GPU stack (torch, gsplat,
+# MapAnything, MoGe-2, SAM 3.1, RoomFormer, COLMAP) is pinned in
+# requirements.txt and baked into the RunPod image, because those builds are
+# CUDA-specific and pip-resolving them on a laptop wastes an afternoon.
+dependencies = [
+  "numpy>=1.26,<3",
+  "opencv-python-headless>=4.10,<5",
+  "pillow>=10.3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff>=0.6"]
+
+[project.scripts]
+worldengine = "worldengine.cli:main"
+worldengine-worker = "worldengine.worker:main"
+
+[tool.setuptools.packages.find]
+include = ["worldengine*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+filterwarnings = ["error::DeprecationWarning:worldengine.*"]
+
+[tool.ruff]
+line-length = 96
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "PLC0415"]
+ignore = ["E501"]

@@ -1,0 +1,7 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/world-core" },
+    { "path": "packages/spatial-engine" }
+  ]
+}

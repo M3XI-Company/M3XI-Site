@@ -1,0 +1,59 @@
+# Pinned runtime for the RunPod L40S image (CUDA 12.4, Ubuntu 22.04).
+#
+# Pins are exact rather than ranges: a reconstruction pipeline whose output
+# changes because a transitive dependency shipped a new kernel is a pipeline
+# whose measurements cannot be defended. Upgrade deliberately, re-measure, and
+# move the numbers in README.md when they change.
+#
+# Licence column is the reason each one is here rather than a better-known
+# alternative. Nothing Inria-derived, nothing AGPL/GPL.
+
+# --- core -------------------------------------------------------------------
+numpy==2.1.3                       # BSD
+scipy==1.14.1                      # BSD
+opencv-python-headless==4.11.0.86  # Apache-2.0
+pillow==11.0.0                     # MIT-CMU
+av==14.0.1                         # BSD-3
+
+# --- torch stack ------------------------------------------------------------
+# Install from the cu124 index; see Dockerfile.
+torch==2.5.1                       # BSD-3
+torchvision==0.20.1                # BSD-3
+
+# --- reconstruction ---------------------------------------------------------
+gsplat==1.5.3                      # Apache-2.0. The ONLY rasteriser used here.
+                                   # graphdeco-inria/gaussian-splatting and
+                                   # everything derived from it (2DGS,
+                                   # Mip-Splatting, Scaffold-GS, SuGaR, MILo,
+                                   # 3DGS-MCMC, Gaussian Opacity Fields) is
+                                   # research-only and must never be vendored.
+pycolmap==3.11.1                   # BSD-3
+open3d==0.19.0                     # MIT
+trimesh==4.5.3                     # MIT
+
+# --- models -----------------------------------------------------------------
+# MapAnything: Apache-2.0 code, and the 'facebook/map-anything-apache'
+# checkpoint specifically (the default checkpoint is CC-BY-NC and must not be
+# used in this product).
+mapanything @ git+https://github.com/facebookresearch/map-anything@v1.0.0
+# MoGe-2: MIT.
+moge @ git+https://github.com/microsoft/MoGe@v2.0.0
+# ALIKED + LightGlue: Apache-2.0. Chosen over SuperPoint+SuperGlue, whose
+# Magic Leap weights are research-only.
+lightglue @ git+https://github.com/cvg/LightGlue@v0.1
+# SAM 3.1: used for redaction mask refinement and for semantic tracking.
+sam3 @ git+https://github.com/facebookresearch/sam3@v3.1
+# OWLv2 (Apache-2.0) open-vocabulary detection for redaction. NOT YOLO-World,
+# which is GPL-3.0.
+transformers==4.57.1               # Apache-2.0
+# docTR text DETECTION for finding documents by text density. The pipeline
+# never reads the text.
+python-doctr[torch]==0.11.0        # Apache-2.0
+
+# --- delivery ---------------------------------------------------------------
+# SPZ is implemented in-tree (worldengine/formats/spz.py) against the published
+# format; no dependency. SOG is produced by the `splat-transform` npm CLI when
+# it is present, and skipped with a note when it is not.
+
+# --- dev --------------------------------------------------------------------
+pytest==8.3.4

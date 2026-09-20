@@ -44,3 +44,23 @@ verify_jwt = false
 
 [functions.m3ix-lead-notify]
 verify_jwt = false
+
+# ---------------------------------------------------------------------------
+# World Viewer. Three of these are deliberately open and each validates itself;
+# wv-jobs in particular authenticates workers by shared secret, so leaving
+# verify_jwt at its default of true would lock the pipeline out entirely.
+# ---------------------------------------------------------------------------
+[functions.wv-view]
+verify_jwt = false
+
+[functions.wv-ask]
+verify_jwt = false
+
+[functions.wv-jobs]
+verify_jwt = false
+
+[functions.wv-worlds]
+verify_jwt = true
+
+[functions.wv-export]
+verify_jwt = true

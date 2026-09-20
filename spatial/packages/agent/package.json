@@ -1,0 +1,18 @@
+{
+  "name": "@m3xi/agent",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./commands": { "types": "./dist/commands.d.ts", "default": "./dist/commands.js" },
+    "./pricing": { "types": "./dist/pricing.d.ts", "default": "./dist/pricing.js" }
+  },
+  "scripts": { "build": "tsc -b" },
+  "dependencies": {
+    "@m3xi/world-core": "*",
+    "@m3xi/spatial-engine": "*"
+  }
+}

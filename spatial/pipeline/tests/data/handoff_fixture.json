@@ -1,0 +1,2061 @@
+{
+  "assets": [
+    {
+      "bytes": 24000000,
+      "checksum": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "chunkKey": null,
+      "format": "spz",
+      "lod": null,
+      "meta": {},
+      "name": "ab/aaaa.spz",
+      "role": "splat",
+      "splatCount": 800000
+    },
+    {
+      "bytes": 300000,
+      "checksum": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "chunkKey": "_shell",
+      "format": "spz",
+      "lod": 0,
+      "meta": {},
+      "name": "bc/bbbb.spz",
+      "role": "splat_chunk",
+      "splatCount": 8000
+    },
+    {
+      "bytes": 4000000,
+      "checksum": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "chunkKey": null,
+      "format": "ply",
+      "lod": null,
+      "meta": {},
+      "name": "cd/cccc.ply",
+      "role": "proxy_mesh",
+      "splatCount": null
+    },
+    {
+      "bytes": 90000,
+      "checksum": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "chunkKey": "world-raw",
+      "format": "json",
+      "lod": null,
+      "meta": {
+        "purpose": "the document this build assembled, kept for diffing against the rows"
+      },
+      "name": "build/world.raw.json",
+      "role": "export_bundle",
+      "splatCount": null
+    }
+  ],
+  "document": {
+    "assets": [
+      {
+        "bytes": 24000000,
+        "checksum": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "format": "spz",
+        "id": "a0",
+        "meta": {},
+        "role": "splat",
+        "splatCount": 800000,
+        "url": "asset://55555555-5555-4555-8555-555555555555/55555555-5555-4555-8555-555555555555/ab/aaaa.spz"
+      },
+      {
+        "bytes": 300000,
+        "checksum": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "chunkKey": "_shell",
+        "format": "spz",
+        "id": "a1",
+        "lod": 0,
+        "meta": {},
+        "role": "splat_chunk",
+        "splatCount": 8000,
+        "url": "asset://55555555-5555-4555-8555-555555555555/55555555-5555-4555-8555-555555555555/bc/bbbb.spz"
+      },
+      {
+        "bytes": 4000000,
+        "checksum": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "format": "ply",
+        "id": "a2",
+        "meta": {},
+        "role": "proxy_mesh",
+        "url": "asset://55555555-5555-4555-8555-555555555555/55555555-5555-4555-8555-555555555555/cd/cccc.ply"
+      }
+    ],
+    "cameras": [
+      {
+        "frameIndex": 0,
+        "id": "f0000000",
+        "intrinsics": {
+          "cx": 800.0,
+          "cy": 450.0,
+          "fx": 900.0,
+          "fy": 900.0,
+          "height": 900,
+          "model": "pinhole",
+          "width": 1600
+        },
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "poseConfidence": 0.82,
+        "position": [
+          0.5,
+          1.55,
+          1.5
+        ],
+        "sharpness": 180.0,
+        "tMs": 0
+      },
+      {
+        "frameIndex": 1,
+        "id": "f0000001",
+        "intrinsics": {
+          "cx": 800.0,
+          "cy": 450.0,
+          "fx": 900.0,
+          "fy": 900.0,
+          "height": 900,
+          "model": "pinhole",
+          "width": 1600
+        },
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "poseConfidence": 0.82,
+        "position": [
+          0.8,
+          1.55,
+          1.5
+        ],
+        "sharpness": 180.0,
+        "tMs": 400
+      },
+      {
+        "frameIndex": 2,
+        "id": "f0000002",
+        "intrinsics": {
+          "cx": 800.0,
+          "cy": 450.0,
+          "fx": 900.0,
+          "fy": 900.0,
+          "height": 900,
+          "model": "pinhole",
+          "width": 1600
+        },
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "poseConfidence": 0.82,
+        "position": [
+          1.1,
+          1.55,
+          1.5
+        ],
+        "sharpness": 180.0,
+        "tMs": 800
+      },
+      {
+        "frameIndex": 3,
+        "id": "f0000003",
+        "intrinsics": {
+          "cx": 800.0,
+          "cy": 450.0,
+          "fx": 900.0,
+          "fy": 900.0,
+          "height": 900,
+          "model": "pinhole",
+          "width": 1600
+        },
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "poseConfidence": 0.82,
+        "position": [
+          1.4,
+          1.55,
+          1.5
+        ],
+        "sharpness": 180.0,
+        "tMs": 1200
+      },
+      {
+        "frameIndex": 4,
+        "id": "f0000004",
+        "intrinsics": {
+          "cx": 800.0,
+          "cy": 450.0,
+          "fx": 900.0,
+          "fy": 900.0,
+          "height": 900,
+          "model": "pinhole",
+          "width": 1600
+        },
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "poseConfidence": 0.82,
+        "position": [
+          1.7,
+          1.55,
+          1.5
+        ],
+        "sharpness": 180.0,
+        "tMs": 1600
+      },
+      {
+        "frameIndex": 5,
+        "id": "f0000005",
+        "intrinsics": {
+          "cx": 800.0,
+          "cy": 450.0,
+          "fx": 900.0,
+          "fy": 900.0,
+          "height": 900,
+          "model": "pinhole",
+          "width": 1600
+        },
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "poseConfidence": 0.82,
+        "position": [
+          2.0,
+          1.55,
+          1.5
+        ],
+        "sharpness": 180.0,
+        "tMs": 2000
+      },
+      {
+        "frameIndex": 6,
+        "id": "f0000006",
+        "intrinsics": {
+          "cx": 800.0,
+          "cy": 450.0,
+          "fx": 900.0,
+          "fy": 900.0,
+          "height": 900,
+          "model": "pinhole",
+          "width": 1600
+        },
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "poseConfidence": 0.82,
+        "position": [
+          2.3,
+          1.55,
+          1.5
+        ],
+        "sharpness": 180.0,
+        "tMs": 2400
+      },
+      {
+        "frameIndex": 7,
+        "id": "f0000007",
+        "intrinsics": {
+          "cx": 800.0,
+          "cy": 450.0,
+          "fx": 900.0,
+          "fy": 900.0,
+          "height": 900,
+          "model": "pinhole",
+          "width": 1600
+        },
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "poseConfidence": 0.82,
+        "position": [
+          2.6,
+          1.55,
+          1.5
+        ],
+        "sharpness": 180.0,
+        "tMs": 2800
+      },
+      {
+        "frameIndex": 8,
+        "id": "f0000008",
+        "intrinsics": {
+          "cx": 800.0,
+          "cy": 450.0,
+          "fx": 900.0,
+          "fy": 900.0,
+          "height": 900,
+          "model": "pinhole",
+          "width": 1600
+        },
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "poseConfidence": 0.82,
+        "position": [
+          4.5,
+          1.55,
+          1.5
+        ],
+        "sharpness": 180.0,
+        "tMs": 3200
+      },
+      {
+        "frameIndex": 9,
+        "id": "f0000009",
+        "intrinsics": {
+          "cx": 800.0,
+          "cy": 450.0,
+          "fx": 900.0,
+          "fy": 900.0,
+          "height": 900,
+          "model": "pinhole",
+          "width": 1600
+        },
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "poseConfidence": 0.82,
+        "position": [
+          4.8,
+          1.55,
+          1.5
+        ],
+        "sharpness": 180.0,
+        "tMs": 3600
+      },
+      {
+        "frameIndex": 10,
+        "id": "f0000010",
+        "intrinsics": {
+          "cx": 800.0,
+          "cy": 450.0,
+          "fx": 900.0,
+          "fy": 900.0,
+          "height": 900,
+          "model": "pinhole",
+          "width": 1600
+        },
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "poseConfidence": 0.82,
+        "position": [
+          5.1,
+          1.55,
+          1.5
+        ],
+        "sharpness": 180.0,
+        "tMs": 4000
+      },
+      {
+        "frameIndex": 11,
+        "id": "f0000011",
+        "intrinsics": {
+          "cx": 800.0,
+          "cy": 450.0,
+          "fx": 900.0,
+          "fy": 900.0,
+          "height": 900,
+          "model": "pinhole",
+          "width": 1600
+        },
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "poseConfidence": 0.82,
+        "position": [
+          5.4,
+          1.55,
+          1.5
+        ],
+        "sharpness": 180.0,
+        "tMs": 4400
+      },
+      {
+        "frameIndex": 12,
+        "id": "f0000012",
+        "intrinsics": {
+          "cx": 800.0,
+          "cy": 450.0,
+          "fx": 900.0,
+          "fy": 900.0,
+          "height": 900,
+          "model": "pinhole",
+          "width": 1600
+        },
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "poseConfidence": 0.82,
+        "position": [
+          5.7,
+          1.55,
+          1.5
+        ],
+        "sharpness": 180.0,
+        "tMs": 4800
+      },
+      {
+        "frameIndex": 13,
+        "id": "f0000013",
+        "intrinsics": {
+          "cx": 800.0,
+          "cy": 450.0,
+          "fx": 900.0,
+          "fy": 900.0,
+          "height": 900,
+          "model": "pinhole",
+          "width": 1600
+        },
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "poseConfidence": 0.82,
+        "position": [
+          6.0,
+          1.55,
+          1.5
+        ],
+        "sharpness": 180.0,
+        "tMs": 5200
+      },
+      {
+        "frameIndex": 14,
+        "id": "f0000014",
+        "intrinsics": {
+          "cx": 800.0,
+          "cy": 450.0,
+          "fx": 900.0,
+          "fy": 900.0,
+          "height": 900,
+          "model": "pinhole",
+          "width": 1600
+        },
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "poseConfidence": 0.82,
+        "position": [
+          6.3,
+          1.55,
+          1.5
+        ],
+        "sharpness": 180.0,
+        "tMs": 5600
+      },
+      {
+        "frameIndex": 15,
+        "id": "f0000015",
+        "intrinsics": {
+          "cx": 800.0,
+          "cy": 450.0,
+          "fx": 900.0,
+          "fy": 900.0,
+          "height": 900,
+          "model": "pinhole",
+          "width": 1600
+        },
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "poseConfidence": 0.82,
+        "position": [
+          6.6,
+          1.55,
+          1.5
+        ],
+        "sharpness": 180.0,
+        "tMs": 6000
+      }
+    ],
+    "createdAt": "2026-09-19T12:00:00Z",
+    "entities": [
+      {
+        "aabb": {
+          "max": [
+            2.4,
+            0.85,
+            1.5
+          ],
+          "min": [
+            0.6,
+            0.0,
+            0.5
+          ]
+        },
+        "attributes": {
+          "gaussianCount": 9000,
+          "identityStability": 0.88
+        },
+        "category": "furniture",
+        "centroid": [
+          1.5,
+          0.4,
+          1.0
+        ],
+        "grounding": {
+          "confidence": 0.78,
+          "provenance": "inferred",
+          "sources": [
+            "f0000000",
+            "f0000001",
+            "f0000002",
+            "f0000003",
+            "f0000004"
+          ]
+        },
+        "id": "ent_0000",
+        "label": "sofa",
+        "observedIn": [
+          "f0000000",
+          "f0000001",
+          "f0000002",
+          "f0000003",
+          "f0000004"
+        ],
+        "roomId": "rm_000",
+        "stableKey": "sofa@1.5,0.4,1.0"
+      },
+      {
+        "aabb": {
+          "max": [
+            5.6,
+            0.6,
+            2.1
+          ],
+          "min": [
+            4.2,
+            0.0,
+            0.2
+          ]
+        },
+        "attributes": {
+          "gaussianCount": 12000,
+          "identityStability": 0.82
+        },
+        "category": "furniture",
+        "centroid": [
+          4.9,
+          0.3,
+          1.15
+        ],
+        "grounding": {
+          "confidence": 0.74,
+          "provenance": "inferred",
+          "sources": [
+            "f0000008",
+            "f0000009",
+            "f0000010",
+            "f0000011",
+            "f0000012"
+          ]
+        },
+        "id": "ent_0001",
+        "label": "bed",
+        "observedIn": [
+          "f0000008",
+          "f0000009",
+          "f0000010",
+          "f0000011",
+          "f0000012"
+        ],
+        "roomId": "rm_001",
+        "stableKey": "bed@4.9,0.3,1.2"
+      }
+    ],
+    "floors": [
+      {
+        "elevation": 0.0,
+        "grounding": {
+          "confidence": 0.85,
+          "provenance": "reconstructed"
+        },
+        "id": "flr_0",
+        "level": 0,
+        "name": "Ground floor"
+      }
+    ],
+    "formatVersion": 1,
+    "handedness": "right",
+    "id": "55555555-5555-4555-8555-555555555555",
+    "label": "Flat 2, Alpha Court",
+    "measurementPolicy": {
+      "areaStandard": "RICS-COMP-GIA",
+      "areaTolerancePct": 5.0,
+      "wallToleranceMm": 50.0
+    },
+    "nav": {
+      "edges": [
+        {
+          "a": "nav_00000",
+          "b": "nav_00001",
+          "cost": 4.0,
+          "kind": "door",
+          "openingId": "opn_000",
+          "width": 0.9
+        }
+      ],
+      "nodes": [
+        {
+          "clearance": 1.1,
+          "id": "nav_00000",
+          "isEntrance": true,
+          "isViewpoint": true,
+          "position": [
+            1.5,
+            1.55,
+            1.5
+          ],
+          "roomId": "rm_000"
+        },
+        {
+          "clearance": 1.2,
+          "id": "nav_00001",
+          "isEntrance": false,
+          "isViewpoint": true,
+          "position": [
+            5.5,
+            1.55,
+            1.5
+          ],
+          "roomId": "rm_001"
+        }
+      ]
+    },
+    "openings": [
+      {
+        "centre": [
+          4.0,
+          1.02,
+          1.5
+        ],
+        "grounding": {
+          "confidence": 0.8,
+          "provenance": "reconstructed"
+        },
+        "height": {
+          "grounding": {
+            "confidence": 0.8,
+            "provenance": "inferred"
+          },
+          "standard": "CLEAR-INTERNAL",
+          "tolerance": 50.0,
+          "toleranceUnit": "mm",
+          "unit": "m",
+          "value": 2.04
+        },
+        "id": "opn_000",
+        "kind": "door",
+        "normal": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "roomA": "rm_000",
+        "roomB": "rm_001",
+        "width": {
+          "grounding": {
+            "confidence": 0.8,
+            "provenance": "inferred"
+          },
+          "standard": "CLEAR-INTERNAL",
+          "tolerance": 50.0,
+          "toleranceUnit": "mm",
+          "unit": "m",
+          "value": 0.9
+        }
+      }
+    ],
+    "propertyId": "33333333-3333-4333-8333-333333333333",
+    "quality": {
+      "checks": [
+        {
+          "detail": "agreed",
+          "higherIsBetter": true,
+          "name": "scale_agreement",
+          "pass": true,
+          "threshold": 0.9,
+          "value": 0.95
+        }
+      ],
+      "createdAt": "2026-09-19T12:00:00Z",
+      "score": 0.93,
+      "verdict": "pass"
+    },
+    "regions": [
+      {
+        "confidence": 0.9,
+        "id": "reg_0000",
+        "provenance": "inferred",
+        "reason": "no camera observed this volume",
+        "roomId": "rm_000",
+        "volume": {
+          "max": [
+            4.0,
+            2.4,
+            3.0
+          ],
+          "min": [
+            3.4,
+            0.0,
+            2.4
+          ]
+        }
+      },
+      {
+        "confidence": 0.95,
+        "id": "reg_obs_0000",
+        "provenance": "observed",
+        "reason": "observed by at least 2 cameras",
+        "volume": {
+          "max": [
+            7.0,
+            2.4,
+            3.0
+          ],
+          "min": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    ],
+    "relationships": [
+      {
+        "grounding": {
+          "confidence": 0.8,
+          "provenance": "reconstructed"
+        },
+        "objectId": "rm_001",
+        "objectType": "room",
+        "predicate": "connected_to",
+        "subjectId": "rm_000",
+        "subjectType": "room",
+        "value": 0.9
+      },
+      {
+        "grounding": {
+          "confidence": 0.78,
+          "provenance": "inferred"
+        },
+        "objectId": "rm_000",
+        "objectType": "room",
+        "predicate": "inside",
+        "subjectId": "ent_0000",
+        "subjectType": "entity"
+      }
+    ],
+    "rooms": [
+      {
+        "area": {
+          "basis": {
+            "polygonVertices": 4,
+            "scaleAgreement": 0.95,
+            "scaleSource": "mapanything+moge2:agreed"
+          },
+          "grounding": {
+            "confidence": 0.85,
+            "provenance": "inferred",
+            "sources": [
+              "f0000000",
+              "f0000001",
+              "f0000002",
+              "f0000003",
+              "f0000004",
+              "f0000005",
+              "f0000006",
+              "f0000007"
+            ]
+          },
+          "standard": "RICS-COMP-GIA",
+          "tolerance": 5.0,
+          "toleranceUnit": "pct",
+          "unit": "m2",
+          "value": 12.0
+        },
+        "ceilingZ": 2.4,
+        "floorId": "flr_0",
+        "floorZ": 0.0,
+        "grounding": {
+          "confidence": 0.85,
+          "provenance": "reconstructed",
+          "sources": [
+            "f0000000",
+            "f0000001",
+            "f0000002",
+            "f0000003",
+            "f0000004",
+            "f0000005",
+            "f0000006",
+            "f0000007"
+          ]
+        },
+        "id": "rm_000",
+        "kind": "living",
+        "polygon": [
+          [
+            0.0,
+            3.0
+          ],
+          [
+            4.0,
+            3.0
+          ],
+          [
+            4.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "stableKey": "r@2.0,1.5"
+      },
+      {
+        "area": {
+          "basis": {
+            "polygonVertices": 4,
+            "scaleAgreement": 0.95,
+            "scaleSource": "mapanything+moge2:agreed"
+          },
+          "grounding": {
+            "confidence": 0.85,
+            "provenance": "inferred",
+            "sources": [
+              "f0000008",
+              "f0000009",
+              "f0000010",
+              "f0000011",
+              "f0000012",
+              "f0000013",
+              "f0000014",
+              "f0000015"
+            ]
+          },
+          "standard": "RICS-COMP-GIA",
+          "tolerance": 5.0,
+          "toleranceUnit": "pct",
+          "unit": "m2",
+          "value": 9.0
+        },
+        "ceilingZ": 2.4,
+        "floorId": "flr_0",
+        "floorZ": 0.0,
+        "grounding": {
+          "confidence": 0.85,
+          "provenance": "reconstructed",
+          "sources": [
+            "f0000008",
+            "f0000009",
+            "f0000010",
+            "f0000011",
+            "f0000012",
+            "f0000013",
+            "f0000014",
+            "f0000015"
+          ]
+        },
+        "id": "rm_001",
+        "kind": "bedroom",
+        "polygon": [
+          [
+            4.0,
+            3.0
+          ],
+          [
+            7.0,
+            3.0
+          ],
+          [
+            7.0,
+            0.0
+          ],
+          [
+            4.0,
+            0.0
+          ]
+        ],
+        "stableKey": "r@5.5,1.5"
+      }
+    ],
+    "scale": {
+      "agreement": 0.95,
+      "grounding": {
+        "confidence": 0.9,
+        "provenance": "inferred"
+      },
+      "source": "mapanything+moge2:agreed"
+    },
+    "slug": "flat-2-alpha-court",
+    "surfaces": [
+      {
+        "area": {
+          "grounding": {
+            "confidence": 0.88,
+            "provenance": "inferred"
+          },
+          "standard": "CLEAR-INTERNAL",
+          "tolerance": 5.0,
+          "toleranceUnit": "pct",
+          "unit": "m2",
+          "value": 7.2
+        },
+        "grounding": {
+          "confidence": 0.88,
+          "provenance": "reconstructed"
+        },
+        "id": "srf_000",
+        "isGlazed": false,
+        "isReflective": false,
+        "kind": "wall",
+        "plane": {
+          "d": 0.0,
+          "n": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        },
+        "polygon": [
+          [
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            2.4,
+            0.0
+          ],
+          [
+            0.0,
+            2.4,
+            3.0
+          ],
+          [
+            0.0,
+            0.0,
+            3.0
+          ]
+        ],
+        "roomId": "rm_000"
+      },
+      {
+        "area": {
+          "grounding": {
+            "confidence": 0.7,
+            "provenance": "inferred"
+          },
+          "standard": "CLEAR-INTERNAL",
+          "tolerance": 5.0,
+          "toleranceUnit": "pct",
+          "unit": "m2",
+          "value": 1.68
+        },
+        "grounding": {
+          "confidence": 0.7,
+          "provenance": "reconstructed"
+        },
+        "id": "srf_001",
+        "isGlazed": true,
+        "isReflective": false,
+        "kind": "wall",
+        "plane": {
+          "d": 0.0,
+          "n": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "polygon": [
+          [
+            1.0,
+            0.9,
+            0.0
+          ],
+          [
+            2.4,
+            0.9,
+            0.0
+          ],
+          [
+            2.4,
+            2.1,
+            0.0
+          ],
+          [
+            1.0,
+            2.1,
+            0.0
+          ]
+        ],
+        "roomId": "rm_000"
+      }
+    ],
+    "units": {
+      "angle": "rad",
+      "length": "m"
+    },
+    "upAxis": "Y",
+    "version": 1
+  },
+  "label": "Flat 2, Alpha Court",
+  "propertyId": "33333333-3333-4333-8333-333333333333",
+  "sections": [
+    {
+      "propertyId": "33333333-3333-4333-8333-333333333333",
+      "scale": {
+        "agreement": 0.95,
+        "grounding": {
+          "confidence": 0.9,
+          "provenance": "inferred"
+        },
+        "source": "mapanything+moge2:agreed"
+      },
+      "section": "header",
+      "version": 1
+    },
+    {
+      "chunkCount": 1,
+      "chunkIndex": 0,
+      "rows": [
+        {
+          "elevation": 0.0,
+          "grounding": {
+            "confidence": 0.85,
+            "provenance": "reconstructed"
+          },
+          "level": 0,
+          "name": "Ground floor"
+        }
+      ],
+      "section": "floors"
+    },
+    {
+      "chunkCount": 1,
+      "chunkIndex": 0,
+      "policy": {
+        "areaStandard": "RICS-COMP-GIA",
+        "areaTolerancePct": 5.0,
+        "wallToleranceMm": 50.0
+      },
+      "rows": [
+        {
+          "area": {
+            "standard": "RICS-COMP-GIA",
+            "tolerance": 5.0,
+            "value": 12.0
+          },
+          "ceilingZ": 2.4,
+          "floorLevel": 0,
+          "floorZ": 0.0,
+          "grounding": {
+            "confidence": 0.85,
+            "provenance": "reconstructed",
+            "sources": [
+              "f0000000",
+              "f0000001",
+              "f0000002",
+              "f0000003",
+              "f0000004",
+              "f0000005",
+              "f0000006",
+              "f0000007"
+            ]
+          },
+          "kind": "living",
+          "name": null,
+          "polygon": [
+            [
+              0.0,
+              3.0
+            ],
+            [
+              4.0,
+              3.0
+            ],
+            [
+              4.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "stableKey": "r@2.0,1.5"
+        },
+        {
+          "area": {
+            "standard": "RICS-COMP-GIA",
+            "tolerance": 5.0,
+            "value": 9.0
+          },
+          "ceilingZ": 2.4,
+          "floorLevel": 0,
+          "floorZ": 0.0,
+          "grounding": {
+            "confidence": 0.85,
+            "provenance": "reconstructed",
+            "sources": [
+              "f0000008",
+              "f0000009",
+              "f0000010",
+              "f0000011",
+              "f0000012",
+              "f0000013",
+              "f0000014",
+              "f0000015"
+            ]
+          },
+          "kind": "bedroom",
+          "name": null,
+          "polygon": [
+            [
+              4.0,
+              3.0
+            ],
+            [
+              7.0,
+              3.0
+            ],
+            [
+              7.0,
+              0.0
+            ],
+            [
+              4.0,
+              0.0
+            ]
+          ],
+          "stableKey": "r@5.5,1.5"
+        }
+      ],
+      "section": "rooms"
+    },
+    {
+      "chunkCount": 1,
+      "chunkIndex": 0,
+      "rows": [
+        {
+          "areaM2": 7.2,
+          "grounding": {
+            "confidence": 0.88,
+            "provenance": "reconstructed"
+          },
+          "id": "srf_000",
+          "isGlazed": false,
+          "isReflective": false,
+          "kind": "wall",
+          "plane": {
+            "d": 0.0,
+            "n": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          },
+          "polygon": [
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              2.4,
+              0.0
+            ],
+            [
+              0.0,
+              2.4,
+              3.0
+            ],
+            [
+              0.0,
+              0.0,
+              3.0
+            ]
+          ],
+          "roomKey": "r@2.0,1.5"
+        },
+        {
+          "areaM2": 1.68,
+          "grounding": {
+            "confidence": 0.7,
+            "provenance": "reconstructed"
+          },
+          "id": "srf_001",
+          "isGlazed": true,
+          "isReflective": false,
+          "kind": "wall",
+          "plane": {
+            "d": 0.0,
+            "n": [
+              0.0,
+              0.0,
+              1.0
+            ]
+          },
+          "polygon": [
+            [
+              1.0,
+              0.9,
+              0.0
+            ],
+            [
+              2.4,
+              0.9,
+              0.0
+            ],
+            [
+              2.4,
+              2.1,
+              0.0
+            ],
+            [
+              1.0,
+              2.1,
+              0.0
+            ]
+          ],
+          "roomKey": "r@2.0,1.5"
+        }
+      ],
+      "section": "surfaces"
+    },
+    {
+      "chunkCount": 1,
+      "chunkIndex": 0,
+      "rows": [
+        {
+          "centre": [
+            4.0,
+            1.02,
+            1.5
+          ],
+          "grounding": {
+            "confidence": 0.8,
+            "provenance": "reconstructed"
+          },
+          "heightM": 2.04,
+          "id": "opn_000",
+          "kind": "door",
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "roomAKey": "r@2.0,1.5",
+          "roomBKey": "r@5.5,1.5",
+          "sillM": null,
+          "surfaceKey": null,
+          "widthM": 0.9
+        }
+      ],
+      "section": "openings"
+    },
+    {
+      "chunkCount": 1,
+      "chunkIndex": 0,
+      "rows": [
+        {
+          "frameIndex": 0,
+          "id": "f0000000",
+          "intrinsics": {
+            "cx": 800.0,
+            "cy": 450.0,
+            "fx": 900.0,
+            "fy": 900.0,
+            "height": 900,
+            "model": "pinhole",
+            "width": 1600
+          },
+          "orientation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "poseConfidence": 0.82,
+          "position": [
+            0.5,
+            1.55,
+            1.5
+          ],
+          "roomKey": null,
+          "sharpness": 180.0,
+          "tMs": 0
+        },
+        {
+          "frameIndex": 1,
+          "id": "f0000001",
+          "intrinsics": {
+            "cx": 800.0,
+            "cy": 450.0,
+            "fx": 900.0,
+            "fy": 900.0,
+            "height": 900,
+            "model": "pinhole",
+            "width": 1600
+          },
+          "orientation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "poseConfidence": 0.82,
+          "position": [
+            0.8,
+            1.55,
+            1.5
+          ],
+          "roomKey": null,
+          "sharpness": 180.0,
+          "tMs": 400
+        },
+        {
+          "frameIndex": 2,
+          "id": "f0000002",
+          "intrinsics": {
+            "cx": 800.0,
+            "cy": 450.0,
+            "fx": 900.0,
+            "fy": 900.0,
+            "height": 900,
+            "model": "pinhole",
+            "width": 1600
+          },
+          "orientation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "poseConfidence": 0.82,
+          "position": [
+            1.1,
+            1.55,
+            1.5
+          ],
+          "roomKey": null,
+          "sharpness": 180.0,
+          "tMs": 800
+        },
+        {
+          "frameIndex": 3,
+          "id": "f0000003",
+          "intrinsics": {
+            "cx": 800.0,
+            "cy": 450.0,
+            "fx": 900.0,
+            "fy": 900.0,
+            "height": 900,
+            "model": "pinhole",
+            "width": 1600
+          },
+          "orientation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "poseConfidence": 0.82,
+          "position": [
+            1.4,
+            1.55,
+            1.5
+          ],
+          "roomKey": null,
+          "sharpness": 180.0,
+          "tMs": 1200
+        },
+        {
+          "frameIndex": 4,
+          "id": "f0000004",
+          "intrinsics": {
+            "cx": 800.0,
+            "cy": 450.0,
+            "fx": 900.0,
+            "fy": 900.0,
+            "height": 900,
+            "model": "pinhole",
+            "width": 1600
+          },
+          "orientation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "poseConfidence": 0.82,
+          "position": [
+            1.7,
+            1.55,
+            1.5
+          ],
+          "roomKey": null,
+          "sharpness": 180.0,
+          "tMs": 1600
+        },
+        {
+          "frameIndex": 5,
+          "id": "f0000005",
+          "intrinsics": {
+            "cx": 800.0,
+            "cy": 450.0,
+            "fx": 900.0,
+            "fy": 900.0,
+            "height": 900,
+            "model": "pinhole",
+            "width": 1600
+          },
+          "orientation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "poseConfidence": 0.82,
+          "position": [
+            2.0,
+            1.55,
+            1.5
+          ],
+          "roomKey": null,
+          "sharpness": 180.0,
+          "tMs": 2000
+        },
+        {
+          "frameIndex": 6,
+          "id": "f0000006",
+          "intrinsics": {
+            "cx": 800.0,
+            "cy": 450.0,
+            "fx": 900.0,
+            "fy": 900.0,
+            "height": 900,
+            "model": "pinhole",
+            "width": 1600
+          },
+          "orientation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "poseConfidence": 0.82,
+          "position": [
+            2.3,
+            1.55,
+            1.5
+          ],
+          "roomKey": null,
+          "sharpness": 180.0,
+          "tMs": 2400
+        },
+        {
+          "frameIndex": 7,
+          "id": "f0000007",
+          "intrinsics": {
+            "cx": 800.0,
+            "cy": 450.0,
+            "fx": 900.0,
+            "fy": 900.0,
+            "height": 900,
+            "model": "pinhole",
+            "width": 1600
+          },
+          "orientation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "poseConfidence": 0.82,
+          "position": [
+            2.6,
+            1.55,
+            1.5
+          ],
+          "roomKey": null,
+          "sharpness": 180.0,
+          "tMs": 2800
+        },
+        {
+          "frameIndex": 8,
+          "id": "f0000008",
+          "intrinsics": {
+            "cx": 800.0,
+            "cy": 450.0,
+            "fx": 900.0,
+            "fy": 900.0,
+            "height": 900,
+            "model": "pinhole",
+            "width": 1600
+          },
+          "orientation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "poseConfidence": 0.82,
+          "position": [
+            4.5,
+            1.55,
+            1.5
+          ],
+          "roomKey": null,
+          "sharpness": 180.0,
+          "tMs": 3200
+        },
+        {
+          "frameIndex": 9,
+          "id": "f0000009",
+          "intrinsics": {
+            "cx": 800.0,
+            "cy": 450.0,
+            "fx": 900.0,
+            "fy": 900.0,
+            "height": 900,
+            "model": "pinhole",
+            "width": 1600
+          },
+          "orientation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "poseConfidence": 0.82,
+          "position": [
+            4.8,
+            1.55,
+            1.5
+          ],
+          "roomKey": null,
+          "sharpness": 180.0,
+          "tMs": 3600
+        },
+        {
+          "frameIndex": 10,
+          "id": "f0000010",
+          "intrinsics": {
+            "cx": 800.0,
+            "cy": 450.0,
+            "fx": 900.0,
+            "fy": 900.0,
+            "height": 900,
+            "model": "pinhole",
+            "width": 1600
+          },
+          "orientation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "poseConfidence": 0.82,
+          "position": [
+            5.1,
+            1.55,
+            1.5
+          ],
+          "roomKey": null,
+          "sharpness": 180.0,
+          "tMs": 4000
+        },
+        {
+          "frameIndex": 11,
+          "id": "f0000011",
+          "intrinsics": {
+            "cx": 800.0,
+            "cy": 450.0,
+            "fx": 900.0,
+            "fy": 900.0,
+            "height": 900,
+            "model": "pinhole",
+            "width": 1600
+          },
+          "orientation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "poseConfidence": 0.82,
+          "position": [
+            5.4,
+            1.55,
+            1.5
+          ],
+          "roomKey": null,
+          "sharpness": 180.0,
+          "tMs": 4400
+        },
+        {
+          "frameIndex": 12,
+          "id": "f0000012",
+          "intrinsics": {
+            "cx": 800.0,
+            "cy": 450.0,
+            "fx": 900.0,
+            "fy": 900.0,
+            "height": 900,
+            "model": "pinhole",
+            "width": 1600
+          },
+          "orientation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "poseConfidence": 0.82,
+          "position": [
+            5.7,
+            1.55,
+            1.5
+          ],
+          "roomKey": null,
+          "sharpness": 180.0,
+          "tMs": 4800
+        },
+        {
+          "frameIndex": 13,
+          "id": "f0000013",
+          "intrinsics": {
+            "cx": 800.0,
+            "cy": 450.0,
+            "fx": 900.0,
+            "fy": 900.0,
+            "height": 900,
+            "model": "pinhole",
+            "width": 1600
+          },
+          "orientation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "poseConfidence": 0.82,
+          "position": [
+            6.0,
+            1.55,
+            1.5
+          ],
+          "roomKey": null,
+          "sharpness": 180.0,
+          "tMs": 5200
+        },
+        {
+          "frameIndex": 14,
+          "id": "f0000014",
+          "intrinsics": {
+            "cx": 800.0,
+            "cy": 450.0,
+            "fx": 900.0,
+            "fy": 900.0,
+            "height": 900,
+            "model": "pinhole",
+            "width": 1600
+          },
+          "orientation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "poseConfidence": 0.82,
+          "position": [
+            6.3,
+            1.55,
+            1.5
+          ],
+          "roomKey": null,
+          "sharpness": 180.0,
+          "tMs": 5600
+        },
+        {
+          "frameIndex": 15,
+          "id": "f0000015",
+          "intrinsics": {
+            "cx": 800.0,
+            "cy": 450.0,
+            "fx": 900.0,
+            "fy": 900.0,
+            "height": 900,
+            "model": "pinhole",
+            "width": 1600
+          },
+          "orientation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "poseConfidence": 0.82,
+          "position": [
+            6.6,
+            1.55,
+            1.5
+          ],
+          "roomKey": null,
+          "sharpness": 180.0,
+          "tMs": 6000
+        }
+      ],
+      "section": "cameras"
+    },
+    {
+      "chunkCount": 1,
+      "chunkIndex": 0,
+      "rows": [
+        {
+          "aabb": {
+            "max": [
+              2.4,
+              0.85,
+              1.5
+            ],
+            "min": [
+              0.6,
+              0.0,
+              0.5
+            ]
+          },
+          "attributes": {
+            "gaussianCount": 9000,
+            "identityStability": 0.88
+          },
+          "category": "furniture",
+          "centroid": [
+            1.5,
+            0.4,
+            1.0
+          ],
+          "grounding": {
+            "confidence": 0.78,
+            "provenance": "inferred",
+            "sources": [
+              "f0000000",
+              "f0000001",
+              "f0000002",
+              "f0000003",
+              "f0000004"
+            ]
+          },
+          "label": "sofa",
+          "obb": null,
+          "observedIn": [
+            "f0000000",
+            "f0000001",
+            "f0000002",
+            "f0000003",
+            "f0000004"
+          ],
+          "roomKey": "r@2.0,1.5",
+          "stableKey": "sofa@1.5,0.4,1.0"
+        },
+        {
+          "aabb": {
+            "max": [
+              5.6,
+              0.6,
+              2.1
+            ],
+            "min": [
+              4.2,
+              0.0,
+              0.2
+            ]
+          },
+          "attributes": {
+            "gaussianCount": 12000,
+            "identityStability": 0.82
+          },
+          "category": "furniture",
+          "centroid": [
+            4.9,
+            0.3,
+            1.15
+          ],
+          "grounding": {
+            "confidence": 0.74,
+            "provenance": "inferred",
+            "sources": [
+              "f0000008",
+              "f0000009",
+              "f0000010",
+              "f0000011",
+              "f0000012"
+            ]
+          },
+          "label": "bed",
+          "obb": null,
+          "observedIn": [
+            "f0000008",
+            "f0000009",
+            "f0000010",
+            "f0000011",
+            "f0000012"
+          ],
+          "roomKey": "r@5.5,1.5",
+          "stableKey": "bed@4.9,0.3,1.2"
+        }
+      ],
+      "section": "entities"
+    },
+    {
+      "chunkCount": 1,
+      "chunkIndex": 0,
+      "rows": [
+        {
+          "clearance": 1.1,
+          "id": "nav_00000",
+          "isEntrance": true,
+          "isViewpoint": true,
+          "position": [
+            1.5,
+            1.55,
+            1.5
+          ],
+          "roomKey": "r@2.0,1.5"
+        },
+        {
+          "clearance": 1.2,
+          "id": "nav_00001",
+          "isEntrance": false,
+          "isViewpoint": true,
+          "position": [
+            5.5,
+            1.55,
+            1.5
+          ],
+          "roomKey": "r@5.5,1.5"
+        }
+      ],
+      "section": "nav-nodes"
+    },
+    {
+      "chunkCount": 1,
+      "chunkIndex": 0,
+      "rows": [
+        {
+          "a": "nav_00000",
+          "b": "nav_00001",
+          "cost": 4.0,
+          "kind": "door",
+          "openingKey": "opn_000",
+          "widthM": 0.9
+        }
+      ],
+      "section": "nav-edges"
+    },
+    {
+      "chunkCount": 1,
+      "chunkIndex": 0,
+      "rows": [
+        {
+          "confidence": 0.9,
+          "id": "reg_0000",
+          "provenance": "inferred",
+          "reason": "no camera observed this volume",
+          "roomKey": "r@2.0,1.5",
+          "volume": {
+            "max": [
+              4.0,
+              2.4,
+              3.0
+            ],
+            "min": [
+              3.4,
+              0.0,
+              2.4
+            ]
+          }
+        },
+        {
+          "confidence": 0.95,
+          "id": "reg_obs_0000",
+          "provenance": "observed",
+          "reason": "observed by at least 2 cameras",
+          "roomKey": null,
+          "volume": {
+            "max": [
+              7.0,
+              2.4,
+              3.0
+            ],
+            "min": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ],
+      "section": "regions"
+    },
+    {
+      "chunkCount": 1,
+      "chunkIndex": 0,
+      "rows": [
+        {
+          "grounding": {
+            "confidence": 0.8,
+            "provenance": "reconstructed"
+          },
+          "objectKey": "r@5.5,1.5",
+          "objectType": "room",
+          "predicate": "connected_to",
+          "subjectKey": "r@2.0,1.5",
+          "subjectType": "room",
+          "value": 0.9
+        },
+        {
+          "grounding": {
+            "confidence": 0.78,
+            "provenance": "inferred"
+          },
+          "objectKey": "r@2.0,1.5",
+          "objectType": "room",
+          "predicate": "inside",
+          "subjectKey": "sofa@1.5,0.4,1.0",
+          "subjectType": "entity",
+          "value": null
+        }
+      ],
+      "section": "relationships"
+    },
+    {
+      "chunkCount": 1,
+      "chunkIndex": 0,
+      "rows": [
+        {
+          "bytes": 24000000,
+          "checksum": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "chunkKey": null,
+          "format": "spz",
+          "lod": null,
+          "meta": {},
+          "name": "ab/aaaa.spz",
+          "role": "splat",
+          "splatCount": 800000
+        },
+        {
+          "bytes": 300000,
+          "checksum": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "chunkKey": "_shell",
+          "format": "spz",
+          "lod": 0,
+          "meta": {},
+          "name": "bc/bbbb.spz",
+          "role": "splat_chunk",
+          "splatCount": 8000
+        },
+        {
+          "bytes": 4000000,
+          "checksum": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "chunkKey": null,
+          "format": "ply",
+          "lod": null,
+          "meta": {},
+          "name": "cd/cccc.ply",
+          "role": "proxy_mesh",
+          "splatCount": null
+        },
+        {
+          "bytes": 90000,
+          "checksum": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "chunkKey": "world-raw",
+          "format": "json",
+          "lod": null,
+          "meta": {
+            "purpose": "the document this build assembled, kept for diffing against the rows"
+          },
+          "name": "build/world.raw.json",
+          "role": "export_bundle",
+          "splatCount": null
+        }
+      ],
+      "section": "assets"
+    },
+    {
+      "quality": {
+        "checks": [
+          {
+            "detail": "agreed",
+            "higherIsBetter": true,
+            "name": "scale_agreement",
+            "pass": true,
+            "threshold": 0.9,
+            "value": 0.95
+          }
+        ],
+        "createdAt": "2026-09-19T12:00:00Z",
+        "score": 0.93,
+        "verdict": "pass"
+      },
+      "section": "quality"
+    },
+    {
+      "section": "commit"
+    }
+  ],
+  "version": 1,
+  "worldId": "55555555-5555-4555-8555-555555555555"
+}

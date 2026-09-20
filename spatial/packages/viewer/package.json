@@ -1,0 +1,23 @@
+{
+  "name": "@m3xi/viewer",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": ["./dist/ui/styles.js", "*.css"],
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./agent": { "types": "./dist/agent/index.d.ts", "default": "./dist/agent/index.js" },
+    "./headless": { "types": "./dist/headless.d.ts", "default": "./dist/headless.js" }
+  },
+  "scripts": { "build": "tsc -b" },
+  "dependencies": {
+    "@m3xi/world-core": "*",
+    "@m3xi/spatial-engine": "*",
+    "three": "^0.186.0",
+    "@sparkjsdev/spark": "^2.2.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.186.0"
+  }
+}

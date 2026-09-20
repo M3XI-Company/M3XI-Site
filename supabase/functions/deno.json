@@ -1,0 +1,25 @@
+{
+  "//": [
+    "Import map for the wv-* edge functions.",
+    "",
+    "The agent and the spatial engine are workspace TypeScript packages whose",
+    "sources import each other with '.js' specifiers -- correct for what",
+    "TypeScript emits, unresolvable against what it reads. So the functions",
+    "import the BUILT output, where those specifiers are real files, and this",
+    "map turns the three bare package names into paths.",
+    "",
+    "Build before deploying:  cd spatial && npm run build",
+    "",
+    "The alternative, vendoring a bundle into the function directory, was",
+    "rejected: it puts a second copy of the agent in the repository that can",
+    "silently drift from the one the tests run against."
+  ],
+  "imports": {
+    "@m3xi/world-core": "../../spatial/packages/world-core/dist/index.js",
+    "@m3xi/world-core/": "../../spatial/packages/world-core/dist/",
+    "@m3xi/spatial-engine": "../../spatial/packages/spatial-engine/dist/index.js",
+    "@m3xi/spatial-engine/": "../../spatial/packages/spatial-engine/dist/",
+    "@m3xi/agent": "../../spatial/packages/agent/dist/index.js",
+    "@m3xi/agent/": "../../spatial/packages/agent/dist/"
+  }
+}

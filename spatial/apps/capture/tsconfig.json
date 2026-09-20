@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "types": ["vite/client"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"],
+    "paths": {
+      "@m3xi/capture-core": ["../../packages/capture-core/src/index.ts"],
+      "@m3xi/world-core": ["../../packages/world-core/src/types.ts"]
+    }
+  },
+  "include": ["src/**/*"]
+}

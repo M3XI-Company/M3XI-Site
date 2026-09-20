@@ -1,0 +1,32 @@
+{
+  "//": [
+    "Type-checks the agent's tests, including the edge-function handler tests.",
+    "",
+    "Separate from the build because those tests import files under",
+    "supabase/functions, which sit outside this package's rootDir and must not",
+    "end up in dist. noEmit, so nothing is produced.",
+    "",
+    "allowImportingTsExtensions is on because the edge functions are Deno code",
+    "and Deno requires explicit .ts extensions on relative imports. This lets",
+    "tsc read the same files Deno will run.",
+    "",
+    "Run:  npx tsc -p packages/agent/tsconfig.test.json"
+  ],
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "types": ["node"],
+    "paths": {
+      "@m3xi/world-core": ["../world-core/src/index.ts"],
+      "@m3xi/spatial-engine": ["../spatial-engine/src/index.ts"],
+      "@m3xi/spatial-engine/fixtures/flat": ["../spatial-engine/src/__fixtures__/flat.ts"]
+    }
+  },
+  "include": ["src/**/*", "../../../supabase/functions/**/*.ts"],
+  "exclude": ["../../../supabase/functions/**/index.ts"]
+}

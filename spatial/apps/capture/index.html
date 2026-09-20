@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <!--
+      `viewport-fit=cover` so the live screen reaches the edges of a notched
+      phone; the stylesheet then pays the safe-area insets back on the controls.
+      `user-scalable` is deliberately NOT disabled: pinch zoom is an assistive
+      technology (WCAG 1.4.4), and the type here is large enough that nobody
+      should need it — which is not the same as taking it away.
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Capture a walkthrough — M3XI World Viewer</title>
+    <meta name="description" content="Film a property walkthrough and find out whether it will reconstruct before you leave the building." />
+    <meta name="color-scheme" content="light dark" />
+    <!--
+      This is an operator tool that points a camera at the inside of somebody's
+      home. It should never be indexed and never leak a property reference into
+      a referrer.
+    -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="same-origin" />
+    <!--
+      The installable shell. These four lines are the page's half of the
+      contract in public/capture/README.md: that folder holds the manifest, the
+      service worker, the icons and the offline page, it is copied to /capture/
+      by Vite's default publicDir, and the worker's scope is therefore /capture/
+      and nothing else. The paths are absolute because this page is REWRITTEN to
+      /capture and /capture/ from spatial/apps/capture/index.html, so a relative
+      href would resolve against whichever of those two URLs the operator
+      happened to open.
+
+      `theme_color` in the manifest is #19150F — the site's own --ink — and the
+      meta below has to match it or the status bar and the splash screen
+      disagree for the first frame after launch.
+    -->
+    <link rel="manifest" href="/capture/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/capture/apple-touch-icon-180.png" />
+    <meta name="theme-color" content="#19150F" />
+    <style>
+      /*
+        Enough to paint the right background before the module loads, so the
+        page does not flash white at somebody standing in a dark hallway.
+        The real stylesheet is imported by main.ts.
+      */
+      html, body { margin: 0; min-height: 100%; background: #f3f1ee; color: #16181a; }
+      @media (prefers-color-scheme: dark) {
+        html:not([data-theme="light"]), html:not([data-theme="light"]) body {
+          background: #0f1113; color: #eceae6;
+        }
+      }
+      #boot { padding: 48px 16px; font: 17px/1.6 ui-sans-serif, system-ui, sans-serif; }
+    </style>
+  </head>
+  <body>
+    <a class="c-skip" href="#capture">Skip to the capture app</a>
+    <!-- tabindex=-1 so the skip link above actually moves focus here: a skip
+         link pointing at a non-focusable element is honoured inconsistently,
+         and where it is not, the link does nothing at all. -->
+    <main id="capture" tabindex="-1">
+      <div id="boot">
+        <h1>Loading</h1>
+        <p>
+          This is the walkthrough capture app. It needs a camera and a signed-in
+          operator account.
+        </p>
+        <noscript>
+          <p>
+            This app needs JavaScript: it analyses the camera while you walk, so
+            that you find out whether the capture is usable before you leave the
+            property rather than half an hour after you do.
+          </p>
+        </noscript>
+      </div>
+    </main>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

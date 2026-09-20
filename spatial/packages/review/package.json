@@ -1,0 +1,18 @@
+{
+  "name": "@m3xi/review",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": ["./dist/ui/styles.js", "*.css"],
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./model": { "types": "./dist/model/index.d.ts", "default": "./dist/model/index.js" }
+  },
+  "scripts": { "build": "tsc -b" },
+  "dependencies": {
+    "@m3xi/world-core": "*",
+    "@m3xi/spatial-engine": "*",
+    "@m3xi/viewer": "*"
+  }
+}

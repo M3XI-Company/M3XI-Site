@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Operator console — M3XI World Viewer</title>
+    <meta name="description" content="The operator console for M3XI World Viewer: portfolio, builds, quality gate, review and publish, leads, analytics, spend and permanence bundles." />
+    <meta name="color-scheme" content="light dark" />
+    <!-- An operator console is not a public page. It should never be indexed
+         and it should never leak a property reference into a referrer. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="same-origin" />
+    <style>
+      /* Enough to paint the right background before the module loads, so the
+         page does not flash white on a dark screen. */
+      html, body { margin: 0; height: 100%; background: #f3f1ee; color: #16181a; }
+      @media (prefers-color-scheme: dark) {
+        html:not([data-theme="light"]), html:not([data-theme="light"]) body {
+          background: #0f1113; color: #eceae6;
+        }
+      }
+      #boot { padding: 48px 24px; font: 14px/1.6 ui-sans-serif, system-ui, sans-serif; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <div id="console">
+      <div id="boot">
+        <p>Loading the console.</p>
+        <noscript>
+          The operator console needs JavaScript. The published walkthroughs and
+          the permanence bundles do not.
+        </noscript>
+      </div>
+    </div>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

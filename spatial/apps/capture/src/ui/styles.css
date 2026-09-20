@@ -1,0 +1,371 @@
+/*
+ * The capture app's stylesheet.
+ *
+ * Written against one situation rather than against a design system: somebody
+ * is standing in a stranger's hallway, holding a phone in one hand at arm's
+ * length, possibly in poor light, and they get one go at this property. Every
+ * decision below follows from that.
+ *
+ *   TYPE IS LARGE AND THE CUE IS LARGEST. `Cue.headline` is two or three words
+ *   chosen to be read WHILE WALKING, so it is set at up to 4.5rem and is the
+ *   biggest thing on the screen by a wide margin. `Cue.detail` is one sentence
+ *   meant to be read when they STOP, so it is ordinary body text underneath —
+ *   not a second shout. Shouting both would mean neither is read.
+ *
+ *   TARGETS ARE BIG. WCAG 2.2's 2.5.8 asks for 24 by 24 CSS pixels. That is a
+ *   floor for a mouse, not a specification for a thumb reaching across a phone
+ *   while walking, so the controls here are 56 px minimum and the two that
+ *   matter most — declare a mirror, declare a window — are larger again.
+ *
+ *   COLOUR IS NEVER THE MESSAGE. Every tone carries a word as well as a
+ *   colour: the cue says what to do, and the tone only says how urgently. That
+ *   is 1.4.1, and it is also just correct for a screen being read in sunlight.
+ *   All four tone colours are checked against their own surface at 4.5:1 or
+ *   better in both themes.
+ *
+ *   NO GRADIENTS, NO DECORATION, NO ANIMATION. There is nothing here to enjoy.
+ *   A moving element in the corner of a screen somebody is walking by is a
+ *   thing their eye goes to, and their eye should be on the room.
+ *
+ * There is no accessibility overlay in this product and there will not be one.
+ * The markup is right instead.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  --bg: #f3f1ee;
+  --surface: #ffffff;
+  --surface-sunken: #e9e6e1;
+  --text: #16181a;
+  --muted: #55595e;          /* 6.3:1 on --bg */
+  --line: #c9c4bd;
+  --focus: #1a4fd6;
+
+  --act: #8f1d11;            /* 7.9:1 on --bg */
+  --advise: #6b4a05;         /* 7.1:1 on --bg */
+  --ok: #1f5130;             /* 8.2:1 on --bg */
+  --info: #16181a;
+
+  --on-solid: #f7f6f4;
+  --solid: #16181a;
+
+  --radius: 10px;
+  --gutter: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0f1113;
+    --surface: #171a1d;
+    --surface-sunken: #101314;
+    --text: #eceae6;
+    --muted: #a4a9ae;        /* 8.0:1 on --bg */
+    --line: #343a3f;
+    --focus: #8fb6ff;
+
+    --act: #ff9b8d;          /* 9.3:1 on --bg */
+    --advise: #e8c168;       /* 11.0:1 on --bg */
+    --ok: #86d6a3;           /* 11.0:1 on --bg */
+    --info: #eceae6;
+
+    --on-solid: #0f1113;
+    --solid: #eceae6;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #0f1113;
+  --surface: #171a1d;
+  --surface-sunken: #101314;
+  --text: #eceae6;
+  --muted: #a4a9ae;
+  --line: #343a3f;
+  --focus: #8fb6ff;
+  --act: #ff9b8d;
+  --advise: #e8c168;
+  --ok: #86d6a3;
+  --info: #eceae6;
+  --on-solid: #0f1113;
+  --solid: #eceae6;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font: 17px/1.5 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* The operator is walking. A mis-tap that selects a word and pops a
+     magnifier costs them three seconds and their place in the room. */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* The live screen is a fixed viewport with a video behind it; the safe-area
+   insets keep the controls clear of a notch and a home indicator. */
+body {
+  padding:
+    env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+#capture { max-width: 720px; margin: 0 auto; padding: 0 var(--gutter) 40px; }
+#capture.is-live { max-width: none; padding: 0; }
+
+h1 { font-size: clamp(1.5rem, 6vw, 2rem); line-height: 1.15; margin: 24px 0 8px; }
+h2 { font-size: clamp(1.15rem, 4.5vw, 1.4rem); line-height: 1.2; margin: 28px 0 8px; }
+h3 { font-size: 1.05rem; margin: 20px 0 6px; }
+p { margin: 0 0 12px; }
+ul, ol { margin: 0 0 12px; padding-left: 22px; }
+li { margin-bottom: 6px; }
+
+/* Focus is visible everywhere and never removed. */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.c-sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.c-skip {
+  position: absolute; left: var(--gutter); top: -100px;
+  background: var(--surface); color: var(--text); padding: 12px 16px;
+  border: 2px solid var(--focus); border-radius: var(--radius); z-index: 50;
+}
+.c-skip:focus { top: 8px; }
+
+/* --- controls ---------------------------------------------------------- */
+
+.c-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 18px;
+  font: inherit;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  text-align: center;
+  border-radius: var(--radius);
+  border: 2px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.c-btn-label { display: block; }
+.c-btn-sub { display: block; font-weight: 400; font-size: 0.875rem; color: var(--muted); }
+.c-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.c-btn-primary { background: var(--solid); color: var(--on-solid); border-color: var(--solid); }
+.c-btn-primary .c-btn-sub { color: var(--on-solid); opacity: 0.85; }
+.c-btn-danger { background: var(--act); color: var(--bg); border-color: var(--act); }
+.c-btn-danger .c-btn-sub { color: var(--bg); opacity: 0.9; }
+.c-btn-quiet { background: transparent; border-color: transparent; }
+/* The underline marks the ACTION, not the caveat under it: underlining both
+   makes the second line read as a second link. */
+.c-btn-quiet .c-btn-label { text-decoration: underline; }
+
+.c-actions { display: grid; gap: 12px; margin: 20px 0; }
+@media (min-width: 560px) { .c-actions-row { grid-template-columns: 1fr 1fr; } }
+
+.c-field { margin: 0 0 18px; }
+.c-field label { display: block; font-weight: 600; margin-bottom: 6px; }
+.c-input {
+  width: 100%; min-height: 56px; padding: 12px 14px;
+  font: inherit; font-size: 1.0625rem;
+  color: var(--text); background: var(--surface);
+  border: 2px solid var(--line); border-radius: var(--radius);
+}
+.c-hint { margin: 6px 0 0; font-size: 0.9375rem; color: var(--muted); }
+
+.c-select {
+  width: 100%; min-height: 56px; padding: 12px 14px;
+  font: inherit; font-size: 1.0625rem;
+  color: var(--text); background: var(--surface);
+  border: 2px solid var(--line); border-radius: var(--radius);
+}
+
+fieldset { border: 2px solid var(--line); border-radius: var(--radius); margin: 0 0 20px; padding: 12px 14px 4px; }
+legend { font-weight: 600; padding: 0 6px; }
+
+table { width: 100%; border-collapse: collapse; margin: 0 0 16px; }
+caption { text-align: left; font-weight: 600; padding-bottom: 8px; }
+th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; }
+
+/* --- tone -------------------------------------------------------------- */
+
+.c-note {
+  border-left: 6px solid var(--line);
+  background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 12px 14px;
+  margin: 0 0 16px;
+}
+.c-note p:last-child { margin-bottom: 0; }
+.c-note strong { display: block; margin-bottom: 4px; }
+.c-act { border-left-color: var(--act); }
+.c-act strong { color: var(--act); }
+.c-advise { border-left-color: var(--advise); }
+.c-advise strong { color: var(--advise); }
+.c-ok { border-left-color: var(--ok); }
+.c-ok strong { color: var(--ok); }
+.c-info { border-left-color: var(--muted); }
+
+/* --- the live screen --------------------------------------------------- */
+
+/*
+ * The live screen does not follow the light/dark theme, and that is not an
+ * oversight.
+ *
+ * Everything on it sits on a flat dark scrim over a video, so its colours are
+ * a property of the scrim rather than of the operator's system preference. A
+ * light-theme button here would be a white slab on black: legible, and
+ * visually unrelated to everything beside it. The focus ring is overridden for
+ * the same reason -- the light theme's ring is a dark blue that all but
+ * disappears against this background, which would fail the one control anyone
+ * navigating by keyboard depends on.
+ *
+ * Every colour below is checked against the composited scrim, not against
+ * --bg: at 0.82 alpha over black the effective background is about rgb(40,40,
+ * 40), and #f7f6f4 on that is 13:1.
+ */
+.c-live {
+  position: fixed; inset: 0; display: flex; flex-direction: column;
+  overflow: hidden; background: #000;
+  --focus: #8fb6ff;
+}
+
+.c-live .c-btn {
+  background: rgba(247, 246, 244, 0.14);
+  color: #f7f6f4;
+  border-color: rgba(247, 246, 244, 0.5);
+}
+.c-live .c-btn-sub { color: #ded9d2; }
+.c-live .c-btn-danger { background: #ff9b8d; color: #14100f; border-color: #ff9b8d; }
+.c-live .c-btn-danger .c-btn-sub { color: #14100f; opacity: 0.9; }
+
+.c-preview-holder { position: absolute; inset: 0; }
+
+.c-preview {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; background: #000;
+}
+
+/*
+ * Everything above the video sits on a flat scrim rather than a gradient.
+ * A gradient's contrast varies across the element, which means the contrast
+ * of the text on it cannot be stated -- and this text has to be readable in a
+ * bright hallway over whatever happens to be in shot.
+ */
+.c-live-top, .c-live-bottom {
+  position: relative;
+  background: rgba(8, 9, 10, 0.82);
+  color: #f7f6f4;
+  padding: 10px var(--gutter);
+}
+.c-live-top { flex: 0 0 auto; padding-top: max(10px, env(safe-area-inset-top)); }
+/*
+ * The controls are never squeezed and never scrolled off. `flex: 0 0 auto` in
+ * a column that is `overflow: hidden` means the thing that gives is the space
+ * BETWEEN the cue and the controls -- which is the video preview, and the
+ * preview is the one element here nobody is reading.
+ */
+.c-live-bottom { flex: 0 0 auto; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+
+/* One `margin-top: auto` in the column, here, so the cue sits directly above
+   the controls and the preview takes whatever is left. */
+.c-cue {
+  position: relative;
+  flex: 0 0 auto;
+  margin-top: auto;
+  padding: 16px var(--gutter);
+  background: rgba(8, 9, 10, 0.82);
+  color: #f7f6f4;
+}
+.c-cue-headline {
+  margin: 0;
+  font-size: clamp(2.25rem, 11vw, 4.5rem);
+  line-height: 1.02;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+.c-cue-detail { margin: 6px 0 0; font-size: 1rem; line-height: 1.35; color: #ded9d2; }
+/* The tone marks the cue with a rule, and the words still carry the meaning. */
+.c-cue-act { border-left: 8px solid #ff9b8d; }
+.c-cue-advise { border-left: 8px solid #e8c168; }
+.c-cue-ok { border-left: 8px solid #86d6a3; }
+.c-cue-act .c-cue-headline { color: #ff9b8d; }
+.c-cue-advise .c-cue-headline { color: #e8c168; }
+
+.c-confidence { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; font-size: 0.9375rem; }
+.c-confidence b { font-weight: 650; }
+.c-confidence-act b { color: #ff9b8d; }
+.c-confidence-advise b { color: #e8c168; }
+.c-confidence-ok b { color: #86d6a3; }
+
+.c-elapsed { font-variant-numeric: tabular-nums; font-weight: 650; }
+
+.c-chips { display: flex; gap: 8px; overflow-x: auto; padding: 6px 0; margin: 0; list-style: none; }
+.c-chips li { margin: 0; }
+.c-chip {
+  min-height: 48px; padding: 8px 14px; white-space: nowrap;
+  font: inherit; font-size: 0.9375rem; font-weight: 600;
+  background: rgba(247, 246, 244, 0.12); color: #f7f6f4;
+  border: 2px solid rgba(247, 246, 244, 0.4); border-radius: 24px; cursor: pointer;
+}
+.c-chip[aria-pressed='true'] { background: #f7f6f4; color: #0f1113; border-color: #f7f6f4; }
+.c-chip-state { font-weight: 400; opacity: 0.85; }
+
+.c-declare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0 0; }
+/* The two highest-value controls on the screen, and the tallest. */
+.c-declare .c-btn { min-height: 68px; }
+
+.c-dial { display: flex; align-items: center; gap: 10px; font-size: 0.9375rem; }
+.c-dial svg { flex: none; }
+
+.c-live-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+
+/* --- verdict and upload ------------------------------------------------ */
+
+.c-verdict-banner { border: 3px solid var(--line); border-radius: var(--radius); padding: 18px 16px; margin: 16px 0 24px; }
+.c-verdict-banner h2 { margin: 0 0 6px; font-size: clamp(1.75rem, 8vw, 2.5rem); }
+.c-verdict-no_go { border-color: var(--act); }
+.c-verdict-no_go h2 { color: var(--act); }
+.c-verdict-fix { border-color: var(--advise); }
+.c-verdict-fix h2 { color: var(--advise); }
+.c-verdict-go { border-color: var(--ok); }
+.c-verdict-go h2 { color: var(--ok); }
+
+.c-finding { border: 2px solid var(--line); border-left-width: 6px; border-radius: 0 var(--radius) var(--radius) 0; padding: 12px 14px; margin: 0 0 12px; background: var(--surface); }
+.c-finding-blocking { border-left-color: var(--act); }
+.c-finding-review { border-left-color: var(--advise); }
+.c-finding-note { border-left-color: var(--muted); }
+.c-finding h3 { margin: 0 0 4px; font-size: 1rem; }
+.c-finding .c-measure { font-size: 0.9375rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.c-figures { list-style: none; padding: 0; margin: 0 0 16px; }
+.c-figures li { padding: 8px 0; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+
+.c-progress { width: 100%; height: 14px; border-radius: 7px; background: var(--surface-sunken); border: 1px solid var(--line); overflow: hidden; }
+.c-progress-fill { height: 100%; background: var(--solid); }
+.c-progress-text { font-variant-numeric: tabular-nums; font-weight: 650; }
+
+.c-muted { color: var(--muted); }
+.c-small { font-size: 0.9375rem; }
+
+details { border: 2px solid var(--line); border-radius: var(--radius); padding: 10px 14px; margin: 0 0 16px; background: var(--surface); }
+summary { cursor: pointer; font-weight: 600; min-height: 32px; padding: 6px 0; }
+
+/*
+ * Nothing in this app animates. The rule is kept anyway so that a future
+ * addition cannot slip a transition past a user who has asked for none.
+ */
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

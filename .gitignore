@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# TypeScript project-reference build state. `tsc -b` writes one per package in
+# spatial/; they are a cache of what was already compiled, they change on every
+# build, and a stale one checked out onto another machine makes tsc skip work it
+# should redo.
+*.tsbuildinfo
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

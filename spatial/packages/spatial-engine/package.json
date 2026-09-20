@@ -1,0 +1,16 @@
+{
+  "name": "@m3xi/spatial-engine",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./scene-graph": { "types": "./dist/sceneGraph.d.ts", "default": "./dist/sceneGraph.js" },
+    "./math": { "types": "./dist/math/index.d.ts", "default": "./dist/math/index.js" },
+    "./fixtures/flat": { "types": "./dist/__fixtures__/flat.d.ts", "default": "./dist/__fixtures__/flat.js" }
+  },
+  "scripts": { "build": "tsc -b" },
+  "dependencies": { "@m3xi/world-core": "*" }
+}

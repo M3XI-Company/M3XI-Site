@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": { "outDir": "dist", "rootDir": "src" },
+  "include": ["src/**/*"],
+  "//": "Tests are excluded from the published build: they import vitest and the edge-function handlers, neither of which belongs in dist. They are type-checked by tsconfig.test.json.",
+  "exclude": ["src/__tests__/**/*"],
+  "references": [{ "path": "../world-core" }, { "path": "../spatial-engine" }]
+}

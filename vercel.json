@@ -282,6 +282,34 @@
     {
       "source": "/invite/:code([A-Za-z0-9]{6,16})/",
       "destination": "/invite/index.html"
+    },
+    {
+      "source": "/view",
+      "destination": "/spatial/apps/view/index.html"
+    },
+    {
+      "source": "/view/",
+      "destination": "/spatial/apps/view/index.html"
+    },
+    {
+      "source": "/console",
+      "destination": "/spatial/apps/console/index.html"
+    },
+    {
+      "source": "/console/",
+      "destination": "/spatial/apps/console/index.html"
+    },
+    {
+      "source": "/console/:path*",
+      "destination": "/spatial/apps/console/index.html"
+    },
+    {
+      "source": "/capture",
+      "destination": "/spatial/apps/capture/index.html"
+    },
+    {
+      "source": "/capture/",
+      "destination": "/spatial/apps/capture/index.html"
     }
   ]
 }

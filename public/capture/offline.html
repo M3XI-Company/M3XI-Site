@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<!-- viewport-fit=cover so the safe-area insets below are real numbers on a
+     notched phone; without it env(safe-area-inset-*) resolves to 0 and the
+     "Try again" button can sit under the home indicator. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#19150F">
+<title>M3XI Capture is offline</title>
+<!--
+  Shown by sw.js when the operator opens the app, the shell is not on the
+  phone, and there is no network. That is the worst moment this product has:
+  somebody is standing in a stranger's hallway holding a phone that will not
+  start, and the question in their head is not "why" -- it is "have I lost the
+  walkthrough". This page answers that question first and explains second.
+
+  Three rules it follows, none of them decorative:
+
+  NOT ONE BYTE FROM THE NETWORK. No webfont, no image, no script, no icon.
+  Playfair Display and Inter are loaded from Google Fonts everywhere else on
+  this site and neither of them exists on a phone with no connection, so the
+  headings use the same Georgia fallback index.html already declares and the
+  body uses the system stack. A page about being offline that waits three
+  seconds for a font it will never get is a page that has not understood its
+  job.
+
+  NO JAVASCRIPT. The one control is a link back to the app, not a button
+  calling location.reload(), so it works even if script is blocked and it can
+  be long-pressed and opened the way the operator expects.
+
+  BIG. Arm's length, one hand, often poor light. Body copy is 19px and the
+  lede 21px; nothing here is 13px grey-on-grey. Colours are the site's own
+  --ink (#19150F) and --paper (#F0E8D8), which measure 14.9:1 against each
+  other, and --gold (#B6892F) for the eyebrow at 5.7:1. WCAG AA wants 4.5:1
+  for body text; all three clear it without an overlay, a widget or a toggle.
+-->
+<style>
+  :root {
+    /* index.html :root, verbatim. Do not invent near-misses of these. */
+    --ink: #19150F;
+    --paper: #F0E8D8;
+    --gold: #B6892F;
+    --rule: rgba(240, 232, 216, .22);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--paper);
+    font: 400 19px/1.55 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    /* Generous side padding, plus whatever the notch and home indicator need.
+       The 20px floor keeps the measure comfortable down to a 320px screen,
+       which is the narrowest WCAG 1.4.10 asks the layout to reflow to. */
+    padding:
+      calc(28px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right))
+      calc(28px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));
+  }
+
+  main { max-width: 34rem; margin: 0 auto; }
+
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .26em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0 0 18px;
+  }
+
+  h1 {
+    /* Georgia is the serif index.html falls back to when Playfair Display has
+       not loaded, so this reads as the same voice as the rest of the site
+       rather than as an error page from somewhere else. */
+    font: 500 clamp(27px, 7.5vw, 38px)/1.2 Georgia, 'Times New Roman', serif;
+    letter-spacing: -.012em;
+    margin: 0 0 18px;
+    text-wrap: balance;
+  }
+
+  .lede { font-size: 21px; margin: 0 0 30px; }
+
+  h2 {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin: 30px 0 12px;
+    padding-top: 22px;
+    border-top: 1px solid var(--rule);
+  }
+
+  ul { margin: 0; padding-left: 22px; }
+  li { margin: 0 0 12px; }
+  li:last-child { margin-bottom: 0; }
+
+  b { font-weight: 600; }
+
+  .action {
+    display: block;
+    /* min-height rather than height: at 200% text size (WCAG 1.4.4) the label
+       has to be able to make the box taller instead of spilling out of it. */
+    min-height: 60px;
+    margin: 34px 0 0;
+    padding: 16px 20px;
+    border: 2px solid var(--paper);
+    border-radius: 10px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 21px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  /* 3px, offset, in the paper colour -- visible against both the ink page and
+     the paper button, which a 1px browser default outline is not. */
+  :focus-visible { outline: 3px solid var(--paper); outline-offset: 3px; border-radius: 6px; }
+  .action:focus-visible { outline-offset: 4px; }
+
+  .note {
+    margin: 26px 0 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    font-size: 17px;
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">M3XI Capture</p>
+
+  <h1>No signal, and no copy of the app on this phone yet</h1>
+
+  <p class="lede">
+    Nothing you have already recorded is lost. A finished walkthrough is stored
+    on this phone and uploads by itself as soon as there is a connection.
+  </p>
+
+  <h2>What is still true</h2>
+  <ul>
+    <li>
+      Any walkthrough you have recorded is <b>on this phone</b>, waiting. You do
+      not need to keep this screen open for it to go.
+    </li>
+    <li>
+      An upload that was interrupted <b>carries on from where it stopped</b>. It
+      does not start again from the beginning.
+    </li>
+    <li>
+      Keep the app installed and <b>do not clear this browser's data for
+      m3xi.com</b> until the upload has finished. That is where the recording
+      lives.
+    </li>
+  </ul>
+
+  <h2>What you cannot do here</h2>
+  <ul>
+    <li>Start a new walkthrough. The app's own files have not reached this phone.</li>
+    <li>Sign in, or load the property you were sent.</li>
+    <li>Finish an upload. It will resume on its own; it cannot be forced from here.</li>
+  </ul>
+
+  <a class="action" href="/capture/">Try again</a>
+
+  <p class="note">
+    Somewhere with a signal — a window, the street, or mobile data switched
+    back on — open the app once. After that it opens without a connection.
+  </p>
+</main>
+</body>
+</html>

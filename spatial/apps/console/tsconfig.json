@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "types": ["vite/client"],
+    "paths": {
+      "@m3xi/console-ui": ["../../packages/console-ui/src/index.ts"],
+      "@m3xi/viewer": ["../../packages/viewer/src/index.ts"],
+      "@m3xi/spatial-engine": ["../../packages/spatial-engine/src/index.ts"],
+      "@m3xi/spatial-engine/fixtures/flat": ["../../packages/spatial-engine/src/__fixtures__/flat.ts"],
+      "@m3xi/world-core": ["../../packages/world-core/src/types.ts"]
+    }
+  },
+  "include": ["src/**/*"]
+}

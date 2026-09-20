@@ -1,0 +1,40 @@
+{
+  "id": "/capture/",
+  "name": "M3XI Capture",
+  "short_name": "Capture",
+  "description": "Record a property walkthrough and find out whether it will reconstruct before you leave the property.",
+  "lang": "en-GB",
+  "dir": "ltr",
+  "start_url": "/capture/",
+  "scope": "/capture/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#19150F",
+  "theme_color": "#19150F",
+  "icons": [
+    {
+      "src": "/capture/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/capture/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/capture/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/capture/apple-touch-icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
