@@ -1,6 +1,19 @@
 {
   "redirects": [
     {
+      "source": "/:path((?!\\.well-known/).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": {
+            "eq": "m3xi.com"
+          }
+        }
+      ],
+      "destination": "https://www.m3xi.com/:path*",
+      "permanent": false
+    },
+    {
       "source": "/cornelia.html",
       "destination": "/",
       "permanent": false
@@ -284,11 +297,11 @@
       "destination": "/invite/index.html"
     },
     {
-      "source": "/p/:code([A-Z2-9]{10})",
+      "source": "/p/:code([A-Za-z0-9]{4,16})",
       "destination": "/p/index.html"
     },
     {
-      "source": "/p/:code([A-Z2-9]{10})/",
+      "source": "/p/:code([A-Za-z0-9]{4,16})/",
       "destination": "/p/index.html"
     },
     {
@@ -321,6 +334,15 @@
     }
   ],
   "headers": [
+    {
+      "source": "/.well-known/apple-app-site-association",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    },
     {
       "source": "/staff/(.*)",
       "headers": [

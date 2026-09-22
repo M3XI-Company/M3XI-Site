@@ -185,6 +185,17 @@ form.cf label{font-size:12px;color:var(--ink2);display:block;margin:0 0 6px}
 form.cf input,form.cf select,form.cf textarea{width:100%;padding:12px 14px;font:inherit;color:var(--ink);background:var(--white);border:1px solid var(--line);border-radius:11px;outline:none;margin-bottom:13px}
 form.cf input:focus,form.cf select:focus,form.cf textarea:focus{border-color:var(--blue)}
 @media(max-width:820px){.contact-grid{grid-template-columns:1fr}}
+/* "A design copies my work": one card of its own, below the general ones, so
+   a rights holder is not sent through the support form. */
+.copied{max-width:760px;scroll-margin-top:84px}
+.copied .k{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600}
+.copied h2{font-size:clamp(24px,3vw,32px);margin:6px 0 12px}
+.copied p,.copied li{color:#403b32;font-size:15px}
+.copied ul{margin:0 0 16px;padding-left:20px}
+.copied li{margin:5px 0}
+.copied a.email{display:inline-block;padding:8px 0;border-bottom:1px solid var(--line)}
+.copied .aside{color:var(--ink2);font-size:14px;margin:0}
+@media(max-width:720px){.copied{scroll-margin-top:110px}}
 
 /* footer */
 footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);font-size:13px;background:rgba(246,240,227,.6)}
@@ -238,6 +249,23 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
     </form>
   </div>
 </div></div></section>
+
+<section style="padding-top:0"><div class="wrap">
+  <div class="contact-card copied" id="copied">
+    <div class="k">CallMe card designs</div>
+    <h2>A design copies <em>my work.</em></h2>
+    <p>If a card design on CallMe uses your artwork, your characters or your logo without your permission, tell us. A person on our team reads every report, and when a design is taken down, every copy of it goes too.</p>
+    <a class="email" href="mailto:safety@m3xi.com?subject=A%20design%20copies%20my%20work">safety@m3xi.com</a>
+    <p style="margin:14px 0 6px">Please include:</p>
+    <ul>
+      <li>what the design looks like, its title if you saw it, and a screenshot of the card if you have one;</li>
+      <li>your original work, or a link to where it was first published, and roughly when you made it;</li>
+      <li>your name, how to reach you, and whether the work is yours or you are acting for the person or company it belongs to;</li>
+      <li>a line saying that what you have sent is true, as far as you know.</li>
+    </ul>
+    <p class="aside">On CallMe and offered a copy of it? You can also report it from the gift letter: choose <b>It copies somebody&rsquo;s work</b>. If a design of yours was taken down and you believe it is your own work, email the same address with what shows it is yours, and a person will look again.</p>
+  </div>
+</div></section>
 <script>
  document.getElementById('cf').addEventListener('submit',function(e){e.preventDefault();
   var n=document.getElementById('cf-name').value,em=document.getElementById('cf-email').value,

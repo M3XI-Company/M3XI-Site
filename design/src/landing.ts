@@ -50,7 +50,7 @@ export function landing(host: HTMLElement): () => void {
       // typing the hash. It is linked from the step it belongs to.
       step('1', 'Posters are made in the app', 'Open CallMe and go to Settings, then My poster. Choose a paper, put your photos and words on it, and put it up. Everything is drawn on the phone, so you see it exactly as your visitors will.',
         { href: '#/poster', text: 'More about posters ›' }),
-      step('2', 'Cards are made in the app too', 'Settings, then Design your MeCards. Pick a paper, add your stickers and your words, and the card is yours. It is the card people see when you match.'),
+      step('2', 'Cards are made in the app too', 'Go to Settings, then My poster, then Edit my cards. Pick a paper, add your stickers and your words, and the card is yours. It is the card people see when you match.'),
       step('3', 'Your designs live in your collection', 'Everything you make sits in your collection in the app, next to the cards you have earned. That is where a design becomes something you can give.'),
       step('4', 'Give a copy to someone you have talked to', 'Open your collection, choose a design and give a copy to a person you met on a call. Each design is an edition of twenty copies, and once the twenty are out, that is the whole edition.'),
     ]),

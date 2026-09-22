@@ -123,6 +123,20 @@ section{padding:72px 0}
 .steps h3{font-size:22px;margin-bottom:8px}
 .steps p{margin:0;color:var(--ink2);font-size:15.5px}
 
+/* make your own — three taped sheets on cream stock, the house letter of
+   /events/ and /design/ (1.5px ink edge, radius 12, a strip of tape) */
+.makes{display:grid;grid-template-columns:repeat(3,1fr);gap:30px 22px;list-style:none;margin:0;padding:10px 0 0}
+@media (max-width:820px){.makes{grid-template-columns:1fr;gap:30px}}
+.sheet{position:relative;background:var(--white);border:1.5px solid rgba(25,21,15,.78);border-radius:12px;
+  padding:26px 22px 22px;box-shadow:0 24px 40px -34px rgba(43,66,87,.55)}
+.sheet:nth-child(3n+1){transform:rotate(-.6deg)} .sheet:nth-child(3n+2){transform:rotate(.5deg)}
+.sheet .tape{position:absolute;top:-11px;left:26px;width:86px;height:22px;background:rgba(201,169,122,.55);transform:rotate(-4deg)}
+.sheet .where{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 6px}
+.sheet h3{font-size:22px;margin-bottom:8px}
+.sheet p{margin:0;color:var(--ink2);font-size:15.5px}
+.make-foot{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;margin-top:30px}
+.chip{display:inline-block;background:var(--white);border:1px solid var(--line2);border-radius:8px;padding:6px 12px;font-size:14px;color:var(--ink2);margin:0}
+
 /* screens */
 .screens{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:6px}
 @media (max-width:820px){.screens{grid-template-columns:repeat(2,minmax(0,240px));justify-content:center}}
@@ -246,31 +260,43 @@ footer.site{border-top:1px solid var(--line);padding:28px 0 36px;font-size:14px;
   </div>
 </div></section>
 
-<!-- Making cards. Until now the whole of it on this page was one nav word,
-     "Create", with nothing beside it: somebody could read the pitch and leave
-     without ever learning that they can design a card at all. No prices, no
-     balances and no buy links here or anywhere else on the site. -->
+<!-- Making your own. Cards AND posters: the front page used to mention making
+     things only as the nav word "Create", and then only cards, so somebody
+     could read the whole pitch without learning that the wall behind them is
+     theirs to make too. Wording follows the studio's own page
+     (design/src/landing.ts). No prices, no balances and no buy links here or
+     anywhere else on the site: "comes with CallMe Premium, in the app" is the
+     whole of it. -->
 <section id="create"><div class="wrap">
   <div class="sec-head">
     <p class="eyebrow">Make your own</p>
-    <h2>Cards you design, <em>given by hand.</em></h2>
-    <p>A MeCard is what somebody sees when they meet you. You can design one of your own — on a computer, at your own pace — and give copies of it to the people you have actually talked to.</p>
+    <h2>Your own cards, <em>your own wall.</em></h2>
+    <p>A MeCard is what people see when they meet you on CallMe. A poster is the wall behind you. Both are yours to make, and a card you design can be given to the people you talk to.</p>
   </div>
-  <ol class="steps">
-    <li>
-      <h3>Design it on a computer</h3>
-      <p>Bring a picture you made yourself, or build one out of the four papers and the stickers. You set where the wearer's own face sits on your card. Sign in by scanning a code with your phone — there is no password.</p>
+  <ul class="makes">
+    <li class="sheet">
+      <span class="tape" aria-hidden="true"></span>
+      <p class="where">In the app</p>
+      <h3>Put up a poster</h3>
+      <p>Go to Settings, then My poster. Choose a paper, put your photos and words on it, and put it up. It is drawn on your phone, so you see it exactly as your visitors will.</p>
     </li>
-    <li>
-      <h3>It lands in your collection</h3>
-      <p>Every design is read by a person before anyone can be given one. When it passes, it appears in your collection in the app, in with the cards you have earned.</p>
+    <li class="sheet">
+      <span class="tape" aria-hidden="true"></span>
+      <p class="where">In the app</p>
+      <h3>Make your cards</h3>
+      <p>From your poster, choose Edit my cards. Pick a paper, add stickers and your words, and the card people see when you match is yours.</p>
     </li>
-    <li>
-      <h3>Give a copy to someone</h3>
-      <p>Twenty copies of a design, ever. You give them from your phone, to people you have met on a call — and the one who keeps it wears it on a card of their own.</p>
+    <li class="sheet">
+      <span class="tape" aria-hidden="true"></span>
+      <p class="where">On a computer</p>
+      <h3>Design card art of your own</h3>
+      <p>Bring a picture you made yourself, or build one from the papers and stickers, and sign in with your phone. A person reads every design. Then it lands in your collection, and you can give up to twenty copies to people you have met on a call.</p>
     </li>
-  </ol>
-  <p style="margin-top:22px"><a href="/design/">See how making a card works &rsaquo;</a></p>
+  </ul>
+  <div class="make-foot">
+    <a class="btn btn-ghost" href="/design/">See how making a card works</a>
+    <p class="chip">The creator studio comes with CallMe Premium, in the app.</p>
+  </div>
 </div></section>
 
 <section id="questions" class="band"><div class="wrap qa">
