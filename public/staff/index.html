@@ -455,11 +455,20 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
           el('span', { class: 'lbtn', text: 'See the event' }),
         ]));
       }
-      title.addEventListener('input', function () { if (!slugTouched) slug.value = slugify(title.value); renderPreview(); });
+      // "In an hour: " is 12 characters of the letter's 80, so a title over 68 is cut there.
+      var titleCount = el('div', { class: 'muted' });
+      function countTitle() {
+        var n = title.value.trim().length;
+        titleCount.textContent = n + ' / 80' + (n > 68 ? ' — the reminder letter ("In an hour: …") will cut this short' : '');
+        titleCount.style.color = n > 68 ? 'var(--danger)' : '';
+      }
+      title.addEventListener('input', function () { if (!slugTouched) slug.value = slugify(title.value); countTitle(); renderPreview(); });
       slug.addEventListener('input', function () { slugTouched = true; });
       body.addEventListener('input', renderPreview);
       form.appendChild(el('h3', { text: e.id ? 'Edit event' : 'New event' }));
       form.appendChild(f('Title (80)', title));
+      form.appendChild(titleCount);
+      countTitle();
       form.appendChild(f('Web address — m3xi.com/events/#…', slug));
       form.appendChild(f('What it is (800)', body));
       form.appendChild(el('div', { class: 'grid2' }, [f('Starts', starts), f('Ends (optional)', ends), f('Where (optional)', where), f('Status', status)]));
