@@ -94,7 +94,10 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
   </section>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<!-- Pinned and hash-checked: the staff console holds a staff session, so a
+     changed file on the CDN must fail to load rather than run. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"
+  integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
 <script>
 (function () {
   var URL_ = 'https://cwjspmhgspiavyzrtosl.supabase.co';
