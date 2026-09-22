@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Make your own cards — CallMe by M3XI</title>
+<meta name="description" content="How CallMe cards and posters are made, and the creator studio where Premium members design card art on a big screen." />
+<!-- Indexed on purpose. `#/` is the page that explains to everybody how making
+     a card works and sends them to the app; hiding it from search left the
+     whole creator story reachable only from this site's own nav. The studio
+     itself needs a phone to open, so there is nothing private here.
+     /p/ keeps its noindex — that one really is a one-time code. -->
+<link rel="icon" type="image/png" href="/M.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F0E8D8; --panel:#FBF6EC; --white:#FFFDF8;
+  --ink:#19150F; --ink2:#605747; --ink3:#8A8173;
+  --blue:#2B4257; --gold:#B6892F;
+  --rose:#B7566B; --rose-deep:#963F54; --rose-soft:#F3DEDF;
+  --danger:#B3402A; --ok:#2E7D4F;
+  --line:rgba(25,21,15,.14); --line2:rgba(25,21,15,.22);
+  --maxw:1100px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{margin:0;color:var(--ink);font:400 16px/1.65 'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;background-color:#EFE7D6;
+  background-image:
+    linear-gradient(rgba(43,66,87,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(43,66,87,.045) 1px, transparent 1px),
+    radial-gradient(1200px 700px at 85% -10%, rgba(255,253,247,.92), transparent 60%);
+  background-size:30px 30px,30px 30px,100% 100%}
+a{color:inherit}
+img{max-width:100%;height:auto;display:block}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+h1,h2,h3,h4{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;margin:0;text-wrap:balance}
+h1 em,h2 em{font-style:italic;font-weight:500;color:var(--rose)}
+.eyebrow{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 14px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
+.jp{font-family:'Noto Serif JP',serif;font-weight:500;font-size:.8em;color:var(--gold);letter-spacing:.05em}
+:focus-visible{outline:3px solid rgba(183,86,107,.45);outline-offset:3px;border-radius:4px}
+.visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+/* Every display rule below is a class, and a class beats the browser's own
+   [hidden] rule. Without this line the studio tabs show to a signed-out
+   visitor. */
+[hidden]{display:none!important}
+
+/* header */
+header.site{position:sticky;top:0;z-index:20;background:rgba(240,232,216,.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;height:66px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:'Playfair Display',serif;font-weight:600;font-size:20px}
+.brand img{width:30px;height:30px;border-radius:8px}
+.menu{display:flex;align-items:center;gap:6px}
+.menu a{text-decoration:none;font-size:14px;font-weight:500;color:var(--ink2);padding:8px 12px;border-radius:8px}
+.menu a:hover{color:var(--ink);background:rgba(25,21,15,.05)}
+.menu a[aria-current="page"]{color:var(--ink);background:rgba(25,21,15,.05)}
+.menu a.get{background:var(--ink);color:var(--white);padding:9px 16px}
+.menu a.get:hover{background:var(--rose-deep)}
+@media (max-width:900px){.menu{gap:2px}.menu a:not(.get){padding:8px 9px}}
+@media (max-width:760px){
+  .nav{position:relative;flex-wrap:wrap;row-gap:0;height:auto;padding-top:10px}
+  .menu{flex:0 0 calc(100% + 18px);margin:4px -9px 0;padding:0 28px 6px 0;overflow-x:auto;scrollbar-width:none}
+  .nav::after{content:"";position:absolute;top:46px;bottom:0;right:15px;width:40px;pointer-events:none;
+    background:linear-gradient(90deg,rgba(240,232,216,0),rgba(240,232,216,.96) 80%)}
+  .menu::-webkit-scrollbar{display:none}
+  .menu a:not(.get){flex:none;white-space:nowrap}
+  .menu a.get{position:absolute;right:24px;top:6px}
+}
+
+/* studio tabs */
+.tabsbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:14px 0 0}
+.tabsbar a{text-decoration:none;font:600 14px 'Inter';padding:8px 14px;border-radius:10px;border:1.5px solid var(--ink);background:var(--white);color:var(--ink)}
+.tabsbar a[aria-current="page"]{background:var(--rose);border-color:var(--rose-deep);color:#fff}
+.tabsbar .who{color:var(--ink2);font-size:14px;margin-left:auto}
+
+/* typography blocks */
+.intro{padding:46px 0 10px}
+.intro h1{font-size:clamp(34px,5.2vw,58px);line-height:1.05}
+.lede{color:var(--ink2);font-size:clamp(16px,1.6vw,19px);max-width:620px;margin:18px 0 0}
+.band-sheet{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px 22px;margin:26px 0}
+.band-sheet h2{font-size:26px;margin-bottom:10px}
+.band-sheet p{color:var(--ink2)}
+.note{max-width:640px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;color:var(--ink2);font-size:15px;margin:26px 0 8px}
+.note b{color:var(--ink)}
+.muted{color:var(--ink2)}
+.small{font-size:13.5px}
+.warn{color:var(--danger)}
+.state{color:var(--ink2);padding:18px 0}
+.plainlist{color:var(--ink2);margin:10px 0 0;padding-left:20px}
+.plainlist li{margin:4px 0}
+.steps{list-style:none;margin:14px 0 18px;padding:0;display:grid;gap:14px}
+.step{display:flex;gap:14px;align-items:flex-start}
+.stepno{flex:none;width:34px;height:34px;border-radius:10px;border:1.5px solid var(--ink);background:var(--white);
+  display:flex;align-items:center;justify-content:center;font:600 15px 'Playfair Display',Georgia,serif}
+.step h3{font-size:18px;margin-bottom:2px}
+.step p{margin:0;color:var(--ink2)}
+.chip{display:inline-block;background:var(--white);border:1px solid var(--line2);border-radius:8px;padding:5px 11px;font-size:13.5px;color:var(--ink2)}
+.chip.good{border-color:rgba(46,125,79,.5);color:var(--ok)}
+.chip.warn{border-color:rgba(179,64,42,.5);color:var(--danger)}
+.chip.wait{border-color:rgba(182,137,47,.55);color:var(--gold)}
+
+/* letters */
+.letter{position:relative;background:var(--white);border:1.5px solid rgba(25,21,15,.78);border-radius:12px;
+  padding:30px 24px 22px;box-shadow:0 24px 40px -34px rgba(43,66,87,.55);margin:26px 0}
+.letter.wide{max-width:680px}
+.letter h2{font-size:24px;line-height:1.2;margin:0 0 10px}
+.letter p{color:var(--ink2);margin:0 0 12px}
+.letter .tape{position:absolute;top:-11px;left:26px;width:86px;height:22px;background:rgba(201,169,122,.55);transform:rotate(-4deg)}
+.letter .seal{position:absolute;top:-17px;right:24px;width:34px;height:34px;border-radius:50%;background:#B3402A;
+  box-shadow:0 2px 5px rgba(0,0,0,.22)}
+/* align-items:flex-start + margin:auto, not align-items:center: a letter taller
+   than the shade used to overflow equally top and bottom, which put its title
+   and its first lines above the viewport with nothing to scroll. This keeps it
+   centred while it fits and scrollable when it does not. */
+.shade{position:fixed;inset:0;background:rgba(25,21,15,.42);display:flex;align-items:flex-start;justify-content:center;
+  padding:20px;z-index:60;overflow-y:auto;overscroll-behavior:contain}
+.letter.pop{max-width:440px;margin:auto;width:100%;max-height:calc(100vh - 40px);overflow-y:auto}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font:600 14px 'Inter';
+  padding:10px 15px;border-radius:10px;border:1.5px solid var(--ink);background:var(--panel);color:var(--ink);cursor:pointer;min-height:44px}
+.btn:hover{background:var(--white)}
+.btn.rose{background:var(--rose);border-color:var(--rose-deep);color:#fff}
+.btn.rose:hover{background:var(--rose-deep)}
+.btn.big{font-size:15.5px;padding:12px 20px}
+.btn[disabled]{opacity:.5;cursor:default}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#231C18;color:#fff;padding:11px 16px;
+  border-radius:10px;font-size:14px;z-index:70;max-width:90vw}
+
+/* signing in */
+.pairbox{display:grid;gap:14px;justify-items:start}
+.qrpaper{background:var(--white);border:1.5px solid var(--ink);border-radius:8px;padding:12px;width:min(230px,62vw)}
+.qrpaper svg{width:100%;height:auto;display:block}
+.bigcode{font:600 clamp(26px,5vw,38px)/1.1 'Playfair Display',Georgia,serif;letter-spacing:.1em}
+.matchbox{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;max-width:420px}
+.matchno{font:600 40px/1.1 'Playfair Display',Georgia,serif;color:var(--rose);letter-spacing:.06em;margin:4px 0}
+.fuse{position:relative;width:min(340px,86vw);height:16px;background:#2A2320;border:1.5px solid var(--ink);border-radius:4px;overflow:hidden}
+.fuse .paper{display:block;height:100%;background:var(--white);
+  box-shadow:3px 0 0 0 #E0761F,6px 0 7px 1px rgba(224,118,31,.75);transition:width .25s linear}
+.fusewords{color:var(--ink2);font-size:13.5px;margin-top:6px}
+.hello{display:flex;gap:14px;align-items:center}
+.mug{width:76px;height:76px;border-radius:10px;object-fit:cover;border:1.5px solid var(--ink)}
+.mug.blank{background:#E7DECD;border:1.5px solid var(--ink)}
+.hello h3{font-size:21px}
+
+/* the card twin */
+.cardtwin{position:relative;width:100%;aspect-ratio:3/4;background:var(--white);
+  border:1.5px solid rgba(25,21,15,.78);border-radius:12px;overflow:hidden;
+  box-shadow:0 24px 40px -34px rgba(43,66,87,.55);container-type:inline-size}
+.cardtwin .art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+/* --ink2, not --ink3: on the hatch this is the first instruction the editor
+   gives, and #8A8173 came out at about 3.3:1 against the lighter stripe. */
+.cardtwin .art.empty{display:flex;align-items:center;justify-content:center;color:var(--ink2);font-size:14px;
+  background:repeating-linear-gradient(45deg,#F4EEE2 0 12px,#EFE7D6 12px 24px)}
+.cardtwin .win{position:absolute;overflow:hidden;border:2px solid rgba(25,21,15,.6);background:#E7DECD}
+.cardtwin.live .win{cursor:move;touch-action:none}
+.cardtwin .facemark{width:100%;height:100%;display:block}
+.cardtwin .wintag{position:absolute;left:0;right:0;bottom:0;background:var(--white);color:var(--ink2);
+  font-size:9px;font-size:2.2cqw;letter-spacing:.14em;text-transform:uppercase;text-align:center;padding:2px 0}
+.cardtwin .grip{position:absolute;right:-11px;bottom:-11px;width:24px;height:24px;background:var(--white);
+  border:2px solid var(--ink);border-radius:4px;cursor:nwse-resize;touch-action:none}
+.cardtwin .band{position:absolute;left:0;right:0;height:18%;background:var(--white);display:flex;
+  align-items:center;justify-content:space-between;gap:3cqw;padding:0 5%}
+.cardtwin .band.bottom{bottom:0}
+.cardtwin .band.top{top:0}
+.cardtwin .tear{position:absolute;left:0;right:0;height:9px;
+  background:linear-gradient(45deg,var(--white) 50%,transparent 50%) 0 0/14px 9px repeat-x,
+             linear-gradient(-45deg,var(--white) 50%,transparent 50%) 7px 0/14px 9px repeat-x}
+.cardtwin .band.bottom .tear{top:-8px}
+.cardtwin .band.top .tear{bottom:-8px;transform:scaleY(-1)}
+/* The band, in the app's order: the WEARER's name big, then the design's
+   title as a small uppercase caption beside the collector's number, then the
+   city. CreatorCard.tsx is the original; this mirrors it so a creator is not
+   surprised by where their title ends up. */
+.cardtwin .bandwords{min-width:0;width:100%}
+.cardtwin .bname{font:600 16px 'Playfair Display',Georgia,serif;font-size:5.6cqw;color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cardtwin .bandline{display:flex;align-items:baseline;justify-content:space-between;gap:3cqw;min-width:0}
+.cardtwin .btitle{font-size:9px;font-size:2.6cqw;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cardtwin .bn{flex:none;font-size:9px;font-size:2.6cqw;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
+.cardtwin .bcity{font-size:10px;font-size:3cqw;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Below 160pt the app drops the title caption and the city and rides the
+   number up beside the name — which is every list view in the collection. The
+   thumbnail preview shows that, so it is seen before the card is sent. */
+.cardtwin.thumb .bandline{justify-content:flex-end}
+.cardtwin.thumb .btitle,.cardtwin.thumb .bcity{display:none}
+.cardtwin.locked .win{cursor:default}
+.cardhold{position:relative;max-width:420px}
+/* The same card at the size the collection and the gift letter draw it. */
+.thumbhold{width:124px;flex:none}
+.previewrow{display:flex;gap:16px;align-items:flex-start;margin-top:12px}
+.previewrow .thumbwords{font-size:13px;color:var(--ink2);max-width:240px}
+.clip{position:absolute;top:12px;left:12px;display:flex;align-items:center;gap:8px;background:var(--white);
+  border:1.5px solid var(--ink);border-radius:8px;padding:6px 12px;transform:rotate(-3deg);font:600 13px 'Inter'}
+.clipmark{width:12px;height:20px;border:2px solid var(--ink);border-radius:8px;border-bottom-color:transparent}
+
+/* the editor */
+.studio{display:grid;grid-template-columns:minmax(260px,400px) 1fr;gap:28px;padding:22px 0 40px;align-items:start}
+@media (max-width:880px){.studio{grid-template-columns:1fr}}
+.stage{position:sticky;top:84px}
+.stageh1{font-size:clamp(24px,3vw,32px);margin:14px 0 12px}
+.stageh1:focus-visible{outline:3px solid rgba(183,86,107,.45);outline-offset:3px}
+@media (max-width:880px){.stage{position:static}}
+.panel{display:grid;gap:16px;min-width:0}
+.block{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 18px 20px}
+.block h3{font-size:19px;margin-bottom:8px}
+.block h4{font-size:16px;margin-bottom:4px}
+.field{margin:12px 0}
+.field > label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+input[type=text],input[type=number],input[type=file]{font:15px 'Inter';color:var(--ink);background:#FFFEFA;
+  border:1.5px solid var(--ink);border-radius:10px;padding:10px 12px;width:100%;max-width:420px;min-height:44px}
+input[type=range]{width:min(320px,100%);min-height:44px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{font:600 14px 'Inter';padding:9px 14px;border-radius:10px;border:1.5px solid var(--ink);background:var(--white);
+  color:var(--ink);cursor:pointer;min-height:44px}
+.tab.on{background:var(--ink);color:var(--white)}
+.twoup{display:flex;gap:8px;flex-wrap:wrap}
+.choice{font:600 14px 'Inter';padding:9px 14px;border-radius:10px;border:1.5px solid var(--ink);background:var(--white);
+  color:var(--ink);cursor:pointer;min-height:44px}
+.choice.on{background:var(--rose);border-color:var(--rose-deep);color:#fff}
+/* The gate on every upload, so it gets a real target: 24px is the WCAG 2.2
+   floor and the whole row is 44px of clickable label. */
+.tickrow{display:flex;gap:10px;align-items:center;margin:10px 0;min-height:44px;cursor:pointer}
+.tickrow input{width:24px;height:24px;flex:none;cursor:pointer}
+.tick{font-size:15px;font-weight:600;cursor:pointer}
+.papers{display:flex;gap:8px;flex-wrap:wrap}
+.paperchip{width:84px;height:56px;border-radius:10px;border:1.5px solid var(--ink);cursor:pointer;position:relative;
+  display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px}
+.paperchip.on{outline:3px solid var(--rose);outline-offset:2px}
+.papername{background:var(--white);border-radius:6px;padding:1px 6px;font-size:11px;color:var(--ink)}
+.stickers{display:flex;gap:6px;flex-wrap:wrap}
+.sticker{width:48px;height:48px;border-radius:10px;border:1.5px solid var(--ink);background:var(--white);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding:0}
+.sticker:hover{background:var(--panel)}
+.inks{display:flex;gap:8px}
+.ink{width:44px;height:44px;border-radius:10px;border:1.5px solid var(--ink);cursor:pointer}
+.ink.on{outline:3px solid var(--rose);outline-offset:2px}
+.selbox{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:12px}
+/* A design that has been sent: the block says so, plainly, on cream. */
+.frozenwords{background:var(--white);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;color:var(--ink)}
+input[disabled],select[disabled],textarea[disabled]{opacity:.55;cursor:default}
+.tab[disabled],.choice[disabled],.paperchip[disabled],.sticker[disabled],.ink[disabled]{opacity:.5;cursor:default}
+
+/* the library */
+.list{display:grid;gap:18px;padding:6px 0 48px}
+.design{display:grid;grid-template-columns:150px 1fr;gap:18px;background:var(--panel);border:1px solid var(--line);
+  border-radius:16px;padding:16px}
+@media (max-width:640px){.design{grid-template-columns:1fr}.thumb{max-width:180px}}
+.design h2{font-size:21px}
+.design .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.counts{color:var(--ink2);margin:8px 0 0;font-size:14.5px}
+
+footer.site{border-top:1px solid var(--line);padding:28px 0 36px;font-size:14px;color:var(--ink2)}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px;align-items:center}
+.foot nav{display:flex;flex-wrap:wrap;gap:6px 16px}
+.foot nav a{text-decoration:none}
+.foot nav a:hover{color:var(--ink)}
+@media (max-width:760px){.foot nav{gap:0 16px}.foot nav a{padding:10px 0}}
+</style>
+</head>
+<body>
+
+<header class="site"><div class="wrap nav">
+  <a class="brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="jp">三X一</span></a>
+  <nav class="menu" aria-label="Main">
+    <a href="/#how">How it works</a>
+    <a href="/events/">Events</a>
+    <a href="/design/" aria-current="page">Create</a>
+    <a href="/questions/">Questions</a>
+    <a href="/safety/">Safety</a>
+    <a href="/team/">Team</a>
+    <a href="/studio/">Business</a>
+    <a class="get" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get CallMe</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <nav class="tabsbar" id="tabs" aria-label="Creator studio" hidden>
+    <a href="#/" data-route="home">The studio</a>
+    <a href="#/cards" data-route="cards">Design a card</a>
+    <a href="#/library" data-route="library">My designs</a>
+    <span class="who" id="who"></span>
+    <!-- "Sign out", not "Done": this ends the studio session, and on a shared
+         computer the difference matters. -->
+    <button class="btn" type="button" id="signout" hidden>Sign out</button>
+  </nav>
+  <div id="view"></div>
+</main>
+
+<footer class="site"><div class="wrap foot">
+  <div>&copy; <span id="year">2026</span> M3XI LTD &middot; London</div>
+  <nav aria-label="Footer">
+    <a href="/">CallMe</a>
+    <a href="/events/">Events</a>
+    <a href="/design/" aria-current="page">Create</a>
+    <a href="/questions/">Questions</a>
+    <a href="/safety/">Safety</a>
+    <a href="/studio/">Business</a>
+    <a href="/team/">Team</a>
+    <a href="/jobs/">Jobs</a>
+    <a href="/privacy/">Policies</a>
+    <a href="/terms/">Terms</a>
+  </nav>
+</div></footer>
+
+<script type="module" src="./src/main.ts"></script>
+</body>
+</html>

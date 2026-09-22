@@ -121,7 +121,16 @@ export default defineConfig({
         services: resolve(__dirname, "services/index.html"),
         jobs: resolve(__dirname, "jobs/index.html"),
         michael: resolve(__dirname, "michael/index.html"),
-        team: resolve(__dirname, "team/index.html")
+        team: resolve(__dirname, "team/index.html"),
+        // The creator studio: m3xi.com/design. It is a ROOT entry rather than
+        // a file in public/ because it is a real app -- TypeScript modules,
+        // bundled and hashed -- and because /design/ ships under
+        // `script-src 'self'` with no inline script anywhere (vercel.json).
+        // A page missing from this list is not a warning, it is a silent 404
+        // in production, which is exactly how /view and /console were lost on
+        // 20 Sep 2026. The QR target /p/<code> does NOT belong here: it lives
+        // in public/p/ and is served through two vercel.json rewrites.
+        design: resolve(__dirname, "design/index.html")
         // The four /studio/ pages that used to be listed here -- index,
         // worlds, business and account -- were DELETED with the rest of the
         // old spatial system, and listing a page that no longer exists is not

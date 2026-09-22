@@ -87,6 +87,7 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
       <button data-tab="people" aria-selected="false">People</button>
       <button data-tab="announce" aria-selected="false">Announcements</button>
       <button data-tab="events" aria-selected="false">Events</button>
+      <button data-tab="designs" aria-selected="false">Designs</button>
       <button data-tab="settings" aria-selected="false">Switches</button>
       <button data-tab="staff" aria-selected="false">Staff</button>
     </nav>
@@ -102,7 +103,24 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
 (function () {
   var URL_ = 'https://cwjspmhgspiavyzrtosl.supabase.co';
   var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN3anNwbWhnc3BpYXZ5enJ0b3NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1MTI5NTQsImV4cCI6MjA5OTA4ODk1NH0.jhS5adiCcZFbfq5zRXQdRLN1k1hCOQ-Ft5ZhcLJO1zc';
-  var sb = window.supabase.createClient(URL_, KEY, { auth: { persistSession: true, detectSessionInUrl: true, flowType: 'implicit' } });
+  /* The session is kept in sessionStorage, NOT localStorage.
+     www.m3xi.com now also serves /design/, where creators upload their own
+     art. A staff token sitting in localStorage on that origin would be
+     reachable by anything that ever ran as script there -- and this token can
+     reach staff_design_remove, staff_enforcement_apply and staff_config_set.
+     sessionStorage dies with the tab, is not shared with another tab, and
+     leaves nothing behind on a machine somebody walked away from. The cost is
+     one sign-in per window, which for a console used a few times a day is the
+     right side of the trade. (Contract 12 moves /staff/ to its own origin;
+     this is what protects it until that lands.) */
+  var sb = window.supabase.createClient(URL_, KEY, {
+    auth: {
+      persistSession: true,
+      detectSessionInUrl: true,
+      flowType: 'implicit',
+      storage: window.sessionStorage,
+    },
+  });
   var role = null;
   var $ = function (id) { return document.getElementById(id); };
 
@@ -530,6 +548,241 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
     await load();
   }
 
+  /* ── Designs ─────────────────────────────────────────── */
+  /* Two queues on one tab. `review` is card art that passed the automatic
+     checks and is waiting for a person; `reported` is art already out in the
+     world that people have reported, paused at three reporters (0094).
+
+     Reviewing is not the same as removing. A pass leaves the design in
+     awaiting_review with needs_publish, and the console then asks
+     creator-check to copy the art into the public bucket -- art is never
+     public before a person has seen it. Removing is the takedown path: it
+     strips the stamp off every card that carries the design, blocklists the
+     art, and counts an IP strike when the reason starts 'ip' or
+     'copies_work'. */
+  var DESIGN_REFUSALS = [
+    ['copies_work', 'Copies someone else’s work'],
+    ['ip', 'A franchise character, logo or brand'],
+    ['sexual', 'Sexual'],
+    ['hateful', 'Hateful'],
+    ['harassing', 'Harassing or naming a person'],
+    ['shows_child', 'Shows a child'],
+    ['degrading_face', 'Degrading once a face is in the window'],
+    ['asked_gift', 'Asks people for gifts or credits'],
+    ['other', 'Something else — say what below'],
+  ];
+
+  async function signedFrom(bucket, path) {
+    if (!bucket || !path) return null;
+    var r = await sb.storage.from(bucket).createSignedUrl(path, 600);
+    return r.data ? r.data.signedUrl : null;
+  }
+  function publicArt(path) {
+    return URL_ + '/storage/v1/object/public/posters/' + path;
+  }
+
+  /* The art with the design's photo window drawn on it. The window is where
+     the wearer's own face goes, so a reviewer has to see the composition, not
+     just the picture: the art alone can be fine while the art plus a face is
+     not (contract 3.7). */
+  function artBox(url, doc) {
+    var box = el('div', { style: 'position:relative;width:240px;flex:none' });
+    if (!url) {
+      box.appendChild(el('div', { class: 'muted', style: 'width:240px;height:320px;border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;background:#fff', text: 'No art' }));
+      return box;
+    }
+    box.appendChild(el('img', { src: url, alt: '', style: 'width:240px;height:320px;object-fit:cover;border:1px solid var(--line);border-radius:10px;display:block' }));
+    var w = doc && doc.window;
+    if (w && w.w) {
+      box.appendChild(el('div', {
+        'aria-hidden': 'true',
+        style: 'position:absolute;border:2px dashed #B7566B;'
+          + 'left:' + (w.x / 900 * 100) + '%;top:' + (w.y / 1200 * 100) + '%;'
+          + 'width:' + (w.w / 900 * 100) + '%;height:' + (w.h / 1200 * 100) + '%',
+      }));
+    }
+    if (doc && doc.band) {
+      box.appendChild(el('div', {
+        'aria-hidden': 'true',
+        style: 'position:absolute;left:0;right:0;height:18%;background:rgba(255,253,248,.92);'
+          + (doc.band === 'top' ? 'top:0' : 'bottom:0'),
+      }));
+    }
+    box.appendChild(el('div', { class: 'muted', style: 'font-size:12px;margin-top:4px', text: 'Dashed: where their face goes. Cream: the house band.' }));
+    return box;
+  }
+
+  async function viewDesigns(root) {
+    root.appendChild(el('h2', { text: 'Designs' }));
+    root.appendChild(el('p', { class: 'muted', text: 'Card art from m3xi.com and the app. Passing it publishes the picture and lets the creator start giving copies; refusing writes the reason to their phone. Removing is the takedown: it pulls the design off every card that carries it.' }));
+    var list = el('div');
+    root.appendChild(list);
+
+    async function load() {
+      list.textContent = 'Loading…';
+      var q = await rpc('staff_designs_queue');
+      list.textContent = '';
+      var review = (q && q.review) || [];
+      var reported = (q && q.reported) || [];
+
+      list.appendChild(el('h3', { text: 'Waiting for a person (' + review.length + ')' }));
+      if (!review.length) list.appendChild(el('p', { class: 'muted', text: 'Nothing waiting. 🌷' }));
+      review.forEach(function (d) { list.appendChild(reviewCard(d)); });
+
+      list.appendChild(el('h3', { style: 'margin-top:22px', text: 'Reported (' + reported.length + ')' }));
+      if (!reported.length) list.appendChild(el('p', { class: 'muted', text: 'Nothing reported.' }));
+      reported.forEach(function (d) { list.appendChild(reportedCard(d)); });
+    }
+
+    function head(d, extra) {
+      return el('div', { class: 'row spread' }, [
+        el('h3', { text: d.title || '(no title)' }),
+        el('div', { class: 'row' }, [
+          el('span', { class: 'pill', text: d.state }),
+          d.review ? el('span', { class: 'pill', text: 'checks: ' + d.review }) : null,
+          extra || null,
+        ]),
+      ]);
+    }
+
+    function reviewCard(d) {
+      var art = (d.art || {});
+      var box = el('div', { class: 'card urgent' });
+      var pic = el('div');
+      /* The whole point of this queue is that a PERSON looks at the picture.
+         Until the image has actually painted, Pass is disabled and says so:
+         a signed URL that fails renders the grey "No art" box, and passing
+         that publishes artwork nobody has seen. */
+      var seen = false;
+      var passBtn = null;
+      var seenNote = el('p', { class: 'muted small', text: 'Loading the art…' });
+      function markSeen(ok, why) {
+        seen = !!ok;
+        seenNote.textContent = ok ? '' : (why || 'The art did not load, so it cannot be passed from here. Reload the page.');
+        seenNote.className = ok ? 'muted small' : 'quote';
+        if (passBtn) {
+          passBtn.disabled = !ok;
+          passBtn.title = ok ? '' : 'You have to see the art before you can pass it.';
+        }
+      }
+      signedFrom('poster-inbox', art.inbox_path).then(function (u) {
+        pic.textContent = '';
+        pic.appendChild(artBox(u, d.doc));
+        if (!u) { markSeen(false, 'The art could not be opened, so it cannot be passed from here. Tell the on-call.'); return; }
+        var img = pic.querySelector('img');
+        if (!img) { markSeen(false); return; }
+        if (img.complete && img.naturalWidth > 0) { markSeen(true); return; }
+        img.addEventListener('load', function () { markSeen(img.naturalWidth > 0); });
+        img.addEventListener('error', function () { markSeen(false, 'The art did not load. Reload the page; do not pass this.'); });
+      }, function () {
+        markSeen(false, 'The art could not be opened, so it cannot be passed from here. Tell the on-call.');
+      });
+      var why = el('select', {}, DESIGN_REFUSALS.map(function (r) {
+        return el('option', { value: r[0], text: r[1] });
+      }));
+      var note = el('textarea', { placeholder: 'A note for the record, and for the creator’s letter when you refuse.' });
+
+      async function decide(pass) {
+        if (pass && !seen) return toast('You have to see the art before you can pass it.');
+        if (!pass && note.value.trim().length < 5) return toast('Say why (5+ characters) before refusing.');
+        if (!confirm((pass ? 'Pass' : 'Refuse') + ' “' + (d.title || 'this design') + '”?')) return;
+        var res = await rpc('staff_design_review', {
+          p_design: d.id,
+          p_pass: !!pass,
+          p_note: pass ? (note.value.trim() || null) : (why.value + ': ' + note.value.trim()),
+        });
+        if (res && res.ok === false) { toast('Not changed: ' + (res.reason || '')); return; }
+        if (pass && res && res.needs_publish) {
+          // The art is still private. creator-check copies it into the public
+          // bucket and calls _design_publish; only then is the design 'ready'.
+          var out = await sb.functions.invoke('creator-check', { body: { action: 'publish', design: d.id } });
+          var ok = out && out.data && (out.data.ok || out.data.state === 'ready');
+          toast(ok ? 'Passed and published.' : 'Passed, but publishing did not run — tell the on-call. The design is still awaiting_review.');
+        } else {
+          toast(pass ? 'Passed.' : 'Refused.');
+        }
+        load();
+      }
+
+      box.appendChild(head(d, el('span', { class: 'pill', text: 'art: ' + (art.state || '?') })));
+      box.appendChild(el('div', { class: 'muted', text: 'By ' + (d.creator_name || d.creator) + ' · sent ' + when(d.created_at) + (art.w ? ' · ' + art.w + '×' + art.h : '') }));
+      if (d.line) box.appendChild(el('div', { class: 'quote', text: d.line }));
+      passBtn = el('button', { class: 'btn good', text: 'Pass — publish it', disabled: true, onclick: function () { decide(true); } });
+      box.appendChild(el('div', { class: 'row', style: 'align-items:flex-start' }, [
+        pic,
+        el('div', { style: 'flex:1;min-width:260px' }, [
+          el('label', { text: 'If refusing, what was wrong' }), why,
+          el('label', { text: 'Note' }), note,
+          seenNote,
+          el('div', { class: 'row' }, [
+            passBtn,
+            el('button', { class: 'btn bad', text: 'Refuse', onclick: function () { decide(false); } }),
+          ]),
+          el('details', {}, [
+            el('summary', { class: 'muted', text: 'The document and the art record' }),
+            el('pre', { text: JSON.stringify({ doc: d.doc, art: art }, null, 2) }),
+          ]),
+        ]),
+      ]));
+      return box;
+    }
+
+    function reportedCard(d) {
+      var box = el('div', { class: 'card' + (d.paused_by ? ' urgent' : '') });
+      var reason = el('select', {}, DESIGN_REFUSALS.map(function (r) {
+        return el('option', { value: r[0], text: r[1] });
+      }));
+      var detail = el('input', { type: 'text', placeholder: 'A line for the record', style: 'flex:1;min-width:220px' });
+
+      box.appendChild(head(d, d.paused_by ? el('span', { class: 'pill sev', text: 'paused: ' + d.paused_by }) : null));
+      box.appendChild(el('div', { class: 'muted', text: 'By ' + (d.creator_name || d.creator) }));
+      (d.reports || []).forEach(function (r) {
+        box.appendChild(el('div', { class: 'quote', text: r.reason + ' · ' + when(r.at) }));
+      });
+      box.appendChild(el('div', { class: 'row', style: 'align-items:flex-start' }, [
+        artBox(d.public_path ? publicArt(d.public_path) : null, d.doc),
+        el('div', { style: 'flex:1;min-width:260px' }, [
+          el('p', { class: 'muted', text: 'Restoring clears the report pause and leaves every copy where it is. Removing strips the design off every card that carries it, blocklists the picture, and cancels any letters still waiting.' }),
+          el('div', { class: 'row' }, [
+            el('button', {
+              class: 'btn good', text: 'Nothing wrong — restore it', onclick: async function () {
+                if (!confirm('Restore “' + (d.title || 'this design') + '”?')) return;
+                var res = await rpc('staff_design_review', { p_design: d.id, p_pass: true, p_note: 'reports reviewed, nothing wrong' });
+                toast(res && res.ok === false ? 'Not changed: ' + (res.reason || '') : 'Restored.');
+                load();
+              },
+            }),
+          ]),
+          el('label', { text: 'Or take it down — why' }), reason,
+          el('label', { text: 'Detail' }), detail,
+          el('div', { class: 'row' }, [
+            el('button', {
+              class: 'btn bad', text: 'Take it down', onclick: async function () {
+                if (!confirm('Take “' + (d.title || 'this design') + '” down? Every copy loses it, and this cannot be undone.')) return;
+                var res = await rpc('staff_design_remove', {
+                  p_design: d.id,
+                  p_reason: reason.value + (detail.value.trim() ? ': ' + detail.value.trim() : ''),
+                  p_refund: false,
+                });
+                var paths = (res && res.public_paths) || [];
+                toast('Removed ' + ((res && res.removed) || 0) + ' design(s); ' + ((res && res.holders) || 0) + ' people held a copy.');
+                if (paths.length) {
+                  // The rows are gone; the objects are not. Naming them here
+                  // means a takedown is never half done.
+                  box.appendChild(el('div', { class: 'quote', text: 'Delete these from the posters bucket:\n' + paths.join('\n') }));
+                }
+                load();
+              },
+            }),
+          ]),
+        ]),
+      ]));
+      return box;
+    }
+
+    await load();
+  }
+
   /* ── Switches ────────────────────────────────────────── */
   var IMPORTANT = ['enforcement_mode', 'moderation_speech_enabled', 'moderation_speech_rooms_enabled', 'moderation_video_enabled', 'ai_appeals_enabled', 'min_version_android', 'min_version_ios', 'latest_version_android', 'latest_version_ios'];
   async function viewSettings(root) {
@@ -574,7 +827,7 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
       } })])]));
   }
 
-  var VIEWS = { appeals: viewAppeals, actions: viewActions, people: viewPeople, announce: viewAnnounce, events: viewEvents, settings: viewSettings, staff: viewStaff };
+  var VIEWS = { appeals: viewAppeals, actions: viewActions, people: viewPeople, announce: viewAnnounce, events: viewEvents, designs: viewDesigns, settings: viewSettings, staff: viewStaff };
   function show(tab) {
     document.querySelectorAll('nav.tabs button').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === tab)); });
     var root = $('view'); root.textContent = '';

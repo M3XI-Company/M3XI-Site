@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Open this in CallMe</title>
+<meta name="description" content="A CallMe pairing code. Open CallMe to carry on." />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" type="image/png" href="/M.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F0E8D8;--panel:#FBF6EC;--white:#FFFDF8;--ink:#19150F;--ink2:#605747;--ink3:#8A8173;
+  --blue:#2B4257;--gold:#B6892F;--rose:#B7566B;--rose-deep:#963F54;--line:rgba(25,21,15,.14)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font:400 16px/1.65 'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;background-color:#EFE7D6;
+  background-image:linear-gradient(rgba(43,66,87,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(43,66,87,.045) 1px,transparent 1px);
+  background-size:30px 30px,30px 30px;
+  display:flex;align-items:center;justify-content:center;padding:24px}
+h1{font-family:'Playfair Display',Georgia,serif;font-size:27px;font-weight:600;margin:0 0 12px;letter-spacing:-.012em}
+p{color:var(--ink2);margin:0 0 14px}
+a{color:inherit}
+:focus-visible{outline:3px solid rgba(183,86,107,.45);outline-offset:3px;border-radius:4px}
+.letter{position:relative;background:var(--white);border:1.5px solid rgba(25,21,15,.78);border-radius:12px;
+  padding:34px 24px 22px;max-width:420px;width:100%;box-shadow:0 24px 40px -34px rgba(43,66,87,.55)}
+.tape{position:absolute;top:-11px;left:26px;width:86px;height:22px;background:rgba(201,169,122,.55);transform:rotate(-4deg)}
+.seal{position:absolute;top:-17px;right:24px;width:34px;height:34px;border-radius:50%;background:#B3402A;
+  box-shadow:0 2px 5px rgba(0,0,0,.22)}
+.code{font:600 clamp(26px,8vw,36px)/1.1 'Playfair Display',Georgia,serif;letter-spacing:.1em;margin:4px 0 14px;
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 12px;text-align:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font:600 15px 'Inter';
+  padding:12px 18px;border-radius:10px;border:1.5px solid var(--ink);background:var(--panel);color:var(--ink);
+  min-height:48px;cursor:pointer}
+.btn.rose{background:var(--rose);border-color:var(--rose-deep);color:#fff}
+.btn.wide{width:100%}
+.actions{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.small{font-size:13.5px;color:var(--ink3)}
+.brand{display:flex;align-items:center;gap:9px;margin-bottom:16px;text-decoration:none;font-family:'Playfair Display',serif;font-weight:600}
+.brand img{width:26px;height:26px;border-radius:7px;display:block}
+</style>
+</head>
+<body>
+<main class="letter">
+  <span class="tape" aria-hidden="true"></span>
+  <span class="seal" aria-hidden="true"></span>
+  <a class="brand" href="/"><img src="/M.png" alt="" width="26" height="26"> CallMe</a>
+  <h1 id="head">Open this in CallMe</h1>
+  <p id="lede">This is a code from m3xi.com. Open CallMe on this phone and it will ask whether the computer is yours.</p>
+  <div class="code" id="code" aria-live="polite">· · · ·</div>
+  <div class="actions">
+    <a class="btn rose wide" id="open" href="#">Open CallMe</a>
+    <a class="btn wide" id="get" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get CallMe</a>
+  </div>
+  <!-- The fallback when the callme:// link does not fire, so it has to name the
+       screen that really has a code field: Settings → Creator studio, which
+       opens the collection's "My designs" tab and its scanner. -->
+  <p class="small" id="foot">If nothing happens, open CallMe yourself, go to Settings, then Creator studio, and type the code above. Only say yes to a computer that is in front of you.</p>
+</main>
+<script src="/p/p.js" defer></script>
+</body>
+</html>
