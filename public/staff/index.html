@@ -50,6 +50,12 @@ label{font-size:13px;font-weight:600;display:block;margin:10px 0 4px}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 [hidden]{display:none!important}
+/* The app's letter, for the event preview: cream stock, an ink edge, a serif title. */
+.letter{background:#FFFDF8;border:2px solid #2A2320;border-radius:12px;padding:22px 20px 16px;max-width:360px;position:relative;box-shadow:0 18px 30px -24px rgba(35,28,24,.55)}
+.letter .seal{position:absolute;top:-16px;left:50%;transform:translateX(-50%);width:32px;height:32px;border-radius:50%;background:#B3402A;box-shadow:0 2px 4px rgba(0,0,0,.25)}
+.letter h4{font:600 19px 'Playfair Display',Georgia,serif;margin:6px 0 10px;text-align:center}
+.letter p{margin:0 0 14px;white-space:pre-wrap;color:#3a322b;text-align:center}
+.letter .lbtn{display:block;text-align:center;border:1.5px solid #2A2320;border-radius:10px;padding:8px;font-weight:600;background:#B7566B;color:#fff;border-color:#9C4357}
 </style>
 </head>
 <body>
@@ -80,6 +86,7 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
       <button data-tab="actions" aria-selected="false">Decisions</button>
       <button data-tab="people" aria-selected="false">People</button>
       <button data-tab="announce" aria-selected="false">Announcements</button>
+      <button data-tab="events" aria-selected="false">Events</button>
       <button data-tab="settings" aria-selected="false">Switches</button>
       <button data-tab="staff" aria-selected="false">Staff</button>
     </nav>
@@ -113,6 +120,13 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
     setTimeout(function () { d.remove(); }, 4200);
   }
   function when(ts) { return ts ? new Date(ts).toLocaleString() : '—'; }
+  /* A datetime-local input shows LOCAL time. toISOString() is UTC, so feeding
+     it straight in shifted every edited time by the UTC offset. */
+  function toLocalInput(ts) {
+    if (!ts) return '';
+    var d = new Date(ts);
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  }
   function tierPill(t) { return el('span', { class: 'pill ' + (t === 'severe' ? 'sev' : t === 'serious' ? 'ser' : ''), text: t || 'tier?' }); }
   async function rpc(name, args) {
     var r = await sb.rpc(name, args || {});
@@ -344,8 +358,8 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
       var ctaUrl = el('input', { type: 'url', value: a.cta_url || '', placeholder: 'https://www.m3xi.com/…', style: 'width:100%' });
       var qr = el('input', { type: 'checkbox' }); qr.checked = !!a.show_qr;
       var platform = el('select', {}, [el('option', { value: 'all', text: 'Android and iPhone' }), el('option', { value: 'android', text: 'Android only' }), el('option', { value: 'ios', text: 'iPhone only' })]); platform.value = a.platform || 'all';
-      var starts = el('input', { type: 'datetime-local', value: a.starts_at ? new Date(a.starts_at).toISOString().slice(0, 16) : '' });
-      var ends = el('input', { type: 'datetime-local', value: a.ends_at ? new Date(a.ends_at).toISOString().slice(0, 16) : '' });
+      var starts = el('input', { type: 'datetime-local', value: toLocalInput(a.starts_at) });
+      var ends = el('input', { type: 'datetime-local', value: toLocalInput(a.ends_at) });
       var priority = el('input', { type: 'number', value: String(a.priority || 0), style: 'width:90px' });
       var active = el('input', { type: 'checkbox' }); active.checked = a.active !== false;
       var minV = el('input', { type: 'text', value: a.min_app_version || '', placeholder: '0.7.0' });
@@ -387,6 +401,116 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
           a.cta_url ? el('div', { class: 'muted', text: (a.cta_label || 'Link') + ' → ' + a.cta_url + (a.show_qr ? ' (with QR)' : '') }) : null,
           el('div', { class: 'muted', text: 'From ' + when(a.starts_at) + (a.ends_at ? ' to ' + when(a.ends_at) : '') }),
           el('button', { class: 'btn', text: 'Edit', onclick: function () { buildForm(a); window.scrollTo({ top: 0, behavior: 'smooth' }); } }),
+        ]));
+      });
+    }
+    buildForm();
+    await load();
+  }
+
+  /* ── Events ──────────────────────────────────────────── */
+  /* An event shows on m3xi.com/events and, an hour before it starts, as a
+     letter in the app — today's build, no update (0091). "Also send a letter
+     now" adds a second letter from now until it starts. */
+  function slugify(s) {
+    return (s || '').toLowerCase().normalize('NFKD').replace(/[^\w\s-]/g, '').trim()
+      .replace(/[\s_]+/g, '-').replace(/-+/g, '-').slice(0, 48);
+  }
+  async function viewEvents(root) {
+    var list = el('div');
+    var form = el('div', { class: 'card' });
+    root.appendChild(el('h2', { text: 'Events' }));
+    root.appendChild(el('p', { class: 'muted', text: 'Published events show on m3xi.com/events. With "Remind an hour before", everyone who opens CallMe in the hour before it starts gets a letter — no app update needed. Times are in your local time zone (' + Intl.DateTimeFormat().resolvedOptions().timeZone + ').' }));
+    root.appendChild(form);
+    root.appendChild(list);
+    function f(label, input) { return el('div', {}, [el('label', { text: label }), input]); }
+    function buildForm(e) {
+      e = e || {};
+      form.textContent = '';
+      var title = el('input', { type: 'text', maxlength: '80', value: e.title || '', style: 'width:100%' });
+      var slug = el('input', { type: 'text', maxlength: '48', value: e.slug || '', placeholder: 'quiz-night-october', style: 'width:100%' });
+      var slugTouched = !!e.slug;
+      var body = el('textarea', { maxlength: '800' }); body.value = e.body || '';
+      var where = el('input', { type: 'text', maxlength: '60', value: e.where_label || '', placeholder: 'At a big table in the app' });
+      var starts = el('input', { type: 'datetime-local', value: toLocalInput(e.starts_at) });
+      var ends = el('input', { type: 'datetime-local', value: toLocalInput(e.ends_at) });
+      var ctaLabel = el('input', { type: 'text', maxlength: '40', value: e.cta_label || '', placeholder: 'Read more' });
+      var ctaUrl = el('input', { type: 'url', value: e.cta_url || '', placeholder: 'https://www.m3xi.com/…', style: 'width:100%' });
+      var remind = el('input', { type: 'checkbox' }); remind.checked = e.remind !== false;
+      var now = el('input', { type: 'checkbox' }); now.checked = !!e.announce_now;
+      var status = el('select', {}, [el('option', { value: 'published', text: 'Published' }), el('option', { value: 'draft', text: 'Draft (hidden)' })]);
+      status.value = e.status === 'draft' ? 'draft' : 'published';
+      var preview = el('div');
+      function renderPreview() {
+        preview.textContent = '';
+        var t = title.value.trim() || 'Your event';
+        preview.appendChild(el('div', { class: 'muted', text: 'The reminder letter, as the app shows it:' }));
+        preview.appendChild(el('div', { class: 'letter', style: 'margin-top:22px' }, [
+          el('div', { class: 'seal' }),
+          el('h4', { text: ('In an hour: ' + t).slice(0, 80) }),
+          el('p', { text: body.value.trim() || 'What the event is, in a sentence or two.' }),
+          el('span', { class: 'lbtn', text: 'See the event' }),
+        ]));
+      }
+      title.addEventListener('input', function () { if (!slugTouched) slug.value = slugify(title.value); renderPreview(); });
+      slug.addEventListener('input', function () { slugTouched = true; });
+      body.addEventListener('input', renderPreview);
+      form.appendChild(el('h3', { text: e.id ? 'Edit event' : 'New event' }));
+      form.appendChild(f('Title (80)', title));
+      form.appendChild(f('Web address — m3xi.com/events/#…', slug));
+      form.appendChild(f('What it is (800)', body));
+      form.appendChild(el('div', { class: 'grid2' }, [f('Starts', starts), f('Ends (optional)', ends), f('Where (optional)', where), f('Status', status)]));
+      form.appendChild(el('div', { class: 'grid2' }, [f('Button label (optional)', ctaLabel), f('Button link (m3xi.com only)', ctaUrl)]));
+      form.appendChild(el('div', { class: 'grid2' }, [
+        f('Remind an hour before', el('div', { class: 'row' }, [remind, el('span', { class: 'muted', text: 'a letter in the app from an hour before' })])),
+        f('Also send a letter now', el('div', { class: 'row' }, [now, el('span', { class: 'muted', text: '"Coming up: …" until it starts' })])),
+      ]));
+      form.appendChild(preview);
+      renderPreview();
+      form.appendChild(el('div', { class: 'row', style: 'margin-top:14px' }, [
+        el('button', { class: 'btn primary', text: e.id ? 'Save changes' : 'Post event', onclick: async function () {
+          if (!title.value.trim() || !body.value.trim()) return toast('A title and what it is are needed.');
+          if (!/^[a-z0-9-]{3,48}$/.test(slug.value.trim())) return toast('The web address needs 3–48 lower-case letters, numbers or dashes.');
+          if (!starts.value) return toast('When does it start?');
+          if (ends.value && new Date(ends.value) <= new Date(starts.value)) return toast('It has to end after it starts.');
+          if (!!ctaLabel.value.trim() !== !!ctaUrl.value.trim()) return toast('A button needs both a label and a link.');
+          if (ctaUrl.value && !/^https:\/\/(www\.)?m3xi\.com(\/\S*)?$/i.test(ctaUrl.value.trim())) return toast('Links must start https://www.m3xi.com');
+          await rpc('staff_event_upsert', {
+            p_id: e.id || null, p_slug: slug.value.trim(), p_title: title.value.trim(), p_body: body.value.trim(),
+            p_where: where.value.trim() || null, p_starts_at: new Date(starts.value).toISOString(),
+            p_ends_at: ends.value ? new Date(ends.value).toISOString() : null,
+            p_cta_label: ctaLabel.value.trim() || null, p_cta_url: ctaUrl.value.trim() || null,
+            p_remind: remind.checked, p_announce_now: now.checked, p_status: status.value,
+          });
+          toast(e.id ? 'Saved' : 'Posted'); buildForm(); load();
+        } }),
+        e.id ? el('button', { class: 'btn', text: 'Stop editing', onclick: function () { buildForm(); } }) : null,
+      ]));
+    }
+    async function load() {
+      list.textContent = 'Loading…';
+      var rows = await rpc('staff_events_list');
+      list.textContent = '';
+      if (!rows.length) list.appendChild(el('p', { class: 'muted', text: 'No events yet.' }));
+      rows.forEach(function (e) {
+        var past = new Date(e.ends_at || (new Date(e.starts_at).getTime() + 2 * 3600e3)) < new Date();
+        list.appendChild(el('div', { class: 'card' }, [
+          el('div', { class: 'row spread' }, [el('h3', { text: e.title }), el('div', { class: 'row' }, [
+            el('span', { class: 'pill' + (e.status === 'published' && !past ? '' : ' shadow'), text: past && e.status === 'published' ? 'over' : e.status }),
+            e.reminder_active ? el('span', { class: 'pill', text: 'reminder letter set' }) : null,
+            e.now_active ? el('span', { class: 'pill', text: 'letter out now' }) : null,
+            el('span', { class: 'pill', text: 'v' + e.version }),
+          ])]),
+          el('div', { class: 'muted', text: when(e.starts_at) + (e.ends_at ? ' – ' + when(e.ends_at) : '') + (e.where_label ? ' · ' + e.where_label : '') }),
+          el('div', { class: 'quote', text: e.body }),
+          el('div', { class: 'muted', text: 'm3xi.com/events/#' + e.slug }),
+          el('div', { class: 'row', style: 'margin-top:8px' }, [
+            e.status !== 'cancelled' ? el('button', { class: 'btn', text: 'Edit', onclick: function () { buildForm(e); window.scrollTo({ top: 0, behavior: 'smooth' }); } }) : null,
+            e.status !== 'cancelled' ? el('button', { class: 'btn bad', text: 'Cancel event', onclick: async function () {
+              if (!confirm('Cancel "' + e.title + '"? It comes off the website and its letters stop.')) return;
+              await rpc('staff_event_cancel', { p_id: e.id }); toast('Cancelled'); load();
+            } }) : null,
+          ]),
         ]));
       });
     }
@@ -438,7 +562,7 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
       } })])]));
   }
 
-  var VIEWS = { appeals: viewAppeals, actions: viewActions, people: viewPeople, announce: viewAnnounce, settings: viewSettings, staff: viewStaff };
+  var VIEWS = { appeals: viewAppeals, actions: viewActions, people: viewPeople, announce: viewAnnounce, events: viewEvents, settings: viewSettings, staff: viewStaff };
   function show(tab) {
     document.querySelectorAll('nav.tabs button').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === tab)); });
     var root = $('view'); root.textContent = '';
