@@ -1,6 +1,19 @@
 {
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": {
+            "eq": "m3xi.com"
+          }
+        }
+      ],
+      "destination": "https://www.m3xi.com/",
+      "permanent": false
+    },
+    {
       "source": "/:path((?!\\.well-known/).*)",
       "has": [
         {
