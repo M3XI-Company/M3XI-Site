@@ -56,6 +56,23 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
 .letter h4{font:600 19px 'Playfair Display',Georgia,serif;margin:6px 0 10px;text-align:center}
 .letter p{margin:0 0 14px;white-space:pre-wrap;color:#3a322b;text-align:center}
 .letter .lbtn{display:block;text-align:center;border:1.5px solid #2A2320;border-radius:10px;padding:8px;font-weight:600;background:#B7566B;color:#fff;border-color:#9C4357}
+/* Events (0102): the check-in code, the hook preview, and the printable QR sheet. */
+.code{font:600 17px ui-monospace,Menlo,Consolas,monospace;letter-spacing:2px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px 10px}
+.hookprev{max-width:240px;max-height:180px;border-radius:10px;border:1px solid var(--line);display:block;margin:8px 0;object-fit:cover}
+.qrbox svg{display:block;margin:8px 0;border:1px solid var(--line);border-radius:8px}
+#printSheet{display:none}
+@media print{
+  @page{margin:16mm}
+  body{background:#fff!important;background-image:none!important}
+  body>*:not(#printSheet){display:none!important}
+  #printSheet{display:block!important;text-align:center;color:#19150F}
+  #printSheet h1{font:600 30px 'Playfair Display',Georgia,serif;margin:0 0 6px}
+  #printSheet .ps-when{font-size:16px;margin:0}
+  #printSheet svg{width:120mm;height:120mm;margin:10mm auto 6mm;display:block}
+  #printSheet .ps-say{font:600 20px 'Playfair Display',Georgia,serif;margin:0 0 6px}
+  #printSheet .ps-code{font:600 22px ui-monospace,Menlo,Consolas,monospace;letter-spacing:3px;margin:0 0 8px}
+  #printSheet .ps-url{font-size:10px;color:#605747;word-break:break-all;margin:0}
+}
 </style>
 </head>
 <body>
@@ -83,6 +100,7 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
   <section id="app" hidden>
     <nav class="tabs" role="tablist">
       <button data-tab="appeals" aria-selected="true">Appeals</button>
+      <button data-tab="reports" aria-selected="false">Reports</button>
       <button data-tab="actions" aria-selected="false">Decisions</button>
       <button data-tab="people" aria-selected="false">People</button>
       <button data-tab="announce" aria-selected="false">Announcements</button>
@@ -314,7 +332,7 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
     ['abusive_language', 'Abusive language (minor → strike)'],
     ['abusive_tone', 'Abusive behaviour (minor → strike)'],
   ];
-  async function viewPeople(root) {
+  async function viewPeople(root, opts) {
     var q = el('input', { type: 'search', placeholder: 'Email, name or account id', style: 'flex:1;min-width:240px' });
     var go = el('button', { class: 'btn primary', text: 'Find' });
     var list = el('div');
@@ -358,6 +376,215 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
     }
     go.addEventListener('click', find);
     q.addEventListener('keydown', function (e) { if (e.key === 'Enter') find(); });
+    // Opened from a report's "Look up" button: straight to that account.
+    if (opts && opts.query) { q.value = opts.query; await find(); }
+  }
+
+  /* ── Reports ─────────────────────────────────────────── */
+  /* Everything a member can report or flag, from every door in the app, as one
+     queue (0101: staff_reports_list / staff_report_resolve). Seven doors land in
+     six tables, and the id says which: report: (people on calls, posters and
+     designs), design: (a design with no creator), call_flag:, table:, chat:,
+     note:. Dismissing a report stops it counting toward the automatic ladder;
+     "dealt with" keeps it counting. Neither one changes an account: sanctions
+     are applied from People, design takedowns from Designs, and a poster can be
+     taken down or put back up from its card here. */
+  var REPORT_SOURCES = [
+    ['', 'Every kind'],
+    ['call', 'People on calls'],
+    ['group_call', 'Group calls'],
+    ['table', 'Tables'],
+    ['chat', 'Chat messages'],
+    ['note', 'Notes after calls'],
+    ['poster', 'Posters'],
+    ['design', 'Card designs'],
+  ];
+  var SOURCE_LABEL = {
+    call: 'Person on a call', group_call: 'Group call — nobody named', table: 'Table',
+    chat: 'Chat message', note: 'Note after a call', poster: 'Poster', design: 'Card design',
+  };
+  var KIND_LABEL = {
+    underage: 'Sounds underage', sexual_exposure: 'Sexual content or exposure', threats: 'Threats or danger',
+    harassment: 'Harassment or bullying', hate: 'Hate or abuse', scam: 'Scam or spam', other: 'Something else',
+  };
+  var STATUS_LABEL = { open: 'waiting', dismissed: 'dismissed', actioned: 'dealt with', reviewed: 'reviewed' };
+  function who(name, id) { return (name || '(no name)') + (id ? ' · ' + id : ''); }
+  function names(people) {
+    return (people || []).map(function (p) { return (p.name || '(no name)') + (p.status && p.status !== 'joined' ? ' (' + p.status + ')' : ''); }).join(', ');
+  }
+
+  async function viewReports(root) {
+    var status = el('select', {}, [
+      el('option', { value: 'open', text: 'Waiting for a person' }),
+      el('option', { value: 'resolved', text: 'Resolved' }),
+      el('option', { value: 'all', text: 'All reports' }),
+    ]);
+    var source = el('select', {}, REPORT_SOURCES.map(function (s) { return el('option', { value: s[0], text: s[1] }); }));
+    var summary = el('p', { class: 'muted' });
+    var list = el('div');
+    root.appendChild(el('div', { class: 'row spread' }, [el('h2', { text: 'Reports' }), el('div', { class: 'row' }, [source, status])]));
+    root.appendChild(el('p', { class: 'muted', text: 'Everything members report or flag: people on calls, group calls, tables, chat messages, notes, posters and card designs. Severe ones come first. Dismiss when nothing was wrong — a dismissed report stops counting toward the automatic ladder. Mark it dealt with when it was right, and say what you did; it keeps counting. Neither changes the account: apply a sanction from People, take a design down from Designs.' }));
+    root.appendChild(summary);
+    root.appendChild(list);
+
+    async function load() {
+      list.textContent = 'Loading…';
+      summary.textContent = '';
+      var rows = await rpc('staff_reports_list', { p_status: status.value, p_limit: 500 });
+      var counts = {};
+      rows.forEach(function (r) { counts[r.source] = (counts[r.source] || 0) + 1; });
+      var parts = REPORT_SOURCES.filter(function (s) { return s[0] && counts[s[0]]; })
+        .map(function (s) { return s[1].toLowerCase() + ' ' + counts[s[0]]; });
+      summary.textContent = rows.length + (status.value === 'open' ? ' waiting' : status.value === 'resolved' ? ' resolved' : ' in all')
+        + (parts.length ? ' — ' + parts.join(', ') : '') + (rows.length >= 500 ? ' (showing the first 500)' : '');
+      if (source.value) rows = rows.filter(function (r) { return r.source === source.value; });
+      list.textContent = '';
+      if (!rows.length) list.appendChild(el('p', { class: 'muted', text: status.value === 'open' ? 'Nothing waiting. 🌷' : 'Nothing here.' }));
+      rows.forEach(function (r) { list.appendChild(reportCard(r)); });
+    }
+
+    function aboutLine(r, cx) {
+      if (r.source === 'group_call') {
+        return 'About ' + (cx.side_flagged ? 'side ' + cx.side_flagged : 'everyone else') + ' on a group call: ' + (names(cx.people) || 'nobody left on it');
+      }
+      if (r.source === 'table') {
+        return 'About the table “' + (cx.topic || '?') + '”, hosted by ' + who(cx.host_name, cx.host_id);
+      }
+      if (r.source === 'design' && !r.reported_id) return 'About a house design (it has no creator)';
+      return 'About ' + who(r.reported_name, r.reported_id);
+    }
+
+    function contextLines(r, cx) {
+      var out = [];
+      if (r.source === 'call') {
+        out.push((cx.call_id ? 'Call ' + cx.call_id + ' · started ' + when(cx.call_started_at) : 'No call recorded')
+          + (cx.group_call ? ' · group call' : cx.call_id ? ' · one to one' : '')
+          + (cx.reporter_side ? ' · reporter on side ' + cx.reporter_side : '') + (cx.reported_side ? ', reported on side ' + cx.reported_side : ''));
+        if (cx.counted === false) out.push('Not counted toward the automatic ladder (the reporter had filed five that day).');
+      } else if (r.source === 'group_call') {
+        out.push('Call ' + cx.call_id + ' · started ' + when(cx.call_started_at) + (cx.reporter_side ? ' · reporter on side ' + cx.reporter_side : ''));
+        out.push('A group-call flag names a side, never a person, and never counts against anyone. The reporter was muted from everyone on that side.');
+      } else if (r.source === 'table') {
+        out.push('Table ' + (cx.room_status || '?') + (cx.private ? ' · private' : '') + ' · ' + (cx.scope === 'local' ? 'My country' : 'International')
+          + ' · opened ' + when(cx.opened_at));
+        if (cx.people && cx.people.length) out.push('At the table: ' + names(cx.people));
+        out.push('A table flag names the table, never a person. The reporter was muted from everyone seated.');
+      } else if (r.source === 'chat') {
+        out.push('In a ' + (cx.thread_kind === 'dm' ? 'direct chat' : 'group chat') + (cx.thread_title ? ' “' + cx.thread_title + '”' : '')
+          + (cx.message_gone ? ' · the message has since been deleted (the quote is the copy taken when it was reported)' : ''));
+      } else if (r.source === 'note') {
+        out.push('A note about ' + who(cx.about_name, cx.about_id) + ' · ' + (cx.rating || '?') + '/5 · automatic check: ' + (cx.mod_state || '?')
+          + ' · ' + (cx.flags_on_note || 0) + ' flag(s) — three hide it' + (cx.hidden_by_subject ? ' · hidden by the person it is about' : ''));
+      } else if (r.source === 'poster') {
+        out.push('Poster revision ' + cx.rev + (cx.item_id && cx.item_id !== '-' ? ', item ' + cx.item_id : '') + ' · reason: ' + (cx.poster_kind || '?')
+          + (cx.live_rev != null ? ' · the live revision is ' + cx.live_rev : ''));
+      } else if (r.source === 'design') {
+        out.push('“' + (cx.title || '(untitled)') + '” · ' + (cx.state || '?') + ' · reason: ' + (cx.reason || '?') + ' · design ' + cx.design_id);
+      }
+      return out;
+    }
+
+    function reportCard(r) {
+      var cx = r.context || {};
+      var open = r.status === 'open';
+      var box = el('div', { class: 'card' + (open && r.severe ? ' urgent' : '') });
+      box.appendChild(el('div', { class: 'row spread' }, [
+        el('h3', { text: (SOURCE_LABEL[r.source] || r.source) + ' · ' + (KIND_LABEL[r.kind] || r.kind) }),
+        el('div', { class: 'row' }, [
+          r.severe ? el('span', { class: 'pill sev', text: 'severe' }) : null,
+          el('span', { class: 'pill' + (open ? '' : ' shadow'), text: STATUS_LABEL[r.status] || r.status }),
+          cx.reported_paused ? el('span', { class: 'pill ser', text: 'account paused' }) : null,
+          r.source === 'poster' && cx.poster_hidden ? el('span', { class: 'pill ser', text: 'poster hidden: ' + cx.poster_hidden }) : null,
+          r.source === 'design' && cx.paused_by ? el('span', { class: 'pill ser', text: 'design paused: ' + cx.paused_by }) : null,
+          r.source === 'note' && cx.flags_on_note >= 3 ? el('span', { class: 'pill ser', text: 'note hidden' }) : null,
+        ]),
+      ]));
+      box.appendChild(el('div', { class: 'muted', text: when(r.created_at) + ' · ' + r.id }));
+      box.appendChild(el('div', { text: 'Reported by ' + who(r.reporter_name, r.reporter_id) }));
+      box.appendChild(el('div', { text: aboutLine(r, cx) }));
+      // A table's excerpt is its topic, already named in the line above.
+      if (r.excerpt && r.source !== 'table') box.appendChild(el('div', { class: 'quote', text: r.excerpt }));
+      if (r.source === 'chat' && cx.reporter_note) box.appendChild(el('div', { class: 'muted', text: 'The reporter added: ' + cx.reporter_note }));
+      contextLines(r, cx).forEach(function (l) { box.appendChild(el('div', { class: 'muted', text: l })); });
+
+      var decisions = cx.decisions || [];
+      if (decisions.length) {
+        box.appendChild(el('div', { class: 'muted', style: 'margin-top:6px', text: 'Safety decisions that name this report:' }));
+        decisions.forEach(function (d) {
+          box.appendChild(el('div', { class: 'muted', text: '· ' + d.rule + ' — ' + d.action + ' · ' + d.priority + ' · ' + when(d.at)
+            + (d.reviewed ? ' · reviewed' + (d.outcome ? ': ' + d.outcome : '') : ' · not reviewed')
+            + (d.action !== 'none' && !d.reviewed ? ' (this one put something on the account; closing the report does not lift it)' : '') }));
+        });
+      }
+      box.appendChild(el('details', {}, [el('summary', { class: 'muted', text: 'Everything we hold on it' }), el('pre', { text: JSON.stringify(r, null, 2) })]));
+
+      // Where to act on it.
+      var links = el('div', { class: 'row', style: 'margin-top:8px' });
+      if (r.reported_id) links.appendChild(el('button', { class: 'btn', text: 'Look up ' + (r.reported_name || 'them') + ' in People', onclick: function () { show('people', { query: r.reported_id }); } }));
+      if (r.source === 'table' && cx.host_id) links.appendChild(el('button', { class: 'btn', text: 'Look up the host in People', onclick: function () { show('people', { query: cx.host_id }); } }));
+      if (r.reporter_id) links.appendChild(el('button', { class: 'btn', text: 'Look up the reporter', onclick: function () { show('people', { query: r.reporter_id }); } }));
+      if (r.source === 'design') links.appendChild(el('button', { class: 'btn', text: 'Open Designs', onclick: function () { show('designs'); } }));
+      box.appendChild(links);
+
+      var note = el('input', { type: 'text', maxlength: '1000', placeholder: open ? 'Your note for the record — say what you did if you dealt with it' : 'Why you are reopening it (optional)', style: 'flex:1;min-width:240px' });
+
+      if (r.source === 'poster' && cx.owner_id) {
+        var posterBtn = cx.poster_hidden
+          ? el('button', { class: 'btn good', text: 'Put the poster back up', onclick: async function () {
+              if (!confirm('Put ' + (r.reported_name || 'their') + '’s poster back up for everyone who could see it?')) return;
+              await rpc('staff_poster_takedown', { p_user: cx.owner_id, p_reason: note.value.trim() || 'reports reviewed, nothing wrong', p_restore: true });
+              toast('The poster is back up.'); load();
+            } })
+          : el('button', { class: 'btn bad', text: 'Take the poster down', onclick: async function () {
+              if (note.value.trim().length < 5) return toast('Write why in the note (5+ characters) before taking it down.');
+              if (!confirm('Take ' + (r.reported_name || 'their') + '’s poster down? Everyone sees the plain poster until it is put back up.')) return;
+              await rpc('staff_poster_takedown', { p_user: cx.owner_id, p_reason: note.value.trim(), p_restore: false });
+              toast('The poster is down.'); load();
+            } });
+        links.appendChild(posterBtn);
+      }
+
+      async function resolve(action) {
+        var n = note.value.trim();
+        if (action === 'actioned' && n.length < 5) return toast('Say what was done (5+ characters) in the note.');
+        var ask = action === 'dismiss'
+          ? 'Dismiss this report as nothing wrong?' + (r.id.indexOf('report:') === 0 ? ' It stops counting toward the automatic ladder.' : '')
+          : action === 'actioned' ? 'Mark this report as dealt with?' : 'Reopen this report?';
+        if (!confirm(ask)) return;
+        var res = await rpc('staff_report_resolve', { p_id: r.id, p_action: action, p_note: n || null });
+        if (res && res.ok === false) {
+          toast(res.reason === 'already_resolved' ? 'Someone has already resolved it (' + (STATUS_LABEL[res.status] || res.status) + ').'
+            : res.reason === 'not_resolved_here' ? 'That one was closed somewhere else, not in this queue, so there is nothing here to undo.'
+            : 'Not changed: ' + (res.reason || ''));
+        } else {
+          toast(action === 'reopen' ? 'Reopened.'
+            : (action === 'dismiss' ? 'Dismissed.' : 'Recorded as dealt with.')
+              + (res && res.closed_decisions ? ' The safety decision waiting on it is closed too.' : ''));
+        }
+        load();
+      }
+
+      if (open) {
+        box.appendChild(el('div', { class: 'row', style: 'margin-top:8px' }, [
+          note,
+          el('button', { class: 'btn good', text: 'Nothing wrong — dismiss', onclick: function () { resolve('dismiss'); } }),
+          el('button', { class: 'btn primary', text: 'Dealt with — record it', onclick: function () { resolve('actioned'); } }),
+        ]));
+      } else {
+        box.appendChild(el('div', { class: 'muted', style: 'margin-top:6px', text: (STATUS_LABEL[r.status] || r.status).replace(/^./, function (c) { return c.toUpperCase(); })
+          + (r.resolved_by ? ' by ' + r.resolved_by : '') + (r.resolved_at ? ' · ' + when(r.resolved_at) : '') + (r.resolution_note ? ' — ' + r.resolution_note : '') }));
+        if (r.status === 'dismissed' || r.status === 'actioned') {
+          box.appendChild(el('div', { class: 'row', style: 'margin-top:6px' }, [
+            el('button', { class: 'btn', text: 'Reopen', onclick: function () { resolve('reopen'); } }),
+          ]));
+        }
+      }
+      return box;
+    }
+
+    status.addEventListener('change', load);
+    source.addEventListener('change', load);
+    await load();
   }
 
   /* ── Announcements ───────────────────────────────────── */
@@ -432,16 +659,87 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
   /* ── Events ──────────────────────────────────────────── */
   /* An event shows on m3xi.com/events and, an hour before it starts, as a
      letter in the app — today's build, no update (0091). "Also send a letter
-     now" adds a second letter from now until it starts. */
+     now" adds a second letter from now until it starts.
+     Since 0102 it is also a post in the app's Events thread: a hook (a picture
+     or a short video, uploaded from here to the public event-media bucket —
+     only staff can write there), up to five questions people answer when they
+     check in, and a check-in code only staff can see. The QR printed for the
+     venue carries it: https://www.m3xi.com/e/?id=<event>&c=<code>.
+     Contract: CallMe repo, docs/phase5/EVENTS_CONTRACT.md. */
+  var EVENT_MEDIA = 'event-media';
+  var IMG_MAX = 5 * 1024 * 1024, VID_MAX = 40 * 1024 * 1024;
   function slugify(s) {
     return (s || '').toLowerCase().normalize('NFKD').replace(/[^\w\s-]/g, '').trim()
       .replace(/[\s_]+/g, '-').replace(/-+/g, '-').slice(0, 48);
+  }
+  function mediaUrl(path) { return path ? sb.storage.from(EVENT_MEDIA).getPublicUrl(path).data.publicUrl : null; }
+  function checkinLink(e) { return 'https://www.m3xi.com/e/?id=' + encodeURIComponent(e.id) + '&c=' + encodeURIComponent(e.checkin_code || ''); }
+  /* ABCD EFGH JK — easier to read out loud or type. */
+  function spacedCode(c) { return (c || '').replace(/(.{4})(?=.)/g, '$1 '); }
+  /* Uploads one file to event-media and answers its path, or null (and says why). */
+  async function uploadEventMedia(file, kind) {
+    var isImg = kind === 'image';
+    var ext = file.type === 'image/png' ? 'png' : file.type === 'image/jpeg' ? 'jpg' : file.type === 'video/mp4' ? 'mp4' : null;
+    if (!ext || (isImg && ext === 'mp4') || (!isImg && ext !== 'mp4')) { toast(isImg ? 'Pictures must be JPEG or PNG.' : 'Videos must be MP4.'); return null; }
+    if (file.size > (isImg ? IMG_MAX : VID_MAX)) { toast(isImg ? 'Pictures can be up to 5 MB.' : 'Videos can be up to 40 MB.'); return null; }
+    var path = (isImg ? 'img/' : 'vid/') + crypto.randomUUID() + '.' + ext;
+    var r = await sb.storage.from(EVENT_MEDIA).upload(path, file, { contentType: file.type, cacheControl: '31536000', upsert: false });
+    if (r.error) { toast('Upload failed: ' + r.error.message); return null; }
+    return path;
+  }
+  /* The QR library, loaded only when a QR is wanted: pinned and hash-checked
+     like supabase-js above, so a changed file on the CDN fails to load. */
+  var qrLib = null;
+  function loadQrLib() {
+    if (qrLib) return qrLib;
+    qrLib = new Promise(function (resolve, reject) {
+      if (window.qrcode) return resolve(window.qrcode);
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
+      s.integrity = 'sha256-GK45n4EYK8nekW6cd7GV3yDMWNby1VpisIWimfG/F4A=';
+      s.crossOrigin = 'anonymous';
+      s.onload = function () { if (window.qrcode) resolve(window.qrcode); else { qrLib = null; reject(new Error('The QR library did not load.')); } };
+      s.onerror = function () { qrLib = null; reject(new Error('The QR library did not load.')); };
+      document.head.appendChild(s);
+    });
+    return qrLib;
+  }
+  /* The QR as an SVG built node by node (no HTML strings), crisp in print. */
+  function qrSvg(text, px) {
+    var q = window.qrcode(0, 'M'); q.addData(text); q.make();
+    var n = q.getModuleCount(), m = 4, size = n + m * 2, d = '';
+    for (var r = 0; r < n; r++) for (var c = 0; c < n; c++) if (q.isDark(r, c)) d += 'M' + (c + m) + ' ' + (r + m) + 'h1v1h-1z';
+    var NS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + size + ' ' + size);
+    svg.setAttribute('width', String(px)); svg.setAttribute('height', String(px));
+    svg.setAttribute('shape-rendering', 'crispEdges');
+    svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'QR code for ' + text);
+    var bg = document.createElementNS(NS, 'rect');
+    bg.setAttribute('width', String(size)); bg.setAttribute('height', String(size)); bg.setAttribute('fill', '#fff');
+    var p = document.createElementNS(NS, 'path'); p.setAttribute('d', d); p.setAttribute('fill', '#19150F');
+    svg.appendChild(bg); svg.appendChild(p);
+    return svg;
+  }
+  /* A sheet for the venue: title, when and where, a big QR, the code. Only it prints. */
+  async function printQr(e) {
+    try { await loadQrLib(); } catch (err) { return toast(err.message); }
+    var old = document.getElementById('printSheet'); if (old) old.remove();
+    document.body.appendChild(el('div', { id: 'printSheet' }, [
+      el('h1', { text: e.title }),
+      el('p', { class: 'ps-when', text: when(e.starts_at) + (e.where_label ? ' · ' + e.where_label : '') }),
+      qrSvg(checkinLink(e), 420),
+      el('p', { class: 'ps-say', text: 'Check in: scan this with your phone’s camera' }),
+      el('p', { class: 'ps-code', text: 'Code ' + spacedCode(e.checkin_code) }),
+      el('p', { class: 'ps-url', text: checkinLink(e) }),
+    ]));
+    window.print();
   }
   async function viewEvents(root) {
     var list = el('div');
     var form = el('div', { class: 'card' });
     root.appendChild(el('h2', { text: 'Events' }));
-    root.appendChild(el('p', { class: 'muted', text: 'Published events show on m3xi.com/events. With "Remind an hour before", everyone who opens CallMe in the hour before it starts gets a letter — no app update needed. Times are in your local time zone (' + Intl.DateTimeFormat().resolvedOptions().timeZone + ').' }));
+    root.appendChild(el('p', { class: 'muted', text: 'Published events show in the app’s Events thread (newest first) and on m3xi.com/events. With "Remind an hour before", everyone who opens CallMe in the hour before it starts gets a letter — no app update needed. Times are in your local time zone (' + Intl.DateTimeFormat().resolvedOptions().timeZone + ').' }));
     root.appendChild(form);
     root.appendChild(list);
     function f(label, input) { return el('div', {}, [el('label', { text: label }), input]); }
@@ -451,7 +749,109 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
       var title = el('input', { type: 'text', maxlength: '80', value: e.title || '', style: 'width:100%' });
       var slug = el('input', { type: 'text', maxlength: '48', value: e.slug || '', placeholder: 'quiz-night-october', style: 'width:100%' });
       var slugTouched = !!e.slug;
-      var body = el('textarea', { maxlength: '800' }); body.value = e.body || '';
+      var body = el('textarea', { maxlength: '1500', style: 'min-height:120px' }); body.value = e.body || '';
+      var bodyCount = el('div', { class: 'muted' });
+      function countBody() {
+        var n = body.value.trim().length;
+        bodyCount.textContent = n + ' / 1500' + (n > 800 ? ' — the letters carry the first 800; the post keeps it all' : '');
+      }
+
+      /* The hook: a picture or a short video, uploaded now, saved with the event. */
+      var hookKind = e.hook_kind || null, hookPath = e.hook_path || null, coverPath = e.cover_path || null;
+      var mediaBox = el('div');
+      function renderMedia() {
+        mediaBox.textContent = '';
+        var busy = el('span', { class: 'muted' });
+        var pick = el('input', { type: 'file', accept: 'image/jpeg,image/png,video/mp4' });
+        pick.addEventListener('change', async function () {
+          var file = pick.files && pick.files[0]; if (!file) return;
+          var kind = file.type === 'video/mp4' ? 'video' : 'image';
+          pick.disabled = true; busy.textContent = 'Uploading…';
+          var path = await uploadEventMedia(file, kind);
+          pick.disabled = false; busy.textContent = '';
+          if (path) { hookKind = kind; hookPath = path; renderMedia(); }
+        });
+        var coverPick = el('input', { type: 'file', accept: 'image/jpeg,image/png' });
+        coverPick.addEventListener('change', async function () {
+          var file = coverPick.files && coverPick.files[0]; if (!file) return;
+          coverPick.disabled = true; busy.textContent = 'Uploading…';
+          var path = await uploadEventMedia(file, 'image');
+          coverPick.disabled = false; busy.textContent = '';
+          if (path) { coverPath = path; renderMedia(); }
+        });
+        var shown = hookKind === 'image' && hookPath
+          ? el('img', { class: 'hookprev', src: mediaUrl(hookPath), alt: 'The picture on this post' })
+          : hookKind === 'video' && hookPath
+            ? el('div', { class: 'muted' }, ['A video: it plays muted and looping in the app, and a tap turns the sound on. ',
+                el('a', { href: mediaUrl(hookPath), target: '_blank', rel: 'noopener', text: 'Watch it' })])
+            : el('div', { class: 'muted', text: 'No picture or video yet. A post reads better with one.' });
+        mediaBox.appendChild(el('div', { class: 'grid2' }, [
+          el('div', {}, [
+            el('label', { text: 'Picture or video (JPEG/PNG up to 5 MB, MP4 up to 40 MB)' }), shown,
+            el('div', { class: 'row' }, [pick, hookPath ? el('button', { class: 'btn', text: 'Remove', onclick: function () { hookKind = null; hookPath = null; renderMedia(); } }) : null]),
+          ]),
+          el('div', {}, [
+            el('label', { text: 'Still picture (optional) — shown before a video plays, and when the post is shared' }),
+            coverPath ? el('img', { class: 'hookprev', src: mediaUrl(coverPath), alt: 'The still picture' }) : el('div', { class: 'muted', text: 'None.' }),
+            el('div', { class: 'row' }, [coverPick, coverPath ? el('button', { class: 'btn', text: 'Remove', onclick: function () { coverPath = null; renderMedia(); } }) : null]),
+          ]),
+        ]));
+        mediaBox.appendChild(busy);
+      }
+
+      /* Up to five questions, answered when people check in at the venue. The
+         id stays with a question when it is edited, and answers are kept by id. */
+      var questions = (Array.isArray(e.questions) ? e.questions : []).map(function (q) {
+        return { id: q.id, text: q.text || '', kind: q.kind === 'choice' ? 'choice' : 'text', choices: (q.choices || []).join('\n') };
+      });
+      var qBox = el('div');
+      function nextQid() {
+        var used = {}; questions.forEach(function (q) { used[q.id] = true; });
+        for (var i = 1; i < 100; i++) if (!used['q' + i]) return 'q' + i;
+        return 'q' + Date.now();
+      }
+      function renderQuestions() {
+        qBox.textContent = '';
+        questions.forEach(function (q, i) {
+          var text = el('input', { type: 'text', maxlength: '140', value: q.text, style: 'width:100%', placeholder: 'e.g. How did you hear about tonight?' });
+          text.addEventListener('input', function () { q.text = text.value; });
+          var kind = el('select', {}, [el('option', { value: 'text', text: 'Written answer (up to 280 characters)' }), el('option', { value: 'choice', text: 'Pick one of…' })]);
+          kind.value = q.kind;
+          var choices = el('textarea', { placeholder: 'One choice per line — 2 to 6, up to 40 characters each', style: 'min-height:64px;margin-top:6px' });
+          choices.value = q.choices; choices.hidden = q.kind !== 'choice';
+          kind.addEventListener('change', function () { q.kind = kind.value; choices.hidden = q.kind !== 'choice'; });
+          choices.addEventListener('input', function () { q.choices = choices.value; });
+          qBox.appendChild(el('div', { class: 'quote', style: 'white-space:normal' }, [
+            el('div', { class: 'row spread' }, [el('strong', { text: 'Question ' + (i + 1) }),
+              el('button', { class: 'btn bad', text: 'Remove', onclick: function () { questions.splice(i, 1); renderQuestions(); } })]),
+            el('label', { text: 'Question (140)' }), text,
+            el('label', { text: 'Answer' }), kind, choices,
+          ]));
+        });
+        qBox.appendChild(el('button', { class: 'btn', text: 'Add a question', disabled: questions.length >= 5, onclick: function () {
+          questions.push({ id: nextQid(), text: '', kind: 'text', choices: '' }); renderQuestions();
+        } }));
+      }
+      /* The array staff_event_upsert takes, or null after saying what is wrong. */
+      function questionsPayload() {
+        var out = [];
+        for (var i = 0; i < questions.length; i++) {
+          var q = questions[i], t = q.text.trim(), n = 'Question ' + (i + 1);
+          if (!t) { toast(n + ' is empty — write it or remove it.'); return null; }
+          if (t.length > 140) { toast(n + ' is over 140 characters.'); return null; }
+          if (q.kind === 'choice') {
+            var cs = q.choices.split('\n').map(function (c) { return c.trim(); }).filter(Boolean);
+            if (cs.length < 2 || cs.length > 6) { toast(n + ' needs 2 to 6 choices, one per line.'); return null; }
+            if (cs.some(function (c) { return c.length > 40; })) { toast(n + ': each choice can be up to 40 characters.'); return null; }
+            var low = cs.map(function (c) { return c.toLowerCase(); });
+            if (low.some(function (c, j) { return low.indexOf(c) !== j; })) { toast(n + ' has the same choice twice.'); return null; }
+            out.push({ id: q.id, text: t, kind: 'choice', choices: cs });
+          } else {
+            out.push({ id: q.id, text: t, kind: 'text' });
+          }
+        }
+        return out;
+      }
       var where = el('input', { type: 'text', maxlength: '60', value: e.where_label || '', placeholder: 'At a big table in the app' });
       var starts = el('input', { type: 'datetime-local', value: toLocalInput(e.starts_at) });
       var ends = el('input', { type: 'datetime-local', value: toLocalInput(e.ends_at) });
@@ -469,7 +869,7 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
         preview.appendChild(el('div', { class: 'letter', style: 'margin-top:22px' }, [
           el('div', { class: 'seal' }),
           el('h4', { text: ('In an hour: ' + t).slice(0, 80) }),
-          el('p', { text: body.value.trim() || 'What the event is, in a sentence or two.' }),
+          el('p', { text: (function (b) { return b.length > 800 ? b.slice(0, 799) + '…' : b; })(body.value.trim()) || 'What the event is, in a sentence or two.' }),
           el('span', { class: 'lbtn', text: 'See the event' }),
         ]));
       }
@@ -482,13 +882,21 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
       }
       title.addEventListener('input', function () { if (!slugTouched) slug.value = slugify(title.value); countTitle(); renderPreview(); });
       slug.addEventListener('input', function () { slugTouched = true; });
-      body.addEventListener('input', renderPreview);
+      body.addEventListener('input', function () { renderPreview(); countBody(); });
       form.appendChild(el('h3', { text: e.id ? 'Edit event' : 'New event' }));
       form.appendChild(f('Title (80)', title));
       form.appendChild(titleCount);
       countTitle();
       form.appendChild(f('Web address — m3xi.com/events/#…', slug));
-      form.appendChild(f('What it is (800)', body));
+      form.appendChild(f('What it is (1500) — the post’s words; the app shows the first few lines with “More”', body));
+      form.appendChild(bodyCount);
+      countBody();
+      form.appendChild(mediaBox);
+      renderMedia();
+      form.appendChild(el('label', { text: 'Check-in questions (optional, up to 5) — asked on the page the venue’s QR opens' }));
+      form.appendChild(el('p', { class: 'muted', style: 'margin:0 0 6px', text: 'Every question can be skipped. Edit wording freely; answers already given stay with their question.' }));
+      form.appendChild(qBox);
+      renderQuestions();
       form.appendChild(el('div', { class: 'grid2' }, [f('Starts', starts), f('Ends (optional)', ends), f('Where (optional)', where), f('Status', status)]));
       form.appendChild(el('div', { class: 'grid2' }, [f('Button label (optional)', ctaLabel), f('Button link (m3xi.com only)', ctaUrl)]));
       form.appendChild(el('div', { class: 'grid2' }, [
@@ -505,12 +913,16 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
           if (ends.value && new Date(ends.value) <= new Date(starts.value)) return toast('It has to end after it starts.');
           if (!!ctaLabel.value.trim() !== !!ctaUrl.value.trim()) return toast('A button needs both a label and a link.');
           if (ctaUrl.value && !/^https:\/\/(www\.)?m3xi\.com(\/\S*)?$/i.test(ctaUrl.value.trim())) return toast('Links must start https://www.m3xi.com');
+          var qs = questionsPayload(); if (!qs) return;
           await rpc('staff_event_upsert', {
             p_id: e.id || null, p_slug: slug.value.trim(), p_title: title.value.trim(), p_body: body.value.trim(),
             p_where: where.value.trim() || null, p_starts_at: new Date(starts.value).toISOString(),
             p_ends_at: ends.value ? new Date(ends.value).toISOString() : null,
             p_cta_label: ctaLabel.value.trim() || null, p_cta_url: ctaUrl.value.trim() || null,
             p_remind: remind.checked, p_announce_now: now.checked, p_status: status.value,
+            // 0102: sent every time, so the form is the whole truth ('none' / '' clear).
+            p_hook_kind: hookKind || 'none', p_hook_path: hookPath || null,
+            p_cover_path: coverPath || '', p_questions: qs,
           });
           toast(e.id ? 'Saved' : 'Posted'); buildForm(); load();
         } }),
@@ -524,16 +936,81 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
       if (!rows.length) list.appendChild(el('p', { class: 'muted', text: 'No events yet.' }));
       rows.forEach(function (e) {
         var past = new Date(e.ends_at || (new Date(e.starts_at).getTime() + 2 * 3600e3)) < new Date();
+        var nq = Array.isArray(e.questions) ? e.questions.length : 0;
+        var hookEl = e.hook_kind === 'image' && e.hook_path
+          ? el('img', { class: 'hookprev', src: mediaUrl(e.hook_path), alt: 'The picture on this post' })
+          : e.hook_kind === 'video' && e.hook_path
+            ? el('div', { class: 'muted' }, ['Video hook — ', el('a', { href: mediaUrl(e.hook_path), target: '_blank', rel: 'noopener', text: 'watch it' })])
+            : null;
+
+        /* Check-in: the code (staff only), a new one, the QR and who came. */
+        var codeEl = el('span', { class: 'code', text: spacedCode(e.checkin_code) });
+        var qrBox = el('div', { class: 'qrbox' });
+        var whoBox = el('div');
+        async function showQr() {
+          try { await loadQrLib(); } catch (err) { return toast(err.message); }
+          qrBox.textContent = '';
+          qrBox.appendChild(qrSvg(checkinLink(e), 200));
+          qrBox.appendChild(el('div', { class: 'muted', style: 'word-break:break-all', text: checkinLink(e) }));
+        }
+        async function showCheckins() {
+          whoBox.textContent = 'Loading…';
+          var got = await rpc('staff_event_checkins', { p_event: e.id });
+          whoBox.textContent = '';
+          if (!got.length) { whoBox.appendChild(el('p', { class: 'muted', text: 'Nobody has checked in yet.' })); return; }
+          var qText = {};
+          (Array.isArray(e.questions) ? e.questions : []).forEach(function (q) { qText[q.id] = q.text; });
+          var tb = el('tbody');
+          got.forEach(function (r) {
+            var ans = el('div');
+            Object.keys(r.answers || {}).forEach(function (k) {
+              ans.appendChild(el('div', {}, [el('span', { class: 'muted', text: (qText[k] || k) + ': ' }), String(r.answers[k])]));
+            });
+            if (!ans.childNodes.length) ans.appendChild(el('span', { class: 'muted', text: '—' }));
+            tb.appendChild(el('tr', {}, [
+              el('td', {}, [el('div', { text: r.display_name || 'Someone' }), el('div', { class: 'muted', text: String(r.user_id).slice(0, 8) })]),
+              el('td', { text: when(r.checked_in_at) }),
+              el('td', {}, [ans]),
+            ]));
+          });
+          whoBox.appendChild(el('p', { class: 'muted', text: got.length + (got.length === 1 ? ' person' : ' people') + ' checked in.' }));
+          whoBox.appendChild(el('table', {}, [el('thead', {}, [el('tr', {}, [el('th', { text: 'Who' }), el('th', { text: 'When' }), el('th', { text: 'Answers' })])]), tb]));
+        }
+        var checkin = e.status === 'cancelled' ? null : el('div', { class: 'quote', style: 'white-space:normal' }, [
+          el('div', { class: 'row spread' }, [
+            el('strong', { text: 'Check-in' }),
+            el('span', { class: 'muted', text: e.status === 'draft' ? 'Opens once it is published — 12 hours before the start until 6 hours after the end.' : 'Open from 12 hours before the start until 6 hours after the end.' }),
+          ]),
+          el('div', { class: 'row', style: 'margin-top:6px' }, [
+            el('span', { class: 'muted', text: 'Code' }), codeEl,
+            el('button', { class: 'btn', text: 'New code', onclick: async function () {
+              if (!confirm('Make a new check-in code for "' + e.title + '"? A QR printed before stops working at once.')) return;
+              var c = await rpc('staff_event_new_code', { p_event: e.id });
+              e.checkin_code = c; codeEl.textContent = spacedCode(c);
+              if (qrBox.childNodes.length) showQr();
+              toast('New code made — print the new QR.');
+            } }),
+            el('button', { class: 'btn', text: 'Show QR', onclick: showQr }),
+            el('button', { class: 'btn primary', text: 'Print QR', onclick: function () { printQr(e); } }),
+            el('button', { class: 'btn', text: 'Check-ins (' + (e.checkin_count || 0) + ')', onclick: showCheckins }),
+          ]),
+          qrBox, whoBox,
+        ]);
+
         list.appendChild(el('div', { class: 'card' }, [
           el('div', { class: 'row spread' }, [el('h3', { text: e.title }), el('div', { class: 'row' }, [
             el('span', { class: 'pill' + (e.status === 'published' && !past ? '' : ' shadow'), text: past && e.status === 'published' ? 'over' : e.status }),
             e.reminder_active ? el('span', { class: 'pill', text: 'reminder letter set' }) : null,
             e.now_active ? el('span', { class: 'pill', text: 'letter out now' }) : null,
+            el('span', { class: 'pill', text: (e.going_count || 0) + ' going' }),
+            nq ? el('span', { class: 'pill', text: nq + (nq === 1 ? ' question' : ' questions') }) : null,
             el('span', { class: 'pill', text: 'v' + e.version }),
           ])]),
           el('div', { class: 'muted', text: when(e.starts_at) + (e.ends_at ? ' – ' + when(e.ends_at) : '') + (e.where_label ? ' · ' + e.where_label : '') }),
+          hookEl,
           el('div', { class: 'quote', text: e.body }),
           el('div', { class: 'muted', text: 'm3xi.com/events/#' + e.slug }),
+          checkin,
           el('div', { class: 'row', style: 'margin-top:8px' }, [
             e.status !== 'cancelled' ? el('button', { class: 'btn', text: 'Edit', onclick: function () { buildForm(e); window.scrollTo({ top: 0, behavior: 'smooth' }); } }) : null,
             e.status !== 'cancelled' ? el('button', { class: 'btn bad', text: 'Cancel event', onclick: async function () {
@@ -827,11 +1304,12 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
       } })])]));
   }
 
-  var VIEWS = { appeals: viewAppeals, actions: viewActions, people: viewPeople, announce: viewAnnounce, events: viewEvents, designs: viewDesigns, settings: viewSettings, staff: viewStaff };
-  function show(tab) {
+  var VIEWS = { appeals: viewAppeals, reports: viewReports, actions: viewActions, people: viewPeople, announce: viewAnnounce, events: viewEvents, designs: viewDesigns, settings: viewSettings, staff: viewStaff };
+  function show(tab, opts) {
     document.querySelectorAll('nav.tabs button').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === tab)); });
     var root = $('view'); root.textContent = '';
-    VIEWS[tab](root).catch(function () {});
+    window.scrollTo(0, 0);
+    VIEWS[tab](root, opts || {}).catch(function () {});
   }
   document.querySelectorAll('nav.tabs button').forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.tab); }); });
 

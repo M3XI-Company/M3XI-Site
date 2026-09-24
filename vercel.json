@@ -117,133 +117,18 @@
       "permanent": false
     },
     {
-      "source": "/studio/generate.html",
-      "destination": "/studio/",
+      "source": "/studio",
+      "destination": "/services/#spatial",
       "permanent": false
     },
     {
-      "source": "/studio/generate",
-      "destination": "/studio/",
+      "source": "/studio/",
+      "destination": "/services/#spatial",
       "permanent": false
     },
     {
-      "source": "/studio/generate/",
-      "destination": "/studio/",
-      "permanent": false
-    },
-    {
-      "source": "/studio/images.html",
-      "destination": "/studio/",
-      "permanent": false
-    },
-    {
-      "source": "/studio/images",
-      "destination": "/studio/",
-      "permanent": false
-    },
-    {
-      "source": "/studio/images/",
-      "destination": "/studio/",
-      "permanent": false
-    },
-    {
-      "source": "/studio/video.html",
-      "destination": "/studio/",
-      "permanent": false
-    },
-    {
-      "source": "/studio/video",
-      "destination": "/studio/",
-      "permanent": false
-    },
-    {
-      "source": "/studio/video/",
-      "destination": "/studio/",
-      "permanent": false
-    },
-    {
-      "source": "/studio/free.html",
-      "destination": "/studio/",
-      "permanent": false
-    },
-    {
-      "source": "/studio/free",
-      "destination": "/studio/",
-      "permanent": false
-    },
-    {
-      "source": "/studio/free/",
-      "destination": "/studio/",
-      "permanent": false
-    },
-    {
-      "source": "/studio/ugc.html",
-      "destination": "/studio/",
-      "permanent": false
-    },
-    {
-      "source": "/studio/ugc",
-      "destination": "/studio/",
-      "permanent": false
-    },
-    {
-      "source": "/studio/ugc/",
-      "destination": "/studio/",
-      "permanent": false
-    },
-    {
-      "source": "/studio/editor.html",
-      "destination": "/studio/",
-      "permanent": false
-    },
-    {
-      "source": "/studio/editor",
-      "destination": "/studio/",
-      "permanent": false
-    },
-    {
-      "source": "/studio/editor/",
-      "destination": "/studio/",
-      "permanent": false
-    },
-    {
-      "source": "/studio/pricing.html",
-      "destination": "/studio/business.html",
-      "permanent": false
-    },
-    {
-      "source": "/studio/pricing",
-      "destination": "/studio/business.html",
-      "permanent": false
-    },
-    {
-      "source": "/studio/pricing/",
-      "destination": "/studio/business.html",
-      "permanent": false
-    },
-    {
-      "source": "/studio/library.html",
-      "destination": "/studio/worlds.html#library",
-      "permanent": false
-    },
-    {
-      "source": "/studio/library",
-      "destination": "/studio/worlds.html#library",
-      "permanent": false
-    },
-    {
-      "source": "/studio/library/",
-      "destination": "/studio/worlds.html#library",
-      "permanent": false
-    },
-    {
-      "source": "/studio/:page(account|business|walkthrough|worlds)",
-      "destination": "/studio/:page.html",
-      "permanent": false
-    },
-    {
-      "source": "/studio/:page(account|business|walkthrough|worlds)/",
-      "destination": "/studio/:page.html",
+      "source": "/studio/:path*",
+      "destination": "/services/#spatial",
       "permanent": false
     },
     {
@@ -278,17 +163,12 @@
     },
     {
       "source": "/projects/:path*",
-      "destination": "/services/:path*",
+      "destination": "/services/",
       "permanent": true
     },
     {
       "source": "/walk",
-      "destination": "/studio/walkthrough.html",
-      "permanent": false
-    },
-    {
-      "source": "/studio/walk",
-      "destination": "/studio/walkthrough.html",
+      "destination": "/services/#spatial",
       "permanent": false
     }
   ],
@@ -296,10 +176,6 @@
     {
       "source": "/home",
       "destination": "/"
-    },
-    {
-      "source": "/tour/:slug((?!index[.]html$|tour[.]js$|embed[.]js$)[a-z0-9-]+)",
-      "destination": "/api/tour?slug=:slug"
     },
     {
       "source": "/invite/:code([A-Za-z0-9]{6,16})",
@@ -316,6 +192,14 @@
     {
       "source": "/p/:code([A-Za-z0-9]{4,16})/",
       "destination": "/p/index.html"
+    },
+    {
+      "source": "/e",
+      "destination": "/e/index.html"
+    },
+    {
+      "source": "/e/",
+      "destination": "/e/index.html"
     },
     {
       "source": "/view",
@@ -435,7 +319,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://www.m3xi.com; connect-src https://cwjspmhgspiavyzrtosl.supabase.co; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://www.m3xi.com https://cwjspmhgspiavyzrtosl.supabase.co; media-src https://cwjspmhgspiavyzrtosl.supabase.co; connect-src https://cwjspmhgspiavyzrtosl.supabase.co; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"
         }
       ]
     },
@@ -460,7 +344,65 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://www.m3xi.com; connect-src https://cwjspmhgspiavyzrtosl.supabase.co; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://www.m3xi.com https://cwjspmhgspiavyzrtosl.supabase.co; media-src https://cwjspmhgspiavyzrtosl.supabase.co; connect-src https://cwjspmhgspiavyzrtosl.supabase.co; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/e/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=()"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://cwjspmhgspiavyzrtosl.supabase.co; media-src https://cwjspmhgspiavyzrtosl.supabase.co; connect-src https://cwjspmhgspiavyzrtosl.supabase.co; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/e",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=()"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://cwjspmhgspiavyzrtosl.supabase.co; media-src https://cwjspmhgspiavyzrtosl.supabase.co; connect-src https://cwjspmhgspiavyzrtosl.supabase.co; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"
         }
       ]
     },

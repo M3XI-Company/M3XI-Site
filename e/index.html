@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>An event — CallMe by M3XI</title>
+<meta name="description" content="A CallMe event: when and where it is, what it is about, and how to check in at the venue with the CallMe app." />
+<!-- The venue's QR puts a check-in code in this page's address. It must not
+     travel on to any other site, and the pages are not for search engines. -->
+<meta name="referrer" content="no-referrer" />
+<meta name="robots" content="noindex, follow" />
+<link rel="icon" type="image/png" href="/M.png" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="M3XI" />
+<meta property="og:title" content="A CallMe event" />
+<meta property="og:description" content="Big tables, themed nights and meet-ups. See what's on and check in at the venue with CallMe." />
+<meta property="og:image" content="https://www.m3xi.com/img/callme/screen-04.webp" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
+<!--
+  m3xi.com/e/?id=<event id>[&c=<check-in code>] — one event, and the page the
+  venue's QR opens. A Vite entry (vite.config.js), not a file in public/.
+  Phase 5 item 2, 24 Sep 2026; the data contract is the app repo's
+  docs/phase5/EVENTS_CONTRACT.md, the notes are docs/phase5/checkin.md.
+
+  The event comes from event_public(p_id) (migration 0102) with the public anon
+  key: public fields only, never the code, never who is going, never anyone's
+  answers. Checking in happens in the CallMe app (event_checkin needs a signed-in,
+  age-checked member): with &c= in the address, the page offers "Check in with
+  CallMe", which hands the same address to the app. The code is never written
+  on the page, never logged, and taken out of the address bar once read, so a
+  shared or bookmarked page does not carry it.
+
+  No inline script: /e ships under `script-src 'self'` (vercel.json), so the
+  page's code is e.js, bundled and hashed by Vite.
+-->
+<style>
+:root{
+  --paper:#F0E8D8; --panel:#FBF6EC; --white:#FFFDF8;
+  --ink:#19150F; --ink2:#605747; --ink3:#8A8173;
+  --blue:#2B4257; --gold:#B6892F;
+  --rose:#B7566B; --rose-deep:#963F54; --rose-soft:#F3DEDF;
+  --line:rgba(25,21,15,.14); --line2:rgba(25,21,15,.22);
+  --edge:rgba(25,21,15,.78);
+  --maxw:760px;
+}
+*{box-sizing:border-box}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+body{margin:0;color:var(--ink);font:400 16px/1.65 'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;background-color:#EFE7D6;
+  background-image:
+    linear-gradient(rgba(43,66,87,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(43,66,87,.045) 1px, transparent 1px),
+    radial-gradient(1200px 700px at 85% -10%, rgba(255,253,247,.92), transparent 60%);
+  background-size:30px 30px,30px 30px,100% 100%}
+a{color:inherit}
+img,video{max-width:100%;display:block}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;margin:0;text-wrap:balance}
+.eyebrow{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 12px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
+:focus-visible{outline:3px solid rgba(183,86,107,.45);outline-offset:3px;border-radius:4px}
+[hidden]{display:none!important}
+
+main{padding:30px 0 56px}
+.back{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--ink2);text-decoration:none;font-size:15px}
+.back:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.back svg{width:14px;height:14px}
+.state{color:var(--ink2);padding:22px 0 8px}
+
+/* A letter: cream stock, an ink edge, tape and a wax seal. */
+.letter{position:relative;background:var(--white);border:1.5px solid var(--edge);border-radius:12px;
+  padding:32px 26px 22px;box-shadow:0 24px 40px -34px rgba(43,66,87,.55);margin:22px 0 0}
+@media (max-width:520px){.letter{padding:30px 18px 20px}}
+.letter .tape{position:absolute;top:-11px;left:26px;width:86px;height:22px;background:rgba(201,169,122,.55);transform:rotate(-4deg);z-index:2}
+.letter .seal{position:absolute;top:-17px;right:22px;width:36px;height:36px;z-index:2}
+
+.hook{position:relative;margin:0 0 18px;border:1.5px solid var(--edge);border-radius:8px;overflow:hidden;background:#E7DECD;aspect-ratio:16/10}
+.hook img,.hook video{width:100%;height:100%;object-fit:cover}
+.hook video{background:#15120d}
+
+.when{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600}
+.flag{display:inline-block;margin-left:8px;font-size:11px;letter-spacing:.12em;padding:2px 7px;border:1px solid var(--line2);border-radius:6px;color:var(--ink2);background:var(--panel);vertical-align:1px}
+.flag.off{color:#8F2E22;border-color:rgba(143,46,34,.45)}
+.event h1{font-size:clamp(30px,4.6vw,44px);line-height:1.1;margin:10px 0 10px}
+.where{display:flex;align-items:flex-start;gap:6px;font-size:15px;color:var(--ink2);margin:0 0 14px}
+.where svg{flex:none;width:15px;height:15px;margin-top:5px}
+.body{margin:0 0 12px;color:var(--ink2);white-space:pre-wrap;overflow-wrap:anywhere}
+.more{background:none;border:0;padding:0;margin:-4px 0 14px;font:600 14px 'Inter',sans-serif;color:var(--rose-deep);cursor:pointer;text-decoration:underline;
+  text-underline-offset:3px;min-height:32px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;border-top:1px dashed var(--line2);padding-top:14px;margin-top:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font:600 15px 'Playfair Display',Georgia,serif;
+  min-height:44px;padding:0 15px;border-radius:10px;border:1.5px solid var(--ink);background:var(--panel);color:var(--ink);cursor:pointer}
+.btn:hover{background:var(--white)}
+.btn.rose{background:var(--rose);border-color:var(--rose-deep);color:#fff;box-shadow:0 2px 0 var(--rose-deep)}
+.btn.rose:hover{background:var(--rose-deep)}
+.btn svg{width:18px;height:18px;flex:none}
+
+/* Checking in: its own letter under the event, rose-washed so it reads as
+   the thing to do at the venue. */
+.checkin{background:#FFF9F6;border-color:var(--rose-deep)}
+.checkin .tape{background:rgba(183,86,107,.32);left:auto;right:74px;transform:rotate(3deg)}
+.checkin h2{font-size:clamp(25px,3.4vw,32px);margin:0 0 8px}
+.checkin p{color:var(--ink2);margin:0 0 12px}
+.checkin .go{width:100%;min-height:56px;font-size:19px;margin:6px 0 4px}
+.stores{border-top:1px dashed var(--line2);margin-top:16px;padding-top:14px}
+.stores .label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 8px}
+.stores .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.small{font-size:14px;color:var(--ink3);margin:10px 0 0}
+.stamp{display:inline-flex;align-items:center;gap:8px;font:600 15px 'Playfair Display',Georgia,serif;color:var(--ink);
+  border:1.5px dashed var(--line2);border-radius:10px;padding:10px 14px;background:var(--panel);margin:4px 0 10px}
+
+.missing h1{font-size:clamp(28px,4vw,38px);margin:0 0 10px}
+.missing p{color:var(--ink2);margin:0 0 12px}
+</style>
+<link rel="stylesheet" href="/shared/site-chrome.css">
+</head>
+<body>
+
+<header class="m3-head"><div class="m3-bar">
+  <a class="m3-brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="m3-jp" aria-hidden="true">三X一</span></a>
+  <nav class="m3-nav" aria-label="Main">
+    <ul class="m3-links">
+      <li><a href="/">CallMe</a></li>
+      <li><a href="/design/">Create</a></li>
+      <li><a href="/events/" aria-current="page">Events</a></li>
+      <li class="m3-help">
+        <details class="m3-drop">
+          <summary>Help</summary>
+          <ul class="m3-menu">
+            <li><a href="/questions/"><b>Questions</b><small>The short answers about CallMe</small></a></li>
+            <li><a href="/safety/"><b>Safety</b><small>How we keep calls safe</small></a></li>
+            <li><a href="/contact/"><b>Contact</b><small>Write to a person at M3XI</small></a></li>
+          </ul>
+        </details>
+      </li>
+    </ul>
+  </nav>
+  <a class="m3-get" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get CallMe</a>
+</div></header>
+
+<main>
+  <div class="wrap">
+    <a class="back" href="/events/"><svg viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M9 2 4 7l5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>All events</a>
+
+    <div id="state" class="state" role="status" aria-live="polite">Finding the event&hellip;</div>
+
+    <!-- Checking in comes first on a phone at the venue: that is why the QR
+         was scanned. It is filled and shown only when the address has &c=. -->
+    <section id="checkin" class="letter checkin" aria-labelledby="checkin-h" hidden>
+      <span class="tape" aria-hidden="true"></span>
+      <p class="eyebrow">At the venue</p>
+      <h2 id="checkin-h">Check in with CallMe</h2>
+      <p id="checkin-words">CallMe opens this event's check-in. Checking in lets the CallMe team know you're here.</p>
+      <p id="checkin-note" class="stamp" hidden></p>
+      <a class="btn rose go" id="checkin-open" href="#" hidden>Check in with CallMe</a>
+      <p class="small" id="checkin-help" hidden>Already have CallMe and nothing happens? Open CallMe, go to Events, tap &ldquo;Scan an event&rsquo;s code&rdquo; and scan the code here again.</p>
+      <div class="stores" id="stores">
+        <p class="label">Don't have CallMe yet?</p>
+        <div class="row">
+          <a class="btn" id="store-play" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M4.6 2.2c-.3.3-.5.8-.5 1.4v16.8c0 .6.2 1.1.5 1.4l.1.1 9.4-9.4v-.2L4.7 2.1l-.1.1Zm12.6 12.9-3.1-3.1v-.2l3.1-3.1.1.1 3.7 2.1c1.1.6 1.1 1.6 0 2.2l-3.7 2.1-.1-.1Zm-.1.1-3.2-3.2-9.3 9.3c.3.4.9.4 1.6 0l10.9-6.1Zm0-6.5L6.2 2.6c-.7-.4-1.3-.4-1.6 0l9.3 9.3 3.2-3.2Z"/></svg>
+            Get it on Google Play
+          </a>
+        </div>
+        <p class="small" id="store-ios" hidden>CallMe for iPhone isn't on the App Store yet.</p>
+        <p class="small">Once it's installed and you've signed up, scan the code at the venue again to check in.</p>
+      </div>
+    </section>
+
+    <article id="event" class="letter event" aria-labelledby="event-h" hidden>
+      <span class="tape" aria-hidden="true"></span>
+      <div id="event-hook"></div>
+      <div class="when" id="event-when"></div>
+      <h1 id="event-h"></h1>
+      <p class="where" id="event-where" hidden></p>
+      <p class="body" id="event-body"></p>
+      <button class="more" type="button" id="event-more" aria-expanded="false" hidden>Read the rest</button>
+      <div class="actions" id="event-actions"></div>
+    </article>
+
+    <section id="missing" class="letter missing" aria-labelledby="missing-h" hidden>
+      <span class="tape" aria-hidden="true"></span>
+      <h1 id="missing-h">We can't find that event</h1>
+      <p id="missing-words">It may have been taken down, or the link is missing part of its address.</p>
+      <div class="actions">
+        <button class="btn" type="button" id="retry" hidden>Try again</button>
+        <a class="btn rose" href="/events/">See what's on</a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="m3-foot"><div class="m3-footin">
+  <div>
+    <a class="m3-brand" href="/"><img src="/M.png" alt="" width="26" height="26"> M3XI</a>
+    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London</p>
+  </div>
+  <nav class="m3-footnav" aria-label="Footer">
+    <div><p class="m3-fh">CallMe</p><ul>
+      <li><a href="/">CallMe</a></li>
+      <li><a href="/design/">Create</a></li>
+      <li><a href="/events/">Events</a></li>
+    </ul></div>
+    <div><p class="m3-fh">Help</p><ul>
+      <li><a href="/questions/">Questions</a></li>
+      <li><a href="/safety/">Safety</a></li>
+      <li><a href="/contact/">Contact</a></li>
+      <li><a href="/delete-account/">Delete account</a></li>
+    </ul></div>
+    <div><p class="m3-fh">M3XI</p><ul>
+      <li><a href="/team/">Team</a></li>
+      <li><a href="/jobs/">Jobs</a></li>
+      <li><a href="/services/">Services</a></li>
+      <li><a href="/services/#spatial">M3XI Spatial</a></li>
+    </ul></div>
+    <div><p class="m3-fh">Legal</p><ul>
+      <li><a href="/privacy/">Policies</a></li>
+      <li><a href="/terms/">Terms</a></li>
+      <li><a href="/child-safety/">Child safety</a></li>
+    </ul></div>
+  </nav>
+</div></footer>
+
+<script type="module" src="/shared/site-chrome.js"></script>
+<script type="module" src="./e.js"></script>
+</body>
+</html>

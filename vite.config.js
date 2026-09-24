@@ -130,7 +130,24 @@ export default defineConfig({
         // in production, which is exactly how /view and /console were lost on
         // 20 Sep 2026. The QR target /p/<code> does NOT belong here: it lives
         // in public/p/ and is served through two vercel.json rewrites.
-        design: resolve(__dirname, "design/index.html")
+        design: resolve(__dirname, "design/index.html"),
+        // What's on: m3xi.com/events. A root entry since 24 Sep 2026 (it used
+        // to be a hand-written file in public/events/, which is gone): it reads
+        // events_public_list() and links every event to /e/?id=<id>, and its
+        // script is bundled so /events keeps `script-src 'self'`.
+        events: resolve(__dirname, "events/index.html"),
+        // One event: m3xi.com/e/?id=<id>, and the page the venue's check-in QR
+        // opens (/e/?id=<id>&c=<code>). It reads event_public() and hands the
+        // code to the app; its script is bundled so /e keeps `script-src 'self'`.
+        e: resolve(__dirname, "e/index.html")
+        // Every root page above links /shared/site-chrome.css and
+        // /shared/site-chrome.js, the one header and footer the site shares.
+        // Those are bundled from the pages, so they need no entry of their own.
+        //
+        // Deliberately NOT listed: cinematoon/, startup/ and notetaker/ are old
+        // product pages on hold (vercel.json sends /notetaker to /), and
+        // cornelia/ holds old Cornelia drafts. Listing them would publish them.
+        //
         // The four /studio/ pages that used to be listed here -- index,
         // worlds, business and account -- were DELETED with the rest of the
         // old spatial system, and listing a page that no longer exists is not

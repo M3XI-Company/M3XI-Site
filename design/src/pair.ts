@@ -385,10 +385,12 @@ export function mountSignIn(host: HTMLElement): () => void {
     }
 
     /* waiting */
-    // The real place. "Design your MeCards" is the card editor and has neither
-    // a camera nor a code field — the scanner lives on the collection's
-    // "My designs" tab, which Settings → Creator studio opens.
-    body.appendChild(el('p', { text: 'Open CallMe on your phone, go to Settings, then Creator studio, and scan this.' }));
+    // The real places. "Design your MeCards" is the card editor and has
+    // neither a camera nor a code field. The scanner ("Sign in on a computer")
+    // sits under the poster on My poster, and again on the collection's
+    // "My designs" tab (Settings → Creator studio). The front page's three
+    // steps name My poster, so this line does too.
+    body.appendChild(el('p', { text: 'On your phone, open CallMe, go to My poster and tap the square under Sign in on a computer. Then point your phone at this.' }));
     if (!CODE_SHAPE.test(code)) {
       // Between codes — after a reload, or in the second before a fresh one
       // lands. Never draw a QR of half a web address.

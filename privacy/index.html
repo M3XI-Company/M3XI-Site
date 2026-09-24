@@ -45,29 +45,11 @@ li{margin-bottom:6px}
 .muted{color:var(--ink2)}
 small.upd{display:block;color:var(--ink2);font-size:13px;margin-top:10px}
 
-header.site{position:sticky;top:0;z-index:40;backdrop-filter:saturate(180%) blur(9px);
-  background:rgba(241,234,221,.82);border-bottom:1px solid var(--line)}
-.nav{display:flex;align-items:center;justify-content:space-between;height:64px;gap:14px;max-width:1140px;margin:0 auto;padding:0 24px}
-.brand{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-weight:600;font-size:19px}
-.brand .mk{width:30px;height:30px;border-radius:8px;display:block}
-.brand .jp{font-size:13px;margin-left:1px}
-.menu{display:flex;align-items:center;gap:24px;font-size:14px;color:var(--ink2)}
-.menu a:hover{color:var(--ink)}
-.menu a.active{color:var(--ink)}
-/* phones: the links drop to a second row under the logo and scroll sideways; the edge fade is an overlay, never a mask */
-@media(max-width:640px){
-  .nav{position:relative;flex-wrap:wrap;row-gap:0;height:auto}
-  .brand{height:56px}
-  .menu{flex:0 0 calc(100% + 48px);margin:-4px -24px 0;padding:0 24px 2px;gap:22px;overflow-x:auto;scrollbar-width:none}
-  .menu::-webkit-scrollbar{display:none}
-  .menu::after{content:"";flex:0 0 14px}
-  .menu a.lnk{flex:none;white-space:nowrap;padding:8px 0}
-  .nav::after{content:"";position:absolute;right:0;bottom:0;width:36px;height:40px;background:linear-gradient(90deg,rgba(241,234,221,0),rgba(241,234,221,.95));pointer-events:none}
-}
+/* The header and footer are shared by every page: /shared/site-chrome.css. */
 
 section{padding:48px 0;position:relative}
 .toc{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
-.toc a{font-size:13.5px;font-weight:600;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:var(--panel)}
+.toc a{font-size:13.5px;font-weight:600;padding:8px 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel)}
 .toc a:hover{border-color:var(--blue)}
 .toc a.t-web{border-left:4px solid var(--blue)}
 .toc a.t-callme{border-left:4px solid var(--callme)}
@@ -91,27 +73,33 @@ section{padding:48px 0;position:relative}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px 26px}
 @media(max-width:720px){.grid2{grid-template-columns:1fr}}
 
-footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);font-size:13px;background:rgba(246,240,227,.6);margin-top:40px}
-.foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;max-width:1140px;margin:0 auto;padding:0 24px}
-.foot a:hover{color:var(--ink)}
-.foot .lnks{display:flex;gap:16px;flex-wrap:wrap}
-/* the header is taller on phones, so anchored cards stop below it; footer links get a thumb-sized row */
-@media(max-width:640px){.policy,h3{scroll-margin-top:110px}.foot .lnks{row-gap:0}.foot .lnks a{padding:10px 0}}
+.m3-foot{margin-top:40px}
+/* the header is taller on phones, so anchored cards stop below it */
+@media(max-width:720px){.policy,h3{scroll-margin-top:110px}}
 </style>
+<link rel="stylesheet" href="/shared/site-chrome.css">
 </head>
 <body>
-<header class="site"><div class="nav">
-  <a class="brand" href="/"><img class="mk" src="/M.png" alt="M3XI"/> M3XI <span class="jp">三X一</span></a>
-  <nav class="menu">
-    <a class="lnk" href="/">CallMe</a>
-    <a class="lnk" href="/events/">Events</a>
-    <a class="lnk" href="/design/">Create</a>
-    <a class="lnk" href="/team/">Team</a>
-    <a class="lnk" href="/services/">Services</a>
-    <a class="lnk" href="/jobs/">Jobs</a>
-    <a class="lnk active" href="/privacy/">Policies</a>
-    <a class="lnk" href="/terms/">Terms</a>
+<header class="m3-head"><div class="m3-bar">
+  <a class="m3-brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="m3-jp" aria-hidden="true">三X一</span></a>
+  <nav class="m3-nav" aria-label="Main">
+    <ul class="m3-links">
+      <li><a href="/">CallMe</a></li>
+      <li><a href="/design/">Create</a></li>
+      <li><a href="/events/">Events</a></li>
+      <li class="m3-help">
+        <details class="m3-drop">
+          <summary>Help</summary>
+          <ul class="m3-menu">
+            <li><a href="/questions/"><b>Questions</b><small>The short answers about CallMe</small></a></li>
+            <li><a href="/safety/"><b>Safety</b><small>How we keep calls safe</small></a></li>
+            <li><a href="/contact/"><b>Contact</b><small>Write to a person at M3XI</small></a></li>
+          </ul>
+        </details>
+      </li>
+    </ul>
   </nav>
+  <a class="m3-get" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get CallMe</a>
 </div></header>
 
 <section id="top" style="padding-bottom:12px"><div class="wrap">
@@ -370,15 +358,37 @@ footer.site{border-top:1px solid var(--line);padding:34px 0;color:var(--ink2);fo
 
 </div></section>
 
-<footer class="site"><div class="foot">
-  <div>M3XI <span class="jp">三X一</span> · M3XI LTD, London</div>
-  <nav class="lnks">
-    <a href="/">CallMe</a><a href="/events/">Events</a><a href="/design/">Create</a><a href="/questions/">Questions</a><a href="/safety/">Safety</a><a href="/studio/">M3XI Spatial</a><a href="/team/">Team</a>
-    <a href="/services/">Services</a><a href="/jobs/">Jobs</a><a href="/terms/">Terms</a>
-    <a href="/child-safety/">Child safety</a><a href="/delete-account/">Delete account</a>
+<footer class="m3-foot"><div class="m3-footin">
+  <div>
+    <a class="m3-brand" href="/"><img src="/M.png" alt="" width="26" height="26"> M3XI</a>
+    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London</p>
+  </div>
+  <nav class="m3-footnav" aria-label="Footer">
+    <div><p class="m3-fh">CallMe</p><ul>
+      <li><a href="/">CallMe</a></li>
+      <li><a href="/design/">Create</a></li>
+      <li><a href="/events/">Events</a></li>
+    </ul></div>
+    <div><p class="m3-fh">Help</p><ul>
+      <li><a href="/questions/">Questions</a></li>
+      <li><a href="/safety/">Safety</a></li>
+      <li><a href="/contact/">Contact</a></li>
+      <li><a href="/delete-account/">Delete account</a></li>
+    </ul></div>
+    <div><p class="m3-fh">M3XI</p><ul>
+      <li><a href="/team/">Team</a></li>
+      <li><a href="/jobs/">Jobs</a></li>
+      <li><a href="/services/">Services</a></li>
+      <li><a href="/services/#spatial">M3XI Spatial</a></li>
+    </ul></div>
+    <div><p class="m3-fh">Legal</p><ul>
+      <li><a href="/privacy/" aria-current="page">Policies</a></li>
+      <li><a href="/terms/">Terms</a></li>
+      <li><a href="/child-safety/">Child safety</a></li>
+    </ul></div>
   </nav>
-  <div>© <span id="year">2026</span> M3XI</div>
 </div></footer>
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+<script type="module" src="/shared/site-chrome.js"></script>
 </body>
 </html>

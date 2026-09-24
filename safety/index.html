@@ -48,32 +48,7 @@ h1 em,h2 em{font-style:italic;font-weight:500;color:var(--rose)}
 .jp{font-family:'Noto Serif JP',serif;font-weight:500;font-size:.8em;color:var(--gold);letter-spacing:.05em}
 :focus-visible{outline:3px solid rgba(183,86,107,.45);outline-offset:3px;border-radius:4px}
 
-/* header */
-header.site{position:sticky;top:0;z-index:20;background:rgba(240,232,216,.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;height:66px}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:'Playfair Display',serif;font-weight:600;font-size:20px}
-.brand img{width:30px;height:30px;border-radius:8px}
-.menu{display:flex;align-items:center;gap:6px}
-.menu a{text-decoration:none;font-size:14px;font-weight:500;color:var(--ink2);padding:8px 12px;border-radius:8px}
-.menu a:hover{color:var(--ink);background:rgba(25,21,15,.05)}
-.menu a[aria-current="page"]{color:var(--ink);background:rgba(25,21,15,.05)}
-.menu a.get{background:var(--ink);color:var(--white);padding:9px 16px}
-.menu a.get:hover{background:var(--rose-deep)}
-@media (max-width:900px){.menu{gap:2px}.menu a:not(.get){padding:8px 9px}}
-/* Phones: the links drop to a second row that scrolls sideways, and Get
-   CallMe stays on the first row beside the logo. */
-@media (max-width:760px){
-  .nav{position:relative;flex-wrap:wrap;row-gap:0;height:auto;padding-top:10px}
-  .menu{flex:0 0 calc(100% + 18px);margin:4px -9px 0;padding:0 28px 6px 0;overflow-x:auto;scrollbar-width:none}
-  /* The fade is an overlay on the link row only: a mask on .menu would also
-     hide Get CallMe, which is positioned outside the menu's box. */
-  .nav::after{content:"";position:absolute;top:46px;bottom:0;right:15px;width:40px;pointer-events:none;
-    background:linear-gradient(90deg,rgba(240,232,216,0),rgba(240,232,216,.96) 80%)}
-  .menu::-webkit-scrollbar{display:none}
-  .menu a:not(.get){flex:none;white-space:nowrap}
-  .menu a[href$="#how"]{display:none} /* the section is just below; this keeps Business in view */
-  .menu a.get{position:absolute;right:24px;top:6px} /* .wrap side padding */
-}
+/* The header and footer are shared by every page: /shared/site-chrome.css. */
 
 /* buttons */
 .btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:600;font-size:15px;
@@ -102,6 +77,8 @@ header.site{position:sticky;top:0;z-index:20;background:rgba(240,232,216,.88);ba
 
 /* sections */
 section{padding:72px 0;scroll-margin-top:66px}
+/* the shared header is two rows on a phone */
+@media (max-width:720px){section{scroll-margin-top:104px}}
 .sec-head{max-width:720px;margin-bottom:34px}
 .sec-head h2{font-size:clamp(32px,4.2vw,46px);line-height:1.08}
 .sec-head p:not(.eyebrow){color:var(--ink2);font-size:17px;margin:14px 0 0}
@@ -147,28 +124,31 @@ section{padding:72px 0;scroll-margin-top:66px}
 .contact a{font:500 20px 'Playfair Display',serif;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line2)}
 .contact a:hover{color:var(--rose-deep)}
 .contact-note{color:var(--ink2);margin:22px 0 0;max-width:640px}
-footer.site{border-top:1px solid var(--line);padding:28px 0 36px;font-size:14px;color:var(--ink2)}
-.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px;align-items:center}
-.foot nav{display:flex;flex-wrap:wrap;gap:6px 16px}
-.foot nav a{text-decoration:none}
-.foot nav a:hover{color:var(--ink)}
-@media (max-width:760px){.foot nav{gap:0 16px}.foot nav a{padding:10px 0}}
 </style>
+<link rel="stylesheet" href="/shared/site-chrome.css">
 </head>
 <body>
 
-<header class="site"><div class="wrap nav">
-  <a class="brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="jp">三X一</span></a>
-  <nav class="menu" aria-label="Main">
-    <a href="/#how">How it works</a>
-    <a href="/events/">Events</a>
-    <a href="/design/">Create</a>
-    <a href="/questions/">Questions</a>
-    <a href="/safety/" aria-current="page">Safety</a>
-    <a href="/team/">Team</a>
-    <a href="/studio/">Business</a>
-    <a class="get" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get CallMe</a>
+<header class="m3-head"><div class="m3-bar">
+  <a class="m3-brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="m3-jp" aria-hidden="true">三X一</span></a>
+  <nav class="m3-nav" aria-label="Main">
+    <ul class="m3-links">
+      <li><a href="/">CallMe</a></li>
+      <li><a href="/design/">Create</a></li>
+      <li><a href="/events/">Events</a></li>
+      <li class="m3-help">
+        <details class="m3-drop m3-here">
+          <summary>Help</summary>
+          <ul class="m3-menu">
+            <li><a href="/questions/"><b>Questions</b><small>The short answers about CallMe</small></a></li>
+            <li><a href="/safety/" aria-current="page"><b>Safety</b><small>How we keep calls safe</small></a></li>
+            <li><a href="/contact/"><b>Contact</b><small>Write to a person at M3XI</small></a></li>
+          </ul>
+        </details>
+      </li>
+    </ul>
   </nav>
+  <a class="m3-get" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get CallMe</a>
 </div></header>
 
 <main>
@@ -390,22 +370,37 @@ footer.site{border-top:1px solid var(--line);padding:28px 0 36px;font-size:14px;
 
 </main>
 
-<footer class="site"><div class="wrap foot">
-  <div>&copy; <span id="year">2026</span> M3XI LTD &middot; London</div>
-  <nav aria-label="Footer">
-    <a href="/">CallMe</a>
-    <a href="/events/">Events</a>
-    <a href="/design/">Create</a>
-    <a href="/questions/">Questions</a>
-    <a href="/safety/">Safety</a>
-    <a href="/studio/">Business</a>
-    <a href="/team/">Team</a>
-    <a href="/jobs/">Jobs</a>
-    <a href="/privacy/">Policies</a>
-    <a href="/terms/">Terms</a>
+<footer class="m3-foot"><div class="m3-footin">
+  <div>
+    <a class="m3-brand" href="/"><img src="/M.png" alt="" width="26" height="26"> M3XI</a>
+    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London</p>
+  </div>
+  <nav class="m3-footnav" aria-label="Footer">
+    <div><p class="m3-fh">CallMe</p><ul>
+      <li><a href="/">CallMe</a></li>
+      <li><a href="/design/">Create</a></li>
+      <li><a href="/events/">Events</a></li>
+    </ul></div>
+    <div><p class="m3-fh">Help</p><ul>
+      <li><a href="/questions/">Questions</a></li>
+      <li><a href="/safety/" aria-current="page">Safety</a></li>
+      <li><a href="/contact/">Contact</a></li>
+      <li><a href="/delete-account/">Delete account</a></li>
+    </ul></div>
+    <div><p class="m3-fh">M3XI</p><ul>
+      <li><a href="/team/">Team</a></li>
+      <li><a href="/jobs/">Jobs</a></li>
+      <li><a href="/services/">Services</a></li>
+      <li><a href="/services/#spatial">M3XI Spatial</a></li>
+    </ul></div>
+    <div><p class="m3-fh">Legal</p><ul>
+      <li><a href="/privacy/">Policies</a></li>
+      <li><a href="/terms/">Terms</a></li>
+      <li><a href="/child-safety/">Child safety</a></li>
+    </ul></div>
   </nav>
 </div></footer>
 
-<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+<script type="module" src="/shared/site-chrome.js"></script>
 </body>
 </html>

@@ -49,27 +49,7 @@ h1 em,h2 em{font-style:italic;font-weight:500;color:var(--rose)}
    visitor. */
 [hidden]{display:none!important}
 
-/* header */
-header.site{position:sticky;top:0;z-index:20;background:rgba(240,232,216,.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;height:66px}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:'Playfair Display',serif;font-weight:600;font-size:20px}
-.brand img{width:30px;height:30px;border-radius:8px}
-.menu{display:flex;align-items:center;gap:6px}
-.menu a{text-decoration:none;font-size:14px;font-weight:500;color:var(--ink2);padding:8px 12px;border-radius:8px}
-.menu a:hover{color:var(--ink);background:rgba(25,21,15,.05)}
-.menu a[aria-current="page"]{color:var(--ink);background:rgba(25,21,15,.05)}
-.menu a.get{background:var(--ink);color:var(--white);padding:9px 16px}
-.menu a.get:hover{background:var(--rose-deep)}
-@media (max-width:900px){.menu{gap:2px}.menu a:not(.get){padding:8px 9px}}
-@media (max-width:760px){
-  .nav{position:relative;flex-wrap:wrap;row-gap:0;height:auto;padding-top:10px}
-  .menu{flex:0 0 calc(100% + 18px);margin:4px -9px 0;padding:0 28px 6px 0;overflow-x:auto;scrollbar-width:none}
-  .nav::after{content:"";position:absolute;top:46px;bottom:0;right:15px;width:40px;pointer-events:none;
-    background:linear-gradient(90deg,rgba(240,232,216,0),rgba(240,232,216,.96) 80%)}
-  .menu::-webkit-scrollbar{display:none}
-  .menu a:not(.get){flex:none;white-space:nowrap}
-  .menu a.get{position:absolute;right:24px;top:6px}
-}
+/* The header and footer are shared by every page: /shared/site-chrome.css. */
 
 /* studio tabs */
 .tabsbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:14px 0 0}
@@ -98,6 +78,25 @@ header.site{position:sticky;top:0;z-index:20;background:rgba(240,232,216,.88);ba
   display:flex;align-items:center;justify-content:center;font:600 15px 'Playfair Display',Georgia,serif}
 .step h3{font-size:18px;margin-bottom:2px}
 .step p{margin:0;color:var(--ink2)}
+
+/* The first screen: the three steps to sign in, as numbered paper cards —
+   cream stock, an ink edge, a strip of tape and a stamp for the number. */
+.howsteps{margin:22px 0 4px}
+.howsteps h2{font-size:clamp(22px,2.6vw,28px);margin-bottom:6px}
+.howto{list-style:none;margin:0;padding:18px 0 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px 22px}
+@media (max-width:820px){.howto{grid-template-columns:1fr;gap:30px}}
+.howcard{position:relative;background:var(--white);border:1.5px solid rgba(25,21,15,.78);border-radius:12px;
+  padding:26px 20px 20px;box-shadow:0 24px 40px -34px rgba(43,66,87,.55)}
+.howcard:nth-child(1){transform:rotate(-.6deg)}
+.howcard:nth-child(2){transform:rotate(.5deg)}
+.howcard:nth-child(3){transform:rotate(-.3deg)}
+.howcard .tape{position:absolute;top:-11px;left:26px;width:86px;height:22px;background:rgba(201,169,122,.55);transform:rotate(-4deg)}
+.hownum{position:absolute;top:16px;right:16px;width:42px;height:42px;border-radius:10px;border:1.5px solid var(--rose-deep);
+  background:var(--rose);color:#fff;display:flex;align-items:center;justify-content:center;
+  font:600 21px/1 'Playfair Display',Georgia,serif;transform:rotate(4deg);box-shadow:0 2px 0 var(--rose-deep)}
+.howart{display:block;width:64px;height:64px;margin:0 0 10px}
+.howcard h3{font-size:20px;line-height:1.25;margin:0 0 6px;padding-right:48px}
+.howcard p{margin:0;color:var(--ink2);font-size:15px}
 .chip{display:inline-block;background:var(--white);border:1px solid var(--line2);border-radius:8px;padding:5px 11px;font-size:13.5px;color:var(--ink2)}
 .chip.good{border-color:rgba(46,125,79,.5);color:var(--ok)}
 .chip.warn{border-color:rgba(179,64,42,.5);color:var(--danger)}
@@ -254,29 +253,32 @@ input[disabled],select[disabled],textarea[disabled]{opacity:.55;cursor:default}
 .design h2{font-size:21px}
 .design .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .counts{color:var(--ink2);margin:8px 0 0;font-size:14.5px}
-
-footer.site{border-top:1px solid var(--line);padding:28px 0 36px;font-size:14px;color:var(--ink2)}
-.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px;align-items:center}
-.foot nav{display:flex;flex-wrap:wrap;gap:6px 16px}
-.foot nav a{text-decoration:none}
-.foot nav a:hover{color:var(--ink)}
-@media (max-width:760px){.foot nav{gap:0 16px}.foot nav a{padding:10px 0}}
+.m3-foot{margin-top:24px}
 </style>
+<link rel="stylesheet" href="/shared/site-chrome.css">
 </head>
 <body>
 
-<header class="site"><div class="wrap nav">
-  <a class="brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="jp">三X一</span></a>
-  <nav class="menu" aria-label="Main">
-    <a href="/#how">How it works</a>
-    <a href="/events/">Events</a>
-    <a href="/design/" aria-current="page">Create</a>
-    <a href="/questions/">Questions</a>
-    <a href="/safety/">Safety</a>
-    <a href="/team/">Team</a>
-    <a href="/studio/">Business</a>
-    <a class="get" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get CallMe</a>
+<header class="m3-head"><div class="m3-bar">
+  <a class="m3-brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="m3-jp" aria-hidden="true">三X一</span></a>
+  <nav class="m3-nav" aria-label="Main">
+    <ul class="m3-links">
+      <li><a href="/">CallMe</a></li>
+      <li><a href="/design/" aria-current="page">Create</a></li>
+      <li><a href="/events/">Events</a></li>
+      <li class="m3-help">
+        <details class="m3-drop">
+          <summary>Help</summary>
+          <ul class="m3-menu">
+            <li><a href="/questions/"><b>Questions</b><small>The short answers about CallMe</small></a></li>
+            <li><a href="/safety/"><b>Safety</b><small>How we keep calls safe</small></a></li>
+            <li><a href="/contact/"><b>Contact</b><small>Write to a person at M3XI</small></a></li>
+          </ul>
+        </details>
+      </li>
+    </ul>
   </nav>
+  <a class="m3-get" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get CallMe</a>
 </div></header>
 
 <main class="wrap">
@@ -292,22 +294,38 @@ footer.site{border-top:1px solid var(--line);padding:28px 0 36px;font-size:14px;
   <div id="view"></div>
 </main>
 
-<footer class="site"><div class="wrap foot">
-  <div>&copy; <span id="year">2026</span> M3XI LTD &middot; London</div>
-  <nav aria-label="Footer">
-    <a href="/">CallMe</a>
-    <a href="/events/">Events</a>
-    <a href="/design/" aria-current="page">Create</a>
-    <a href="/questions/">Questions</a>
-    <a href="/safety/">Safety</a>
-    <a href="/studio/">Business</a>
-    <a href="/team/">Team</a>
-    <a href="/jobs/">Jobs</a>
-    <a href="/privacy/">Policies</a>
-    <a href="/terms/">Terms</a>
+<footer class="m3-foot"><div class="m3-footin">
+  <div>
+    <a class="m3-brand" href="/"><img src="/M.png" alt="" width="26" height="26"> M3XI</a>
+    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London</p>
+  </div>
+  <nav class="m3-footnav" aria-label="Footer">
+    <div><p class="m3-fh">CallMe</p><ul>
+      <li><a href="/">CallMe</a></li>
+      <li><a href="/design/" aria-current="page">Create</a></li>
+      <li><a href="/events/">Events</a></li>
+    </ul></div>
+    <div><p class="m3-fh">Help</p><ul>
+      <li><a href="/questions/">Questions</a></li>
+      <li><a href="/safety/">Safety</a></li>
+      <li><a href="/contact/">Contact</a></li>
+      <li><a href="/delete-account/">Delete account</a></li>
+    </ul></div>
+    <div><p class="m3-fh">M3XI</p><ul>
+      <li><a href="/team/">Team</a></li>
+      <li><a href="/jobs/">Jobs</a></li>
+      <li><a href="/services/">Services</a></li>
+      <li><a href="/services/#spatial">M3XI Spatial</a></li>
+    </ul></div>
+    <div><p class="m3-fh">Legal</p><ul>
+      <li><a href="/privacy/">Policies</a></li>
+      <li><a href="/terms/">Terms</a></li>
+      <li><a href="/child-safety/">Child safety</a></li>
+    </ul></div>
   </nav>
 </div></footer>
 
+<script type="module" src="/shared/site-chrome.js"></script>
 <script type="module" src="./src/main.ts"></script>
 </body>
 </html>
