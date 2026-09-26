@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#19150F;--ink2:#605747;--blue:#2B4257;--line:rgba(25,21,15,.14);--panel:#FBF6EC;--callme:#B7566B;--callme2:#9C4357;--danger:#B3402A;--ok:#2E7D4F;--gold:#B6892F}
+:root{--ink:#19150F;--ink2:#605747;--blue:#2B4257;--line:rgba(25,21,15,.14);--panel:#FBF6EC;--callme:#B7566B;--callme2:#9C4357;--danger:#B3402A;--ok:#2E7D4F;--gold:#B6892F;--deep:#8E2419}
 *{box-sizing:border-box}
 body{margin:0;color:var(--ink);font:14.5px/1.55 'Inter',system-ui,sans-serif;background:#EFE7D6;
   background-image:linear-gradient(rgba(43,66,87,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(43,66,87,.045) 1px,transparent 1px);background-size:30px 30px}
@@ -61,6 +61,40 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
 .hookprev{max-width:240px;max-height:180px;border-radius:10px;border:1px solid var(--line);display:block;margin:8px 0;object-fit:cover}
 .qrbox svg{display:block;margin:8px 0;border:1px solid var(--line);border-radius:8px}
 #printSheet{display:none}
+/* Usage (0108): paper meters. Cream stock, an ink edge and a hatched ink fill
+   that turns amber at 70 %, rose at 85 % and deep red at 95 %. The dashed ink
+   ticks are the metric's own alert levels. Square-ish ends on purpose: the
+   house style has no pill shapes. A metric with nothing to read (no key yet,
+   or no API at all) is ruled paper with a dashed edge and no fill. */
+.meter{position:relative;height:16px;background:#FFFDF8;border:1.5px solid #2A2320;border-radius:3px;overflow:hidden;margin:6px 0 4px}
+.meter .fill{position:absolute;left:0;top:0;bottom:0;background-color:var(--blue);background-image:repeating-linear-gradient(135deg,rgba(255,253,248,.24) 0 3px,transparent 3px 7px)}
+.meter .tick{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed rgba(25,21,15,.6)}
+.meter.l1 .fill{background-color:var(--gold)}
+.meter.l2 .fill{background-color:var(--callme)}
+.meter.l3 .fill{background-color:var(--deep)}
+.meter.blank{border-style:dashed;background:repeating-linear-gradient(0deg,#FFFDF8 0 7px,rgba(43,66,87,.09) 7px 8px)}
+.meter.off{opacity:.45}
+.umetric{padding:12px 0 10px;border-top:1px dashed rgba(25,21,15,.22)}
+.upct{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.upct.l1{color:#8a6420}.upct.l2{color:var(--callme2)}.upct.l3{color:var(--deep)}
+.ufig{font-variant-numeric:tabular-nums}
+.warnline{color:var(--danger)}
+a.btn{display:inline-block;color:var(--ink);text-decoration:none}
+/* The usage banner: strips of letter paper above the tabs, on every tab.
+   Deep red at 95 % or refused, rose from 85 %, amber from 70 % and for a
+   projected run-out, and a grey note for a figure that cannot be read or
+   map tiles that are down (DESIGN 4.1). */
+.ubanner{background:#FFFDF8;border:1.5px solid #2A2320;border-left:7px solid var(--callme);border-radius:10px;padding:10px 14px;margin-bottom:8px;box-shadow:0 18px 30px -26px rgba(35,28,24,.6);display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.ubanner.l0{border-left-color:rgba(25,21,15,.35)}
+.ubanner.l1{border-left-color:var(--gold)}
+.ubanner.l1 .lvl{color:#8a6420}
+.ubanner.l3{border-left-color:var(--deep);background:#FFF5F0}
+.ubanner.ask{border-left-color:var(--blue)}
+.ubanner .msg{flex:1;min-width:240px}
+.ubanner .lvl{font:600 16px 'Playfair Display',Georgia,serif}
+.ubanner.l2 .lvl{color:var(--callme2)}.ubanner.l3 .lvl{color:var(--deep)}
+.ualert{border-top:1px dashed rgba(25,21,15,.22);border-left:4px solid transparent;padding:10px 0 10px 12px}
+.ualert.l1{border-left-color:var(--gold)}.ualert.l2{border-left-color:var(--callme)}.ualert.l3{border-left-color:var(--deep)}
 @media print{
   @page{margin:16mm}
   body{background:#fff!important;background-image:none!important}
@@ -98,6 +132,8 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
   </section>
 
   <section id="app" hidden>
+    <!-- Usage alerts at 85 % or more, above the tabs so every tab shows them. -->
+    <div id="usageBanner" hidden></div>
     <nav class="tabs" role="tablist">
       <button data-tab="appeals" aria-selected="true">Appeals</button>
       <button data-tab="reports" aria-selected="false">Reports</button>
@@ -106,6 +142,7 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
       <button data-tab="announce" aria-selected="false">Announcements</button>
       <button data-tab="events" aria-selected="false">Events</button>
       <button data-tab="designs" aria-selected="false">Designs</button>
+      <button data-tab="usage" aria-selected="false">Usage</button>
       <button data-tab="settings" aria-selected="false">Switches</button>
       <button data-tab="staff" aria-selected="false">Staff</button>
     </nav>
@@ -1260,6 +1297,512 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
     await load();
   }
 
+  /* ── Usage ───────────────────────────────────────────── */
+  /* Every outside service the app leans on, against its free allowance (0108;
+     CallMe repo, docs/usage-monitor/DESIGN.md). The usage-monitor function
+     reads the figures once an hour, server-side, so no provider key ever
+     reaches this page; the tab only reads them back through
+     staff_usage_summary(). Admins change a limit, its alert levels and a
+     figure typed in by hand (for numbers only a dashboard shows) through
+     staff_usage_limit_set. Raising a limit re-arms its alerts, because the
+     limit is part of each alert's key. */
+  var USAGE_SOURCE = { official: 'official figure', ours: 'our count', estimate: 'estimate', manual: 'typed in', none: 'no API' };
+  var USAGE_PERIOD = { hour: 'This hour', day: 'Today (UTC)', month: 'This month', lifetime: 'All time', gauge: 'Right now' };
+  var ALERT_KIND = { tripped: 'Refused already', test: 'Test alert', projection: 'Runs out before the period ends', source_down: 'Cannot read this figure', monitor_stale: 'The monitor has gone quiet' };
+
+  function num(v) { return v === null || v === undefined || v === '' || isNaN(Number(v)) ? null : Number(v); }
+  function fmtNum(v, unit) {
+    var n = num(v);
+    if (n === null) return '—';
+    if (unit === 'USD') return '$' + n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return n.toLocaleString('en-GB', { maximumFractionDigits: Math.abs(n) < 10 ? 2 : Math.abs(n) < 1000 ? 1 : 0 }) + (unit ? ' ' + unit : '');
+  }
+  /* 0 under 70 %, 1 from 70, 2 from 85 (rose), 3 from 95 (deep red). */
+  function usageLevel(pct) { var p = num(pct); return p === null ? 0 : p >= 95 ? 3 : p >= 85 ? 2 : p >= 70 ? 1 : 0; }
+  function pctText(p) { return Math.round(p) + ' %'; }
+  function ago(ts) {
+    if (!ts) return 'never';
+    var s = (Date.now() - new Date(ts).getTime()) / 1000;
+    if (s < 90) return 'just now';
+    if (s < 90 * 60) return Math.round(s / 60) + ' min ago';
+    if (s < 36 * 3600) return Math.round(s / 3600) + ' h ago';
+    return Math.round(s / 86400) + ' days ago';
+  }
+  function dayText(d) {
+    var s = String(d);
+    var t = new Date(s.length === 10 ? s + 'T00:00:00Z' : s);
+    return isNaN(t) ? s : t.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+  }
+  /* When the period rolls over. The monitor counts in UTC throughout. */
+  function resetsText(period, detail) {
+    var at = detail && (detail.resets_at || detail.reset_at);
+    if (at) return 'resets ' + dayText(at);
+    var now = new Date();
+    if (period === 'hour') {
+      var h = new Date(now); h.setUTCMinutes(60, 0, 0);
+      return 'resets in ' + Math.max(1, Math.ceil((h - now) / 60000)) + ' min';
+    }
+    if (period === 'day') {
+      var mins = Math.ceil((Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1) - now) / 60000);
+      return 'resets at midnight UTC, in ' + (mins >= 60 ? Math.floor(mins / 60) + ' h ' : '') + (mins % 60) + ' min';
+    }
+    if (period === 'month') return 'resets ' + dayText(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString());
+    if (period === 'lifetime') return 'never resets';
+    if (period === 'gauge') return 'a level, not a count';
+    return '';
+  }
+  /* The secret that unlocks a metric still waiting for one. Names only, never
+     values; the monitor may say which in its reading, otherwise it is known
+     from the service (DESIGN section 5.3). */
+  function keyName(r) {
+    var d = r.detail || {};
+    var said = d.needs || d.needs_key || d.credential;
+    if (typeof said === 'string' && /^[A-Z][A-Z0-9_]{2,40}( \+ [A-Z][A-Z0-9_]{2,40})?$/.test(said)) return said;
+    var s = (r.service || r.metric || '').toLowerCase();
+    if (s.indexOf('supabase') >= 0) return 'MGMT_API_TOKEN';
+    if (s.indexOf('anthropic') >= 0 || s.indexOf('claude') >= 0) return 'ANTHROPIC_ADMIN_KEY';
+    if (s.indexOf('vercel') >= 0) return 'VERCEL_TOKEN + VERCEL_TEAM_ID';
+    return 'a key';
+  }
+  /* staff_usage_summary() may answer rows, or {last_run_at, metrics}. Either way:
+     the rows, and when the monitor last ran (the newest reading if it does not say). */
+  function usageShape(data) {
+    var rows = [], last = null;
+    if (Array.isArray(data)) rows = data;
+    else if (data && typeof data === 'object') {
+      rows = data.metrics || data.rows || data.items || [];
+      last = data.last_run_at || data.last_run || data.last_check || null;
+    }
+    var said = !!last;
+    rows.forEach(function (r) {
+      var t = r.last_run_at || r.read_at;
+      if (!said && t && (!last || new Date(t) > new Date(last))) last = t;
+    });
+    return { rows: rows, last: last };
+  }
+  function alertsOf(data) { return Array.isArray(data) ? data : (data && (data.alerts || data.rows)) || []; }
+  function alertLevel(a) {
+    if (a.kind === 'tripped') return 3;
+    if (a.kind === 'test') return 2;
+    if (a.kind === 'projection') return 1;
+    if (a.kind !== 'threshold') return 0;
+    return usageLevel(Math.max(num(a.threshold) || 0, num(a.pct) || 0));
+  }
+  /* 'Agora: Voice and video minutes' by metric, from the last summary read, so
+     an alert can be named even when its row carries only the metric id. */
+  var usageNames = {};
+  function noteUsageNames(rows) {
+    rows.forEach(function (m) { if (m.metric) usageNames[m.metric] = (m.service ? m.service + ': ' : '') + (m.label || m.metric); });
+  }
+  function alertTitle(a) {
+    var what = a.label ? (a.service ? a.service + ': ' : '') + a.label : usageNames[a.metric] || '';
+    // OpenFreeMap's outage travels as kind 'source_down' (banner only), but
+    // its figure was read fine: what is down is the service itself.
+    var lvl = a.metric === 'openfreemap.down' ? 'Service down'
+      : ALERT_KIND[a.kind] || 'Usage at ' + pctText(Math.max(num(a.pct) || 0, num(a.threshold) || 0));
+    return lvl + (what ? ' · ' + what : '');
+  }
+  /* Most urgent first: level, then refused-already above any percentage, then the highest, then the newest. */
+  function byUrgency(a, b) {
+    function p(x) { return x.kind === 'tripped' ? 1e9 : Math.max(num(x.pct) || 0, num(x.threshold) || 0); }
+    return (alertLevel(b) - alertLevel(a)) || (p(b) - p(a)) || (new Date(b.created_at) - new Date(a.created_at));
+  }
+  function missingFn(err) { return err && (err.code === 'PGRST202' || err.code === '42883' || /could not find the function/i.test(err.message || '')); }
+
+  async function viewUsage(root) {
+    var admin = role === 'admin';
+    var lastLine = el('p', { class: 'muted' });
+    var notifyLine = el('div');
+    var alertsBox = el('div');
+    var list = el('div');
+    var alertFilter = el('select', {}, [el('option', { value: 'open', text: 'Open alerts' }), el('option', { value: 'all', text: 'All recent alerts' })]);
+    root.appendChild(el('div', { class: 'row spread' }, [
+      el('h2', { text: 'Usage' }),
+      el('div', { class: 'row' }, [
+        el('button', { class: 'btn', text: 'Refresh', onclick: function () { load(); } }),
+        // DESIGN: admin only. It asks the database to call usage-monitor with
+        // the scheduler's key, which never comes to this page.
+        admin ? el('button', { class: 'btn primary', text: 'Check now', onclick: runNow }) : null,
+      ]),
+    ]));
+    root.appendChild(el('p', { class: 'muted', text: 'Every outside service the app uses, against its free allowance. The monitor checks once an hour and warns at 70 %, 85 % and 95 %, and at once when a service has already refused: here, by email, and on the ntfy phone app if that is set up. Each level warns once per period. After upgrading a plan, raise the limit here: the warnings re-arm against the new limit.' }));
+    root.appendChild(lastLine);
+    root.appendChild(notifyLine);
+    root.appendChild(alertsBox);
+    root.appendChild(list);
+
+    function renderNotifyLine() {
+      notifyLine.textContent = '';
+      if (!('Notification' in window)) return;
+      if (Notification.permission === 'default') {
+        notifyLine.appendChild(el('div', { class: 'row', style: 'margin-bottom:12px' }, [
+          el('span', { class: 'muted', text: 'Desktop pop-ups are off in this browser.' }),
+          el('button', { class: 'btn', text: 'Turn on desktop pop-ups', onclick: function () { askNotify(renderNotifyLine); } }),
+        ]));
+      } else if (Notification.permission === 'denied') {
+        notifyLine.appendChild(el('p', { class: 'muted', text: 'Desktop pop-ups are blocked for this site in the browser’s settings. The banner above the tabs still shows.' }));
+      }
+    }
+
+    async function runNow() {
+      if (!confirm('Ask the monitor to check every service now?')) return;
+      await rpc('staff_usage_run_now');
+      toast('Asked. The figures refresh here in about a minute.');
+      // The check runs in the background (pg_net), so look again twice.
+      [25000, 70000].forEach(function (ms) {
+        setTimeout(function () { if (root.isConnected) { load(); pollUsage(); } }, ms);
+      });
+    }
+
+    function meter(r, pct, blank, off) {
+      var lv = blank || off ? 0 : usageLevel(pct);
+      var bar = el('div', {
+        class: 'meter' + (blank ? ' blank' : ' l' + lv) + (off ? ' off' : ''),
+        role: 'progressbar', 'aria-label': (r.label || r.metric) + (blank ? ': no figure' : ''),
+        'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-valuenow': !blank && pct !== null ? String(Math.round(pct)) : null,
+      });
+      if (!blank && pct !== null) bar.appendChild(el('div', { class: 'fill', style: 'width:' + Math.min(100, Math.max(0, pct)) + '%' }));
+      var ts = Array.isArray(r.thresholds) && r.thresholds.length ? r.thresholds : [70, 85, 95];
+      ts.forEach(function (t) { if (num(t) !== null && t > 0 && t < 100) bar.appendChild(el('span', { class: 'tick', style: 'left:' + t + '%' })); });
+      return bar;
+    }
+
+    function metricRow(r) {
+      var unit = r.unit || '';
+      var detail = r.detail && typeof r.detail === 'object' ? r.detail : {};
+      var limit = num(r.limit_value !== undefined ? r.limit_value : r.limit);
+      var manual = num(r.manual_value);
+      var value = num(r.value);
+      // With no reading, a figure typed in from the provider's dashboard stands in.
+      var typed = value === null && manual !== null;
+      if (typed) value = manual;
+      var floor = r.direction === 'floor';
+      var noKey = r.status === 'needs_credential';
+      var blank = value === null && (noKey || r.status === 'no_api' || r.source === 'none');
+      var noApi = blank && !noKey;
+      var off = r.enabled === false;
+      /* The percentage against the limit in force NOW, so raising a limit
+         shows at once. A floor (e.g. Didit's balance) is inverted by the
+         monitor, so its own figure is used as it is. A floor that is not
+         armed yet (nothing draws on Didit's balance until the month's free
+         checks are used) gets no percentage: a $0 balance is no alarm then. */
+      var unarmed = floor && detail.armed === false;
+      var pct = unarmed ? null : !floor && value !== null && limit ? value / limit * 100 : num(r.pct);
+      var lv = blank || off ? 0 : usageLevel(pct);
+
+      var badges = el('span', { class: 'row', style: 'gap:6px;display:inline-flex;margin-left:6px' }, [
+        noKey ? el('span', { class: 'pill shadow', text: 'needs a key' })
+          : el('span', { class: 'pill', text: USAGE_SOURCE[r.source] || r.source || '?' }),
+        typed && r.source !== 'manual' ? el('span', { class: 'pill', text: 'typed in' }) : null,
+        off ? el('span', { class: 'pill shadow', text: 'switched off' }) : null,
+        r.status === 'stale' ? el('span', { class: 'pill ser', text: 'stale' }) : null,
+        r.status === 'error' ? el('span', { class: 'pill sev', text: 'read failed' }) : null,
+        r.scope === 'org' ? el('span', { class: 'pill', text: 'whole organisation' }) : null,
+      ]);
+
+      var figures;
+      if (value === null) {
+        figures = noKey ? 'Needs a key: ' + keyName(r) + '. It starts reading by itself once that secret is set'
+            + (admin ? '; until then, type the figure in from the dashboard under Edit limit.' : '.')
+          : noApi ? 'No API: only the provider’s dashboard shows this' + (admin ? '. Type it in under Edit limit to track it here.' : '.')
+          : 'Not read yet' + (limit !== null ? ' · limit ' + fmtNum(limit, unit) : '') + '.';
+      } else {
+        figures = (floor ? fmtNum(value, unit) + ' left · warns below ' + fmtNum(limit, unit) : fmtNum(value, unit) + ' of ' + fmtNum(limit, unit))
+          + (typed ? ' (typed in by hand)' : '');
+        if (noKey) figures += '. Needs a key (' + keyName(r) + ') to read it by itself.';
+      }
+
+      var reset = resetsText(r.period, detail);
+      var bits = [(USAGE_PERIOD[r.period] || r.period || '') + (reset ? ' · ' + reset : '')];
+      if (r.read_at) bits.push('read ' + ago(r.read_at));
+      var runout = r.projection || detail.projected_runout || detail.runout;
+
+      var box = el('div', { class: 'umetric' }, [
+        el('div', { class: 'row spread' }, [
+          el('div', {}, [el('strong', { text: r.label || r.metric }), badges]),
+          !blank && pct !== null ? el('span', { class: 'upct l' + lv, text: pctText(pct) }) : null,
+        ]),
+        meter(r, pct, blank, off),
+        el('div', { class: 'ufig', text: figures }),
+        el('div', { class: 'muted', text: bits.join(' · ') }),
+        r.status === 'stale' ? el('div', { class: 'muted warnline', text: 'The last read failed' + (r.error ? ' (' + r.error + ')' : '') + ', so this is the last good figure.' }) : null,
+        r.status === 'error' ? el('div', { class: 'muted warnline', text: 'Could not read it' + (r.error ? ' (' + r.error + ')' : '') + '.' }) : null,
+        unarmed && value !== null ? el('div', { class: 'muted', text: 'Not drawn on until this month’s free checks are used up, so it does not warn yet.' }) : null,
+        runout ? el('div', { class: 'muted' + (lv >= 2 ? ' warnline' : ''), text: 'At this rate it runs out around ' + dayText(runout) + '.' }) : null,
+        manual !== null && !typed ? el('div', { class: 'muted', text: 'Typed in by hand: ' + fmtNum(manual, unit) + '.' }) : null,
+      ]);
+      if (r.plan_note || r.upgrade_url) {
+        var okUrl = typeof r.upgrade_url === 'string' && /^https:\/\/\S+$/i.test(r.upgrade_url);
+        box.appendChild(el('div', { class: 'row', style: 'margin-top:6px;align-items:flex-start' }, [
+          r.plan_note ? el('div', { class: 'muted', style: 'flex:1;min-width:220px', text: r.plan_note }) : null,
+          okUrl ? el('a', { class: 'btn', href: r.upgrade_url, target: '_blank', rel: 'noopener noreferrer', text: 'Upgrade' }) : null,
+        ]));
+      }
+      var extra = Object.keys(detail).filter(function (k) { return ['projected_runout', 'runout', 'needs', 'needs_key', 'credential'].indexOf(k) < 0; });
+      if (extra.length) box.appendChild(el('details', {}, [el('summary', { class: 'muted', text: 'How it was worked out' }), el('pre', { text: JSON.stringify(detail, null, 2) })]));
+      if (admin) box.appendChild(editForm(r, limit, manual));
+      if (r.updated_by) box.appendChild(el('div', { class: 'muted', style: 'font-size:12px', text: 'Limit last changed ' + when(r.updated_at) + ' by ' + r.updated_by }));
+      return box;
+    }
+
+    /* The whole row every time: the form is the truth for all five fields,
+       so an empty typed-in figure clears it and an empty note clears the note. */
+    function editForm(r, limit, manual) {
+      var floor = r.direction === 'floor';
+      var unit = r.unit ? ' (' + r.unit + ')' : '';
+      var lim = el('input', { type: 'number', min: '0', step: 'any', value: limit !== null ? String(limit) : '', style: 'width:170px' });
+      var ts = el('input', { type: 'text', value: (Array.isArray(r.thresholds) && r.thresholds.length ? r.thresholds : [70, 85, 95]).join(', '), placeholder: '70, 85, 95', style: 'width:170px' });
+      var on = el('input', { type: 'checkbox' }); on.checked = r.enabled !== false;
+      var man = el('input', { type: 'number', min: '0', step: 'any', value: manual !== null ? String(manual) : '', placeholder: 'blank: use the monitor’s reading', style: 'width:230px' });
+      var note = el('textarea', { maxlength: '600', placeholder: 'What the plan is and how to upgrade without users noticing.' }); note.value = r.plan_note || '';
+      function f(label, input) { return el('div', {}, [el('label', { text: label }), input]); }
+      return el('details', { style: 'margin-top:6px' }, [
+        el('summary', { class: 'muted', text: 'Edit limit' }),
+        el('div', { class: 'grid2' }, [
+          f((floor ? 'Warn below' : 'Limit') + unit, lim),
+          f('Warn at (%)', ts),
+          f('Figure typed in by hand' + unit, man),
+          f('Checked', el('div', { class: 'row' }, [on, el('span', { class: 'muted', text: 'the monitor reads and warns on this' })])),
+        ]),
+        el('div', { class: 'muted', text: 'Typed-in figures are for numbers only a dashboard shows, such as M3XI-Studio’s storage until the Supabase token is set.' }),
+        f('Plan note', note),
+        el('div', { class: 'row', style: 'margin-top:10px' }, [
+          el('button', { class: 'btn primary', text: 'Save', onclick: async function () {
+            var L = Number(lim.value);
+            if (!lim.value.trim() || !isFinite(L) || L <= 0) return toast('The limit has to be a number above 0.');
+            var levels = ts.value.split(/[\s,]+/).filter(Boolean).map(Number);
+            if (!levels.length || levels.length > 6 || levels.some(function (t) { return !Number.isInteger(t) || t < 1 || t > 100; })) {
+              return toast('Warn at: whole percentages from 1 to 100, such as 70, 85, 95.');
+            }
+            levels = levels.filter(function (t, i) { return levels.indexOf(t) === i; }).sort(function (a, b) { return a - b; });
+            var M = man.value.trim() === '' ? null : Number(man.value);
+            if (M !== null && (!isFinite(M) || M < 0)) return toast('The typed-in figure has to be a number, 0 or more.');
+            if (!confirm('Save ' + (r.label || r.metric) + ': ' + (floor ? 'warn below ' : 'limit ') + fmtNum(L, r.unit) + ', warn at ' + levels.join(', ') + ' %' + (on.checked ? '' : ', switched off') + '?')) return;
+            // For staff_usage_limit_set, null means "leave as it is". An emptied
+            // note goes as '' (which clears it) and an emptied figure as
+            // p_clear_manual, so blanking a field here really blanks it.
+            await rpc('staff_usage_limit_set', {
+              p_metric: r.metric, p_limit: L, p_thresholds: levels, p_enabled: on.checked,
+              p_note: note.value.trim(), p_manual: M, p_clear_manual: M === null,
+            });
+            toast('Saved ' + (r.label || r.metric) + '.');
+            load(); pollUsage();
+          } }),
+        ]),
+      ]);
+    }
+
+    async function loadAlerts() {
+      var r = await sb.rpc('staff_usage_alerts', { p_open_only: alertFilter.value === 'open' });
+      alertsBox.textContent = '';
+      if (r.error) return; // load() has already said what is wrong
+      var rows = alertsOf(r.data);
+      if (alertFilter.value === 'open') rows = rows.filter(function (a) { return !a.acknowledged_at; }).sort(byUrgency);
+      var card = el('div', { class: 'card' }, [el('div', { class: 'row spread' }, [
+        el('h3', { text: alertFilter.value === 'open' ? 'Open alerts (' + rows.length + ')' : 'Recent alerts' }), alertFilter])]);
+      if (!rows.length) card.appendChild(el('p', { class: 'muted', text: alertFilter.value === 'open' ? 'Nothing open. 🌷' : 'No alerts yet.' }));
+      rows.forEach(function (a) {
+        var sent = [
+          a.emailed_at ? 'emailed ' + when(a.emailed_at) : a.email_error ? 'email failed (' + a.email_error + ')' : 'not emailed yet',
+          a.pushed_at ? 'phone push sent ' + when(a.pushed_at) : a.push_error ? 'phone push failed (' + a.push_error + ')' : 'no phone push',
+        ];
+        card.appendChild(el('div', { class: 'ualert l' + alertLevel(a) }, [
+          el('div', { class: 'row spread' }, [el('strong', { text: alertTitle(a) }), el('span', { class: 'muted', text: when(a.created_at) })]),
+          el('div', { text: a.message || '' }),
+          el('div', { class: 'muted', text: sent.join(' · ') + (a.period_key ? ' · period ' + a.period_key : '') }),
+          a.acknowledged_at
+            ? el('div', { class: 'muted', text: 'Acknowledged ' + when(a.acknowledged_at) })
+            : el('div', { class: 'row', style: 'margin-top:6px' }, [el('button', { class: 'btn', text: 'Acknowledge', onclick: function () { ackUsageAlert(a.id); } })]),
+        ]));
+      });
+      alertsBox.appendChild(card);
+    }
+
+    async function load() {
+      list.textContent = 'Loading…';
+      var r = await sb.rpc('staff_usage_summary');
+      list.textContent = '';
+      if (r.error) {
+        lastLine.textContent = '';
+        list.appendChild(el('div', { class: 'card' }, [el('p', { text: missingFn(r.error)
+          ? 'The usage monitor is not installed yet: migration 0108 has not been applied.'
+          : 'Could not load usage: ' + r.error.message })]));
+        return;
+      }
+      var s = usageShape(r.data);
+      noteUsageNames(s.rows);
+      // Hourly checks are expected; two hours of silence means the scheduler stopped.
+      var quiet = !s.last || Date.now() - new Date(s.last).getTime() > 2 * 3600e3;
+      lastLine.className = 'muted' + (quiet ? ' warnline' : '');
+      lastLine.textContent = !s.last ? 'The monitor has not run yet.'
+        : 'Last check: ' + ago(s.last) + ' (' + when(s.last) + ')' + (quiet ? '. It should run every hour, so the scheduler may have stopped.' : '.');
+
+      var order = [], groups = {};
+      s.rows.forEach(function (m) {
+        var k = m.service || 'Other';
+        if (!groups[k]) { groups[k] = []; order.push(k); }
+        groups[k].push(m);
+      });
+      if (!order.length) list.appendChild(el('p', { class: 'muted', text: 'No limits set up yet.' }));
+      order.forEach(function (svc) {
+        var card = el('div', { class: 'card' }, [el('h3', { text: svc })]);
+        groups[svc].forEach(function (m) { card.appendChild(metricRow(m)); });
+        list.appendChild(card);
+      });
+      loadAlerts();
+    }
+
+    alertFilter.addEventListener('change', loadAlerts);
+    usageTabRefresh = function () { if (root.isConnected) loadAlerts(); };
+    renderNotifyLine();
+    await load();
+  }
+
+  /* ── Usage alerts on every tab ───────────────────────── */
+  /* While the console is open it asks for open usage alerts on sign-in and
+     every five minutes after. Every open alert becomes a strip above the tabs,
+     whichever tab is showing, coloured by level (DESIGN 4.1): amber for 70 %
+     and a projected run-out, rose from 85 %, deep red at 95 % or refused, and
+     grey for the banner-only notes that are never emailed or pushed (a figure
+     that has not read for 6 hours, map tiles down). The page title and the
+     Usage tab count only the urgent ones (85 % or more, refused, a test). A
+     new alert, other than a grey note, also raises a desktop notification if
+     this browser allows them, and we ask for that once. Errors here are
+     swallowed on purpose: before 0108 is applied the RPC does not exist, and
+     a toast every five minutes on every tab would be noise. */
+  var BASE_TITLE = document.title;
+  var usageTimer = null, usageSeen = null, usageOpen = [], usageUrgent = [], usageLastPoll = 0, usageTabRefresh = null, currentTab = null;
+  var NOTIFY_ASKED = 'callme-staff-notify-asked';
+
+  function isUrgentAlert(a) {
+    if (!a || a.acknowledged_at) return false;
+    if (a.kind === 'tripped' || a.kind === 'test') return true;
+    return a.kind === 'threshold' && Math.max(num(a.threshold) || 0, num(a.pct) || 0) >= 85;
+  }
+  /* One strip per metric, period and kind, most urgent first: the 85 % alert
+     stands for the 70 % one below it, and acknowledging it takes both
+     (staff_usage_ack). */
+  function collapseAlerts(rows) {
+    var best = {};
+    rows.forEach(function (a) {
+      if (!a || a.acknowledged_at) return;
+      var k = a.metric + '|' + a.period_key + '|' + a.kind;
+      if (!best[k] || byUrgency(a, best[k]) < 0) best[k] = a;
+    });
+    return Object.keys(best).map(function (k) { return best[k]; }).sort(byUrgency);
+  }
+  /* Only a yes/no flag, so localStorage is fine here; the session itself
+     stays in sessionStorage (see the top of this script). */
+  function notifyAsked() { try { return localStorage.getItem(NOTIFY_ASKED) === '1'; } catch (e) { return false; } }
+  function markNotifyAsked() { try { localStorage.setItem(NOTIFY_ASKED, '1'); } catch (e) {} }
+  /* Asked from a click, which browsers require before they show the prompt. */
+  function askNotify(then) {
+    markNotifyAsked();
+    var done = false;
+    function answer(p) {
+      if (done) return; done = true;
+      toast(p === 'granted' ? 'Desktop pop-ups are on while this page is open.' : 'No desktop pop-ups. The banner above the tabs still shows.');
+      renderUsageBanner();
+      if (then) then();
+    }
+    try {
+      var p = Notification.requestPermission(answer);
+      if (p && p.then) p.then(answer);
+    } catch (e) { answer('default'); }
+  }
+  function popUp(a) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    try {
+      var n = new Notification('CallMe usage: ' + alertTitle(a), {
+        body: a.message || '', tag: 'callme-usage-' + a.id, icon: '/M.png', requireInteraction: alertLevel(a) >= 3,
+      });
+      n.onclick = function () { window.focus(); show('usage'); n.close(); };
+    } catch (e) { /* e.g. Android Chrome, which only notifies from a service worker */ }
+  }
+
+  function renderUsageBanner() {
+    var box = $('usageBanner');
+    box.textContent = '';
+    if (!role) { box.hidden = true; return; }
+    var open = usageOpen;       // already collapsed and sorted, most urgent first
+    var urgent = usageUrgent;
+    if ('Notification' in window && Notification.permission === 'default' && !notifyAsked()) {
+      box.appendChild(el('div', { class: 'ubanner ask' }, [
+        el('div', { class: 'msg', text: 'Get a desktop pop-up when a CallMe service nears its free limit? Only while this page is open.' }),
+        el('div', { class: 'row' }, [
+          el('button', { class: 'btn primary', text: 'Allow pop-ups', onclick: function () { askNotify(); } }),
+          el('button', { class: 'btn', text: 'Not now', onclick: function () { markNotifyAsked(); renderUsageBanner(); } }),
+        ]),
+      ]));
+    }
+    open.slice(0, 3).forEach(function (a) {
+      var lv = alertLevel(a);
+      box.appendChild(el('div', { class: 'ubanner l' + lv, role: lv >= 3 ? 'alert' : 'status' }, [
+        el('div', { class: 'msg' }, [
+          el('div', { class: 'lvl', text: alertTitle(a) }),
+          el('div', { text: a.message || '' }),
+          el('div', { class: 'muted', text: when(a.created_at) }),
+        ]),
+        el('div', { class: 'row' }, [
+          el('button', { class: 'btn', text: 'Open Usage', onclick: function () { show('usage'); } }),
+          el('button', { class: 'btn primary', text: 'Acknowledge', onclick: function () { ackUsageAlert(a.id); } }),
+        ]),
+      ]));
+    });
+    if (open.length > 3) box.appendChild(el('p', { class: 'muted', style: 'margin:0 0 8px', text: 'And ' + (open.length - 3) + ' more on the Usage tab.' }));
+    box.hidden = !box.childNodes.length;
+    document.title = (urgent.length ? '(' + urgent.length + ') ' : '') + BASE_TITLE;
+    var tabBtn = document.querySelector('nav.tabs button[data-tab="usage"]');
+    if (tabBtn) tabBtn.textContent = 'Usage' + (urgent.length ? ' (' + urgent.length + ')' : '');
+  }
+
+  async function pollUsage() {
+    if (!role) return;
+    usageLastPoll = Date.now();
+    var r;
+    try { r = await sb.rpc('staff_usage_alerts', { p_open_only: true }); } catch (e) { return; }
+    if (!r || r.error || !role) return;
+    usageOpen = collapseAlerts(alertsOf(r.data));
+    usageUrgent = usageOpen.filter(isUrgentAlert);
+    // The first answer after sign-in only notes what is open (the banner shows
+    // it), unless the page is in the background; after that, new ones pop up.
+    // Grey notes stay in the banner only, as they stay out of email and push.
+    var first = usageSeen === null;
+    if (first) usageSeen = {};
+    usageOpen.forEach(function (a) {
+      if (usageSeen[a.id]) return;
+      usageSeen[a.id] = true;
+      if (alertLevel(a) >= 1 && (!first || document.hidden)) popUp(a);
+    });
+    renderUsageBanner();
+  }
+  async function ackUsageAlert(id) {
+    await rpc('staff_usage_ack', { p_id: id });
+    toast('Acknowledged. It stays quiet until the next level is crossed.');
+    await pollUsage();
+    if (currentTab === 'usage' && usageTabRefresh) usageTabRefresh();
+  }
+  function startUsageWatch() {
+    stopUsageWatch();
+    usageSeen = null;
+    renderUsageBanner();
+    // The names first (quietly, like the poll), so the banner can say which service.
+    sb.rpc('staff_usage_summary').then(function (r) {
+      if (r && !r.error) { noteUsageNames(usageShape(r.data).rows); renderUsageBanner(); }
+    }, function () {}).then(pollUsage);
+    usageTimer = setInterval(pollUsage, 5 * 60 * 1000);
+  }
+  function stopUsageWatch() {
+    if (usageTimer) clearInterval(usageTimer);
+    usageTimer = null; usageOpen = []; usageUrgent = []; usageSeen = null;
+    $('usageBanner').textContent = ''; $('usageBanner').hidden = true;
+    document.title = BASE_TITLE;
+  }
+  // A laptop waking up has missed polls; catch up as soon as the page is looked at.
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && usageTimer && Date.now() - usageLastPoll > 60000) pollUsage();
+  });
+
   /* ── Switches ────────────────────────────────────────── */
   var IMPORTANT = ['enforcement_mode', 'moderation_speech_enabled', 'moderation_speech_rooms_enabled', 'moderation_video_enabled', 'ai_appeals_enabled', 'min_version_android', 'min_version_ios', 'latest_version_android', 'latest_version_ios'];
   async function viewSettings(root) {
@@ -1304,12 +1847,26 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
       } })])]));
   }
 
-  var VIEWS = { appeals: viewAppeals, reports: viewReports, actions: viewActions, people: viewPeople, announce: viewAnnounce, events: viewEvents, designs: viewDesigns, settings: viewSettings, staff: viewStaff };
+  var VIEWS = { appeals: viewAppeals, reports: viewReports, actions: viewActions, people: viewPeople, announce: viewAnnounce, events: viewEvents, designs: viewDesigns, usage: viewUsage, settings: viewSettings, staff: viewStaff };
   function show(tab, opts) {
+    currentTab = tab; usageTabRefresh = null;
+    // Opened from a #tab link: keep the address in step, so a reload stays put.
+    if (isTab(location.hash.slice(1)) && location.hash.slice(1) !== tab) history.replaceState(null, '', location.pathname + location.search + '#' + tab);
     document.querySelectorAll('nav.tabs button').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === tab)); });
     var root = $('view'); root.textContent = '';
     window.scrollTo(0, 0);
     VIEWS[tab](root, opts || {}).catch(function () {});
+  }
+  /* m3xi.com/staff/#usage, the link in every usage alert, opens that tab.
+     Google sign-in leaves the page and comes back with its own hash, so the
+     wanted tab rides through it in sessionStorage. */
+  function isTab(t) { return typeof t === 'string' && Object.prototype.hasOwnProperty.call(VIEWS, t); }
+  function wantedTab() {
+    var h = (location.hash || '').slice(1);
+    if (isTab(h)) return h;
+    var s = null;
+    try { s = sessionStorage.getItem('staff-tab'); sessionStorage.removeItem('staff-tab'); } catch (e) {}
+    return isTab(s) ? s : 'appeals';
   }
   document.querySelectorAll('nav.tabs button').forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.tab); }); });
 
@@ -1323,15 +1880,17 @@ td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-a
     var s = (await sb.auth.getSession()).data.session;
     $('signin').hidden = !!s; $('signout').hidden = !s; $('app').hidden = true; $('denied').hidden = true;
     $('who').textContent = s ? s.user.email : '';
-    if (!s) return;
+    if (!s) { role = null; stopUsageWatch(); return; }
     var r = await sb.rpc('my_staff_role');
     role = r.data || null;
-    if (!role) { $('denied').hidden = false; return; }
+    if (!role) { $('denied').hidden = false; stopUsageWatch(); return; }
     $('who').textContent = s.user.email + ' · ' + role;
     $('app').hidden = false;
-    show('appeals');
+    startUsageWatch();
+    show(wantedTab());
   }
   $('google').addEventListener('click', function () {
+    try { var h = (location.hash || '').slice(1); if (isTab(h)) sessionStorage.setItem('staff-tab', h); } catch (e) {}
     sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + '/staff/' } });
   });
   $('pwgo').addEventListener('click', async function () {
