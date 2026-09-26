@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Safety on CallMe — M3XI</title>
-<meta name="description" content="How CallMe keeps live calls safe: everyone is 18+ and ID-verified, calls open on voice with video only when both people agree, and you can silence, report or block anyone from inside a call." />
+<meta name="description" content="How CallMe keeps live calls safe: everyone is 18+ and ID-verified, calls open on voice with video only when both people agree, you can silence, report or block anyone from inside a call, and the friends map and snapshots are for friends you choose." />
 <link rel="canonical" href="https://www.m3xi.com/safety/" />
 <link rel="icon" type="image/png" href="/M.png" />
 <meta property="og:type" content="website" />
@@ -16,118 +16,118 @@
 <meta name="twitter:card" content="summary_large_image" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,700;1,800&family=Inter:wght@400;500;600;700&family=Caveat:wght@500;600&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
 
 <style>
+/* The CallMe paper kit (cm- classes) and the shared header and footer live in
+   /shared/site-chrome.css, which loads AFTER this block: a page rule that
+   wants to beat a kit rule needs the higher specificity, not the later place. */
 :root{
-  --paper:#F0E8D8; --panel:#FBF6EC; --white:#FFFDF8;
-  --ink:#19150F; --ink2:#605747; --ink3:#8A8173;
-  --blue:#2B4257; --gold:#B6892F;
-  --rose:#B7566B; --rose-deep:#963F54; --rose-soft:#F3DEDF;
-  --line:rgba(25,21,15,.14); --line2:rgba(25,21,15,.22);
+  --paper:#FAF6EF; --panel:#FFFEFA; --white:#FFFDF8;
+  --ink:#231C18; --ink2:#5C534A; --ink3:#766C62;
+  --rose:#C94A62; --rose-deep:#A63A50; --rose-soft:#FBEDEF;
+  --line:rgba(35,28,24,.12); --line2:rgba(35,28,24,.22); --edge:#2A2320;
   --maxw:1100px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
 body{margin:0;color:var(--ink);font:400 16px/1.65 'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
-  -webkit-font-smoothing:antialiased;background-color:#EFE7D6;
-  background-image:
-    linear-gradient(rgba(43,66,87,.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(43,66,87,.045) 1px, transparent 1px),
-    radial-gradient(1200px 700px at 85% -10%, rgba(255,253,247,.92), transparent 60%);
-  background-size:30px 30px,30px 30px,100% 100%}
+  -webkit-font-smoothing:antialiased;background-color:var(--paper)}
 a{color:inherit}
 /* height:auto matters: without it the height attribute on a narrowed image stretches it */
 img{max-width:100%;height:auto;display:block}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
 h1,h2,h3{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;margin:0;text-wrap:balance}
-h1 em,h2 em{font-style:italic;font-weight:500;color:var(--rose)}
-.eyebrow{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 14px;display:flex;align-items:center;gap:10px}
-.eyebrow::before{content:"";flex:none;width:26px;height:1px;background:var(--gold)}
-.jp{font-family:'Noto Serif JP',serif;font-weight:500;font-size:.8em;color:var(--gold);letter-spacing:.05em}
-:focus-visible{outline:3px solid rgba(183,86,107,.45);outline-offset:3px;border-radius:4px}
+:focus-visible{outline:3px solid rgba(201,74,98,.55);outline-offset:3px;border-radius:4px}
 
 /* The header and footer are shared by every page: /shared/site-chrome.css. */
 
-/* buttons */
-.btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:600;font-size:15px;
-  padding:13px 20px;border-radius:10px;border:1.5px solid var(--ink);transition:transform .12s,box-shadow .12s,background .12s}
-.btn:hover{transform:translateY(-1px)}
-.btn-primary{background:var(--rose);border-color:var(--rose-deep);color:#fff;box-shadow:0 3px 0 var(--rose-deep)}
-.btn-primary:hover{box-shadow:0 4px 0 var(--rose-deep)}
-.btn-ghost{background:var(--panel);color:var(--ink)}
+/* hero: the heading, and the call screen with the shield in its corner */
+.hero{padding:60px 0 44px}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.65fr);gap:48px;align-items:center}
+@media (max-width:900px){.hero-grid{grid-template-columns:1fr;gap:40px}}
+.hero .cm-heading{margin-bottom:28px}
+.hero .cm-shot{--cm-phone-w:250px;position:relative}
+.hero .cm-phone{--cm-tilt:2deg}
+.hero .cm-shot .cm-tape{top:-10px;z-index:3}
+.hero .cm-shot-caption{font:600 23px/1.2 'Caveat','Segoe Print',cursive;color:var(--ink);max-width:24ch}
+@media (max-width:900px){.hero .cm-shot{--cm-phone-w:220px}}
 
-/* hero — one phone, showing where the shield sits on a call */
-.hero{padding:64px 0 48px}
-.hero-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:48px;align-items:center}
-@media (max-width:900px){.hero-grid{grid-template-columns:1fr;gap:36px}}
-.hero h1{font-size:clamp(46px,7vw,84px);line-height:1.0;font-weight:600}
-.hero .lede{font-size:clamp(17px,1.6vw,19px);color:var(--ink2);max-width:560px;margin:22px 0 28px}
-.hero .cta{display:flex;flex-wrap:wrap;gap:12px}
-.phone{margin:0 auto;width:100%;max-width:280px}
-.phone img{border-radius:26px;transform:rotate(2deg);box-shadow:0 1px 0 var(--line2),0 22px 44px -18px rgba(25,21,15,.45)}
-.phone figcaption{font-size:13.5px;color:var(--ink2);text-align:center;margin-top:18px}
-@media (max-width:900px){.phone{max-width:240px}}
-
-/* jump list — same look as the FAQ topic links on the front page */
-.jump{display:flex;flex-wrap:wrap;gap:4px 6px;margin:26px 0 0;padding:0;list-style:none}
-.jump a{display:block;text-decoration:none;font-size:14px;color:var(--ink2);padding:7px 12px;border-radius:8px;border-left:2px solid var(--line2)}
-.jump a:hover{color:var(--ink);background:rgba(25,21,15,.04);border-left-color:var(--rose)}
+/* jump list: small paper tags */
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 0;padding:0;list-style:none}
+.jump a{display:flex;align-items:center;gap:7px;min-height:40px;padding:6px 11px;text-decoration:none;
+  background:var(--white);border:1.5px solid var(--edge);border-radius:9px;
+  font:500 14px/1.2 'Inter',sans-serif;color:var(--ink)}
+.jump a:hover{background:#fff;color:var(--rose-deep)}
+.jump a .cm-ico{width:16px;height:16px;color:var(--rose-deep)}
 
 /* sections */
 section{padding:72px 0;scroll-margin-top:66px}
 /* the shared header is two rows on a phone */
 @media (max-width:720px){section{scroll-margin-top:104px}}
-.sec-head{max-width:720px;margin-bottom:34px}
-.sec-head h2{font-size:clamp(32px,4.2vw,46px);line-height:1.08}
-.sec-head p:not(.eyebrow){color:var(--ink2);font-size:17px;margin:14px 0 0}
-.band{background:rgba(251,246,236,.62);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.band{background:rgba(255,254,250,.55);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.cm-lede a{color:var(--rose-deep);text-underline-offset:3px}
 
-/* cards */
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;list-style:none;margin:0;padding:0}
-@media (max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}}
+/* cards: paper, a small ink icon in the corner */
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;list-style:none;margin:0;padding:0}
+@media (max-width:900px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:620px){.cards{grid-template-columns:1fr}}
 @media (min-width:621px) and (max-width:900px){.cards > li:last-child:nth-child(odd){grid-column:1 / -1}}
-.cards li{background:var(--white);border:1.5px solid var(--line2);border-radius:14px;padding:22px}
-.cards h3{font-size:21px;line-height:1.25;margin-bottom:8px}
-.cards p{margin:0;color:var(--ink2);font-size:15.5px}
-.cards p + p{margin-top:10px}
+.cards > li:nth-child(3n+1){--cm-tilt:-.4deg}
+.cards > li:nth-child(3n+3){--cm-tilt:.4deg}
+.cards .ic{display:grid;place-items:center;width:40px;height:40px;margin:0 0 12px;border-radius:9px;background:var(--rose-soft);color:var(--rose-deep)}
+.cards .ic .cm-ico{width:22px;height:22px}
+.cards .cm-card p + p{margin-top:10px}
 .cards a{color:var(--rose-deep);text-decoration-thickness:1px;text-underline-offset:3px}
 
-/* note — the one thing to remember from a section */
-.note{margin-top:22px;max-width:780px;background:var(--rose-soft);border-left:3px solid var(--rose);border-radius:0 10px 10px 0;padding:14px 18px;color:var(--ink)}
+/* note: the one thing to remember from a section, taped on */
+.note{position:relative;margin-top:30px;max-width:780px;background:var(--rose-soft);border:1.5px solid var(--rose-deep);border-radius:10px;padding:16px 20px 14px;color:var(--ink);transform:rotate(-.3deg)}
 .note p{margin:0;font-size:15.5px}
 .note a{color:var(--rose-deep);text-underline-offset:3px}
 
-/* the safety options, in the order the app lists them */
-.actions{list-style:none;margin:0;padding:0;border-top:1px solid var(--line2)}
-.actions li{display:grid;grid-template-columns:260px 1fr;gap:6px 32px;padding:18px 2px;border-bottom:1px solid var(--line2)}
+/* the safety options, in the order the app lists them, on a letter */
+.shieldletter.cm-letter{max-width:900px;padding:44px 34px 18px;background-image:none}
+@media (max-width:620px){.shieldletter.cm-letter{padding:40px 18px 12px}}
+.actions{list-style:none;margin:0;padding:0}
+.actions li{display:grid;grid-template-columns:250px 1fr;gap:6px 30px;padding:16px 2px;border-bottom:1px dashed var(--line2)}
+.actions li:last-child{border-bottom:0}
 @media (max-width:760px){.actions li{grid-template-columns:1fr}}
-.actions b{font:500 clamp(18px,1.8vw,21px)/1.35 'Playfair Display',serif;color:var(--ink)}
-.actions b.urgent{color:var(--rose-deep)}
+.actions b{display:flex;align-items:flex-start;gap:9px;font:600 clamp(18px,1.8vw,20px)/1.35 'Playfair Display',serif;color:var(--ink)}
+.actions b .cm-ico{flex:none;margin-top:3px;width:19px;height:19px;color:var(--ink2)}
+.actions b.urgent,.actions b.urgent .cm-ico{color:var(--rose-deep)}
 .actions span{color:var(--ink2);max-width:66ch}
-.after{margin-top:34px}
+.after{margin-top:40px}
 
-/* rules */
-.rules{columns:2;column-gap:40px;margin:0;padding:0;list-style:none;max-width:900px}
+/* friends, snapshots and walks: the dog beside the cards */
+.near{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:36px;align-items:start}
+@media (max-width:900px){.near{grid-template-columns:1fr}}
+.near .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:620px){.near .cards{grid-template-columns:1fr}}
+.near .cm-polaroid{--cm-polaroid-w:210px;--cm-tilt:3deg;margin-top:10px}
+@media (max-width:900px){.near .cm-polaroid{--cm-polaroid-w:180px;order:-1}}
+
+/* rules: a ruled letter, a small rose tulip on each line */
+.rulesletter.cm-letter{max-width:900px;--cm-tilt:.3deg}
+.rules{columns:2;column-gap:40px;margin:0;padding:0;list-style:none}
 @media (max-width:760px){.rules{columns:1}}
-.rules li{break-inside:avoid;position:relative;padding:0 0 12px 22px;color:var(--ink2)}
-.rules li::before{content:"";position:absolute;left:0;top:.8em;width:12px;height:1px;background:var(--gold)}
+.rules li{break-inside:avoid;position:relative;padding:0 0 12px 26px;color:var(--ink2)}
+.rules li::before{content:"";position:absolute;left:0;top:.28em;width:16px;height:16px;background:var(--rose);
+  -webkit-mask:var(--cm-tulip-img) center/contain no-repeat;mask:var(--cm-tulip-img) center/contain no-repeat}
 .more{margin:18px 0 0}
 .more a{color:var(--rose-deep);text-decoration-thickness:1px;text-underline-offset:3px}
 
-/* contact + footer */
-.contact{display:flex;flex-wrap:wrap;gap:24px 48px}
-.contact div{min-width:240px}
-.contact b{display:block;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px}
-.contact a{font:500 20px 'Playfair Display',serif;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line2)}
+/* getting help */
+.contact{display:flex;flex-wrap:wrap;gap:22px}
+.contact .cm-card{min-width:260px;padding:18px 22px}
+.contact b{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--rose-deep);margin-bottom:8px}
+.contact a{font:600 21px 'Playfair Display',serif;color:var(--ink);text-decoration:none;border-bottom:1.5px solid var(--rose)}
 .contact a:hover{color:var(--rose-deep)}
-.contact-note{color:var(--ink2);margin:22px 0 0;max-width:640px}
+.contact-note{color:var(--ink2);margin:24px 0 0;max-width:640px}
 </style>
 <link rel="stylesheet" href="/shared/site-chrome.css">
 </head>
-<body>
+<body class="cm-ground">
 
 <header class="m3-head"><div class="m3-bar">
   <a class="m3-brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="m3-jp" aria-hidden="true">三X一</span></a>
@@ -158,45 +158,52 @@ section{padding:72px 0;scroll-margin-top:66px}
 
 <section class="hero"><div class="wrap hero-grid">
   <div>
-    <p class="eyebrow">Safety on CallMe</p>
-    <h1>Safety, <em>built in.</em></h1>
-    <p class="lede">CallMe puts you on live calls with people you have not met, so safety is part of every call rather than a page of settings. Everyone is a verified adult, every call opens on voice, and reporting or blocking someone takes you straight out of the call.</p>
-    <div class="cta">
-      <a class="btn btn-primary" href="#reporting">Reporting and blocking</a>
-      <a class="btn btn-ghost" href="/terms/#callme-terms">Read the CallMe terms</a>
+    <header class="cm-heading">
+      <p class="cm-kicker">Safety on CallMe</p>
+      <h1 class="cm-title cm-title--display">Safety, <em>built in.</em></h1>
+      <p class="cm-lede">CallMe puts you on live calls with people you have not met, so safety is part of every call rather than a page of settings. Everyone is a verified adult, every call opens on voice, and reporting or blocking someone takes you straight out of the call.</p>
+    </header>
+    <div class="cm-btns">
+      <a class="cm-btn cm-btn--primary" href="#reporting"><i class="cm-ico cm-ico--shield" aria-hidden="true"></i>Reporting and blocking</a>
+      <a class="cm-btn cm-btn--secondary" href="/terms/#callme-terms">Read the CallMe terms</a>
     </div>
     <ul class="jump" aria-label="On this page">
-      <li><a href="#verified">18+ and verified</a></li>
-      <li><a href="#voice">Voice first</a></li>
-      <li><a href="#reporting">Reporting and blocking</a></li>
-      <li><a href="#reports">After a report</a></li>
-      <li><a href="#rules">The rules</a></li>
-      <li><a href="#data">Data, children, deleting</a></li>
-      <li><a href="#help">Getting help</a></li>
+      <li><a href="#verified"><i class="cm-ico cm-ico--check" aria-hidden="true"></i>18+ and verified</a></li>
+      <li><a href="#voice"><i class="cm-ico cm-ico--mic" aria-hidden="true"></i>Voice first</a></li>
+      <li><a href="#reporting"><i class="cm-ico cm-ico--flag" aria-hidden="true"></i>Reporting and blocking</a></li>
+      <li><a href="#reports"><i class="cm-ico cm-ico--letter" aria-hidden="true"></i>After a report</a></li>
+      <li><a href="#friends"><i class="cm-ico cm-ico--map" aria-hidden="true"></i>The map, walks and snapshots</a></li>
+      <li><a href="#rules"><i class="cm-ico cm-ico--block" aria-hidden="true"></i>The rules</a></li>
+      <li><a href="#data"><i class="cm-ico cm-ico--lock" aria-hidden="true"></i>Data, children, deleting</a></li>
+      <li><a href="#help"><i class="cm-ico cm-ico--chat" aria-hidden="true"></i>Getting help</a></li>
     </ul>
   </div>
-  <figure class="phone">
-    <img src="/img/callme/screen-04.webp" width="540" height="960" alt="A CallMe call in progress: voice only, with the camera off and the safety shield in the top corner" loading="eager">
-    <figcaption>The shield in the top corner of a call opens every safety option.</figcaption>
+  <figure class="cm-shot">
+    <span class="cm-tape cm-tape--masking" aria-hidden="true"></span>
+    <div class="cm-phone"><img src="/img/callme/app/walk-consent.png" srcset="/img/callme/app/walk-consent-720.webp 720w, /img/callme/app/walk-consent.png 721w" sizes="(max-width: 900px) 220px, 250px" width="720" height="1600" alt="CallMe asking before it uses location for a walk, with a choice of steps and time only" decoding="async"></div>
+    <figcaption class="cm-shot-caption">CallMe asks before it uses your location, as it does when a walk starts.</figcaption>
   </figure>
 </div></section>
 
 <section id="verified" class="band"><div class="wrap">
-  <div class="sec-head">
-    <p class="eyebrow">Who you will meet</p>
-    <h2>Everyone is <em>18+ and verified.</em></h2>
-    <p>CallMe is for adults aged 18 and over, and the age check is not a box to tick. Nobody can match or call anyone until they have passed it.</p>
-  </div>
+  <header class="cm-heading">
+    <p class="cm-kicker">Who you will meet</p>
+    <h2 class="cm-title">Everyone is <em>18+ and verified.</em></h2>
+    <p class="cm-lede">CallMe is for adults aged 18 and over, and the age check is not a box to tick. Nobody can match or call anyone until they have passed it.</p>
+  </header>
   <ul class="cards">
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--card"></i></span>
       <h3>An ID check, not a date of birth</h3>
       <p>Everyone verifies their age before they can call anyone, with an identity document, a live selfie and a face match. The check is carried out by our verification provider, Didit.</p>
     </li>
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--lock"></i></span>
       <h3>No way round it</h3>
       <p>There is no way to skip verification and reach the calling features, and anyone whose document shows they are under 18 cannot complete it. Matching never goes below 18, however long you wait.</p>
     </li>
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--shield"></i></span>
       <h3>Your documents are not sent to us</h3>
       <p>Your document images and selfie go directly to Didit and are never stored on our servers. We receive the result: pass or fail, your date of birth and your age.</p>
     </li>
@@ -207,21 +214,24 @@ section{padding:72px 0;scroll-margin-top:66px}
 </div></section>
 
 <section id="voice"><div class="wrap">
-  <div class="sec-head">
-    <p class="eyebrow">On a call</p>
-    <h2>Voice first. Video <em>only when you both agree.</em></h2>
-    <p>Nobody sees you just because a call has connected.</p>
-  </div>
+  <header class="cm-heading">
+    <p class="cm-kicker">On a call</p>
+    <h2 class="cm-title">Voice first. Video <em>only when you both agree.</em></h2>
+    <p class="cm-lede">Nobody sees you just because a call has connected.</p>
+  </header>
   <ul class="cards">
-    <li>
-      <h3>Every call opens on voice</h3>
-      <p>Video turns on only when both of you ask for it. Until then, it is a voice call.</p>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--mic"></i></span>
+      <h3>One-to-one calls open on voice</h3>
+      <p>On a one-to-one call, video turns on only when both of you ask for it. Until then, it is a voice call. At a table, the host sets the camera rule: voice only, up to each person, or cameras on.</p>
     </li>
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--video"></i></span>
       <h3>Nobody else can switch on your camera</h3>
       <p>One person can never switch on the other person's camera. Our servers check that both of you asked, every time.</p>
     </li>
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--camera"></i></span>
       <h3>Your camera stays yours</h3>
       <p>You can turn your camera off at any time without ending the call. Your phone number and email are never shown to anyone you talk to.</p>
     </li>
@@ -232,47 +242,53 @@ section{padding:72px 0;scroll-margin-top:66px}
 </div></section>
 
 <section id="reporting" class="band"><div class="wrap">
-  <div class="sec-head">
-    <p class="eyebrow">Something wrong?</p>
-    <h2>Get out first. <em>We deal with the rest.</em></h2>
-    <p>Tap the shield in the top corner of a call. When you report or block someone, the app mutes your microphone and takes you out of the call without waiting for the report to send, so a bad connection can never keep you there. If sending fails, the app tries again later.</p>
-  </div>
-  <ul class="actions">
-    <li>
-      <b>Silence someone, just for you</b>
-      <span>They stay on the call and never know. You stay on it too, and you can undo it at any time.</span>
-    </li>
-    <li>
-      <b class="urgent">Someone sounds underage</b>
-      <span>This has its own option, so it is never buried in a list of reasons. You leave the call, and your report goes to the front of our review queue straight away.</span>
-    </li>
-    <li>
-      <b>Report someone</b>
-      <span>Pick what happened: sexual content or exposure, threats or danger, harassment or bullying, hate or abuse, scam or spam, or something else. You leave the call, and you will not be matched with them again.</span>
-    </li>
-    <li>
-      <b>Not sure who? Flag the call</b>
-      <span>Nobody gets singled out. Our team looks at the whole call.</span>
-    </li>
-    <li>
-      <b class="urgent">Block someone</b>
-      <span>You leave the call, and neither of you can be matched with the other again or join a room or call the other is in. Any friendship between you ends. On a group call, the people who came with them are blocked too. You can unblock someone later in Settings.</span>
-    </li>
-    <li>
-      <b>Leave straight away</b>
-      <span>Press and hold the shield to leave the call at once, with nothing to choose and nothing to confirm.</span>
-    </li>
-  </ul>
+  <header class="cm-heading">
+    <p class="cm-kicker">Something wrong?</p>
+    <h2 class="cm-title">Get out first. <em>We deal with the rest.</em></h2>
+    <p class="cm-lede">Tap the shield in the top corner of a call. When you report or block someone, the app mutes your microphone and takes you out of the call without waiting for the report to send, so a bad connection can never keep you there. If sending fails, the app tries again later.</p>
+  </header>
+  <article class="cm-letter shieldletter" aria-labelledby="shield-h">
+    <h3 class="cm-letter-title" id="shield-h">Behind the shield</h3>
+    <ul class="actions">
+      <li>
+        <b><i class="cm-ico cm-ico--mic" aria-hidden="true"></i>Silence someone, just for you</b>
+        <span>They stay on the call and never know. You stay on it too, and you can undo it at any time.</span>
+      </li>
+      <li>
+        <b class="urgent"><i class="cm-ico cm-ico--shield" aria-hidden="true"></i>Someone sounds underage</b>
+        <span>This has its own option, so it is never buried in a list of reasons. You leave the call, and your report goes to the front of our review queue straight away.</span>
+      </li>
+      <li>
+        <b><i class="cm-ico cm-ico--flag" aria-hidden="true"></i>Report someone</b>
+        <span>Pick what happened: sexual content or exposure, threats or danger, harassment or bullying, hate or abuse, scam or spam, or something else. You leave the call, and you will not be matched with them again.</span>
+      </li>
+      <li>
+        <b><i class="cm-ico cm-ico--users" aria-hidden="true"></i>Not sure who? Flag the call</b>
+        <span>Nobody gets singled out. Our team looks at the whole call.</span>
+      </li>
+      <li>
+        <b class="urgent"><i class="cm-ico cm-ico--block" aria-hidden="true"></i>Block someone</b>
+        <span>You leave the call, and neither of you can be matched with the other again or join a room or call the other is in. Any friendship between you ends. On a group call, the people who came with them are blocked too. You can unblock someone later in Settings.</span>
+      </li>
+      <li>
+        <b><i class="cm-ico cm-ico--skip" aria-hidden="true"></i>Leave straight away</b>
+        <span>Press and hold the shield to leave the call at once, with nothing to choose and nothing to confirm.</span>
+      </li>
+    </ul>
+  </article>
   <ul class="cards after">
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--letter"></i></span>
       <h3>After a call</h3>
       <p>The call summary has a link, <b>Something wasn’t right on this call</b>, that opens the same options. There you can also choose not to be matched with someone again, without reporting them, and change your mind later in Settings.</p>
     </li>
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--users"></i></span>
       <h3>At a table</h3>
       <p>When you are sitting with a few people, you can silence someone, block someone, or flag the whole table so our team looks at it.</p>
     </li>
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--check"></i></span>
       <h3>Your lists, in Settings</h3>
       <p>Settings shows who you have blocked, who you have chosen not to be matched with, and your reports.</p>
     </li>
@@ -280,75 +296,127 @@ section{padding:72px 0;scroll-margin-top:66px}
 </div></section>
 
 <section id="reports"><div class="wrap">
-  <div class="sec-head">
-    <p class="eyebrow">What we do with reports</p>
-    <h2>What happens <em>after a report.</em></h2>
-    <p>You will not be matched with the person again, and that part happens straight away. The rest is below.</p>
-  </div>
+  <header class="cm-heading">
+    <p class="cm-kicker">What we do with reports</p>
+    <h2 class="cm-title">What happens <em>after a report.</em></h2>
+    <p class="cm-lede">You will not be matched with the person again, and that part happens straight away. The rest is below.</p>
+  </header>
   <ul class="cards">
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--letter"></i></span>
       <h3>It goes to our safety team</h3>
       <p>Your report goes to our safety review queue. You get a reference, and you can see it and where it has got to in Settings, under <b>Your reports</b>.</p>
     </li>
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--flame"></i></span>
       <h3>Serious reports come first</h3>
       <p>A report that someone sounds underage, of sexual content, or of threats can pause the other account while we check. An account reported as underage can be kept out of calls until it passes a fresh ID check.</p>
     </li>
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--lock"></i></span>
       <h3>Nobody is told who reported them</h3>
       <p>A report never tells the other person who filed it. It does not tell you what happened to their account either.</p>
     </li>
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--clock"></i></span>
       <h3>Repeated reports add up</h3>
       <p>Reports from separate calls lead to a warning, then to a suspension, and the suspensions grow longer if it keeps happening.</p>
     </li>
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--block"></i></span>
       <h3>We can go further</h3>
       <p>We may warn, suspend or permanently ban an account, remove content, or refer a matter to the police. We may act on a single serious report without warning.</p>
     </li>
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--card"></i></span>
       <h3>The record stays</h3>
       <p>Reports, and the decisions made on them, are kept after an account closes, so deleting an account does not wipe the record of what someone did.</p>
     </li>
   </ul>
 </div></section>
 
-<section id="rules" class="band"><div class="wrap">
-  <div class="sec-head">
-    <p class="eyebrow">The rules</p>
-    <h2>What nobody may do <em>on CallMe.</em></h2>
-    <p>These are part of the CallMe terms. On a call, or anywhere in the app, you must not:</p>
+<!-- New in 0.10. Checked against the app: LocationSharePrompt.tsx and
+     LocationSettingsScreen.tsx (friends only, town first, 24-hour pause,
+     foreground only), InstanceReport.tsx (snapshots can be reported), and
+     migration 0106 (a walk keeps district names, no coordinates). -->
+<section id="friends" class="band"><div class="wrap">
+  <header class="cm-heading">
+    <p class="cm-kicker">Friends, snapshots and walks</p>
+    <h2 class="cm-title">Only friends, <em>only if you say so.</em></h2>
+    <p class="cm-lede">The friends map, snapshots and dog walks are new in CallMe. Each one is off, or private to you, until you choose otherwise.</p>
+  </header>
+  <div class="near">
+    <ul class="cards">
+      <li class="cm-card">
+        <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--map"></i></span>
+        <h3>The map is off until you choose</h3>
+        <p>Nobody you haven't added as a friend can see where you are, and with Choose friends, only the ones you tick. It starts at your town, never your door, and you can switch to precise in <b>Settings</b>, under <b>Location</b>.</p>
+      </li>
+      <li class="cm-card">
+        <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--clock"></i></span>
+        <h3>Only while CallMe is open</h3>
+        <p>Your phone sends your place only while the app is open, never in the background. Pause sharing for 24 hours whenever you like, or turn it off.</p>
+      </li>
+      <li class="cm-card">
+        <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--camera"></i></span>
+        <h3>Snapshots are checked first</h3>
+        <p>A snapshot is a photo for your friends that lasts 24 hours. Every one is checked before your friends see it, you can delete yours at any time, and any snapshot can be reported.</p>
+      </li>
+      <li class="cm-card">
+        <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--paw"></i></span>
+        <h3>Your walks are yours</h3>
+        <p>A walk measures distance and pace while CallMe is open, and keeps only the name of the district it started and ended in, never a street. Your walks and bests are private, and each one can be deleted. While a walk is running, and only if you have turned on Show friends what I’m up to, your friends can see that you are out walking.</p>
+      </li>
+    </ul>
+    <figure class="cm-polaroid cm-polaroid--dog">
+      <span class="cm-tape cm-tape--gingham" aria-hidden="true"></span>
+      <div class="cm-polaroid-photo"><img src="/img/callme/dog/sniff.webp" alt="The CallMe dog, nose to the ground, sniffing" width="328" height="360" loading="lazy"></div>
+      <figcaption>Only friends can sniff you out.</figcaption>
+    </figure>
   </div>
-  <ul class="rules">
-    <li>harass, threaten, degrade or sexually harass another person;</li>
-    <li>expose yourself, or show sexual, violent or otherwise explicit content on video;</li>
-    <li>ask for money, gifts, investments or personal financial details;</li>
-    <li>record, screenshot or share a call or another person's images without their consent;</li>
-    <li>misrepresent your age or identity, or use another person's identity document;</li>
-    <li>promote, arrange or facilitate anything illegal;</li>
-    <li>pressure someone to turn on video;</li>
-    <li>contact someone who has blocked you, or create a new account to get round a block or ban.</li>
-  </ul>
+</div></section>
+
+<section id="rules"><div class="wrap">
+  <header class="cm-heading">
+    <p class="cm-kicker">The rules</p>
+    <h2 class="cm-title">What nobody may do <em>on CallMe.</em></h2>
+    <p class="cm-lede">These are part of the CallMe terms. On a call, or anywhere in the app, you must not:</p>
+  </header>
+  <article class="cm-letter rulesletter">
+    <ul class="rules">
+      <li>harass, threaten, degrade or sexually harass another person;</li>
+      <li>expose yourself, or show sexual, violent or otherwise explicit content on video;</li>
+      <li>ask for money, gifts, investments or personal financial details;</li>
+      <li>record, screenshot or share a call or another person's images without their consent;</li>
+      <li>misrepresent your age or identity, or use another person's identity document;</li>
+      <li>promote, arrange or facilitate anything illegal;</li>
+      <li>pressure someone to turn on video;</li>
+      <li>contact someone who has blocked you, or create a new account to get round a block or ban.</li>
+    </ul>
+  </article>
   <p class="more">The full wording is in the <a href="/terms/#callme-terms">CallMe terms</a>.</p>
 </div></section>
 
-<section id="data"><div class="wrap">
-  <div class="sec-head">
-    <p class="eyebrow">The small print</p>
-    <h2>Your data, children, <em>and leaving.</em></h2>
-  </div>
+<section id="data" class="band"><div class="wrap">
+  <header class="cm-heading">
+    <p class="cm-kicker">The small print</p>
+    <h2 class="cm-title">Your data, children, <em>and leaving.</em></h2>
+  </header>
   <ul class="cards">
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--lock"></i></span>
       <h3>Your data</h3>
       <p>CallMe does not record the audio or video of your calls.</p>
       <p>What we do collect, why, and how long it is kept is set out in the <a href="/privacy/#callme">CallMe privacy policy</a>.</p>
     </li>
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--shield"></i></span>
       <h3>Children</h3>
       <p>CallMe is strictly for adults. If we learn that an account belongs to someone under 18, we close it and delete its data.</p>
       <p>Our <a href="/child-safety/">child safety standards</a> explain how we keep under-18s out, and how anyone can report a concern.</p>
     </li>
-    <li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--scissors"></i></span>
       <h3>Deleting your account</h3>
       <p>In the app, go to <b>Settings</b>, then <b>Delete account and data</b>.</p>
       <p>If you no longer have the app, <a href="/delete-account/">m3xi.com/delete-account</a> explains how to ask us, and what we keep.</p>
@@ -356,14 +424,14 @@ section{padding:72px 0;scroll-margin-top:66px}
   </ul>
 </div></section>
 
-<section id="help" class="band" style="padding:56px 0"><div class="wrap">
-  <div class="sec-head" style="margin-bottom:24px">
-    <p class="eyebrow">Getting help</p>
-    <h2>Talk to <em>a person.</em></h2>
-  </div>
+<section id="help" style="padding:64px 0"><div class="wrap">
+  <header class="cm-heading" style="margin-bottom:26px">
+    <p class="cm-kicker">Getting help</p>
+    <h2 class="cm-title">Talk to <em>a person.</em></h2>
+  </header>
   <div class="contact">
-    <div><b>Help with CallMe</b><a href="mailto:support@m3xi.com">support@m3xi.com</a></div>
-    <div><b>A child safety concern</b><a href="mailto:support@m3xi.com?subject=Child%20safety%20report">support@m3xi.com</a></div>
+    <div class="cm-card"><b><i class="cm-ico cm-ico--letter" aria-hidden="true"></i>Help with CallMe</b><a href="mailto:support@m3xi.com">support@m3xi.com</a></div>
+    <div class="cm-card cm-tilt-r"><b><i class="cm-ico cm-ico--shield" aria-hidden="true"></i>A child safety concern</b><a href="mailto:support@m3xi.com?subject=Child%20safety%20report">support@m3xi.com</a></div>
   </div>
   <p class="contact-note">You do not need to use CallMe to report a concern to us, and emails are read by a person. If anyone is in immediate danger, contact your local emergency services first.</p>
 </div></section>

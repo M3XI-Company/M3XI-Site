@@ -39,7 +39,7 @@ function posterView(host: HTMLElement): () => void {
     // h1: this is a page of its own, and it was the only route with no top
     // heading. The landing page links to it from the posters step.
     el('h1', { text: 'Posters are made in the app' }),
-    el('p', { text: 'Your poster is the wall behind you on a call, and it is built on the phone: Settings, then My poster. Choose a paper, put your photos and words where you want them, and put it up.' }),
+    el('p', { text: 'Your poster is what friends see when they open you, and people you’ve met too if you let them. It is built on the phone: Settings, then My poster. Choose a paper, then pinch and twist to place your photos, words, stickers and modules, and pin them up. Take a photo or choose one, and the cropper fits it to its frame.' }),
     el('div', { class: 'actions' }, [
       el('a', { class: 'btn rose', href: 'callme://poster', text: 'Open CallMe' }),
       el('a', { class: 'btn', href: '#/', text: 'Back to the studio' }),
@@ -64,6 +64,10 @@ function render(): void {
   const route = parse();
   markTabs(route.name);
   document.title = TITLES[route.name];
+  // The store cards (#getapp in index.html) belong under the two pages that
+  // send people to the app, not under the editor or the library.
+  const getapp = document.getElementById('getapp');
+  if (getapp) getapp.hidden = route.name !== 'home' && route.name !== 'poster';
   if (route.name === 'cards') teardown = cardsView(view, route.arg);
   else if (route.name === 'library') teardown = libraryView(view);
   else if (route.name === 'poster') teardown = posterView(view);

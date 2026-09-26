@@ -14,6 +14,12 @@
  *
  * No prices, no balances and no buy links anywhere (G-PAY 4 and 5, Apple
  * 3.1.3). "Comes with CallMe Premium, in the app" is the whole of it.
+ *
+ * The look is the site's paper kit (cm- classes, /shared/site-chrome.css):
+ * the heading pattern, a letter with numbered steps, paper tags instead of
+ * bullets, and the dog in a polaroid. The store cards under this page live in
+ * design/index.html (#getapp), so /shared/site-chrome.js draws them and they
+ * follow the one App Store flag; main.ts shows them on this route.
  */
 
 import { el, svg } from './dom';
@@ -21,21 +27,41 @@ import { mountSignIn, onChange } from './pair';
 
 export const PLAY_URL = 'https://play.google.com/store/apps/details?id=com.m3xi.callme';
 
+/**
+ * Where "Get CallMe" goes: Google Play, or the App Store on an iPhone or iPad
+ * once window.M3XI_APPSTORE (set by /shared/site-chrome.js) is live.
+ */
+export function getCallMeHref(): string {
+  const app = (window as unknown as { M3XI_APPSTORE?: { live?: boolean; url?: string } }).M3XI_APPSTORE;
+  const apple = /iPhone|iPad|iPod/.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const live = !!(app && app.live && typeof app.url === 'string' && /^https:\/\/apps\.apple\.com\//.test(app.url));
+  return live && apple ? (app as { url: string }).url : PLAY_URL;
+}
+
 export function openAppRow(deepLink: string, label: string): HTMLElement {
-  return el('div', { class: 'actions' }, [
-    el('a', { class: 'btn rose big', href: deepLink, text: label }),
-    el('a', { class: 'btn', href: PLAY_URL, rel: 'noopener', text: 'Get CallMe' }),
+  return el('div', { class: 'cm-btns' }, [
+    el('a', { class: 'cm-btn cm-btn--primary', href: deepLink, text: label }),
+    el('a', { class: 'cm-btn cm-btn--secondary', href: getCallMeHref(), rel: 'noopener', text: 'Get CallMe' }),
   ]);
 }
 
-function step(n: string, title: string, words: string, more?: { href: string; text: string }): HTMLElement {
-  return el('li', { class: 'step' }, [
-    el('span', { class: 'stepno', 'aria-hidden': 'true', text: n }),
-    el('div', {}, [
-      el('h3', { text: title }),
-      el('p', { text: words }),
-      more ? el('p', {}, [el('a', { href: more.href, text: more.text })]) : null,
-    ]),
+/** A small ink icon from the site's paper kit. */
+function ico(name: string): HTMLElement {
+  return el('i', { class: 'cm-ico cm-ico--' + name, 'aria-hidden': 'true' });
+}
+
+/** One paper tag with an icon: what the kit uses instead of a bullet or a pill. */
+function tag(icon: string, words: string): HTMLElement {
+  return el('li', { class: 'cm-tag' }, [ico(icon), words]);
+}
+
+/** One numbered step on a letter (.cm-steps draws the rose italic number). */
+function step(title: string, words: string, more?: { href: string; text: string }): HTMLElement {
+  return el('li', {}, [
+    el('h3', { text: title }),
+    el('p', { text: words }),
+    more ? el('p', {}, [el('a', { href: more.href, text: more.text })]) : null,
   ]);
 }
 
@@ -44,10 +70,10 @@ function step(n: string, title: string, words: string, more?: { href: string; te
  * anywhere in the studio) and hidden from screen readers: the card's own
  * heading and sentence say everything the picture does. */
 
-const INK = '#19150F';
-const ROSE = '#B7566B';
+const INK = '#231C18';
+const ROSE = '#C94A62';
 const STOCK = '#FFFDF8';
-const BLUSH = '#F3DEDF';
+const BLUSH = '#FBEDEF';
 
 function phoneOutline(): SVGElement[] {
   return [
@@ -107,14 +133,25 @@ export function landing(host: HTMLElement): () => void {
   const cleanups: (() => void)[] = [];
 
   host.appendChild(el('section', { class: 'intro' }, [
-    el('p', { class: 'eyebrow', text: 'CallMe creator studio' }),
-    el('h1', {}, [document.createTextNode('Design it here, '), el('em', { text: 'wear it on your card.' })]),
-    el('p', { class: 'lede', text: 'Premium members design card art on a computer. Your phone signs this page in, with no password, and a finished design lands in your CallMe collection, ready to wear on your card or to give.' }),
+    el('div', { class: 'introgrid' }, [
+      el('header', { class: 'cm-heading' }, [
+        el('p', { class: 'cm-kicker', text: 'CallMe creator studio' }),
+        el('h1', { class: 'cm-title' }, [document.createTextNode('Design it here, '), el('em', { text: 'wear it on your card.' })]),
+        el('p', { class: 'cm-lede', text: 'Premium members design card art on a computer. Your phone signs this page in, with no password, and a finished design lands in your CallMe collection, ready to wear on your card or to give.' }),
+      ]),
+      el('figure', { class: 'cm-polaroid cm-polaroid--dog intro-dog' }, [
+        el('span', { class: 'cm-tape cm-tape--gingham', 'aria-hidden': 'true' }),
+        el('div', { class: 'cm-polaroid-photo' }, [
+          el('img', { src: '/img/callme/dog/tulip.webp', alt: 'The CallMe dog holding a tulip', width: 298, height: 360, loading: 'lazy', decoding: 'async' }),
+        ]),
+        el('figcaption', { text: 'Made by you.' }),
+      ]),
+    ]),
   ]));
 
   /* ── The first screen: three steps, then the square ──────────── */
   host.appendChild(el('section', { class: 'howsteps', 'aria-labelledby': 'howsteps-h' }, [
-    el('h2', { id: 'howsteps-h', text: 'Three steps to sign in' }),
+    el('h2', { id: 'howsteps-h', class: 'cm-title cm-title--sm', text: 'Three steps to sign in' }),
     el('ol', { class: 'howto' }, [
       howCard('1', 'Open CallMe, then My poster',
         'On your phone, open CallMe and go to Settings, then My poster.', artPoster()),
@@ -149,12 +186,12 @@ export function landing(host: HTMLElement): () => void {
   cleanups.push(onChange((s) => {
     gate.textContent = '';
     if (s.phase === 'signed_in') {
-      gate.appendChild(el('div', { class: 'actions' }, [
-        el('a', { class: 'btn rose big', href: '#/cards', text: 'Design a card' }),
-        el('a', { class: 'btn', href: '#/library', text: 'My designs' }),
+      gate.appendChild(el('div', { class: 'cm-btns' }, [
+        el('a', { class: 'cm-btn cm-btn--primary', href: '#/cards', text: 'Design a card' }),
+        el('a', { class: 'cm-btn cm-btn--secondary', href: '#/library', text: 'My designs' }),
       ]));
     } else {
-      gate.appendChild(el('p', { class: 'chip', text: 'The creator studio comes with CallMe Premium, in the app.' }));
+      gate.appendChild(el('p', { class: 'cm-tag cm-tag--rose premium' }, [ico('star'), 'The creator studio comes with CallMe Premium, in the app.']));
     }
   }));
 
@@ -162,29 +199,28 @@ export function landing(host: HTMLElement): () => void {
   host.appendChild(el('section', { class: 'band-sheet' }, [
     el('h2', { text: 'The creator studio, on a big screen' }),
     el('p', { text: 'Bring a picture you made yourself, or build one out of the four papers and the stickers. Mouse precision, arrow-key nudging and a proper preview of what a person will hold.' }),
-    el('ul', { class: 'plainlist' }, [
-      el('li', { text: 'Start from your own art, or compose one here.' }),
-      el('li', { text: 'Set where the wearer’s photo sits on your card.' }),
-      el('li', { text: 'Send it for checking. When it passes, it appears in your collection in the app.' }),
-      el('li', { text: 'Give copies from your collection — up to twenty per design.' }),
+    el('ul', { class: 'cm-tags' }, [
+      tag('image', 'Start from your own art, or compose one here.'),
+      tag('card', 'Set where the wearer’s photo sits on your card.'),
+      tag('check', 'Send it for checking. When it passes, it appears in your collection in the app.'),
+      tag('tulip', 'Give copies from your collection — up to twenty per design.'),
     ]),
   ]));
 
   /* ── Everyone: cards and posters in the app ──────────────────── */
-  host.appendChild(el('section', { class: 'band-sheet' }, [
-    el('h2', { text: 'Cards and posters, in the app' }),
-    el('ol', { class: 'steps' }, [
+  host.appendChild(el('section', { class: 'cm-letter inapp', 'aria-labelledby': 'inapp-h' }, [
+    el('h2', { class: 'cm-letter-title', id: 'inapp-h', text: 'Cards and posters, in the app' }),
+    el('ol', { class: 'cm-steps' }, [
       // The `#/poster` route was built and nothing linked to it, so the one
       // page that explains what happens to a poster could only be reached by
       // typing the hash. It is linked from the step it belongs to.
-      step('1', 'Posters are made in the app', 'Open CallMe and go to Settings, then My poster. Choose a paper, put your photos and words on it, and put it up. Everything is drawn on the phone, so you see it exactly as your visitors will.',
+      step('Posters are made in the app', 'Open CallMe and go to Settings, then My poster. Choose a paper, then pinch and twist to place your photos, words, stickers and modules, and pin them up. Take a photo or choose one, and the cropper fits it to its frame. Everything is drawn on the phone, so you see it exactly as your visitors will.',
         { href: '#/poster', text: 'More about posters ›' }),
-      step('2', 'Cards are made in the app too', 'Go to Settings, then My poster, then Edit my cards. Pick a paper, add your stickers and your words, and the card is yours. It is the card people see when you match.'),
-      step('3', 'Your designs live in your collection', 'Everything you make sits in your collection in the app, next to the cards you have earned. That is where a design becomes something you can give.'),
-      step('4', 'Give a copy to someone you have talked to', 'Open your collection, choose a design and give a copy to a person you met on a call. Each design is an edition of twenty copies, and once the twenty are out, that is the whole edition.'),
+      step('Cards are made in the app too', 'Go to Settings, then My poster, then Edit my cards. Pick a paper, add your stickers and your words, and the card is yours. It is the card people see when you match.'),
+      step('Your designs live in your collection', 'Everything you make sits in your collection in the app, next to the cards you have earned. That is where a design becomes something you can give.'),
+      step('Give a copy to someone you have talked to', 'Open your collection, choose a design and give a copy to a person you met on a call. Each design is an edition of twenty copies, and once the twenty are out, that is the whole edition.'),
     ]),
     openAppRow('callme://poster', 'Open CallMe'),
-    el('p', { class: 'muted', text: 'Not got the app yet? CallMe is on Android now.' }),
   ]));
 
   /* ── On a phone ──────────────────────────────────────────────── */

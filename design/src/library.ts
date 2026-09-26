@@ -52,9 +52,9 @@ export function libraryView(host: HTMLElement): () => void {
 
   clear(root);
   const head = el('section', { class: 'intro' }, [
-    el('p', { class: 'eyebrow', text: 'Your designs' }),
-    el('h1', {}, [document.createTextNode('Everything you have '), el('em', { text: 'made.' })]),
-    el('p', { class: 'lede', text: 'Once a design is ready it sits in your collection in the app, and that is where you give copies to the people you have talked to.' }),
+    el('p', { class: 'cm-kicker', text: 'Your designs' }),
+    el('h1', { class: 'cm-title' }, [document.createTextNode('Everything you have '), el('em', { text: 'made.' })]),
+    el('p', { class: 'cm-lede', text: 'Once a design is ready it sits in your collection in the app, and that is where you give copies to the people you have talked to.' }),
     el('div', { class: 'actions' }, [
       el('a', { class: 'btn rose big', href: '#/cards', text: 'Start a new card' }),
       el('a', { class: 'btn', href: 'callme://collection/mine', text: 'See it in your collection' }),

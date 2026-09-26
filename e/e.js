@@ -111,29 +111,9 @@ function el(tag, attrs, kids) {
   return n;
 }
 
-const SVGNS = 'http://www.w3.org/2000/svg';
-function svg(tag, attrs, kids) {
-  const n = document.createElementNS(SVGNS, tag);
-  Object.keys(attrs || {}).forEach((k) => n.setAttribute(k, String(attrs[k])));
-  (kids || []).forEach((c) => { if (c) n.appendChild(c); });
-  return n;
-}
-
-/** The wax seal, with a tulip. Tulips, never hearts. */
-function seal() {
-  return svg('svg', { viewBox: '0 0 36 36', class: 'seal', 'aria-hidden': 'true', focusable: 'false' }, [
-    svg('circle', { cx: 18, cy: 18, r: 17, fill: '#B3402A' }),
-    svg('circle', { cx: 18, cy: 18, r: 13, fill: 'none', stroke: 'rgba(255,255,255,.28)', 'stroke-width': 1 }),
-    svg('path', { d: 'M18 11c-2.6 1.4-4 3.6-4 6.2 0 2.1 1.8 3.8 4 3.8s4-1.7 4-3.8c0-2.6-1.4-4.8-4-6.2z', fill: '#F7E7DA' }),
-    svg('path', { d: 'M18 21v6M18 25c-1.8-.2-3-1.2-3.6-2.6M18 25c1.8-.2 3-1.2 3.6-2.6', stroke: '#F7E7DA', 'stroke-width': 1.4, fill: 'none', 'stroke-linecap': 'round' }),
-  ]);
-}
-
-function pin() {
-  return svg('svg', { viewBox: '0 0 16 16', 'aria-hidden': 'true', focusable: 'false' }, [
-    svg('path', { d: 'M8 15s5-4.6 5-8.5A5 5 0 0 0 3 6.5C3 10.4 8 15 8 15z', fill: 'none', stroke: '#605747', 'stroke-width': 1.4, 'stroke-linejoin': 'round' }),
-    svg('circle', { cx: 8, cy: 6.5, r: 1.8, fill: '#B7566B' }),
-  ]);
+/** A small ink icon from the site's paper kit (shared/site-chrome.css). */
+function ico(name) {
+  return el('i', { class: 'cm-ico cm-ico--' + name, 'aria-hidden': 'true' });
 }
 
 function mediaUrl(path, shape) {
@@ -253,7 +233,7 @@ function showEvent(e) {
   const flag = flagFor(e);
   if (flag) {
     when.appendChild(document.createTextNode(' '));
-    when.appendChild(el('span', { class: e.status === 'cancelled' ? 'flag off' : 'flag', text: flag }));
+    when.appendChild(el('span', { class: e.status === 'cancelled' ? 'cm-rubber off' : 'cm-rubber', text: flag }));
   }
 
   $('event-h').textContent = e.title;
@@ -261,7 +241,7 @@ function showEvent(e) {
   const where = $('event-where');
   where.textContent = '';
   if (e.where_label) {
-    where.appendChild(pin());
+    where.appendChild(ico('pin'));
     where.appendChild(el('span', { text: e.where_label }));
     where.hidden = false;
   } else where.hidden = true;
@@ -287,16 +267,14 @@ function showEvent(e) {
   const actions = $('event-actions');
   actions.textContent = '';
   const live = e.status !== 'cancelled' && !isOver(e);
-  if (live) actions.appendChild(el('button', { class: 'btn', type: 'button', text: 'Add to calendar', onclick: () => addToCalendar(e) }));
+  if (live) actions.appendChild(el('button', { class: 'cm-btn cm-btn--secondary cm-btn--sm', type: 'button', text: 'Add to calendar', onclick: () => addToCalendar(e) }));
   if (live && e.cta_url && e.cta_label && SAFE_LINK.test(e.cta_url)) {
-    actions.appendChild(el('a', { class: 'btn', href: e.cta_url, text: e.cta_label }));
+    actions.appendChild(el('a', { class: 'cm-btn cm-btn--secondary cm-btn--sm', href: e.cta_url, text: e.cta_label }));
   }
-  actions.appendChild(el('a', { class: 'btn', href: '/events/', text: 'All events' }));
+  actions.appendChild(el('a', { class: 'cm-btn cm-btn--quiet cm-btn--sm', href: '/events/', text: 'All events' }));
 
-  const art = $('event');
-  // Absolutely placed, so where it sits among the letter's children does not matter.
-  if (!art.querySelector('.seal')) art.appendChild(seal());
-  art.hidden = false;
+  // .cm-letter brings its own washi tape and wax seal (shared/site-chrome.css).
+  $('event').hidden = false;
 }
 
 /* ── Checking in ───────────────────────────────────────────────────────── */
@@ -320,9 +298,13 @@ function showCheckin(e, addr) {
   open.hidden = true;
   help.hidden = true;
   stores.hidden = false;
-  $('store-ios').hidden = !isIOS;
-  // CallMe is not on the App Store yet, so an iPhone is not sent to Google Play.
+  // The store cards are drawn by /shared/site-chrome.js, and the App Store one
+  // is a real link only once window.M3XI_APPSTORE is live. An iPhone is never
+  // sent to Google Play, and an Android phone is not shown the App Store.
+  const appLive = document.documentElement.getAttribute('data-appstore-state') === 'live';
+  $('store-ios').hidden = !(isIOS && !appLive);
   $('store-play').style.display = isIOS ? 'none' : '';
+  $('store-apple').style.display = isAndroid ? 'none' : '';
 
   if (e.status === 'cancelled') {
     words.textContent = 'This event was called off, so there is nothing to check in to.';
@@ -349,6 +331,8 @@ function showCheckin(e, addr) {
     }
   }
   box.hidden = false;
+  // One set of store cards on the page: the check-in letter's, when it shows them.
+  $('getapp').hidden = !stores.hidden;
 }
 
 /* ── Loading ───────────────────────────────────────────────────────────── */

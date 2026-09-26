@@ -17,7 +17,7 @@
 <meta property="og:image" content="https://www.m3xi.com/img/callme/screen-04.webp" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,700;1,800&family=Inter:wght@400;500;600;700&family=Caveat:wght@500;600&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
 <!--
   m3xi.com/e/?id=<event id>[&c=<check-in code>] — one event, and the page the
   venue's QR opens. A Vite entry (vite.config.js), not a file in public/.
@@ -36,87 +36,76 @@
   page's code is e.js, bundled and hashed by Vite.
 -->
 <style>
+/* The CallMe paper kit (cm- classes) and the shared header and footer live in
+   /shared/site-chrome.css, which loads AFTER this block: a page rule that
+   wants to beat a kit rule needs the higher specificity, not the later place. */
 :root{
-  --paper:#F0E8D8; --panel:#FBF6EC; --white:#FFFDF8;
-  --ink:#19150F; --ink2:#605747; --ink3:#8A8173;
-  --blue:#2B4257; --gold:#B6892F;
-  --rose:#B7566B; --rose-deep:#963F54; --rose-soft:#F3DEDF;
-  --line:rgba(25,21,15,.14); --line2:rgba(25,21,15,.22);
-  --edge:rgba(25,21,15,.78);
+  --paper:#FAF6EF; --panel:#FFFEFA; --white:#FFFDF8;
+  --ink:#231C18; --ink2:#5C534A; --ink3:#766C62;
+  --rose:#C94A62; --rose-deep:#A63A50; --rose-soft:#FBEDEF;
+  --line:rgba(35,28,24,.12); --line2:rgba(35,28,24,.22); --edge:#2A2320;
   --maxw:760px;
 }
 *{box-sizing:border-box}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 body{margin:0;color:var(--ink);font:400 16px/1.65 'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
-  -webkit-font-smoothing:antialiased;background-color:#EFE7D6;
-  background-image:
-    linear-gradient(rgba(43,66,87,.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(43,66,87,.045) 1px, transparent 1px),
-    radial-gradient(1200px 700px at 85% -10%, rgba(255,253,247,.92), transparent 60%);
-  background-size:30px 30px,30px 30px,100% 100%}
+  -webkit-font-smoothing:antialiased;background-color:var(--paper)}
 a{color:inherit}
 img,video{max-width:100%;display:block}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
 h1,h2,h3{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;margin:0;text-wrap:balance}
-.eyebrow{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 12px;display:flex;align-items:center;gap:10px}
-.eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
-:focus-visible{outline:3px solid rgba(183,86,107,.45);outline-offset:3px;border-radius:4px}
+:focus-visible{outline:3px solid rgba(201,74,98,.55);outline-offset:3px;border-radius:4px}
 [hidden]{display:none!important}
 
-main{padding:30px 0 56px}
+main{padding:26px 0 40px}
 .back{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--ink2);text-decoration:none;font-size:15px}
 .back:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 .back svg{width:14px;height:14px}
 .state{color:var(--ink2);padding:22px 0 8px}
 
-/* A letter: cream stock, an ink edge, tape and a wax seal. */
-.letter{position:relative;background:var(--white);border:1.5px solid var(--edge);border-radius:12px;
-  padding:32px 26px 22px;box-shadow:0 24px 40px -34px rgba(43,66,87,.55);margin:22px 0 0}
-@media (max-width:520px){.letter{padding:30px 18px 20px}}
-.letter .tape{position:absolute;top:-11px;left:26px;width:86px;height:22px;background:rgba(201,169,122,.55);transform:rotate(-4deg);z-index:2}
-.letter .seal{position:absolute;top:-17px;right:22px;width:36px;height:36px;z-index:2}
+/* Letters (.cm-letter brings the washi tape, the wax seal and the ruled paper). */
+main .cm-letter{margin:34px 0 0;padding:44px 28px 24px}
+@media (max-width:520px){main .cm-letter{padding:40px 18px 20px}}
 
 .hook{position:relative;margin:0 0 18px;border:1.5px solid var(--edge);border-radius:8px;overflow:hidden;background:#E7DECD;aspect-ratio:16/10}
 .hook img,.hook video{width:100%;height:100%;object-fit:cover}
 .hook video{background:#15120d}
 
-.when{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600}
-.flag{display:inline-block;margin-left:8px;font-size:11px;letter-spacing:.12em;padding:2px 7px;border:1px solid var(--line2);border-radius:6px;color:var(--ink2);background:var(--panel);vertical-align:1px}
-.flag.off{color:#8F2E22;border-color:rgba(143,46,34,.45)}
-.event h1{font-size:clamp(30px,4.6vw,44px);line-height:1.1;margin:10px 0 10px}
-.where{display:flex;align-items:flex-start;gap:6px;font-size:15px;color:var(--ink2);margin:0 0 14px}
-.where svg{flex:none;width:15px;height:15px;margin-top:5px}
-.body{margin:0 0 12px;color:var(--ink2);white-space:pre-wrap;overflow-wrap:anywhere}
+.when{font:700 12px/1.4 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--rose-deep)}
+.when .cm-rubber{margin-left:8px;vertical-align:1px;--cm-tilt:-4deg}
+.when .cm-rubber.off{color:#8F2E22}
+.event h1{font:600 clamp(30px,4.6vw,44px)/1.1 'Playfair Display',Georgia,serif;margin:10px 0 10px}
+.cm-letter.event .where{display:flex;align-items:flex-start;gap:6px;font-size:15px;color:var(--ink2);margin:0 0 14px}
+.where .cm-ico{flex:none;width:16px;height:16px;margin-top:4px;color:var(--rose-deep)}
+.cm-letter.event .body{margin:0 0 12px;color:var(--ink2);white-space:pre-wrap;overflow-wrap:anywhere}
 .more{background:none;border:0;padding:0;margin:-4px 0 14px;font:600 14px 'Inter',sans-serif;color:var(--rose-deep);cursor:pointer;text-decoration:underline;
   text-underline-offset:3px;min-height:32px}
-.actions{display:flex;flex-wrap:wrap;gap:8px;border-top:1px dashed var(--line2);padding-top:14px;margin-top:6px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font:600 15px 'Playfair Display',Georgia,serif;
-  min-height:44px;padding:0 15px;border-radius:10px;border:1.5px solid var(--ink);background:var(--panel);color:var(--ink);cursor:pointer}
-.btn:hover{background:var(--white)}
-.btn.rose{background:var(--rose);border-color:var(--rose-deep);color:#fff;box-shadow:0 2px 0 var(--rose-deep)}
-.btn.rose:hover{background:var(--rose-deep)}
-.btn svg{width:18px;height:18px;flex:none}
+.actions{display:flex;flex-wrap:wrap;gap:10px;border-top:1px dashed var(--line2);padding-top:16px;margin-top:8px}
 
-/* Checking in: its own letter under the event, rose-washed so it reads as
-   the thing to do at the venue. */
-.checkin{background:#FFF9F6;border-color:var(--rose-deep)}
-.checkin .tape{background:rgba(183,86,107,.32);left:auto;right:74px;transform:rotate(3deg)}
-.checkin h2{font-size:clamp(25px,3.4vw,32px);margin:0 0 8px}
-.checkin p{color:var(--ink2);margin:0 0 12px}
-.checkin .go{width:100%;min-height:56px;font-size:19px;margin:6px 0 4px}
-.stores{border-top:1px dashed var(--line2);margin-top:16px;padding-top:14px}
-.stores .label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 8px}
-.stores .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.small{font-size:14px;color:var(--ink3);margin:10px 0 0}
-.stamp{display:inline-flex;align-items:center;gap:8px;font:600 15px 'Playfair Display',Georgia,serif;color:var(--ink);
-  border:1.5px dashed var(--line2);border-radius:10px;padding:10px 14px;background:var(--panel);margin:4px 0 10px}
+/* Checking in: its own letter above the event, rose-washed so it reads as
+   the thing to do at the venue, with sage tape instead of tulip. */
+.cm-letter.checkin{--cm-tape-img:url("/img/callme/paper/washi-sage.jpg");background-color:#FFF9F6;border-color:var(--rose-deep);--cm-tilt:-.4deg}
+.cm-letter .cm-kicker{margin:0 0 8px;font-size:12px;line-height:1.3;color:var(--cm-rose-ink)}
+.checkin h2{font:600 clamp(25px,3.4vw,32px)/1.2 'Playfair Display',Georgia,serif;margin:0 0 8px}
+.cm-letter.checkin p{color:var(--ink2)}
+.checkin .go{margin:10px 0 6px;min-height:58px;font-size:19px}
+.stores{border-top:1px dashed var(--line2);margin-top:18px;padding-top:16px}
+.stores .cm-stores{margin:4px 0 10px}
+.cm-letter .small{font-size:14px;color:var(--ink3);margin:10px 0 0}
+.cm-letter .stamp{display:inline-flex;align-items:center;gap:8px;font:600 15px 'Playfair Display',Georgia,serif;color:var(--rose-deep);
+  border:1.5px dashed var(--rose-deep);border-radius:9px;padding:10px 14px;background:var(--white);margin:4px 0 10px;transform:rotate(-1deg)}
 
-.missing h1{font-size:clamp(28px,4vw,38px);margin:0 0 10px}
-.missing p{color:var(--ink2);margin:0 0 12px}
+.missing h1{font:600 clamp(28px,4vw,38px)/1.15 'Playfair Display',Georgia,serif;margin:0 0 10px}
+
+/* Get the app, under the event: hidden while the check-in letter shows its own. */
+.getapp{display:grid;grid-template-columns:150px minmax(0,1fr);gap:22px 30px;align-items:center;margin:56px 0 0}
+.getapp .cm-polaroid{--cm-polaroid-w:150px;--cm-tilt:-3deg}
+.getapp .cm-heading{margin-bottom:18px}
+@media (max-width:520px){.getapp{grid-template-columns:1fr}.getapp .cm-polaroid{--cm-polaroid-w:140px}}
 </style>
 <link rel="stylesheet" href="/shared/site-chrome.css">
 </head>
-<body>
+<body class="cm-ground">
 
 <header class="m3-head"><div class="m3-bar">
   <a class="m3-brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="m3-jp" aria-hidden="true">三X一</span></a>
@@ -148,29 +137,25 @@ main{padding:30px 0 56px}
 
     <!-- Checking in comes first on a phone at the venue: that is why the QR
          was scanned. It is filled and shown only when the address has &c=. -->
-    <section id="checkin" class="letter checkin" aria-labelledby="checkin-h" hidden>
-      <span class="tape" aria-hidden="true"></span>
-      <p class="eyebrow">At the venue</p>
+    <section id="checkin" class="cm-letter checkin" aria-labelledby="checkin-h" hidden>
+      <p class="cm-kicker">At the venue</p>
       <h2 id="checkin-h">Check in with CallMe</h2>
       <p id="checkin-words">CallMe opens this event's check-in. Checking in lets the CallMe team know you're here.</p>
       <p id="checkin-note" class="stamp" hidden></p>
-      <a class="btn rose go" id="checkin-open" href="#" hidden>Check in with CallMe</a>
+      <a class="cm-btn cm-btn--primary cm-btn--block cm-btn--taped go" id="checkin-open" href="#" hidden><i class="cm-ico cm-ico--qr" aria-hidden="true"></i>Check in with CallMe</a>
       <p class="small" id="checkin-help" hidden>Already have CallMe and nothing happens? Open CallMe, go to Events, tap &ldquo;Scan an event&rsquo;s code&rdquo; and scan the code here again.</p>
       <div class="stores" id="stores">
-        <p class="label">Don't have CallMe yet?</p>
-        <div class="row">
-          <a class="btn" id="store-play" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">
-            <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M4.6 2.2c-.3.3-.5.8-.5 1.4v16.8c0 .6.2 1.1.5 1.4l.1.1 9.4-9.4v-.2L4.7 2.1l-.1.1Zm12.6 12.9-3.1-3.1v-.2l3.1-3.1.1.1 3.7 2.1c1.1.6 1.1 1.6 0 2.2l-3.7 2.1-.1-.1Zm-.1.1-3.2-3.2-9.3 9.3c.3.4.9.4 1.6 0l10.9-6.1Zm0-6.5L6.2 2.6c-.7-.4-1.3-.4-1.6 0l9.3 9.3 3.2-3.2Z"/></svg>
-            Get it on Google Play
-          </a>
+        <p class="cm-kicker">Don't have CallMe yet?</p>
+        <div class="cm-stores">
+          <a class="cm-store cm-store--primary cm-store--sm" id="store-play" data-store="play" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get it on Google Play</a>
+          <span class="cm-store cm-store--soon cm-store--sm" id="store-apple" data-store="appstore">Coming soon to the App Store</span>
         </div>
-        <p class="small" id="store-ios" hidden>CallMe for iPhone isn't on the App Store yet.</p>
+        <p class="small" id="store-ios" hidden>CallMe for iPhone is with Apple for review, so it isn't on the App Store just yet.</p>
         <p class="small">Once it's installed and you've signed up, scan the code at the venue again to check in.</p>
       </div>
     </section>
 
-    <article id="event" class="letter event" aria-labelledby="event-h" hidden>
-      <span class="tape" aria-hidden="true"></span>
+    <article id="event" class="cm-letter event" aria-labelledby="event-h" hidden>
       <div id="event-hook"></div>
       <div class="when" id="event-when"></div>
       <h1 id="event-h"></h1>
@@ -180,13 +165,31 @@ main{padding:30px 0 56px}
       <div class="actions" id="event-actions"></div>
     </article>
 
-    <section id="missing" class="letter missing" aria-labelledby="missing-h" hidden>
-      <span class="tape" aria-hidden="true"></span>
+    <section id="missing" class="cm-letter missing" aria-labelledby="missing-h" hidden>
       <h1 id="missing-h">We can't find that event</h1>
       <p id="missing-words">It may have been taken down, or the link is missing part of its address.</p>
       <div class="actions">
-        <button class="btn" type="button" id="retry" hidden>Try again</button>
-        <a class="btn rose" href="/events/">See what's on</a>
+        <button class="cm-btn cm-btn--secondary cm-btn--sm" type="button" id="retry" hidden>Try again</button>
+        <a class="cm-btn cm-btn--primary cm-btn--sm" href="/events/">See what's on</a>
+      </div>
+    </section>
+
+    <section class="getapp" id="getapp" aria-labelledby="getapp-h">
+      <figure class="cm-polaroid cm-polaroid--dog">
+        <span class="cm-tape cm-tape--sage" aria-hidden="true"></span>
+        <div class="cm-polaroid-photo"><img src="/img/callme/dog/wave.webp" alt="The CallMe dog waving" width="351" height="360" loading="lazy"></div>
+        <figcaption>See you there!</figcaption>
+      </figure>
+      <div>
+        <header class="cm-heading">
+          <p class="cm-kicker">Get CallMe</p>
+          <h2 class="cm-title cm-title--sm" id="getapp-h">Reminders, and <em>check-in.</em></h2>
+          <p class="cm-lede">CallMe reminds you an hour before each event, and checks you in at the venue. <span data-appstore="soon">Free on Android now, and coming soon to the App Store.</span><span data-appstore="live" hidden>Free on Android and iPhone.</span></p>
+        </header>
+        <div class="cm-stores">
+          <a class="cm-store cm-store--primary" data-store="play" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get it on Google Play</a>
+          <span class="cm-store cm-store--soon" data-store="appstore">Coming soon to the App Store</span>
+        </div>
       </div>
     </section>
   </div>

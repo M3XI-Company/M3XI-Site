@@ -8,65 +8,73 @@
 <link rel="icon" type="image/png" href="/M.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,700;1,800&family=Inter:wght@400;500;600;700&family=Caveat:wght@500;600&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
 <style>
+/* The CallMe paper kit (cm- classes) and the shared header and footer live in
+   /shared/site-chrome.css, which loads AFTER this block: a page rule that
+   wants to beat a kit rule needs the higher specificity, not the later place. */
 :root{
-  --paper:#F0E8D8; --paper2:#F6F0E3; --panel:#FBF6EC; --white:#fff;
-  --ink:#19150F; --ink2:#605747; --blue:#2B4257; --blue2:#3E6079;
-  --gold:#B6892F; --gold2:#CBA14A; --line:rgba(25,21,15,.14);
-  --cornelia:#C64B3C; --autouv:#B6892F; --callme:#B7566B;
+  --paper:#FAF6EF; --panel:#FFFEFA; --white:#FFFDF8;
+  --ink:#231C18; --ink2:#5C534A; --ink3:#766C62;
+  --rose:#C94A62; --rose-deep:#A63A50; --rose-soft:#FBEDEF;
+  --line:rgba(35,28,24,.12); --line2:rgba(35,28,24,.22); --edge:#2A2320;
   --maxw:720px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;color:var(--ink);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-  font-weight:400;line-height:1.66;-webkit-font-smoothing:antialiased;
-  background-color:#EFE7D6;
-  background-image:
-    linear-gradient(rgba(43,66,87,.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(43,66,87,.045) 1px, transparent 1px),
-    radial-gradient(1200px 700px at 80% -8%, rgba(255,253,247,.9), transparent 60%);
-  background-size:30px 30px, 30px 30px, 100% 100%;
-}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0;color:var(--ink);font:400 16px/1.66 'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;background-color:var(--paper)}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
-.eyebrow{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 14px;display:flex;align-items:center;gap:10px}
-.eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
 h1,h2,h3,h4{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;color:var(--ink);margin:0}
-h1{font-size:clamp(34px,5vw,54px);line-height:1.06;font-weight:600}
-h1 em,h2 em,h1 i{font-style:italic;color:var(--gold);font-weight:500}
-h2{font-size:clamp(24px,3.2vw,34px);line-height:1.14;font-weight:600}
-h3{font-size:19px;margin:26px 0 8px}
-p{margin:0 0 14px}
-ul,ol{margin:0 0 14px;padding-left:22px}
-li{margin-bottom:6px}
-.lede{font-size:clamp(16px,2vw,18px);color:#3c382f;max-width:64ch;margin-top:clamp(14px,1.6vw,22px)}
-.jp{font-family:'Noto Serif JP',serif;color:var(--ink2)}
-.meta{color:var(--ink2);font-size:14px}
+:focus-visible{outline:3px solid rgba(201,74,98,.55);outline-offset:3px;border-radius:4px}
 
 /* The header and footer are shared by every page: /shared/site-chrome.css. */
 
 section{padding:48px 0;position:relative}
-section.wrap{padding:48px 24px} /* this page's section is also the .wrap, whose 0 24px would drop the top padding */
-.policy{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:clamp(26px,4vw,42px);margin-top:30px;
-  box-shadow:0 30px 60px -50px rgba(43,66,87,.5);scroll-margin-top:84px}
-.policy.callme{border-top:5px solid var(--callme)}
-.p-tag{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--ink2)}
-.policy p,.policy li{color:#46412f;font-size:15px}
-/* reading measure: a 720px column (--maxw), and card text stops near 78 characters (Inter's ch is wide, so 52ch) */
+section.wrap{padding:48px 24px 64px} /* this page's section is also the .wrap, whose 0 24px would drop the top padding */
+.head .cm-heading{margin-bottom:0}
+.head .meta{color:var(--ink3);font-size:14px;margin:14px 0 0}
+.head .meta a{color:var(--rose-deep);text-decoration:underline;text-underline-offset:3px}
+
+/* Each policy is a sheet of paper, taped on: cream stock, an ink edge. */
+.policy{position:relative;background:var(--white);border:1.5px solid var(--edge);border-radius:12px;padding:clamp(30px,4vw,44px) clamp(22px,4vw,42px) clamp(24px,3vw,34px);margin-top:44px;
+  box-shadow:0 5px 14px rgba(35,28,24,.09),0 24px 38px -26px rgba(35,28,24,.45);scroll-margin-top:84px}
+.policy::before{content:"";position:absolute;top:-13px;left:26px;width:104px;height:26px;background:#F4EBDD url("/img/callme/paper/washi-sage.jpg") 0 0/160px auto;
+  opacity:.93;mix-blend-mode:multiply;transform:rotate(-4deg);pointer-events:none;-webkit-clip-path:var(--cm-tape-edge);clip-path:var(--cm-tape-edge)}
+.policy.callme::before{background-image:url("/img/callme/paper/washi-tulip.jpg")}
+.policy:nth-of-type(even){transform:rotate(.25deg)}
+.policy h2{font-size:clamp(24px,3.2vw,32px);line-height:1.15;font-weight:600}
+.policy h2 em{font-style:italic;color:var(--rose-deep)}
+.policy h3{font-size:19px;font-weight:600;margin:28px 0 8px}
+.policy h3 i{color:var(--rose-deep)}
+.policy p,.policy li{color:var(--ink2);font-size:15px}
+.policy p{margin:0 0 14px}
+.policy ul,.policy ol{margin:0 0 14px;padding-left:22px}
+.policy li{margin-bottom:6px}
+.policy li::marker{color:var(--rose-deep)}
+.policy b{color:var(--ink)}
+/* reading measure: card text stops near 78 characters (Inter's ch is wide, so 52ch) */
 .policy p,.policy li{max-width:52ch}
 .policy h2+p,.policy h2+ul{margin-top:12px}
-.policy .backtop{font-size:13px;color:var(--blue);border-bottom:1px solid var(--line)}
-.contact{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin:18px 0 0}
-.contact b{display:block;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);margin-bottom:6px}
+.policy a{color:var(--rose-deep);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+.policy .backtop{display:inline-flex;align-items:center;min-height:44px;font-size:13.5px;color:var(--ink2);text-decoration:none}
+.policy .backtop:hover{color:var(--rose-deep)}
+/* The product tag at the top of each sheet: the kit's kicker. */
+.policy .p-tag{display:flex;align-items:center;gap:8px;margin:0 0 10px;max-width:none;font:700 12px/1.3 'Inter',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--rose-deep)}
+.policy .p-tag::before{content:"";flex:none;width:16px;height:16px;background:var(--rose);
+  -webkit-mask:var(--cm-tulip-img) center/contain no-repeat;mask:var(--cm-tulip-img) center/contain no-repeat}
 
-.m3-foot{margin-top:40px}
+.m3-foot{margin-top:24px}
 /* the header is taller on phones, so anchored cards stop below it */
 @media(max-width:720px){.policy{scroll-margin-top:110px}}
+.contact{background:var(--paper);border:1.5px dashed var(--edge);border-radius:10px;padding:18px 22px;margin:18px 0 0;color:var(--ink)}
+.contact b{display:block;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--rose-deep);margin-bottom:6px}
 </style>
 <link rel="stylesheet" href="/shared/site-chrome.css">
 </head>
-<body>
+<body class="cm-ground">
 <header class="m3-head"><div class="m3-bar">
   <a class="m3-brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="m3-jp" aria-hidden="true">三X一</span></a>
   <nav class="m3-nav" aria-label="Main">
@@ -91,9 +99,11 @@ section.wrap{padding:48px 24px} /* this page's section is also the .wrap, whose 
 
 <section class="wrap" id="top">
 <div class="head">
-  <p class="eyebrow">Safety</p>
-  <h1>Child safety <i>standards.</i></h1>
-  <p class="lede">CallMe is a voice-first app for meeting new people. It is strictly for adults, and we treat any risk to children as the most serious thing that could happen on it. These are the standards we hold ourselves to, published so that anyone can check them.</p>
+  <header class="cm-heading">
+    <p class="cm-kicker">Safety</p>
+    <h1 class="cm-title">Child safety <em>standards.</em></h1>
+    <p class="cm-lede">CallMe is a voice-first app for meeting new people. It is strictly for adults, and we treat any risk to children as the most serious thing that could happen on it. These are the standards we hold ourselves to, published so that anyone can check them.</p>
+  </header>
   <p class="meta">Last updated: 2 September 2026 · Operated by M3XI LTD (company no. 17425819), 128 City Road, London EC1V 2NX</p>
 </div>
 
@@ -177,7 +187,6 @@ section.wrap{padding:48px 24px} /* this page's section is also the .wrap, whose 
     </ul></div>
   </nav>
 </div></footer>
-<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 <script type="module" src="/shared/site-chrome.js"></script>
 </body>
 </html>

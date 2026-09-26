@@ -13,36 +13,38 @@
 <link rel="icon" type="image/png" href="/M.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,700;1,800&family=Inter:wght@400;500;600;700&family=Caveat:wght@500;600&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
 <style>
+/* The studio's own classes below are drawn in the CallMe paper kit's terms
+   (cream stock, a 1.5-2px ink edge, radius 9-12, serif labels, washi tape and
+   a wax seal), so every view -- this front page, the editor, My designs and
+   the pop-up letters -- matches the rest of the site. The kit itself (cm-
+   classes) is /shared/site-chrome.css, which loads AFTER this block. */
 :root{
-  --paper:#F0E8D8; --panel:#FBF6EC; --white:#FFFDF8;
-  --ink:#19150F; --ink2:#605747; --ink3:#8A8173;
+  --paper:#FAF6EF; --panel:#FFFEFA; --white:#FFFDF8;
+  --ink:#231C18; --ink2:#5C534A; --ink3:#766C62;
   --blue:#2B4257; --gold:#B6892F;
-  --rose:#B7566B; --rose-deep:#963F54; --rose-soft:#F3DEDF;
+  --rose:#C94A62; --rose-deep:#A63A50; --rose-soft:#FBEDEF;
   --danger:#B3402A; --ok:#2E7D4F;
-  --line:rgba(25,21,15,.14); --line2:rgba(25,21,15,.22);
+  --line:rgba(35,28,24,.14); --line2:rgba(35,28,24,.22); --edge:#2A2320;
   --maxw:1100px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
 body{margin:0;color:var(--ink);font:400 16px/1.65 'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
-  -webkit-font-smoothing:antialiased;background-color:#EFE7D6;
-  background-image:
-    linear-gradient(rgba(43,66,87,.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(43,66,87,.045) 1px, transparent 1px),
-    radial-gradient(1200px 700px at 85% -10%, rgba(255,253,247,.92), transparent 60%);
-  background-size:30px 30px,30px 30px,100% 100%}
+  -webkit-font-smoothing:antialiased;background-color:var(--paper)}
 a{color:inherit}
 img{max-width:100%;height:auto;display:block}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
 h1,h2,h3,h4{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;margin:0;text-wrap:balance}
-h1 em,h2 em{font-style:italic;font-weight:500;color:var(--rose)}
-.eyebrow{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:0 0 14px;display:flex;align-items:center;gap:10px}
-.eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
+h1 em,h2 em{font-style:italic;font-weight:inherit;color:var(--rose-deep)}
+/* The kit's kicker: small caps in rose, a tulip in front. */
+.eyebrow{font:700 12px/1.3 'Inter',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--rose-deep);margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.eyebrow::before{content:"";flex:none;width:16px;height:16px;background:var(--rose);
+  -webkit-mask:var(--cm-tulip-img) center/contain no-repeat;mask:var(--cm-tulip-img) center/contain no-repeat}
 .jp{font-family:'Noto Serif JP',serif;font-weight:500;font-size:.8em;color:var(--gold);letter-spacing:.05em}
-:focus-visible{outline:3px solid rgba(183,86,107,.45);outline-offset:3px;border-radius:4px}
+:focus-visible{outline:3px solid rgba(201,74,98,.55);outline-offset:3px;border-radius:4px}
 .visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 /* Every display rule below is a class, and a class beats the browser's own
    [hidden] rule. Without this line the studio tabs show to a signed-out
@@ -53,31 +55,40 @@ h1 em,h2 em{font-style:italic;font-weight:500;color:var(--rose)}
 
 /* studio tabs */
 .tabsbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:14px 0 0}
-.tabsbar a{text-decoration:none;font:600 14px 'Inter';padding:8px 14px;border-radius:10px;border:1.5px solid var(--ink);background:var(--white);color:var(--ink)}
-.tabsbar a[aria-current="page"]{background:var(--rose);border-color:var(--rose-deep);color:#fff}
+.tabsbar a{display:inline-flex;align-items:center;min-height:44px;text-decoration:none;font:600 15.5px/1.2 'Playfair Display',Georgia,serif;padding:8px 14px;border-radius:9px;
+  border:2px solid var(--edge);background:var(--white);color:var(--ink);box-shadow:0 2px 0 var(--edge)}
+.tabsbar a:hover{background:#fff}
+.tabsbar a[aria-current="page"]{background:var(--rose-deep);color:#fff}
 .tabsbar .who{color:var(--ink2);font-size:14px;margin-left:auto}
 
 /* typography blocks */
 .intro{padding:46px 0 10px}
-.intro h1{font-size:clamp(34px,5.2vw,58px);line-height:1.05}
+.intro h1{font-size:clamp(34px,5.2vw,58px);line-height:1.05;font-weight:600}
 .lede{color:var(--ink2);font-size:clamp(16px,1.6vw,19px);max-width:620px;margin:18px 0 0}
-.band-sheet{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px 22px;margin:26px 0}
-.band-sheet h2{font-size:26px;margin-bottom:10px}
+/* The front page's heading, with the dog beside it (landing.ts). */
+.introgrid{display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:28px 48px;align-items:center}
+.introgrid .cm-heading{margin-bottom:0}
+.intro-dog.cm-polaroid{--cm-polaroid-w:190px;--cm-tilt:3deg}
+@media (max-width:760px){.introgrid{grid-template-columns:1fr}.intro-dog.cm-polaroid{--cm-polaroid-w:150px;order:-1}}
+/* A sheet of paper: cream stock, an ink edge. */
+.band-sheet{position:relative;background:var(--white);border:1.5px solid var(--edge);border-radius:12px;padding:26px 24px;margin:34px 0;
+  box-shadow:0 5px 14px rgba(35,28,24,.09)}
+.band-sheet h2{font-size:clamp(24px,2.8vw,30px);font-weight:600;margin-bottom:10px}
 .band-sheet p{color:var(--ink2)}
-.note{max-width:640px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;color:var(--ink2);font-size:15px;margin:26px 0 8px}
+.band-sheet .cm-tags{margin:16px 0 4px;max-width:640px}
+.band-sheet .premium{margin:14px 0 4px;width:fit-content;max-width:100%}
+/* A small note, washed rose, taped on. */
+.note{position:relative;max-width:640px;background:var(--rose-soft);border:1.5px solid var(--rose-deep);border-radius:10px;padding:16px 18px;color:var(--ink2);font-size:15px;margin:30px 0 8px;transform:rotate(-.4deg)}
 .note b{color:var(--ink)}
+.note a{color:var(--rose-deep)}
+/* Cards and posters, as a letter with the numbered steps (landing.ts). */
+.inapp.cm-letter{max-width:760px;margin:44px 0 34px}
+.inapp .cm-steps{margin-bottom:22px}
+.inapp .cm-steps a{color:var(--rose-deep);text-underline-offset:3px}
 .muted{color:var(--ink2)}
 .small{font-size:13.5px}
 .warn{color:var(--danger)}
 .state{color:var(--ink2);padding:18px 0}
-.plainlist{color:var(--ink2);margin:10px 0 0;padding-left:20px}
-.plainlist li{margin:4px 0}
-.steps{list-style:none;margin:14px 0 18px;padding:0;display:grid;gap:14px}
-.step{display:flex;gap:14px;align-items:flex-start}
-.stepno{flex:none;width:34px;height:34px;border-radius:10px;border:1.5px solid var(--ink);background:var(--white);
-  display:flex;align-items:center;justify-content:center;font:600 15px 'Playfair Display',Georgia,serif}
-.step h3{font-size:18px;margin-bottom:2px}
-.step p{margin:0;color:var(--ink2)}
 
 /* The first screen: the three steps to sign in, as numbered paper cards —
    cream stock, an ink edge, a strip of tape and a stamp for the number. */
@@ -85,32 +96,39 @@ h1 em,h2 em{font-style:italic;font-weight:500;color:var(--rose)}
 .howsteps h2{font-size:clamp(22px,2.6vw,28px);margin-bottom:6px}
 .howto{list-style:none;margin:0;padding:18px 0 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px 22px}
 @media (max-width:820px){.howto{grid-template-columns:1fr;gap:30px}}
-.howcard{position:relative;background:var(--white);border:1.5px solid rgba(25,21,15,.78);border-radius:12px;
-  padding:26px 20px 20px;box-shadow:0 24px 40px -34px rgba(43,66,87,.55)}
+.howcard{position:relative;background:var(--white);border:1.5px solid var(--edge);border-radius:12px;
+  padding:28px 20px 20px;box-shadow:0 5px 14px rgba(35,28,24,.09),0 24px 38px -26px rgba(35,28,24,.45)}
 .howcard:nth-child(1){transform:rotate(-.6deg)}
 .howcard:nth-child(2){transform:rotate(.5deg)}
 .howcard:nth-child(3){transform:rotate(-.3deg)}
-.howcard .tape{position:absolute;top:-11px;left:26px;width:86px;height:22px;background:rgba(201,169,122,.55);transform:rotate(-4deg)}
-.hownum{position:absolute;top:16px;right:16px;width:42px;height:42px;border-radius:10px;border:1.5px solid var(--rose-deep);
-  background:var(--rose);color:#fff;display:flex;align-items:center;justify-content:center;
-  font:600 21px/1 'Playfair Display',Georgia,serif;transform:rotate(4deg);box-shadow:0 2px 0 var(--rose-deep)}
+.howcard .tape{position:absolute;top:-13px;left:22px;width:104px;height:26px;background:#F4EBDD url("/img/callme/paper/washi-tulip.jpg") 0 0/160px auto;
+  opacity:.93;mix-blend-mode:multiply;transform:rotate(-4deg);z-index:2;pointer-events:none;
+  -webkit-clip-path:var(--cm-tape-edge);clip-path:var(--cm-tape-edge)}
+.howcard:nth-child(2) .tape{background-image:url("/img/callme/paper/washi-sage.jpg")}
+.howcard:nth-child(3) .tape{background-image:url("/img/callme/paper/washi-gingham.jpg")}
+.hownum{position:absolute;top:14px;right:18px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;
+  font:italic 700 40px/1 'Playfair Display',Georgia,serif;color:var(--rose-deep);transform:rotate(-4deg)}
 .howart{display:block;width:64px;height:64px;margin:0 0 10px}
 .howcard h3{font-size:20px;line-height:1.25;margin:0 0 6px;padding-right:48px}
 .howcard p{margin:0;color:var(--ink2);font-size:15px}
-.chip{display:inline-block;background:var(--white);border:1px solid var(--line2);border-radius:8px;padding:5px 11px;font-size:13.5px;color:var(--ink2)}
+/* A small paper tag (never a pill): cream stock, an ink edge, square-ish corners. */
+.chip{display:inline-block;background:var(--white);border:1.5px solid var(--edge);border-radius:8px;padding:4px 10px;font-size:13.5px;font-weight:500;color:var(--ink)}
 .chip.good{border-color:rgba(46,125,79,.5);color:var(--ok)}
 .chip.warn{border-color:rgba(179,64,42,.5);color:var(--danger)}
 .chip.wait{border-color:rgba(182,137,47,.55);color:var(--gold)}
 
 /* letters */
-.letter{position:relative;background:var(--white);border:1.5px solid rgba(25,21,15,.78);border-radius:12px;
-  padding:30px 24px 22px;box-shadow:0 24px 40px -34px rgba(43,66,87,.55);margin:26px 0}
+.letter{position:relative;background:var(--white);border:2px solid var(--edge);border-radius:12px;
+  padding:40px 24px 22px;box-shadow:0 5px 14px rgba(35,28,24,.09),0 24px 38px -26px rgba(35,28,24,.5);margin:34px 0}
 .letter.wide{max-width:680px}
-.letter h2{font-size:24px;line-height:1.2;margin:0 0 10px}
+.letter h1,.letter h2{font-size:clamp(24px,2.6vw,30px);font-weight:600;line-height:1.2;margin:0 0 10px}
 .letter p{color:var(--ink2);margin:0 0 12px}
-.letter .tape{position:absolute;top:-11px;left:26px;width:86px;height:22px;background:rgba(201,169,122,.55);transform:rotate(-4deg)}
-.letter .seal{position:absolute;top:-17px;right:24px;width:34px;height:34px;border-radius:50%;background:#B3402A;
-  box-shadow:0 2px 5px rgba(0,0,0,.22)}
+.letter .tape{position:absolute;top:-13px;left:22px;width:104px;height:26px;background:#F4EBDD url("/img/callme/paper/washi-tulip.jpg") 0 0/160px auto;
+  opacity:.93;mix-blend-mode:multiply;transform:rotate(-4deg);z-index:2;pointer-events:none;
+  -webkit-clip-path:var(--cm-tape-edge);clip-path:var(--cm-tape-edge)}
+/* The kit's wax seal, pressed over the top edge with the tulip in it. */
+.letter .seal{position:absolute;top:-23px;left:50%;width:46px;height:46px;margin-left:-23px;z-index:3;
+  background:var(--cm-seal-img) center/contain no-repeat;filter:drop-shadow(0 2px 2px rgba(35,28,24,.3));pointer-events:none}
 /* align-items:flex-start + margin:auto, not align-items:center: a letter taller
    than the shade used to overflow equally top and bottom, which put its title
    and its first lines above the viewport with nothing to scroll. This keeps it
@@ -120,13 +138,17 @@ h1 em,h2 em{font-style:italic;font-weight:500;color:var(--rose)}
 .letter.pop{max-width:440px;margin:auto;width:100%;max-height:calc(100vh - 40px);overflow-y:auto}
 
 .actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font:600 14px 'Inter';
-  padding:10px 15px;border-radius:10px;border:1.5px solid var(--ink);background:var(--panel);color:var(--ink);cursor:pointer;min-height:44px}
-.btn:hover{background:var(--white)}
-.btn.rose{background:var(--rose);border-color:var(--rose-deep);color:#fff}
-.btn.rose:hover{background:var(--rose-deep)}
-.btn.big{font-size:15.5px;padding:12px 20px}
-.btn[disabled]{opacity:.5;cursor:default}
+/* Buttons are paper cards, the kit's .cm-btn: an ink edge with a 2px ink
+   shadow under it, a serif label, rose for the one thing to do. */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font:600 15.5px/1.2 'Playfair Display',Georgia,serif;
+  padding:9px 15px;border-radius:9px;border:2px solid var(--edge);background:var(--white);color:var(--ink);cursor:pointer;min-height:44px;
+  box-shadow:0 2px 0 var(--edge);transition:transform .12s ease,box-shadow .12s ease,background-color .12s ease}
+.btn:hover{background:#fff;transform:translateY(-1px);box-shadow:0 3px 0 var(--edge)}
+.btn:active{transform:translateY(1px);box-shadow:0 1px 0 var(--edge)}
+.btn.rose{background:var(--rose-deep);color:#fff}
+.btn.rose:hover{background:#BC4058}
+.btn.big{font-size:17px;padding:11px 20px;min-height:48px;border-radius:10px}
+.btn[disabled]{opacity:.5;cursor:default;transform:none;box-shadow:none}
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#231C18;color:#fff;padding:11px 16px;
   border-radius:10px;font-size:14px;z-index:70;max-width:90vw}
 
@@ -206,7 +228,7 @@ h1 em,h2 em{font-style:italic;font-weight:500;color:var(--rose)}
 .stageh1:focus-visible{outline:3px solid rgba(183,86,107,.45);outline-offset:3px}
 @media (max-width:880px){.stage{position:static}}
 .panel{display:grid;gap:16px;min-width:0}
-.block{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 18px 20px}
+.block{background:var(--white);border:1.5px solid var(--edge);border-radius:12px;padding:18px 18px 20px;box-shadow:0 5px 14px rgba(35,28,24,.07)}
 .block h3{font-size:19px;margin-bottom:8px}
 .block h4{font-size:16px;margin-bottom:4px}
 .field{margin:12px 0}
@@ -215,13 +237,13 @@ input[type=text],input[type=number],input[type=file]{font:15px 'Inter';color:var
   border:1.5px solid var(--ink);border-radius:10px;padding:10px 12px;width:100%;max-width:420px;min-height:44px}
 input[type=range]{width:min(320px,100%);min-height:44px}
 .tabs{display:flex;gap:8px;flex-wrap:wrap}
-.tab{font:600 14px 'Inter';padding:9px 14px;border-radius:10px;border:1.5px solid var(--ink);background:var(--white);
-  color:var(--ink);cursor:pointer;min-height:44px}
+.tab{font:600 15px 'Playfair Display',Georgia,serif;padding:8px 14px;border-radius:9px;border:2px solid var(--edge);background:var(--white);
+  color:var(--ink);cursor:pointer;min-height:44px;box-shadow:0 2px 0 var(--edge)}
 .tab.on{background:var(--ink);color:var(--white)}
 .twoup{display:flex;gap:8px;flex-wrap:wrap}
-.choice{font:600 14px 'Inter';padding:9px 14px;border-radius:10px;border:1.5px solid var(--ink);background:var(--white);
-  color:var(--ink);cursor:pointer;min-height:44px}
-.choice.on{background:var(--rose);border-color:var(--rose-deep);color:#fff}
+.choice{font:600 15px 'Playfair Display',Georgia,serif;padding:8px 14px;border-radius:9px;border:2px solid var(--edge);background:var(--white);
+  color:var(--ink);cursor:pointer;min-height:44px;box-shadow:0 2px 0 var(--edge)}
+.choice.on{background:var(--rose-deep);color:#fff}
 /* The gate on every upload, so it gets a real target: 24px is the WCAG 2.2
    floor and the whole row is 44px of clickable label. */
 .tickrow{display:flex;gap:10px;align-items:center;margin:10px 0;min-height:44px;cursor:pointer}
@@ -247,17 +269,23 @@ input[disabled],select[disabled],textarea[disabled]{opacity:.55;cursor:default}
 
 /* the library */
 .list{display:grid;gap:18px;padding:6px 0 48px}
-.design{display:grid;grid-template-columns:150px 1fr;gap:18px;background:var(--panel);border:1px solid var(--line);
-  border-radius:16px;padding:16px}
+.design{display:grid;grid-template-columns:150px 1fr;gap:18px;background:var(--white);border:1.5px solid var(--edge);
+  border-radius:12px;padding:16px;box-shadow:0 5px 14px rgba(35,28,24,.07)}
 @media (max-width:640px){.design{grid-template-columns:1fr}.thumb{max-width:180px}}
 .design h2{font-size:21px}
 .design .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .counts{color:var(--ink2);margin:8px 0 0;font-size:14.5px}
+/* Get the app, under the front page and the poster page (main.ts shows it). */
+.getapp{display:grid;grid-template-columns:180px minmax(0,1fr);gap:26px 40px;align-items:center;max-width:820px;margin:26px 0 64px}
+.getapp .cm-polaroid{--cm-polaroid-w:180px;--cm-tilt:-3deg}
+.getapp .cm-heading{margin-bottom:22px}
+@media (max-width:560px){.getapp{grid-template-columns:1fr}.getapp .cm-polaroid{--cm-polaroid-w:150px}}
+@media (prefers-reduced-motion: reduce){.btn,.btn:hover,.btn:active{transform:none}}
 .m3-foot{margin-top:24px}
 </style>
 <link rel="stylesheet" href="/shared/site-chrome.css">
 </head>
-<body>
+<body class="cm-ground">
 
 <header class="m3-head"><div class="m3-bar">
   <a class="m3-brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="m3-jp" aria-hidden="true">三X一</span></a>
@@ -292,6 +320,28 @@ input[disabled],select[disabled],textarea[disabled]{opacity:.55;cursor:default}
     <button class="btn" type="button" id="signout" hidden>Sign out</button>
   </nav>
   <div id="view"></div>
+
+  <!-- Shown on the front page and the poster page only (main.ts). It is in the
+       page rather than built by the studio's script so that site-chrome.js
+       draws the store cards and follows the App Store flag. -->
+  <section class="getapp" id="getapp" aria-labelledby="getapp-h" hidden>
+    <figure class="cm-polaroid cm-polaroid--dog">
+      <span class="cm-tape cm-tape--sage" aria-hidden="true"></span>
+      <div class="cm-polaroid-photo"><img src="/img/callme/dog/phone.webp" alt="The CallMe dog holding a phone to its ear" width="317" height="360" loading="lazy"></div>
+      <figcaption>It&rsquo;s for you!</figcaption>
+    </figure>
+    <div>
+      <header class="cm-heading">
+        <p class="cm-kicker">Not got the app yet?</p>
+        <h2 id="getapp-h" class="cm-title cm-title--sm">Cards start in <em>CallMe.</em></h2>
+        <p class="cm-lede">Free on Android now. <span data-appstore="soon">The iPhone version is with Apple for review, and coming soon to the App Store.</span><span data-appstore="live" hidden>And on iPhone, from the App Store.</span></p>
+      </header>
+      <div class="cm-stores">
+        <a class="cm-store cm-store--primary" data-store="play" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get it on Google Play</a>
+        <span class="cm-store cm-store--soon" data-store="appstore">Coming soon to the App Store</span>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer class="m3-foot"><div class="m3-footin">

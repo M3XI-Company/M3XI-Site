@@ -49,35 +49,9 @@ function el(tag, attrs, kids) {
   return n;
 }
 
-const SVGNS = 'http://www.w3.org/2000/svg';
-function svg(tag, attrs, kids) {
-  const n = document.createElementNS(SVGNS, tag);
-  Object.keys(attrs || {}).forEach((k) => n.setAttribute(k, String(attrs[k])));
-  (kids || []).forEach((c) => { if (c) n.appendChild(c); });
-  return n;
-}
-
-/** The wax seal, with a tulip. Tulips, never hearts. */
-function seal() {
-  return svg('svg', { viewBox: '0 0 36 36', class: 'seal', 'aria-hidden': 'true', focusable: 'false' }, [
-    svg('circle', { cx: 18, cy: 18, r: 17, fill: '#B3402A' }),
-    svg('circle', { cx: 18, cy: 18, r: 13, fill: 'none', stroke: 'rgba(255,255,255,.28)', 'stroke-width': 1 }),
-    svg('path', { d: 'M18 11c-2.6 1.4-4 3.6-4 6.2 0 2.1 1.8 3.8 4 3.8s4-1.7 4-3.8c0-2.6-1.4-4.8-4-6.2z', fill: '#F7E7DA' }),
-    svg('path', { d: 'M18 21v6M18 25c-1.8-.2-3-1.2-3.6-2.6M18 25c1.8-.2 3-1.2 3.6-2.6', stroke: '#F7E7DA', 'stroke-width': 1.4, fill: 'none', 'stroke-linecap': 'round' }),
-  ]);
-}
-
-function pin() {
-  return svg('svg', { viewBox: '0 0 16 16', 'aria-hidden': 'true', focusable: 'false' }, [
-    svg('path', { d: 'M8 15s5-4.6 5-8.5A5 5 0 0 0 3 6.5C3 10.4 8 15 8 15z', fill: 'none', stroke: '#605747', 'stroke-width': 1.4, 'stroke-linejoin': 'round' }),
-    svg('circle', { cx: 8, cy: 6.5, r: 1.8, fill: '#B7566B' }),
-  ]);
-}
-
-function playMark() {
-  return svg('svg', { viewBox: '0 0 14 14', 'aria-hidden': 'true', focusable: 'false' }, [
-    svg('path', { d: 'M3 1.8v10.4L12 7z', fill: '#19150F' }),
-  ]);
+/** A small ink icon from the site's paper kit (shared/site-chrome.css). */
+function ico(name) {
+  return el('i', { class: 'cm-ico cm-ico--' + name, 'aria-hidden': 'true' });
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -196,7 +170,7 @@ function hookFor(e) {
         b.appendChild(v);
         try { v.focus(); } catch (_) { /* fine */ }
       },
-    }, [el('span', {}, [playMark(), 'Play'])]);
+    }, [el('span', {}, [ico('play'), 'Play'])]);
     b.appendChild(play);
     return b;
   }
@@ -235,17 +209,16 @@ function letterFor(e) {
   const title = page ? el('a', { href: page, text: e.title }) : e.title;
 
   const actions = [];
-  if (page) actions.push(el('a', { class: 'btn rose', href: page, text: over ? 'See the event' : 'Open the event' }));
-  if (!over) actions.push(el('button', { class: 'btn', type: 'button', text: 'Add to calendar', onclick: () => addToCalendar(e) }));
-  if (safeLink && !over) actions.push(el('a', { class: 'btn', href: safeLink, text: e.cta_label }));
+  if (page) actions.push(el('a', { class: 'cm-btn cm-btn--primary cm-btn--sm', href: page, text: over ? 'See the event' : 'Open the event' }));
+  if (!over) actions.push(el('button', { class: 'cm-btn cm-btn--secondary cm-btn--sm', type: 'button', text: 'Add to calendar', onclick: () => addToCalendar(e) }));
+  if (safeLink && !over) actions.push(el('a', { class: 'cm-btn cm-btn--quiet cm-btn--sm', href: safeLink, text: e.cta_label }));
 
-  const article = el('article', { class: 'letter', id: anchor, 'aria-labelledby': headingId }, [
-    el('span', { class: 'tape', 'aria-hidden': 'true' }),
-    seal(),
+  // .cm-letter brings its own washi tape and wax seal (shared/site-chrome.css).
+  const article = el('article', { class: 'cm-letter ev', id: anchor, 'aria-labelledby': headingId }, [
     hookFor(e),
-    el('div', { class: 'when' }, [whenLine(e), flag ? ' ' : null, flag ? el('span', { class: 'flag', text: flag }) : null]),
+    el('div', { class: 'when' }, [whenLine(e), flag ? ' ' : null, flag ? el('span', { class: 'cm-rubber', text: flag }) : null]),
     el('h3', { id: headingId }, [title]),
-    e.where_label ? el('p', { class: 'where' }, [pin(), el('span', { text: e.where_label })]) : null,
+    e.where_label ? el('p', { class: 'where' }, [ico('pin'), el('span', { text: e.where_label })]) : null,
     bodyEl,
     moreBtn,
     actions.length ? el('div', { class: 'actions' }, actions) : null,
