@@ -1865,6 +1865,7 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
     ['hate_slur', 'Slurs'],
     ['threat_violence', 'Threats of violence'],
     ['self_harm', 'Self-harm (never punished)'],
+    ['minor_age_claim', 'Says they are under 18 (never punished)'],
     ['harassment', 'Insults and swearing'],
     ['contact_offplatform', 'Contact details, “add me on…”'],
     ['scam_payment', 'Payment asks and scams'],
@@ -1872,9 +1873,12 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
   var SAFETY_CAT = {};
   SAFETY_CATS.forEach(function (c) { SAFETY_CAT[c[0]] = c[1]; });
   /* The spec's default severities (1.3): what a new term gets when none is given. */
-  var SAFETY_SEV = { minors_sexual: 100, sexual_solicitation: 85, sexual_explicit: 70, hate_slur: 90, threat_violence: 90, self_harm: 60, harassment: 40, contact_offplatform: 50, scam_payment: 70 };
+  var SAFETY_SEV = { minors_sexual: 100, sexual_solicitation: 85, sexual_explicit: 70, hate_slur: 90, threat_violence: 90, self_harm: 60, minor_age_claim: 60, harassment: 40, contact_offplatform: 50, scam_payment: 70 };
   /* Spec 1.4: the severe ones, which also count toward strikes when refused. */
   var SAFETY_SEVERE = { minors_sexual: true, hate_slur: true, threat_violence: true, sexual_solicitation: true };
+  /* Never punished (no strike, no sanction offered here), but a person looks first: self-harm,
+     and someone saying they are under 18 (0119). The queue sorts both with the severe cards. */
+  var SAFETY_CARE = { self_harm: true, minor_age_claim: true };
   var SAFETY_SURFACES = [
     ['chat', 'Chat'], ['table_chat', 'Table chat'], ['bio', 'Bio'], ['name', 'Name'], ['poster', 'Poster'],
     ['caption', 'Snapshot caption'], ['gift_note', 'Gift note'], ['event', 'Event'], ['suggestion', 'Suggestion board'],
@@ -2172,7 +2176,7 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
     var matches = Array.isArray(f.matches) ? f.matches : result.matches || [];
     var masked = f.masked || result.masked || null;
     var stored = act !== 'block' && !f.content_gone;   // a refused write left nothing to mask or remove
-    var box = el('div', { class: 'card' + (open && (SAFETY_SEVERE[f.category] || f.category === 'self_harm') ? ' urgent' : '') });
+    var box = el('div', { class: 'card' + (open && (SAFETY_SEVERE[f.category] || SAFETY_CARE[f.category]) ? ' urgent' : '') });
     box.appendChild(el('div', { class: 'row spread' }, [
       el('h3', { text: (SURFACE_LABEL[f.surface] || f.surface || 'Text') + ' · ' + catLabel(f.category) }),
       el('div', { class: 'row' }, [
@@ -2201,6 +2205,9 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
     box.appendChild(matchesBlock(matches));
     if (f.category === 'self_harm') {
       box.appendChild(el('p', { class: 'muted', text: 'Self-harm is never punished. They were sent a support letter. Look at what was said, reach out through the usual route if it is serious, and dismiss it once someone has looked.' }));
+    }
+    if (f.category === 'minor_age_claim') {
+      box.appendChild(el('p', { class: 'muted', text: 'They wrote an age under 18. CallMe is 18+ and every account passed an ID check, so this is never punished: it may be a joke, a typo or an old age. Look them up in People and check how their age was verified. If they may really be under 18, pause the account and follow the underage route; otherwise dismiss it.' + (act === 'block' ? ' It was refused, so nobody else saw it.' : '') }));
     }
     box.appendChild(el('details', {}, [el('summary', { class: 'muted', text: 'Everything we hold on it' }), el('pre', { text: JSON.stringify(f, null, 2) })]));
 
@@ -2240,7 +2247,7 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
         stored ? el('button', { class: 'btn', text: 'Mask it', onclick: function () { resolve('mask'); } }) : null,
         stored ? el('button', { class: 'btn bad', text: 'Remove it', onclick: function () { resolve('remove'); } }) : null,
       ]));
-      if (f.author_id && f.category !== 'self_harm') {
+      if (f.author_id && !SAFETY_CARE[f.category]) {
         box.appendChild(sanctionBox(f.author_id, f.author_name, SANCTION_FOR_TEXT[f.category], function (res) {
           resolve('actioned', res.kind + ' ' + (res.reference || '') + (note.value.trim() ? ': ' + note.value.trim() : ''));
         }));
@@ -2326,8 +2333,9 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
       toast(to === 'clean' ? 'Cleared.' : 'Kept hidden.');
       reload();
     }
-    var banCat = el('select', {}, SAFETY_CATS.filter(function (x) { return x[0] !== 'self_harm'; }).map(opt));
-    banCat.value = SAFETY_CAT[c.category] && c.category !== 'self_harm' ? c.category : 'sexual_explicit';
+    // 0118's banned-picture list has its own categories: never self-harm, never a stated age (0119).
+    var banCat = el('select', {}, SAFETY_CATS.filter(function (x) { return !SAFETY_CARE[x[0]]; }).map(opt));
+    banCat.value = SAFETY_CAT[c.category] && !SAFETY_CARE[c.category] ? c.category : 'sexual_explicit';
     async function ban() {
       if (!(await letterAsk('Ban this picture?', 'Its fingerprints go on the banned list. It is hidden everywhere it appears, and any copy, or a picture close to it, is hidden the moment it is posted.', 'Ban it', true))) return;
       var r = await sb.rpc(SAFETY_RPC.banImage, { p_bucket: c.bucket, p_path: c.path, p_category: banCat.value });
@@ -2493,7 +2501,7 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
       var table = el('div', { class: 'tscroll' });
       var node = el('div', { class: 'card' }, [
         title,
-        el('p', { class: 'muted', text: 'A word here is never caught by a stem, a “hidden inside” term or a misspelling: scunthorpe, cockpit, therapist. It does not cancel an exact word or phrase (switch that term off instead). Entries are one word, kept with look-alike letters folded but repeated letters as typed, so “niger” allows the country and not the slur.' }),
+        el('p', { class: 'muted', text: 'A word here is never caught by a stem, a “hidden inside” term or a misspelling: scunthorpe, cockpit, therapist. It does not cancel an exact word or phrase (switch that term off instead), except in a display name, where it also cancels a one-word match on itself: that is how real names such as Dick or Fanny pass as a name and are still caught in chat. Entries are one word, kept with look-alike letters folded but repeated letters as typed, so “niger” allows the country and not the slur.' }),
         el('div', { class: 'row' }, [word, note, el('button', { class: 'btn primary', text: 'Allow it', onclick: add })]),
         table,
       ]);
@@ -2612,7 +2620,7 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
       var table = el('div', { class: 'tscroll' });
       var node = el('div', { class: 'card' }, [
         el('h3', { text: 'What happens where' }),
-        el('p', { class: 'muted', text: 'For each place, the risk (severity, times 70 % for a misspelling) from which a match is masked (the words show as ••••), flagged (it goes through, and a person is asked to look) or refused (it does not go through; the app says why before sending). Blank: never. When more than one applies, the strictest wins. Self-harm should only ever be flagged: the member gets a support letter.' + (admin ? '' : ' Only admins change this.') }),
+        el('p', { class: 'muted', text: 'For each place, the risk (severity, times 70 % for a misspelling) from which a match is masked (the words show as ••••), flagged (it goes through, and a person is asked to look) or refused (it does not go through; the app says why before sending). Blank: never. When more than one applies, the strictest wins. Self-harm should only ever be flagged: the member gets a support letter. Someone saying they are under 18 is never punished either: flag it everywhere, and refuse it only where other people would read it (a refusal still comes here).' + (admin ? '' : ' Only admins change this.') }),
         el('div', { class: 'row' }, [el('span', { class: 'muted', text: 'Where' }), surf]),
         table,
       ]);
