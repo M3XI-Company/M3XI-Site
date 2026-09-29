@@ -95,6 +95,27 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
 .ubanner.l2 .lvl{color:var(--callme2)}.ubanner.l3 .lvl{color:var(--deep)}
 .ualert{border-top:1px dashed rgba(25,21,15,.22);border-left:4px solid transparent;padding:10px 0 10px 12px}
 .ualert.l1{border-left-color:var(--gold)}.ualert.l2{border-left-color:var(--callme)}.ualert.l3{border-left-color:var(--deep)}
+/* Safety (phase 13): the tab's own row of parts (square-ish, like the tabs:
+   no pill shapes), the flagged line among the lines around it, pictures that
+   stay blurred until clicked, the rules tables, and the letter a Safety
+   action asks its question on (the .letter above, over a veil). */
+.subtabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 16px;padding-bottom:12px;border-bottom:1px dashed rgba(25,21,15,.22)}
+.subtabs button{border:1.5px solid #2A2320;background:#FFFDF8;border-radius:8px;padding:6px 12px;font:500 13.5px 'Inter';cursor:pointer}
+.subtabs button[aria-current=true]{background:var(--blue);border-color:#1d2e3d;color:#fff}
+.ctxline{font-size:13.5px;padding:3px 0 3px 10px;border-left:2px solid var(--line);white-space:pre-wrap}
+.quote.flagged{border-left:5px solid var(--danger)}
+.picwrap{display:inline-block;overflow:hidden;border:1px solid var(--line);border-radius:10px;margin:8px 0;background:#fff}
+.picwrap img{display:block;max-width:260px;max-height:320px;cursor:pointer}
+.picwrap img.blurred{filter:blur(22px) grayscale(.5)}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;word-break:break-all}
+.tscroll{overflow-x:auto}
+.rtable td,.rtable th{padding:6px 8px}
+.rtable tr.off td{opacity:.5}
+.rtable input[type=number]{width:84px}
+.foldchip{display:inline-flex;gap:6px;align-items:baseline;border:1px solid var(--line);border-radius:6px;background:#fff;padding:2px 8px;margin:0 6px 6px 0;font-size:13px}
+.veil{position:fixed;inset:0;background:rgba(35,28,24,.38);display:flex;align-items:center;justify-content:center;padding:16px;z-index:30}
+.veil .letter{max-width:420px;width:100%}
+.veil .letter .row{justify-content:center}
 @media print{
   @page{margin:16mm}
   body{background:#fff!important;background-image:none!important}
@@ -137,6 +158,7 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
     <nav class="tabs" role="tablist">
       <button data-tab="appeals" aria-selected="true">Appeals</button>
       <button data-tab="reports" aria-selected="false">Reports</button>
+      <button data-tab="safety" aria-selected="false">Safety</button>
       <button data-tab="actions" aria-selected="false">Decisions</button>
       <button data-tab="people" aria-selected="false">People</button>
       <button data-tab="announce" aria-selected="false">Announcements</button>
@@ -1086,9 +1108,11 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
     ['other', 'Something else — say what below'],
   ];
 
-  async function signedFrom(bucket, path) {
+  /* secs: how long the link lasts (default ten minutes). A flagged picture on
+     the Safety tab asks for a minute (spec 3: a short signed URL). */
+  async function signedFrom(bucket, path, secs) {
     if (!bucket || !path) return null;
-    var r = await sb.storage.from(bucket).createSignedUrl(path, 600);
+    var r = await sb.storage.from(bucket).createSignedUrl(path, secs || 600);
     return r.data ? r.data.signedUrl : null;
   }
   function publicArt(path) {
@@ -1803,8 +1827,929 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
     if (!document.hidden && usageTimer && Date.now() - usageLastPoll > 60000) pollUsage();
   });
 
+  /* ── Safety ──────────────────────────────────────────── */
+  /* CallMe's own safety engine (phase 13; CallMe repo,
+     docs/phase13/SAFETY_ENGINE_SPEC.md section 3). Text is checked with word
+     lists and patterns inside the write the app already makes; pictures with
+     fingerprints, and a small nudity model on CallMe's own server only when no
+     fingerprint decides. Nothing on this tab calls an AI service, and a flag
+     exists only because a listed word, a pattern or a banned picture matched,
+     so every card says exactly what matched. Six parts on one tab:
+       Flagged text      what the write paths flagged or refused (0117)
+       Flagged pictures  what the image check flagged or hid (0118)
+       Reports, Appeals  the same views as their own tabs, here too so one
+                         tab holds everything waiting for a person
+       Rules             0116's staff_safety_* editor. Every change makes a
+                         new ruleset version, which the phones cache by
+       Try a sentence    the real check, run on the database, saving nothing
+     Words, phrases and the allowlist are open to any staff member. Patterns,
+     the policy and the look-alike map change what every term means, so the
+     database takes them from admins only (and this page only offers them to
+     admins). */
+
+  /* The queue RPCs. 0117 (the write paths and the text queue) and 0118
+     (image checks) were written alongside this tab, so their names live here
+     in one place. A part whose migration is not applied yet says so instead
+     of failing (missingFn, as on Usage). */
+  var SAFETY_RPC = {
+    flags: 'staff_safety_flags',               // (p_status 'open'|'resolved'|'all', p_limit)
+    flagResolve: 'staff_safety_flag_resolve',  // (p_id, p_action 'dismiss'|'mask'|'remove'|'actioned'|'reopen', p_note)
+    images: 'staff_image_flags',               // (p_status 'flagged'|'blocked'|'all', p_limit)
+    imageSet: 'staff_image_check_set',         // (p_bucket, p_path, p_status 'clean'|'blocked', p_note)
+    banImage: 'staff_ban_image',               // (p_bucket, p_path, p_category)
+  };
+  var SAFETY_CATS = [
+    ['minors_sexual', 'Sexual content about children'],
+    ['sexual_solicitation', 'Asking for sex or nudes'],
+    ['sexual_explicit', 'Explicit sexual words'],
+    ['hate_slur', 'Slurs'],
+    ['threat_violence', 'Threats of violence'],
+    ['self_harm', 'Self-harm (never punished)'],
+    ['harassment', 'Insults and swearing'],
+    ['contact_offplatform', 'Contact details, “add me on…”'],
+    ['scam_payment', 'Payment asks and scams'],
+  ];
+  var SAFETY_CAT = {};
+  SAFETY_CATS.forEach(function (c) { SAFETY_CAT[c[0]] = c[1]; });
+  /* The spec's default severities (1.3): what a new term gets when none is given. */
+  var SAFETY_SEV = { minors_sexual: 100, sexual_solicitation: 85, sexual_explicit: 70, hate_slur: 90, threat_violence: 90, self_harm: 60, harassment: 40, contact_offplatform: 50, scam_payment: 70 };
+  /* Spec 1.4: the severe ones, which also count toward strikes when refused. */
+  var SAFETY_SEVERE = { minors_sexual: true, hate_slur: true, threat_violence: true, sexual_solicitation: true };
+  var SAFETY_SURFACES = [
+    ['chat', 'Chat'], ['table_chat', 'Table chat'], ['bio', 'Bio'], ['name', 'Name'], ['poster', 'Poster'],
+    ['caption', 'Snapshot caption'], ['gift_note', 'Gift note'], ['event', 'Event'], ['suggestion', 'Suggestion board'],
+    ['card_words', 'Card words'], ['design', 'Design'],
+  ];
+  var SURFACE_LABEL = {};
+  SAFETY_SURFACES.forEach(function (s) { SURFACE_LABEL[s[0]] = s[1]; });
+  var TERM_MODES = [
+    ['token', 'Word: equals a whole word'],
+    ['prefix', 'Stem: any word that starts with it ("masturbat")'],
+    ['phrase', 'Phrase: these words in a row'],
+    ['substring', 'Hidden inside: anywhere, even across spaces'],
+  ];
+  var MODE_LABEL = { token: 'word', prefix: 'stem', phrase: 'phrase', substring: 'hidden inside' };
+  var ACTION_LABEL = { allow: 'allowed', mask: 'masked', flag: 'flagged', block: 'refused' };
+  var FLAG_STATUS = { open: 'waiting', dismissed: 'dismissed', masked: 'masked', removed: 'removed', actioned: 'dealt with' };
+  var IMAGE_STATUS = { pending: 'not checked yet', clean: 'clear', flagged: 'flagged', blocked: 'hidden' };
+  /* The buckets 0118 watches (_image_watched). 'snapshots' holds call keepsakes; the friends-map
+     snapshots live in 'instances'. There is no chat-image bucket yet. */
+  var IMAGE_BUCKET = { avatars: 'Profile photo', snapshots: 'Call keepsake', instances: 'Snapshot', posters: 'Poster' };
+  /* A sanction from a flag goes through the same ladder as People
+     (staff_enforcement_apply), which has its own list of rules. The tier of
+     each is enforcement_category_tier() on the server, copied here to sort
+     the list; the rule offered first is the nearest one to what matched, and
+     staff can pick another. */
+  var CATEGORY_TIER = {
+    sexual_content_directed: 'severe', nudity_exposure: 'severe', threat_violence: 'severe', sextortion: 'severe',
+    doxxing: 'severe', suspected_minor_sexual: 'severe', ban_evasion: 'severe',
+    harassment: 'serious', hate_slur: 'serious', unwanted_sexual_comment: 'serious',
+    abusive_language: 'minor', abusive_tone: 'minor',
+  };
+  var SANCTION_FOR_TEXT = {
+    minors_sexual: 'suspected_minor_sexual', sexual_solicitation: 'unwanted_sexual_comment', sexual_explicit: 'abusive_language',
+    hate_slur: 'hate_slur', threat_violence: 'threat_violence', harassment: 'abusive_language',
+    contact_offplatform: 'abusive_tone', scam_payment: 'abusive_tone',
+  };
+  var SANCTION_FOR_IMAGE = { minors_sexual: 'suspected_minor_sexual', hate_slur: 'hate_slur', threat_violence: 'threat_violence' };
+
+  function opt(p) { return el('option', { value: p[0], text: p[1] }); }
+  function field(label, input) { return el('div', {}, [el('label', { text: label }), input]); }
+  function catLabel(c) { return SAFETY_CAT[c] || c || 'no category'; }
+  function rowsOf(data) { return Array.isArray(data) ? data : (data && (data.rows || data.items || data.flags || data.checks)) || []; }
+  function openAppeal(a) { return a.appeal_status === 'pending' || a.appeal_status === 'ai_recommends_reject'; }
+  function notInstalled(err, mig, what) {
+    return el('div', { class: 'card' }, [el('p', { text: missingFn(err)
+      ? 'Not installed yet: ' + what + ' comes with migration ' + mig + ', which has not been applied.'
+      : 'Could not load ' + what + ': ' + err.message })]);
+  }
+  function hexOf(ch) { return 'U+' + ch.codePointAt(0).toString(16).toUpperCase().padStart(4, '0'); }
+
+  /* A question as the app's letter (house rule: every pop-up is a letter),
+     for this tab's actions. true on the main button; false on "Not now",
+     Escape or a click outside the letter. */
+  function letterAsk(title, body, okText, danger) {
+    return new Promise(function (resolve) {
+      var prev = document.activeElement, veil = null;
+      function done(v) {
+        document.removeEventListener('keydown', onKey, true);
+        if (veil) veil.remove();
+        if (prev && prev.focus) prev.focus();
+        resolve(v);
+      }
+      function onKey(e) { if (e.key === 'Escape') { e.preventDefault(); done(false); } }
+      var ok = el('button', { class: 'btn ' + (danger ? 'bad' : 'primary'), text: okText || 'Yes', onclick: function () { done(true); } });
+      veil = el('div', { class: 'veil', onclick: function (e) { if (e.target === veil) done(false); } }, [
+        el('div', { class: 'letter', role: 'dialog', 'aria-modal': 'true', 'aria-label': title }, [
+          el('div', { class: 'seal' }),
+          el('h4', { text: title }),
+          body ? el('p', { text: body }) : null,
+          el('div', { class: 'row' }, [el('button', { class: 'btn', text: 'Not now', onclick: function () { done(false); } }), ok]),
+        ]),
+      ]);
+      document.body.appendChild(veil);
+      document.addEventListener('keydown', onKey, true);
+      ok.focus();
+    });
+  }
+
+  /* The last staff_safety_rules(), so a match can be named ("send nudes",
+     phrase) instead of shown as an id. Quiet on failure: a card still shows
+     the ids. */
+  var safetyRules = null, safetyTermById = {}, safetyPatternById = {}, staffNames = null;
+  function noteRules(d) {
+    safetyRules = d || null; safetyTermById = {}; safetyPatternById = {};
+    ((d && d.terms) || []).forEach(function (t) { safetyTermById[t.id] = t; });
+    ((d && d.patterns) || []).forEach(function (p) { safetyPatternById[p.id] = p; });
+  }
+  async function ensureRules() {
+    if (safetyRules) return safetyRules;
+    var r = await sb.rpc('staff_safety_rules');
+    if (!r.error) noteRules(r.data);
+    return safetyRules;
+  }
+  /* updated_by is 'staff:<id>'; staff_members_list turns the id into a name. */
+  async function ensureStaffNames() {
+    if (staffNames) return staffNames;
+    var r = await sb.rpc('staff_members_list');
+    staffNames = {};
+    if (!r.error) (r.data || []).forEach(function (m) { staffNames[m.user_id] = m.display_name || m.email; });
+    return staffNames;
+  }
+  function byWho(s) {
+    var m = /^staff:([0-9a-f-]{36})$/i.exec(s || '');
+    return m && staffNames && staffNames[m[1]] ? staffNames[m[1]] : (s || '?');
+  }
+  function matchText(m) {
+    var what;
+    if (m.kind === 'pattern') {
+      var p = safetyPatternById[m.id];
+      what = 'the pattern ' + (p ? p.name : '#' + m.id);
+    } else {
+      var t = safetyTermById[m.id];
+      what = (m.kind === 'fuzzy' ? 'a misspelling of ' : '') + (t ? '“' + t.term + '” (' + (MODE_LABEL[t.mode] || t.mode) + ')' : 'term #' + m.id);
+    }
+    return what + ' · ' + catLabel(m.category) + ' · severity ' + m.severity + (Number(m.confidence) < 1 ? ' at 70 %' : '')
+      + (m.risk != null ? ' · risk ' + m.risk : '') + (m.action ? ' → ' + (ACTION_LABEL[m.action] || m.action) : '');
+  }
+  function matchesBlock(matches) {
+    var box = el('div');
+    if (!matches || !matches.length) return box;
+    box.appendChild(el('div', { class: 'muted', style: 'margin-top:6px', text: 'What matched:' }));
+    matches.forEach(function (m) { box.appendChild(el('div', { class: 'muted', text: '· ' + matchText(m) })); });
+    return box;
+  }
+
+  /* Strike, suspend or ban the person behind a flag, through the same ladder
+     as People. Never offered for self-harm (spec 1.3: never punished). */
+  function sanctionBox(subject, name, rulePreset, onApplied) {
+    var tier = el('select', {}, [
+      el('option', { value: 'minor', text: 'Strike (two in 90 days become a suspension)' }),
+      el('option', { value: 'serious', text: 'Suspend' }),
+      el('option', { value: 'severe', text: 'Ban for good' }),
+    ]);
+    var rule = el('select');
+    var days = el('input', { type: 'number', min: '1', max: '365', placeholder: 'Days (optional)', style: 'width:150px' });
+    var daysNote = el('div', { class: 'muted', text: 'Leave days empty to follow the ladder: each suspension is longer than the one before.' });
+    var statement = el('textarea', { maxlength: '1000', placeholder: 'What they will read on their letter: what happened, in plain words.' });
+    function fill(pick) {
+      rule.textContent = '';
+      CATEGORIES.forEach(function (c) { if (CATEGORY_TIER[c[0]] === tier.value) rule.appendChild(opt(c)); });
+      if (pick && CATEGORY_TIER[pick] === tier.value) rule.value = pick;
+      days.hidden = daysNote.hidden = tier.value !== 'serious';
+    }
+    tier.value = CATEGORY_TIER[rulePreset] || 'minor';
+    fill(rulePreset);
+    tier.addEventListener('change', function () { fill(); });
+    return el('details', { style: 'margin-top:8px' }, [
+      el('summary', { text: 'Strike, suspend or ban ' + (name || 'them') }),
+      el('div', { class: 'grid2' }, [field('What to do', tier), field('Rule broken', rule)]),
+      days, daysNote,
+      field('Statement', statement),
+      el('div', { class: 'row', style: 'margin-top:8px' }, [
+        el('button', { class: 'btn bad', text: 'Apply', onclick: async function () {
+          var d = tier.value === 'serious' && days.value ? Number(days.value) : null;
+          if (d !== null && (!Number.isInteger(d) || d < 1 || d > 365)) return toast('Days: a whole number from 1 to 365.');
+          if (statement.value.trim().length < 20) return toast('Write the statement they will read (20+ characters).');
+          var what = tier.value === 'minor' ? 'a strike' : tier.value === 'serious' ? 'a suspension' + (d ? ' of ' + d + ' days' : '') : 'a permanent ban';
+          if (!(await letterAsk('Give ' + (name || 'them') + ' ' + what + '?', 'It takes effect at once, and they read your statement on their letter.', 'Apply it', true))) return;
+          var res = await rpc('staff_enforcement_apply', { p_subject: subject, p_category: rule.value, p_statement: statement.value.trim(), p_days: d });
+          if (!(res && res.applied)) return toast('Not applied: ' + JSON.stringify(res));
+          toast('Applied ' + (res.reference || '') + (res.escalation ? '. It was their second strike, so it became a suspension.' : '.'));
+          if (onApplied) onApplied(res);
+        } }),
+      ]),
+    ]);
+  }
+
+  /* A flagged picture is fetched only when someone asks, through a link that
+     lasts a minute, and it stays blurred until clicked: nobody should meet
+     the worst of them by scrolling. */
+  function pictureBox(bucket, path, category) {
+    var box = el('div');
+    if (category === 'minors_sexual') {
+      box.appendChild(el('div', { class: 'quote flagged', text: 'Possibly sexual material involving a child. Do not download, copy or share it. Ban it here, which hides it and stops copies coming back, then report it to the National Crime Agency (and NCMEC where it applies), as m3xi.com/child-safety promises. The evidence is kept.' }));
+    }
+    var btn = el('button', { class: 'btn', text: 'Show it, blurred' });
+    btn.addEventListener('click', async function () {
+      btn.disabled = true; btn.textContent = 'Opening…';
+      var u = await signedFrom(bucket, path, 60);
+      if (!u) {
+        btn.disabled = false; btn.textContent = 'Show it, blurred';
+        return toast('Could not open the picture. It may have been removed already, or staff cannot read that bucket yet.');
+      }
+      var img = el('img', { class: 'blurred', src: u, alt: 'The flagged picture, blurred. Click to see it clearly.', title: 'Click to unblur; click again to blur', referrerpolicy: 'no-referrer' });
+      img.addEventListener('click', function () { img.classList.toggle('blurred'); });
+      img.addEventListener('error', function () { toast('The picture did not load. It may have been removed already.'); });
+      box.replaceChild(el('div', { class: 'picwrap' }, [img]), btn);
+    });
+    box.appendChild(btn);
+    return box;
+  }
+
+  var SAFETY_PARTS = [['flags', 'Flagged text'], ['images', 'Flagged pictures'], ['reports', 'Reports'], ['appeals', 'Appeals'], ['rules', 'Rules'], ['try', 'Try a sentence']];
+  var safetyPart = 'flags';
+
+  async function viewSafety(root, opts) {
+    if (opts && opts.part) safetyPart = opts.part;
+    root.appendChild(el('h2', { text: 'Safety' }));
+    root.appendChild(el('p', { class: 'muted', text: 'CallMe’s own checks. Text is matched against word lists and patterns inside the write the app already makes; pictures against the fingerprints of banned pictures, and a small nudity model on our own server only when no fingerprint decides. No AI service is asked anything. A card is here only because a listed word, a pattern or a picture matched, and it says what. Change the lists under Rules.' }));
+    var bar = el('div', { class: 'subtabs', role: 'tablist' });
+    var part = el('div');
+    root.appendChild(bar);
+    root.appendChild(part);
+    var btns = {};
+    SAFETY_PARTS.forEach(function (p) {
+      btns[p[0]] = el('button', { type: 'button', text: p[1], onclick: function () { open(p[0]); } });
+      bar.appendChild(btns[p[0]]);
+    });
+    var RUN = { flags: safetyFlags, images: safetyImages, reports: viewReports, appeals: viewAppeals, rules: safetyRulesView, try: safetyTry };
+    var counted = false;
+    function open(k) {
+      if (!RUN[k]) k = 'flags';
+      safetyPart = k;
+      Object.keys(btns).forEach(function (b) { btns[b].setAttribute('aria-current', String(b === k)); });
+      part.textContent = '';
+      RUN[k](part, {}).catch(function () {});
+      // The numbers when the tab opens, and again on each queue (not on Rules or Try).
+      if (!counted || (k !== 'rules' && k !== 'try')) { counted = true; counts(); }
+    }
+    /* How many wait in each queue, on the part buttons. Quiet: a queue whose
+       migration is not applied yet just shows no number. */
+    async function counts() {
+      function quiet(q) { return Promise.resolve(q).then(function (r) { return r; }, function () { return { error: true }; }); }
+      var got = await Promise.all([
+        quiet(sb.rpc(SAFETY_RPC.flags, { p_status: 'open', p_limit: 500 })),
+        quiet(sb.rpc(SAFETY_RPC.images, { p_status: 'flagged', p_limit: 500 })),
+        quiet(sb.rpc('staff_reports_list', { p_status: 'open', p_limit: 500 })),
+        quiet(sb.rpc('staff_appeals_list', { p_status: null, p_limit: 200 })),
+      ]);
+      if (!root.isConnected) return;
+      var n = {
+        flags: got[0].error ? 0 : rowsOf(got[0].data).length,
+        images: got[1].error ? 0 : rowsOf(got[1].data).length,
+        reports: got[2].error ? 0 : rowsOf(got[2].data).length,
+        appeals: got[3].error ? 0 : rowsOf(got[3].data).filter(openAppeal).length,
+      };
+      SAFETY_PARTS.forEach(function (p) {
+        if (n[p[0]] === undefined) return;
+        btns[p[0]].textContent = p[1] + (n[p[0]] ? ' (' + n[p[0]] + (n[p[0]] >= 500 ? '+' : '') + ')' : '');
+      });
+    }
+    open(safetyPart);
+  }
+
+  /* ── Safety: flagged text (0117) ── */
+  async function safetyFlags(root) {
+    var status = el('select', {}, [
+      el('option', { value: 'open', text: 'Waiting for a person' }),
+      el('option', { value: 'resolved', text: 'Resolved' }),
+      el('option', { value: 'all', text: 'All flags' }),
+    ]);
+    var surface = el('select', {}, [el('option', { value: '', text: 'Everywhere' })].concat(SAFETY_SURFACES.map(opt)));
+    var summary = el('p', { class: 'muted' });
+    var list = el('div');
+    root.appendChild(el('div', { class: 'row spread' }, [el('h3', { text: 'Flagged text' }), el('div', { class: 'row' }, [surface, status])]));
+    root.appendChild(el('p', { class: 'muted', text: 'Messages, bios, names, captions and other text a rule flagged or refused, with what was said around it. Refused text never reached anyone; flagged text did, as it was sent. Dismiss when nothing was wrong. Mask it (the matched words become ••••) or remove it when it should not stand. Strike, suspend or ban from the card. Self-harm is never punished: they were sent a support letter, and the card is here so that a person looks.' }));
+    root.appendChild(summary);
+    root.appendChild(list);
+    await ensureRules();
+
+    async function load() {
+      list.textContent = 'Loading…';
+      summary.textContent = '';
+      var r = await sb.rpc(SAFETY_RPC.flags, { p_status: status.value, p_limit: 300 });
+      list.textContent = '';
+      if (r.error) { list.appendChild(notInstalled(r.error, '0117', 'the flagged-text queue')); return; }
+      var rows = rowsOf(r.data);
+      var bySurface = {};
+      rows.forEach(function (f) { bySurface[f.surface] = (bySurface[f.surface] || 0) + 1; });
+      summary.textContent = rows.length + (status.value === 'open' ? ' waiting' : status.value === 'resolved' ? ' resolved' : ' in all')
+        + (rows.length ? ': ' + SAFETY_SURFACES.filter(function (s) { return bySurface[s[0]]; }).map(function (s) { return s[1].toLowerCase() + ' ' + bySurface[s[0]]; }).join(', ') : '')
+        + (rows.length >= 300 ? ' (showing the first 300)' : '');
+      if (surface.value) rows = rows.filter(function (f) { return f.surface === surface.value; });
+      if (!rows.length) list.appendChild(el('p', { class: 'muted', text: status.value === 'open' ? 'Nothing waiting. 🌷' : 'Nothing here.' }));
+      rows.forEach(function (f) { list.appendChild(flagCard(f, load)); });
+    }
+    status.addEventListener('change', load);
+    surface.addEventListener('change', load);
+    await load();
+  }
+
+  function ctxLine(m) {
+    return el('div', { class: 'ctxline' }, [
+      el('span', { class: 'muted', text: (m.author_name || m.name || 'Someone') + (m.at || m.created_at ? ' · ' + when(m.at || m.created_at) : '') + ': ' }),
+      String(m.text == null ? '' : m.text),
+    ]);
+  }
+
+  function flagCard(f, reload) {
+    var cx = f.context || {};
+    var st = f.status || 'open';
+    var open = st === 'open';
+    var result = f.result || {};
+    var act = f.action || result.action;
+    var matches = Array.isArray(f.matches) ? f.matches : result.matches || [];
+    var masked = f.masked || result.masked || null;
+    var stored = act !== 'block' && !f.content_gone;   // a refused write left nothing to mask or remove
+    var box = el('div', { class: 'card' + (open && (SAFETY_SEVERE[f.category] || f.category === 'self_harm') ? ' urgent' : '') });
+    box.appendChild(el('div', { class: 'row spread' }, [
+      el('h3', { text: (SURFACE_LABEL[f.surface] || f.surface || 'Text') + ' · ' + catLabel(f.category) }),
+      el('div', { class: 'row' }, [
+        SAFETY_SEVERE[f.category] ? el('span', { class: 'pill sev', text: 'severe' }) : null,
+        act ? el('span', { class: 'pill' + (act === 'block' ? ' ser' : ''), text: ACTION_LABEL[act] || act }) : null,
+        f.risk != null ? el('span', { class: 'pill', text: 'risk ' + f.risk }) : null,
+        el('span', { class: 'pill' + (open ? '' : ' shadow'), text: FLAG_STATUS[st] || st }),
+        f.content_gone ? el('span', { class: 'pill shadow', text: 'since deleted' }) : null,
+      ]),
+    ]));
+    box.appendChild(el('div', { class: 'muted', text: when(f.created_at) + ' · ' + (f.ref || f.id) + (f.ruleset_version ? ' · rules version ' + f.ruleset_version : '') }));
+    var where = cx.where || (cx.thread_title ? '“' + cx.thread_title + '”' : '');
+    box.appendChild(el('div', { text: 'Written by ' + who(f.author_name, f.author_id) + (where ? ' · in ' + where : '') }));
+
+    // What was said around it, oldest first, with the flagged text in its place.
+    var before = cx.before || [], after = cx.after || [];
+    if (before.length) box.appendChild(el('div', { class: 'muted', style: 'margin-top:6px', text: 'Before it:' }));
+    before.forEach(function (m) { box.appendChild(ctxLine(m)); });
+    box.appendChild(el('div', { class: 'quote flagged', text: f.text != null ? String(f.text) : '(the text was not kept)' }));
+    if (after.length) box.appendChild(el('div', { class: 'muted', text: 'After it:' }));
+    after.forEach(function (m) { box.appendChild(ctxLine(m)); });
+    if (masked && masked !== f.text) {
+      box.appendChild(el('div', { class: 'muted', style: 'margin-top:6px', text: act === 'mask' ? 'What others saw:' : 'With the matched words masked:' }));
+      box.appendChild(el('div', { class: 'quote', text: masked }));
+    }
+    box.appendChild(matchesBlock(matches));
+    if (f.category === 'self_harm') {
+      box.appendChild(el('p', { class: 'muted', text: 'Self-harm is never punished. They were sent a support letter. Look at what was said, reach out through the usual route if it is serious, and dismiss it once someone has looked.' }));
+    }
+    box.appendChild(el('details', {}, [el('summary', { class: 'muted', text: 'Everything we hold on it' }), el('pre', { text: JSON.stringify(f, null, 2) })]));
+
+    var links = el('div', { class: 'row', style: 'margin-top:8px' });
+    if (f.author_id) links.appendChild(el('button', { class: 'btn', text: 'Look up ' + (f.author_name || 'the writer') + ' in People', onclick: function () { show('people', { query: f.author_id }); } }));
+    box.appendChild(links);
+
+    var note = el('input', { type: 'text', maxlength: '1000', placeholder: open ? 'Your note for the record' : 'Why you are reopening it (optional)', style: 'flex:1;min-width:240px' });
+    /* given: a note already written (after a sanction), which also skips the question. */
+    async function resolve(action, given) {
+      var n = given != null ? given : note.value.trim();
+      if (given == null) {
+        if ((action === 'mask' || action === 'remove') && n.length < 5) return toast('Say why in the note (5+ characters) first.');
+        var ask = {
+          dismiss: ['Dismiss this flag?', 'Nothing was wrong. The text stays as it is.', 'Dismiss', false],
+          mask: ['Mask it?', 'The matched words become •••• for everyone who can see it.', 'Mask it', true],
+          remove: ['Remove it?', 'Nobody sees it any more. What was sent stays on this card for the record.', 'Remove it', true],
+          reopen: ['Reopen this flag?', 'It goes back into the queue.', 'Reopen', false],
+        }[action];
+        if (ask && !(await letterAsk(ask[0], ask[1], ask[2], ask[3]))) return;
+      }
+      var r = await sb.rpc(SAFETY_RPC.flagResolve, { p_id: f.id, p_action: action, p_note: n || null });
+      if (r.error) { toast(missingFn(r.error) ? 'This comes with migration 0117, which has not been applied.' : r.error.message); return; }
+      var res = r.data;
+      if (res && res.ok === false) {
+        toast(res.reason === 'already_resolved' ? 'Someone has already dealt with it.' : 'Not changed: ' + (res.message || res.reason || ''));
+      } else if (given == null) {
+        toast({ dismiss: 'Dismissed.', mask: 'Masked.', remove: 'Removed.', reopen: 'Reopened.' }[action] || 'Done.');
+      }
+      reload();
+    }
+
+    if (open) {
+      box.appendChild(el('div', { class: 'row', style: 'margin-top:8px' }, [
+        note,
+        el('button', { class: 'btn good', text: 'Nothing wrong — dismiss', onclick: function () { resolve('dismiss'); } }),
+        stored ? el('button', { class: 'btn', text: 'Mask it', onclick: function () { resolve('mask'); } }) : null,
+        stored ? el('button', { class: 'btn bad', text: 'Remove it', onclick: function () { resolve('remove'); } }) : null,
+      ]));
+      if (f.author_id && f.category !== 'self_harm') {
+        box.appendChild(sanctionBox(f.author_id, f.author_name, SANCTION_FOR_TEXT[f.category], function (res) {
+          resolve('actioned', res.kind + ' ' + (res.reference || '') + (note.value.trim() ? ': ' + note.value.trim() : ''));
+        }));
+      }
+    } else {
+      box.appendChild(el('div', { class: 'muted', style: 'margin-top:6px', text: (FLAG_STATUS[st] || st).replace(/^./, function (c) { return c.toUpperCase(); })
+        + (f.resolved_by ? ' by ' + f.resolved_by : '') + (f.resolved_at ? ' · ' + when(f.resolved_at) : '') + (f.resolution_note ? ' — ' + f.resolution_note : '') }));
+      if (st === 'dismissed' || st === 'actioned') {
+        box.appendChild(el('div', { class: 'row', style: 'margin-top:6px' }, [note, el('button', { class: 'btn', text: 'Reopen', onclick: function () { resolve('reopen'); } })]));
+      }
+    }
+    return box;
+  }
+
+  /* ── Safety: flagged pictures (0118) ── */
+  async function safetyImages(root) {
+    var status = el('select', {}, [
+      el('option', { value: 'flagged', text: 'Waiting for a person' }),
+      el('option', { value: 'blocked', text: 'Hidden' }),
+      el('option', { value: 'all', text: 'All checked pictures' }),
+    ]);
+    var switchLine = el('div');
+    var summary = el('p', { class: 'muted' });
+    var list = el('div');
+    root.appendChild(el('div', { class: 'row spread' }, [el('h3', { text: 'Flagged pictures' }), status]));
+    root.appendChild(el('p', { class: 'muted', text: 'Profile photos, snapshots, posters and chat pictures. Each is fingerprinted first: one close to a banned picture is hidden at once. Only when no fingerprint decides does the small nudity model on our own server look at it. Pictures stay blurred until you click them, and each link lasts a minute. “Ban this picture” puts its fingerprints on the banned list, so the same picture, or one close to it, is hidden wherever it is posted again.' }));
+    root.appendChild(switchLine);
+    root.appendChild(summary);
+    root.appendChild(list);
+
+    // Until the image service is live the switch stays off (spec 2, Gating).
+    sb.rpc('staff_config_list').then(function (r) {
+      if (!r || r.error || !root.isConnected) return;
+      var c = (r.data || []).filter(function (x) { return x.key === 'image_checks_enabled'; })[0];
+      if (!c || c.value !== true) {
+        switchLine.appendChild(el('p', { class: 'muted warnline', text: 'Image checks are switched off (image_checks_enabled under Switches), so new pictures are not checked and nothing new lands here. Banning a picture still works.' }));
+      }
+    }, function () {});
+
+    async function load() {
+      list.textContent = 'Loading…';
+      summary.textContent = '';
+      var r = await sb.rpc(SAFETY_RPC.images, { p_status: status.value, p_limit: 200 });
+      list.textContent = '';
+      if (r.error) { list.appendChild(notInstalled(r.error, '0118', 'the flagged-picture queue')); return; }
+      var rows = rowsOf(r.data);
+      summary.textContent = rows.length + (status.value === 'flagged' ? ' waiting' : status.value === 'blocked' ? ' hidden' : ' checked') + (rows.length >= 200 ? ' (showing the first 200)' : '');
+      if (!rows.length) list.appendChild(el('p', { class: 'muted', text: status.value === 'flagged' ? 'Nothing waiting. 🌷' : 'Nothing here.' }));
+      rows.forEach(function (c) { list.appendChild(imageCard(c, load)); });
+    }
+    status.addEventListener('change', load);
+    await load();
+  }
+
+  function imageCard(c, reload) {
+    var st = c.status || 'flagged';
+    var hash = c.hash_match || c.banned_match || null;   // the banned picture it is close to, if any
+    var box = el('div', { class: 'card' + (st === 'flagged' ? ' urgent' : '') });
+    box.appendChild(el('div', { class: 'row spread' }, [
+      el('h3', { text: (IMAGE_BUCKET[c.bucket] || c.bucket) + ' · ' + catLabel(c.category) }),
+      el('div', { class: 'row' }, [
+        SAFETY_SEVERE[c.category] ? el('span', { class: 'pill sev', text: 'severe' }) : null,
+        el('span', { class: 'pill' + (st === 'flagged' ? '' : ' shadow'), text: IMAGE_STATUS[st] || st }),
+        c.risk != null ? el('span', { class: 'pill', text: 'risk ' + c.risk }) : null,
+        hash ? el('span', { class: 'pill ser', text: 'close to a banned picture' }) : c.model ? el('span', { class: 'pill', text: 'model: ' + c.model }) : null,
+      ]),
+    ]));
+    box.appendChild(el('div', { class: 'muted', text: 'Checked ' + when(c.checked_at || c.created_at) + ' · ' + c.bucket + '/' + c.path }));
+    if (c.owner_id) box.appendChild(el('div', { text: 'Posted by ' + who(c.owner_name, c.owner_id) }));
+    if (hash) box.appendChild(el('div', { class: 'muted', text: 'Matches a banned picture' + (hash.category ? ' (' + catLabel(hash.category) + ')' : '') + (hash.note ? ': ' + hash.note : '') + (hash.distance != null ? ' · ' + hash.distance + ' bits apart' : '') }));
+    box.appendChild(pictureBox(c.bucket, c.path, c.category));
+    box.appendChild(el('details', {}, [el('summary', { class: 'muted', text: 'Everything we hold on it' }), el('pre', { text: JSON.stringify(c, null, 2) })]));
+
+    var note = el('input', { type: 'text', maxlength: '1000', placeholder: 'Your note for the record', style: 'flex:1;min-width:240px' });
+    async function set(to) {
+      var ask = to === 'clean'
+        ? ['Clear this picture?', 'Nothing is wrong with it. It shows to other people as normal.', 'Clear it', false]
+        : ['Keep this picture hidden?', 'Nobody else sees it. Its fingerprints are not banned, so a copy posted again is checked afresh.', 'Keep it hidden', true];
+      if (!(await letterAsk(ask[0], ask[1], ask[2], ask[3]))) return;
+      var r = await sb.rpc(SAFETY_RPC.imageSet, { p_bucket: c.bucket, p_path: c.path, p_status: to, p_note: note.value.trim() || null });
+      if (r.error) return toast(missingFn(r.error) ? 'This comes with migration 0118, which has not been applied.' : r.error.message);
+      if (r.data && r.data.ok === false) return toast('Not changed: ' + (r.data.message || r.data.reason || ''));
+      toast(to === 'clean' ? 'Cleared.' : 'Kept hidden.');
+      reload();
+    }
+    var banCat = el('select', {}, SAFETY_CATS.filter(function (x) { return x[0] !== 'self_harm'; }).map(opt));
+    banCat.value = SAFETY_CAT[c.category] && c.category !== 'self_harm' ? c.category : 'sexual_explicit';
+    async function ban() {
+      if (!(await letterAsk('Ban this picture?', 'Its fingerprints go on the banned list. It is hidden everywhere it appears, and any copy, or a picture close to it, is hidden the moment it is posted.', 'Ban it', true))) return;
+      var r = await sb.rpc(SAFETY_RPC.banImage, { p_bucket: c.bucket, p_path: c.path, p_category: banCat.value });
+      if (r.error) return toast(missingFn(r.error) ? 'Banning pictures comes with migration 0118, which has not been applied.' : r.error.message);
+      var res = r.data;
+      if (res && res.ok === false) return toast('Not banned: ' + (res.message || res.reason || ''));
+      toast('Banned.' + (res && res.blocked != null ? ' ' + res.blocked + ' matching picture(s) hidden.' : ''));
+      reload();
+    }
+    box.appendChild(el('div', { class: 'row', style: 'margin-top:8px' }, [
+      note,
+      st !== 'clean' ? el('button', { class: 'btn good', text: 'Nothing wrong — clear it', onclick: function () { set('clean'); } }) : null,
+      st === 'flagged' ? el('button', { class: 'btn', text: 'Keep it hidden', onclick: function () { set('blocked'); } }) : null,
+    ]));
+    box.appendChild(el('div', { class: 'row', style: 'margin-top:8px' }, [
+      el('span', { class: 'muted', text: 'Ban it as' }), banCat,
+      el('button', { class: 'btn bad', text: 'Ban this picture', onclick: ban }),
+    ]));
+    if (c.owner_id) {
+      box.appendChild(el('div', { class: 'row', style: 'margin-top:8px' }, [
+        el('button', { class: 'btn', text: 'Look up ' + (c.owner_name || 'the owner') + ' in People', onclick: function () { show('people', { query: c.owner_id }); } }),
+      ]));
+      if (c.category !== 'self_harm') box.appendChild(sanctionBox(c.owner_id, c.owner_name, SANCTION_FOR_IMAGE[c.category] || 'nudity_exposure'));
+    }
+    return box;
+  }
+
+  /* ── Safety: the rules (0116) ── */
+  async function safetyRulesView(root) {
+    var admin = role === 'admin';
+    var headLine = el('p', { class: 'muted' });
+    var body = el('div');
+    root.appendChild(el('div', { class: 'row spread' }, [el('h3', { text: 'Rules' }), el('button', { class: 'btn', text: 'Refresh', onclick: function () { load(); } })]));
+    root.appendChild(headLine);
+    root.appendChild(body);
+    var parts = [termsPart(), allowPart(), patternsPart(), policyPart(), foldPart()];
+
+    async function load() {
+      var got = await Promise.all([sb.rpc('staff_safety_rules'), ensureStaffNames()]);
+      var r = got[0];
+      body.textContent = '';
+      if (r.error) { headLine.textContent = ''; body.appendChild(notInstalled(r.error, '0116', 'the rules')); return; }
+      noteRules(r.data);
+      var d = r.data || {};
+      headLine.textContent = 'Version ' + d.version + ' · last changed ' + when(d.updated_at) + (d.updated_by ? ' by ' + byWho(d.updated_by) : '')
+        + '. Every change makes a new version. Phones fetch the rules again at most once a day, or as soon as something they send comes back with a newer version.'
+        + (admin ? '' : ' Patterns, what happens where and look-alike letters are changed by admins.');
+      parts.forEach(function (p) { body.appendChild(p.node); p.render(); });
+    }
+    /* After a staff_safety_* call: say what happened, then read the rules again. */
+    function saved(res, what) {
+      if (res && res.ok === false) { toast(res.message || res.reason || 'Not saved.'); return false; }
+      toast(what + ' The rules are now version ' + ((res && res.version) || '?') + '.' + (res && res.warning ? ' ' + res.warning : ''));
+      load();
+      return true;
+    }
+
+    function termsPart() {
+      var q = el('input', { type: 'search', placeholder: 'Find a word, phrase or note', style: 'flex:1;min-width:180px' });
+      var cat = el('select', {}, [el('option', { value: '', text: 'Every category' })].concat(SAFETY_CATS.map(opt)));
+      var mode = el('select', {}, [el('option', { value: '', text: 'Every kind of match' })].concat(TERM_MODES.map(function (m) { return el('option', { value: m[0], text: MODE_LABEL[m[0]] }); })));
+      var showOff = el('input', { type: 'checkbox' }); showOff.checked = true;
+      var title = el('h3');
+      var form = el('div');
+      var table = el('div', { class: 'tscroll' });
+      var more = el('p', { class: 'muted' });
+      var node = el('div', { class: 'card' }, [
+        el('div', { class: 'row spread' }, [title, el('button', { class: 'btn primary', text: 'Add a word or phrase', onclick: function () { edit(null); } })]),
+        el('p', { class: 'muted', text: 'Type a word as people write it. It is stored the way the check reads text: lower case, look-alike letters folded, repeated letters squeezed, so “Wanna” is kept as “wana”. A word catches that whole word; a stem catches every word starting with it; a phrase catches those words in a row; “hidden inside” catches it anywhere, even across spaces, so keep that for high-severity words and allow the innocent words that contain it. Words and stems of five letters or more also catch one-letter misspellings, at 70 % of their severity. Nothing is deleted: switch a term off, so flags already made still say what matched.' }),
+        form,
+        el('div', { class: 'row', style: 'margin:8px 0' }, [q, cat, mode, el('span', { class: 'row', style: 'gap:6px' }, [showOff, el('span', { class: 'muted', text: 'switched-off ones too' })])]),
+        table, more,
+      ]);
+      q.addEventListener('input', render);
+      [cat, mode, showOff].forEach(function (x) { x.addEventListener('change', render); });
+
+      function edit(t) {
+        form.textContent = '';
+        if (t === false) return;
+        var isNew = !t;
+        t = t || {};
+        var word = el('input', { type: 'text', maxlength: '80', value: t.original || t.term || '', style: 'width:100%' });
+        var c = el('select', {}, SAFETY_CATS.map(opt)); c.value = t.category || 'harassment';
+        var m = el('select', {}, TERM_MODES.map(opt)); m.value = t.mode || 'token';
+        var sev = el('input', { type: 'number', min: '1', max: '100', value: t.severity != null ? String(t.severity) : '', style: 'width:110px' });
+        function sevHint() { sev.placeholder = String(SAFETY_SEV[c.value]); }
+        c.addEventListener('change', sevHint); sevHint();
+        var note = el('input', { type: 'text', maxlength: '300', value: t.note || '', placeholder: 'Why it is on the list', style: 'width:100%' });
+        var on = el('input', { type: 'checkbox' }); on.checked = t.enabled !== false;
+        async function save() {
+          var w = word.value.trim();
+          if (!w) return toast('Type the word or phrase.');
+          var S = sev.value.trim() === '' ? null : Number(sev.value);
+          if (S !== null && (!Number.isInteger(S) || S < 1 || S > 100)) return toast('Severity is a whole number from 1 to 100.');
+          if (m.value === 'substring' && (S !== null ? S : SAFETY_SEV[c.value]) < 70
+              && !(await letterAsk('Hide a low-severity term inside words?', '“Hidden inside” finds it anywhere, even inside innocent words and across spaces. Under severity 70 that usually catches ordinary messages.', 'Add it anyway', true))) return;
+          // For staff_safety_term_set, null keeps what is there: the word and the
+          // note are sent only when they changed ('' clears a note).
+          var nv = note.value.trim();
+          var res = await rpc('staff_safety_term_set', {
+            p_id: isNew ? null : t.id, p_term: isNew || w !== (t.original || t.term) ? w : null,
+            p_category: c.value, p_severity: S, p_mode: m.value, p_enabled: on.checked,
+            p_note: isNew ? (nv || null) : nv === (t.note || '') ? null : nv,
+          });
+          if (res && res.ok === false && res.reason === 'exists') return toast('“' + res.term + '” is already on the list; edit that one instead.');
+          if (saved(res, (isNew ? 'Added' : 'Saved') + ' “' + (res && res.term) + '”' + (res && res.fuzzy ? ', which also catches one-letter misspellings.' : '.'))) edit(false);
+        }
+        form.appendChild(el('div', { class: 'quote', style: 'white-space:normal' }, [
+          el('strong', { text: isNew ? 'New word or phrase' : 'Edit “' + t.term + '”' }),
+          field('Word or phrase, as people type it', word),
+          el('div', { class: 'grid2' }, [
+            field('Category', c), field('How it matches', m),
+            field('Severity, 1 to 100 (blank: the category’s usual)', sev),
+            field('Switched on', el('div', { class: 'row' }, [on, el('span', { class: 'muted', text: 'checked on every write' })])),
+          ]),
+          field('Note', note),
+          el('div', { class: 'row', style: 'margin-top:10px' }, [
+            el('button', { class: 'btn primary', text: isNew ? 'Add it' : 'Save', onclick: save }),
+            el('button', { class: 'btn', text: 'Cancel', onclick: function () { edit(false); } }),
+          ]),
+        ]));
+        word.focus();
+      }
+      async function toggle(t) {
+        if (!(await letterAsk((t.enabled ? 'Switch off' : 'Switch on') + ' “' + t.term + '”?', t.enabled ? 'It stops matching at once. Flags it already made keep saying what matched.' : 'It starts matching again at once.', t.enabled ? 'Switch it off' : 'Switch it on', t.enabled))) return;
+        saved(await rpc('staff_safety_term_set', { p_id: t.id, p_enabled: !t.enabled }), (t.enabled ? 'Switched off' : 'Switched on') + ' “' + t.term + '”.');
+      }
+      function render() {
+        var all = (safetyRules && safetyRules.terms) || [];
+        var needle = q.value.trim().toLowerCase();
+        var rows = all.filter(function (t) {
+          if (!showOff.checked && !t.enabled) return false;
+          if (cat.value && t.category !== cat.value) return false;
+          if (mode.value && t.mode !== mode.value) return false;
+          return !needle || [t.term, t.original, t.note].some(function (s) { return s && String(s).toLowerCase().indexOf(needle) >= 0; });
+        });
+        title.textContent = 'Words and phrases (' + all.filter(function (t) { return t.enabled; }).length + ' on, ' + all.length + ' in all)';
+        var tb = el('tbody');
+        rows.slice(0, 200).forEach(function (t) {
+          tb.appendChild(el('tr', { class: t.enabled ? '' : 'off' }, [
+            el('td', {}, [el('strong', { text: t.term }), t.original && t.original !== t.term ? el('div', { class: 'muted', text: 'typed as ' + t.original }) : null]),
+            el('td', { text: catLabel(t.category) }),
+            el('td', { text: String(t.severity) }),
+            el('td', { text: (MODE_LABEL[t.mode] || t.mode) + (t.fuzzy ? ' · misspellings' : '') }),
+            el('td', {}, [t.note ? el('div', { text: t.note }) : null, el('div', { class: 'muted', text: (t.source === 'staff' ? byWho(t.updated_by) : t.source || '') + (t.updated_at ? ' · ' + when(t.updated_at) : '') })]),
+            el('td', { style: 'white-space:nowrap' }, [
+              el('button', { class: 'btn', text: 'Edit', onclick: function () { edit(t); form.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }), ' ',
+              el('button', { class: 'btn' + (t.enabled ? ' bad' : ''), text: t.enabled ? 'Switch off' : 'Switch on', onclick: function () { toggle(t); } }),
+            ]),
+          ]));
+        });
+        table.textContent = '';
+        table.appendChild(el('table', { class: 'rtable' }, [el('thead', {}, [el('tr', {}, ['Term', 'Category', 'Severity', 'Match', 'Note', ''].map(function (h) { return el('th', { text: h }); }))]), tb]));
+        more.textContent = rows.length > 200 ? 'Showing 200 of ' + rows.length + '. Narrow the search to see the rest.' : rows.length ? '' : 'No terms match.';
+      }
+      return { node: node, render: render };
+    }
+
+    function allowPart() {
+      var word = el('input', { type: 'text', maxlength: '80', placeholder: 'One word, such as scunthorpe', style: 'min-width:200px' });
+      var note = el('input', { type: 'text', maxlength: '300', placeholder: 'Why (optional)', style: 'flex:1;min-width:200px' });
+      var title = el('h3');
+      var table = el('div', { class: 'tscroll' });
+      var node = el('div', { class: 'card' }, [
+        title,
+        el('p', { class: 'muted', text: 'A word here is never caught by a stem, a “hidden inside” term or a misspelling: scunthorpe, cockpit, therapist. It does not cancel an exact word or phrase (switch that term off instead). Entries are one word, kept with look-alike letters folded but repeated letters as typed, so “niger” allows the country and not the slur.' }),
+        el('div', { class: 'row' }, [word, note, el('button', { class: 'btn primary', text: 'Allow it', onclick: add })]),
+        table,
+      ]);
+      async function add() {
+        var w = word.value.trim();
+        if (!w) return toast('Type the word to allow.');
+        var res = await rpc('staff_safety_allow_set', { p_term: w, p_allowed: true, p_note: note.value.trim() || null });
+        if (saved(res, 'Allowed “' + (res && res.term) + '”.')) { word.value = ''; note.value = ''; }
+      }
+      async function remove(a) {
+        if (!(await letterAsk('Stop allowing “' + a.term + '”?', 'Stems, “hidden inside” terms and misspellings can catch it again.', 'Stop allowing it', true))) return;
+        saved(await rpc('staff_safety_allow_set', { p_term: a.term, p_allowed: false }), 'Took “' + a.term + '” off the allowlist.');
+      }
+      function render() {
+        var rows = (safetyRules && safetyRules.allow) || [];
+        title.textContent = 'Allowed words (' + rows.length + ')';
+        var tb = el('tbody');
+        rows.forEach(function (a) {
+          tb.appendChild(el('tr', {}, [
+            el('td', {}, [el('strong', { text: a.term })]),
+            el('td', { text: a.note || '' }),
+            el('td', { class: 'muted', text: (a.source === 'staff' ? byWho(a.updated_by) : a.source || '') + (a.created_at ? ' · ' + when(a.created_at) : '') }),
+            el('td', {}, [el('button', { class: 'btn', text: 'Remove', onclick: function () { remove(a); } })]),
+          ]));
+        });
+        table.textContent = '';
+        table.appendChild(el('table', { class: 'rtable' }, [tb]));
+      }
+      return { node: node, render: render };
+    }
+
+    function patternsPart() {
+      var title = el('h3');
+      var form = el('div');
+      var table = el('div', { class: 'tscroll' });
+      var node = el('div', { class: 'card' }, [
+        el('div', { class: 'row spread' }, [title, admin ? el('button', { class: 'btn primary', text: 'Add a pattern', onclick: function () { edit(null); } }) : null]),
+        el('p', { class: 'muted', text: 'Patterns catch what a list cannot: phone numbers, emails, links, @handles, “add me on…” and payment asks. Each costs every check, and the same pattern runs on the phone, so they are written in the part of the language both read alike: [.] not a bare full stop, [0-9] not \\d, (?: ) not ( ), no [[:alpha:]]. A pattern that reads the words (not the text as typed) sees them squeezed: “walet”, not “wallet”. The database refuses anything else and says why.' + (admin ? '' : ' Only admins change patterns.') }),
+        form, table,
+      ]);
+      function edit(p) {
+        form.textContent = '';
+        if (p === false) return;
+        var isNew = !p;
+        p = p || {};
+        var name = el('input', { type: 'text', maxlength: '40', value: p.name || '', placeholder: 'phone_spelled', style: 'width:100%' });
+        var pat = el('textarea', { maxlength: '600', class: 'mono', style: 'min-height:60px' }); pat.value = p.pattern || '';
+        var c = el('select', {}, SAFETY_CATS.map(opt)); c.value = p.category || 'contact_offplatform';
+        var sev = el('input', { type: 'number', min: '1', max: '100', value: p.severity != null ? String(p.severity) : '', style: 'width:110px' });
+        function sevHint() { sev.placeholder = String(SAFETY_SEV[c.value]); }
+        c.addEventListener('change', sevHint); sevHint();
+        var reads = el('select', {}, [
+          el('option', { value: 'raw', text: 'The text as typed (lower case, accents removed)' }),
+          el('option', { value: 'spaced', text: 'The words as the check reads them (folded, squeezed, one space apart)' }),
+        ]);
+        reads.value = p.applies_to || 'raw';
+        var on = el('input', { type: 'checkbox' }); on.checked = p.enabled !== false;
+        var note = el('input', { type: 'text', maxlength: '300', value: p.note || '', style: 'width:100%' });
+        async function save() {
+          if (!/^[a-z0-9_]{1,40}$/.test(name.value.trim())) return toast('The name is lower-case letters, digits and _ (up to 40).');
+          if (!pat.value.trim()) return toast('Write the pattern.');
+          // The phone runs it with JavaScript: refuse here what it could not read.
+          try { new RegExp(pat.value.trim()); } catch (e) { return toast('The phone could not read that pattern: ' + e.message); }
+          var S = sev.value.trim() === '' ? null : Number(sev.value);
+          if (S !== null && (!Number.isInteger(S) || S < 1 || S > 100)) return toast('Severity is a whole number from 1 to 100.');
+          var nv = note.value.trim();
+          var res = await rpc('staff_safety_pattern_set', {
+            p_id: isNew ? null : p.id, p_name: name.value.trim(), p_pattern: pat.value.trim(), p_category: c.value,
+            p_severity: S, p_applies_to: reads.value, p_enabled: on.checked,
+            p_note: isNew ? (nv || null) : nv === (p.note || '') ? null : nv,
+          });
+          if (saved(res, (isNew ? 'Added' : 'Saved') + ' the pattern ' + name.value.trim() + '.')) edit(false);
+        }
+        form.appendChild(el('div', { class: 'quote', style: 'white-space:normal' }, [
+          el('strong', { text: isNew ? 'New pattern' : 'Edit ' + p.name }),
+          el('div', { class: 'grid2' }, [field('Name', name), field('Category', c), field('Severity, 1 to 100 (blank: the category’s usual)', sev), field('Switched on', el('div', { class: 'row' }, [on, el('span', { class: 'muted', text: 'checked on every write' })]))]),
+          field('Pattern', pat),
+          field('Reads', reads),
+          field('Note', note),
+          el('div', { class: 'row', style: 'margin-top:10px' }, [
+            el('button', { class: 'btn primary', text: isNew ? 'Add it' : 'Save', onclick: save }),
+            el('button', { class: 'btn', text: 'Cancel', onclick: function () { edit(false); } }),
+          ]),
+        ]));
+        name.focus();
+      }
+      async function toggle(p) {
+        if (!(await letterAsk((p.enabled ? 'Switch off' : 'Switch on') + ' the pattern ' + p.name + '?', p.enabled ? 'It stops matching at once.' : 'It starts matching again at once.', p.enabled ? 'Switch it off' : 'Switch it on', p.enabled))) return;
+        saved(await rpc('staff_safety_pattern_set', { p_id: p.id, p_enabled: !p.enabled }), (p.enabled ? 'Switched off ' : 'Switched on ') + p.name + '.');
+      }
+      function render() {
+        var rows = (safetyRules && safetyRules.patterns) || [];
+        title.textContent = 'Patterns (' + rows.filter(function (p) { return p.enabled; }).length + ' on, ' + rows.length + ' in all)';
+        var tb = el('tbody');
+        rows.forEach(function (p) {
+          tb.appendChild(el('tr', { class: p.enabled ? '' : 'off' }, [
+            el('td', {}, [el('strong', { text: p.name }), p.note ? el('div', { class: 'muted', text: p.note }) : null]),
+            el('td', { class: 'mono', text: p.pattern }),
+            el('td', { text: catLabel(p.category) }),
+            el('td', { text: String(p.severity) }),
+            el('td', { text: p.applies_to === 'spaced' ? 'the words' : 'as typed' }),
+            admin ? el('td', { style: 'white-space:nowrap' }, [
+              el('button', { class: 'btn', text: 'Edit', onclick: function () { edit(p); form.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }), ' ',
+              el('button', { class: 'btn' + (p.enabled ? ' bad' : ''), text: p.enabled ? 'Switch off' : 'Switch on', onclick: function () { toggle(p); } }),
+            ]) : null,
+          ]));
+        });
+        table.textContent = '';
+        table.appendChild(el('table', { class: 'rtable' }, [el('thead', {}, [el('tr', {}, ['Name', 'Pattern', 'Category', 'Severity', 'Reads', admin ? '' : null].filter(function (h) { return h !== null; }).map(function (h) { return el('th', { text: h }); }))]), tb]));
+      }
+      return { node: node, render: render };
+    }
+
+    function policyPart() {
+      var surf = el('select', {}, SAFETY_SURFACES.map(opt));
+      var table = el('div', { class: 'tscroll' });
+      var node = el('div', { class: 'card' }, [
+        el('h3', { text: 'What happens where' }),
+        el('p', { class: 'muted', text: 'For each place, the risk (severity, times 70 % for a misspelling) from which a match is masked (the words show as ••••), flagged (it goes through, and a person is asked to look) or refused (it does not go through; the app says why before sending). Blank: never. When more than one applies, the strictest wins. Self-harm should only ever be flagged: the member gets a support letter.' + (admin ? '' : ' Only admins change this.') }),
+        el('div', { class: 'row' }, [el('span', { class: 'muted', text: 'Where' }), surf]),
+        table,
+      ]);
+      surf.addEventListener('change', render);
+      function render() {
+        var cur = {};
+        ((safetyRules && safetyRules.policy) || []).forEach(function (p) { if (p.surface === surf.value) cur[p.category + '|' + p.action] = p.min_risk; });
+        var tb = el('tbody');
+        SAFETY_CATS.forEach(function (c) {
+          var inputs = {};
+          ['mask', 'flag', 'block'].forEach(function (a) {
+            var v = cur[c[0] + '|' + a];
+            inputs[a] = el('input', { type: 'number', min: '1', max: '100', value: v != null ? String(v) : '', placeholder: 'never', disabled: !admin });
+          });
+          async function save() {
+            var changes = [];
+            for (var i = 0, acts = ['mask', 'flag', 'block']; i < acts.length; i++) {
+              var a = acts[i], raw = inputs[a].value.trim(), v = raw === '' ? null : Number(raw), was = cur[c[0] + '|' + a];
+              if (v !== null && (!Number.isInteger(v) || v < 1 || v > 100)) return toast('Risks are whole numbers from 1 to 100, or blank for never.');
+              if (v !== (was != null ? Number(was) : null)) changes.push([a, v]);
+            }
+            if (!changes.length) return toast('Nothing changed.');
+            var where = SURFACE_LABEL[surf.value];
+            if (c[0] === 'self_harm' && changes.some(function (x) { return x[0] !== 'flag' && x[1] !== null; })
+                && !(await letterAsk('Mask or refuse self-harm?', 'Self-harm is never punished: the member gets a support letter and a person looks. Masking or refusing it hides what they said from the people who could help.', 'Do it anyway', true))) return;
+            if (!(await letterAsk('Change ' + catLabel(c[0]).toLowerCase() + ' in ' + where.toLowerCase() + '?',
+                changes.map(function (x) { return { mask: 'Masked', flag: 'Flagged', block: 'Refused' }[x[0]] + (x[1] === null ? ': never' : ' from risk ' + x[1]); }).join('. ') + '.', 'Save', false))) return;
+            var res = null;
+            for (var j = 0; j < changes.length; j++) {
+              res = await rpc('staff_safety_policy_set', { p_surface: surf.value, p_category: c[0], p_action: changes[j][0], p_min_risk: changes[j][1] });
+              if (res && res.ok === false) break;
+            }
+            saved(res, 'Saved ' + catLabel(c[0]).toLowerCase() + ' in ' + where.toLowerCase() + '.');
+          }
+          tb.appendChild(el('tr', {}, [
+            el('td', { text: c[1] }),
+            el('td', {}, [inputs.mask]), el('td', {}, [inputs.flag]), el('td', {}, [inputs.block]),
+            admin ? el('td', {}, [el('button', { class: 'btn', text: 'Save', onclick: save })]) : null,
+          ]));
+        });
+        table.textContent = '';
+        table.appendChild(el('table', { class: 'rtable' }, [el('thead', {}, [el('tr', {}, ['Category', 'Masked from', 'Flagged from', 'Refused from', admin ? '' : null].filter(function (h) { return h !== null; }).map(function (h) { return el('th', { text: h }); }))]), tb]));
+      }
+      return { node: node, render: render };
+    }
+
+    function foldPart() {
+      var title = el('h3');
+      var chips = el('div');
+      var from = el('input', { type: 'text', maxlength: '2', placeholder: 'ф', style: 'width:70px' });
+      var to = el('input', { type: 'text', maxlength: '1', placeholder: 'f', style: 'width:70px' });
+      var node = el('div', { class: 'card' }, [
+        title,
+        el('p', { class: 'muted', text: 'Before any matching, each character here is read as the letter or digit beside it: 0 as o, @ as a, Cyrillic а as a. A symbol only counts inside a word (sh!t), so “wow!” stays “wow”. Terms are stored already folded, so after adding one, save again any term that contains that character.' + (admin ? '' : ' Only admins change this.') }),
+        chips,
+        admin ? el('div', { class: 'row', style: 'margin-top:8px' }, [
+          el('span', { class: 'muted', text: 'Read' }), from, el('span', { class: 'muted', text: 'as' }), to,
+          el('button', { class: 'btn primary', text: 'Save', onclick: save }),
+          el('span', { class: 'muted', text: 'Leave “as” blank to stop folding that character.' }),
+        ]) : null,
+      ]);
+      async function save() {
+        var ch = from.value.trim(), t = to.value.trim().toLowerCase();
+        if (Array.from(ch).length !== 1) return toast('Type one character to fold.');
+        if (t && !/^[a-z0-9]$/.test(t)) return toast('It can only be read as one letter a to z or a digit.');
+        if (!t && !(await letterAsk('Stop folding “' + ch + '” (' + hexOf(ch) + ')?', 'Words that use it are no longer read as if it were a plain letter.', 'Stop folding it', true))) return;
+        if (saved(await rpc('staff_safety_fold_set', { p_from: ch, p_to: t || null }), t ? '“' + ch + '” now reads as “' + t + '”.' : 'Stopped folding “' + ch + '”.')) { from.value = ''; to.value = ''; }
+      }
+      function render() {
+        var rows = (safetyRules && safetyRules.fold) || [];
+        title.textContent = 'Look-alike letters (' + rows.length + ')';
+        chips.textContent = '';
+        // The code point beside each one: Cyrillic а and Latin a look the same.
+        rows.forEach(function (f) {
+          chips.appendChild(el('span', { class: 'foldchip', title: (f.source === 'staff' ? byWho(f.updated_by) : f.source || '') }, [
+            el('strong', { class: 'mono', text: f.ch }), el('span', { class: 'muted', text: hexOf(f.ch) + ' →' }), el('strong', { class: 'mono', text: f.to_ch }),
+          ]));
+        });
+      }
+      return { node: node, render: render };
+    }
+
+    await load();
+  }
+
+  /* ── Safety: try a sentence ── */
+  async function safetyTry(root) {
+    var text = el('textarea', { maxlength: '4000', placeholder: 'Type or paste something to check' });
+    var surf = el('select', {}, SAFETY_SURFACES.map(opt));
+    var out = el('div');
+    root.appendChild(el('h3', { text: 'Try a sentence' }));
+    root.appendChild(el('p', { class: 'muted', text: 'Runs the same check the app’s writes run, on the database, with the rules as they are now. Nothing is saved, nobody is flagged, and it counts against no one.' }));
+    root.appendChild(el('div', { class: 'card' }, [
+      text,
+      el('div', { class: 'row', style: 'margin-top:8px' }, [el('span', { class: 'muted', text: 'As if written in' }), surf, el('button', { class: 'btn primary', text: 'Check', onclick: go })]),
+      out,
+    ]));
+    text.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) go(); });
+    ensureRules();
+    async function go() {
+      if (!text.value.trim()) return toast('Type something to check.');
+      out.textContent = 'Checking…';
+      var r = await sb.rpc('staff_safety_test', { p_text: text.value, p_surface: surf.value });
+      await ensureRules();
+      out.textContent = '';
+      if (r.error) {
+        out.appendChild(el('p', { text: missingFn(r.error) ? 'Not installed yet: the check comes with migration 0116, which has not been applied.'
+          : /text_too_long/.test(r.error.message) ? 'That is over 4000 characters, which the check refuses.' : r.error.message }));
+        return;
+      }
+      var res = (r.data && r.data.result) || {}, nz = (r.data && r.data.normalised) || {};
+      var act = res.action || 'allow';
+      out.appendChild(el('div', { class: 'row', style: 'margin-top:12px' }, [
+        el('span', { class: 'pill' + (act === 'block' ? ' sev' : act === 'flag' ? ' ser' : ''), text: ACTION_LABEL[act] || act }),
+        res.category ? el('span', { class: 'pill', text: catLabel(res.category) }) : null,
+        el('span', { class: 'pill', text: 'risk ' + (res.risk || 0) }),
+        res.ruleset_version ? el('span', { class: 'pill', text: 'rules version ' + res.ruleset_version }) : null,
+      ]));
+      out.appendChild(el('p', { text: {
+        allow: 'It would go through as written.',
+        mask: 'It would go through with the matched words as ••••.',
+        flag: 'It would go through, and a person would be asked to look.',
+        block: 'It would be refused, and the app would say why before sending.',
+      }[act] || '' }));
+      if (res.masked) out.appendChild(el('div', { class: 'quote', text: res.masked }));
+      out.appendChild(matchesBlock(res.matches));
+      var tokens = nz.tokens || [], allowed = nz.allowed || [];
+      out.appendChild(el('details', {}, [
+        el('summary', { class: 'muted', text: 'What the check read' }),
+        el('pre', { text: 'words:   ' + tokens.map(function (t, i) { return allowed[i] ? t + ' (allowed)' : t; }).join(' | ')
+          + '\nspaced:  ' + (nz.spaced || '') + '\njoined:  ' + (nz.joined || '') + '   (an allowed word shows as |)' }),
+      ]));
+    }
+  }
+
   /* ── Switches ────────────────────────────────────────── */
-  var IMPORTANT = ['enforcement_mode', 'moderation_speech_enabled', 'moderation_speech_rooms_enabled', 'moderation_video_enabled', 'ai_appeals_enabled', 'min_version_android', 'min_version_ios', 'latest_version_android', 'latest_version_ios'];
+  var IMPORTANT = ['enforcement_mode', 'image_checks_enabled', 'moderation_speech_enabled', 'moderation_speech_rooms_enabled', 'moderation_video_enabled', 'ai_appeals_enabled', 'min_version_android', 'min_version_ios', 'latest_version_android', 'latest_version_ios'];
   async function viewSettings(root) {
     root.appendChild(el('h2', { text: 'Switches' }));
     root.appendChild(el('p', { class: 'muted', text: 'Values are JSON: text in quotes ("shadow"), true/false, numbers. enforcement_mode: "off", "shadow" (record only) or "enforce". Turn on the safety notice before "enforce".' }));
@@ -1847,7 +2792,7 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
       } })])]));
   }
 
-  var VIEWS = { appeals: viewAppeals, reports: viewReports, actions: viewActions, people: viewPeople, announce: viewAnnounce, events: viewEvents, designs: viewDesigns, usage: viewUsage, settings: viewSettings, staff: viewStaff };
+  var VIEWS = { appeals: viewAppeals, reports: viewReports, safety: viewSafety, actions: viewActions, people: viewPeople, announce: viewAnnounce, events: viewEvents, designs: viewDesigns, usage: viewUsage, settings: viewSettings, staff: viewStaff };
   function show(tab, opts) {
     currentTab = tab; usageTabRefresh = null;
     // Opened from a #tab link: keep the address in step, so a reload stays put.
