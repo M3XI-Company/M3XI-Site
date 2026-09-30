@@ -305,7 +305,7 @@ section{padding:72px 0;scroll-margin-top:66px}
     <li class="cm-card">
       <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--letter"></i></span>
       <h3>It goes to our safety team</h3>
-      <p>Your report goes to our safety review queue. You get a reference, and you can see it and where it has got to in Settings, under <b>Your reports</b>.</p>
+      <p>A person on our safety team reads every report. You get a reference, and you can see it and where it has got to in Settings, under <b>Your reports</b>.</p>
     </li>
     <li class="cm-card">
       <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--flame"></i></span>
@@ -336,9 +336,10 @@ section{padding:72px 0;scroll-margin-top:66px}
 </div></section>
 
 <!-- New in 0.10. Checked against the app: LocationSharePrompt.tsx and
-     LocationSettingsScreen.tsx (friends only, town first, 24-hour pause,
-     foreground only), InstanceReport.tsx (snapshots can be reported), and
-     migration 0106 (a walk keeps district names, no coordinates). -->
+     LocationSettingsScreen.tsx (friends only, town first, foreground only),
+     InstanceReport.tsx (snapshots can be reported), and migration 0106 (a walk
+     keeps district names, no coordinates). 30 Sep 2026 (phase 14): sharing is
+     off by default and switches itself off 24 hours after it is turned on. -->
 <section id="friends" class="band"><div class="wrap">
   <header class="cm-heading">
     <p class="cm-kicker">Friends, snapshots and walks</p>
@@ -350,12 +351,12 @@ section{padding:72px 0;scroll-margin-top:66px}
       <li class="cm-card">
         <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--map"></i></span>
         <h3>The map is off until you choose</h3>
-        <p>Nobody you haven't added as a friend can see where you are, and with Choose friends, only the ones you tick. It starts at your town, never your door, and you can switch to precise in <b>Settings</b>, under <b>Location</b>.</p>
+        <p>Location sharing starts off. Once you turn it on, nobody you haven't added as a friend can see where you are, and with Choose friends, only the ones you tick. It starts at your town, never your door, and you can switch to precise in <b>Settings</b>, under <b>Location</b>.</p>
       </li>
       <li class="cm-card">
         <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--clock"></i></span>
-        <h3>Only while CallMe is open</h3>
-        <p>Your phone sends your place only while the app is open, never in the background. Pause sharing for 24 hours whenever you like, or turn it off.</p>
+        <h3>Only while CallMe is open, for a day</h3>
+        <p>Your phone sends your place only while the app is open, never in the background. Sharing switches itself off 24 hours after you turn it on, so it is only ever on because you turned it on in the last 24 hours. You can turn it off sooner in <b>Settings</b>, under <b>Location</b>.</p>
       </li>
       <li class="cm-card">
         <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--camera"></i></span>
@@ -406,7 +407,8 @@ section{padding:72px 0;scroll-margin-top:66px}
     <li class="cm-card">
       <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--lock"></i></span>
       <h3>Your data</h3>
-      <p>CallMe does not record the audio or video of your calls.</p>
+      <p>CallMe does not record the audio or video of your calls, never turns what is said into text, and nothing listens in.</p>
+      <p>What you write for other people is checked against CallMe's own lists of words and patterns, and no AI reads it. When video is on, still frames are checked for nudity.</p>
       <p>What we do collect, why, and how long it is kept is set out in the <a href="/privacy/#callme">CallMe privacy policy</a>.</p>
     </li>
     <li class="cm-card">
