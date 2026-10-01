@@ -58,8 +58,15 @@ section{padding:48px 0;position:relative}
 .legal td:first-child{font-weight:600;width:32%;background:var(--paper2)}
 .legal a{color:var(--rose-deep);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
 .legal .lead{font-size:16px;color:var(--ink)}
+.legal h3[id]{scroll-margin-top:76px}
+/* CallMe's zero-tolerance summary: the first thing under the opening line,
+   because the app links to the top of this page. A rose note, as on /safety/. */
+.legal .zt{margin:26px 0 6px;padding:18px 20px 4px;background:#FBEDEF;border:1.5px solid var(--rose-deep);border-radius:10px}
+.legal .zt h2{margin:0 0 8px;padding:0;border:0;font-size:21px}
+.legal .zt p,.legal .zt li{color:var(--ink)}
+@media (max-width:640px){.legal .zt{padding:16px 14px 2px}}
 /* the header is taller on phones, so anchored sections stop below it */
-@media(max-width:720px){.legal h2{scroll-margin-top:110px}}
+@media(max-width:720px){.legal h2,.legal h3[id]{scroll-margin-top:110px}}
 </style>
 <link rel="stylesheet" href="/shared/site-chrome.css">
 </head>
@@ -91,16 +98,29 @@ section{padding:48px 0;position:relative}
     <p class="cm-kicker">Legal</p>
     <h1 class="cm-title">Terms &amp; <em>Conditions.</em></h1>
   </header>
-  <p class="eff">Last updated: 30 September 2026</p>
+  <p class="eff">Last updated: 1 October 2026</p>
 </div></div></section>
 <section style="padding:22px 0 64px"><div class="wrap"><div class="sheet"><div class="legal">
   <p class="lead">These Terms and Conditions govern your use of M3XI&rsquo;s products &mdash; the <strong>CallMe</strong> app and <strong>M3XI Spatial</strong> &mdash; and the M3XI website (collectively, the &ldquo;Platform&rdquo;), operated by M3XI LTD, company number 17425819, 128 City Road, London EC1V 2NX (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;). By using the Platform, you agree to these Terms. If you disagree, you must not use the Platform.</p>
+
+  <div class="zt">
+    <h2 id="zero-tolerance">CallMe: zero tolerance</h2>
+    <p>CallMe puts you on live calls with people you have not met, so these come before everything else on this page.</p>
+    <ul>
+      <li><b>No tolerance for objectionable content or abusive users.</b> Objectionable content means sexual content, nudity, hate, harassment, threats, violence, anything involving or harming anyone under 18, and scams. There is no place for it on CallMe, and no place for anyone who abuses other members.</li>
+      <li><b>Adults only, ID-checked.</b> Every member is 18 or over and has passed an ID check before they can call anyone.</li>
+      <li><b>You agree before you start.</b> CallMe asks you to agree to these Terms in the app before you can use it. If you do not agree, you cannot use CallMe.</li>
+      <li><b>A person acts on every report within 24 hours.</b> A person on our safety team reviews every report within 24 hours. If what was reported breaks these Terms, we remove it, and we remove the account that posted it from CallMe.</li>
+      <li><b>Reporting takes a moment.</b> You can report from every call, chat, poster, snapshot, table and profile in the app, or by emailing <a href="mailto:safety@m3xi.com">safety@m3xi.com</a>. You can block anyone, and hide a post from your feed straight away.</li>
+    </ul>
+    <p>The full rules are in <a href="#community-rules">13.3</a>, and what happens to a report is in <a href="#reporting">13.4</a>.</p>
+  </div>
 
   <h2>1. The Platform</h2>
   <p><b>CallMe</b> is an app for meeting new people on live calls; section 13 adds terms that apply only to it. <b>M3XI Spatial</b> is an online tool for estate and letting agencies to create, publish and host property walkthroughs; section 14 adds terms that apply only to it. Our other products, Cornelia and AutoUV, are on hold; see section 15. We provide tools and services &mdash; we do not guarantee any particular outcome, whether that is a match, a conversation, an enquiry or a sale.</p>
 
   <h2>2. Eligibility</h2>
-  <p>You must be legally capable of entering binding agreements and meet the minimum age for your region and the relevant app store. CallMe is only for adults aged 18 or over. M3XI Spatial is for businesses and the people who work for them. By using the Platform, you confirm you meet these requirements.</p>
+  <p>You must be legally capable of entering binding agreements and meet the minimum age for your region and the relevant app store. CallMe is only for adults aged 18 or over, who must pass an ID check before calling anyone (13.1). M3XI Spatial is for businesses and the people who work for them. By using the Platform, you confirm you meet these requirements.</p>
 
   <h2>3. Accounts and payments</h2>
   <p>You may need an account to use certain features, and some features need a subscription, a plan or an in-app purchase. You are responsible for all activity conducted through your account, and for keeping your sign-in details secure.</p>
@@ -120,7 +140,7 @@ section{padding:48px 0;position:relative}
   <p>Do not upload content that infringes others&rsquo; IP or privacy rights. We may remove infringing or unlawful content.</p>
 
   <h2>5. Prohibited conduct</h2>
-  <ul><li>Posting fraudulent, misleading, or deceptive content.</li><li>Impersonating individuals or entities.</li><li>Using the Platform for illegal activities.</li><li>Attempting to access another person&rsquo;s account, or to interfere with the security or operation of the Platform.</li></ul>
+  <ul><li>Posting objectionable content, or abusing other people. On CallMe there is zero tolerance for either; see 13.3.</li><li>Posting fraudulent, misleading, or deceptive content.</li><li>Impersonating individuals or entities.</li><li>Using the Platform for illegal activities.</li><li>Attempting to access another person&rsquo;s account, or to interfere with the security or operation of the Platform.</li></ul>
 
   <h2>6. AI disclaimer</h2>
   <p>Some features use artificial intelligence: building walkthroughs, reading floor plans and rewriting prompts in M3XI Spatial. In CallMe, pictures and still frames from video calls are checked by an automated image moderation service; CallMe does not use AI to listen to calls or to read what members write. AI output is approximate and can be wrong. A generated walkthrough is a visualisation, not a photograph, record or survey of a property. Always confirm material facts independently.</p>
@@ -129,7 +149,7 @@ section{padding:48px 0;position:relative}
   <ul><li>We are not liable for indirect, incidental, consequential, or special damages.</li><li>We are not liable for loss of profits, opportunities, data, or reputation.</li><li>Our total liability shall not exceed the amount paid by you to us in the preceding 12 months.</li><li>Nothing in these Terms limits liability that cannot be limited by law, including for death or personal injury caused by negligence, or for fraud.</li></ul>
 
   <h2>8. Suspension and termination</h2>
-  <p>We may suspend or terminate accounts for violations of these Terms or applicable laws, and may remove content that violates these Terms. Where it is safe and practical to do so we will tell you why.</p>
+  <p>We may suspend or terminate accounts for violations of these Terms or applicable laws, and may remove content that violates these Terms. Where it is safe and practical to do so we will tell you why. How this works on CallMe, including our promise to act on every report within 24 hours, is in 13.4.</p>
 
   <h2>9. Indemnification</h2>
   <p>You agree to indemnify and hold harmless M3XI, its officers, employees, and affiliates from any claims, damages, or expenses arising from your use of the Platform or your violation of these Terms.</p>
@@ -142,22 +162,27 @@ section{padding:48px 0;position:relative}
 
   <h2>12. Contact</h2>
   <p>For Terms-related enquiries: <a href="mailto:support@m3xi.com">support@m3xi.com</a>.</p>
+  <p>To report someone or something on CallMe, or anything that worries you there: <a href="mailto:safety@m3xi.com">safety@m3xi.com</a>. A person reads every email, and a report sent there is reviewed within 24 hours, like a report made in the app.</p>
 
   <h2 id="callme-terms">13. CallMe &mdash; additional terms</h2>
   <p>These apply to CallMe in addition to the terms above. Where they conflict, these apply to your use of CallMe.</p>
 
   <h3>13.1 Eligibility and verification</h3>
   <p>CallMe is for adults aged <b>18 or over</b>. You must complete identity verification &mdash; an ID document, a liveness selfie and a face match &mdash; before using any calling feature. You must not create an account for anyone else, use another person's identity document, or attempt to defeat the verification check. Doing so terminates your account permanently.</p>
+  <p>Before you can use CallMe, the app asks you to agree to these Terms, including the community rules in 13.3. If you do not agree, you cannot use it.</p>
 
   <h3>13.2 How CallMe works</h3>
   <p>CallMe matches you with another verified adult for a live call, or seats you at a table with a few people around a topic. Calls open on voice, and video turns on only when both people agree. Free accounts get a limited number of calls each day; you can earn more by watching a rewarded advert or completing achievements, or remove the limit with Premium. We do not guarantee that you will be matched, that anyone will connect with you, or any particular outcome from a call.</p>
 
-  <h3>13.3 Conduct on calls</h3>
-  <p>You must not, on a call or anywhere in the app:</p>
+  <h3 id="community-rules">13.3 Community rules</h3>
+  <p>CallMe has <b>zero tolerance for objectionable content and for abusive users</b>. On a call, in a chat, at a table, on a poster, in a snapshot, on a profile or anywhere else in the app, you must not:</p>
   <ul>
-    <li>harass, threaten, degrade or sexually harass another person;</li>
-    <li>expose yourself, or show sexual, violent or otherwise explicit content on video;</li>
-    <li>solicit money, gifts, investments or personal financial details, including asking someone to give you a card design;</li>
+    <li>post, show or send sexual content or nudity, or expose yourself;</li>
+    <li>harass, bully, threaten, degrade or sexually harass anyone;</li>
+    <li>post hateful content or slurs, or attack anyone for who they are;</li>
+    <li>threaten or encourage violence, or show violent content;</li>
+    <li>bring anyone under 18 onto a call or into the app, or post anything that sexualises, exploits or endangers a child;</li>
+    <li>scam anyone, or ask for money, gifts, investments or personal financial details, including asking someone to give you a card design;</li>
     <li>record, screenshot or redistribute a call or another person's images without their consent;</li>
     <li>misrepresent your age or identity;</li>
     <li>promote, arrange or facilitate anything illegal;</li>
@@ -165,9 +190,11 @@ section{padding:48px 0;position:relative}
   </ul>
   <p>Video is mutual opt-in. Pressuring someone to enable video is a breach of these terms.</p>
 
-  <h3>13.4 Reporting and enforcement</h3>
-  <p>You can block, mute or report anyone, during or after a call. We review reports and may warn, suspend or permanently ban an account, remove content, or refer a matter to the police. We may act on a single serious report without prior warning. Where a ban is applied, the associated records are retained in order to enforce it.</p>
-  <p><b>Automated safety tools.</b> Calls are never recorded or transcribed, and nothing listens to what is said on them. Some things are checked automatically, as described in the <a href="/privacy/#callme-safety">privacy policy</a>: what you write for other people is checked against CallMe's own lists of words and patterns as it is saved, pictures you post are checked before anyone sees them, and when video is on, still frames may be checked for nudity. These checks can hide or refuse words, give a strike, and remove you from a video call with a provisional ban, without a person being involved first; repeated strikes lead to a warning and then a suspension. Only a person on our safety team can make a ban permanent, except where a banned person opens a new account. Explicit video is hidden from the other person at once. Serious direct harm to another person &mdash; unwanted sexual content, nudity, sexual threats or pressure, threats of violence, sharing private details, or anything sexual involving a minor &mdash; is a permanent ban. Lesser breaches, such as abuse, slurs or harassment, lead to a strike or a suspension of a few days to a few weeks, and repeated strikes lead to a suspension. A banned or suspended account is removed from any call or table and cannot use CallMe until the ban ends.</p>
+  <h3 id="reporting">13.4 Reporting, blocking and enforcement</h3>
+  <p><b>How to report.</b> You can report what you see in CallMe from where you see it: on every call (the shield in the corner), and on every chat message, table, poster, snapshot, card design and profile. You can also email <a href="mailto:safety@m3xi.com">safety@m3xi.com</a>, with or without the app. A report never tells the other person who made it.</p>
+  <p><b>Blocking and hiding.</b> You can block anyone from a call, a chat, a table, a poster, a snapshot or their profile. Neither of you can then be matched with the other or join a call or table the other is in, and any friendship between you ends. You can unblock someone later in Settings. You can also hide a post from your own feed straight away, without reporting anyone.</p>
+  <p><b>What we do, within 24 hours.</b> A person on our safety team reviews every report within 24 hours of it being made. If the report shows content or behaviour that breaks these Terms, we remove the content and remove the account that posted it from CallMe. Serious direct harm to another person &mdash; unwanted sexual content, nudity, sexual threats or pressure, threats of violence, sharing private details, or anything sexual involving a minor &mdash; is a permanent ban. Other breaches, such as hate, slurs, harassment or scams, lead to a suspension of a few days to a few weeks, longer each time. A banned or suspended account is removed from any call or table and cannot use CallMe until the ban ends. A report that someone sounds underage, or of sexual content or threats, can pause the other account at once while we check. We may act on a single serious report without prior warning, and may refer a matter to the police. Where a ban is applied, the associated records are retained in order to enforce it.</p>
+  <p><b>Automated safety tools.</b> Calls are never recorded or transcribed, and nothing listens to what is said on them. Some things are checked automatically, as described in the <a href="/privacy/#callme-safety">privacy policy</a>: what you write for other people is checked against CallMe's own lists of words and patterns as it is saved, pictures you post are checked before anyone sees them, and when video is on, still frames may be checked for nudity. These checks can hide or refuse words, give a strike, and remove you from a video call with a provisional ban, without a person being involved first; repeated strikes lead to a warning and then a suspension. Only a person on our safety team can make a ban permanent, except where a banned person opens a new account. Explicit video is hidden from the other person at once.</p>
   <p><b>One person, one account.</b> A ban applies to the person, not only the account. Creating another account after a ban &mdash; with a different email address or otherwise &mdash; is ban evasion, and the new account will be banned as well.</p>
   <p><b>Appeals.</b> Every decision comes with a reason and a reference. You can appeal at <a href="/appeal/">m3xi.com/appeal</a> or by emailing <a href="mailto:safety@m3xi.com">safety@m3xi.com</a> from the address you sign in with. If the evidence shows a decision was wrong, we lift it. A person on our safety team reads and decides every appeal, and gives you the reason if they turn it down.</p>
 

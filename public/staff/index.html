@@ -116,6 +116,13 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
 .veil{position:fixed;inset:0;background:rgba(35,28,24,.38);display:flex;align-items:center;justify-content:center;padding:16px;z-index:30}
 .veil .letter{max-width:420px;width:100%}
 .veil .letter .row{justify-content:center}
+/* Due (phase 16): open reports against the 24 hours the Terms promise. The
+   meter is the Usage meter, filling as the 24 hours run down: amber at 70 %,
+   rose at 85 %, deep red once the 24 hours are up. */
+.dueleft{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dueleft.l1{color:#8a6420}.dueleft.l2{color:var(--callme2)}.dueleft.l3{color:var(--deep)}
+.card.late{border-left:5px solid var(--deep);background:#FFF5F0}
+nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--deep)}
 @media print{
   @page{margin:16mm}
   body{background:#fff!important;background-image:none!important}
@@ -1834,7 +1841,9 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
      fingerprints, and a small nudity model on CallMe's own server only when no
      fingerprint decides. Nothing on this tab calls an AI service, and a flag
      exists only because a listed word, a pattern or a banned picture matched,
-     so every card says exactly what matched. Six parts on one tab:
+     so every card says exactly what matched. Seven parts on one tab:
+       Due               open reports, oldest first, against the 24 hours the
+                         Terms (13.4) and Apple's guideline 1.2 promise (0122)
        Flagged text      what the write paths flagged or refused (0117)
        Flagged pictures  what the image check flagged or hid (0118)
        Reports, Appeals  the same views as their own tabs, here too so one
@@ -2071,8 +2080,8 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
     return box;
   }
 
-  var SAFETY_PARTS = [['flags', 'Flagged text'], ['images', 'Flagged pictures'], ['reports', 'Reports'], ['appeals', 'Appeals'], ['rules', 'Rules'], ['try', 'Try a sentence']];
-  var safetyPart = 'flags';
+  var SAFETY_PARTS = [['due', 'Due'], ['flags', 'Flagged text'], ['images', 'Flagged pictures'], ['reports', 'Reports'], ['appeals', 'Appeals'], ['rules', 'Rules'], ['try', 'Try a sentence']];
+  var safetyPart = 'due';
 
   async function viewSafety(root, opts) {
     if (opts && opts.part) safetyPart = opts.part;
@@ -2087,14 +2096,15 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
       btns[p[0]] = el('button', { type: 'button', text: p[1], onclick: function () { open(p[0]); } });
       bar.appendChild(btns[p[0]]);
     });
-    var RUN = { flags: safetyFlags, images: safetyImages, reports: viewReports, appeals: viewAppeals, rules: safetyRulesView, try: safetyTry };
+    var RUN = { due: safetyDue, flags: safetyFlags, images: safetyImages, reports: viewReports, appeals: viewAppeals, rules: safetyRulesView, try: safetyTry };
     var counted = false;
     function open(k) {
-      if (!RUN[k]) k = 'flags';
+      if (!RUN[k]) k = 'due';
       safetyPart = k;
       Object.keys(btns).forEach(function (b) { btns[b].setAttribute('aria-current', String(b === k)); });
       part.textContent = '';
-      RUN[k](part, {}).catch(function () {});
+      // open goes along so a Due card can send staff on to Reports.
+      RUN[k](part, { open: open }).catch(function () {});
       // The numbers when the tab opens, and again on each queue (not on Rules or Try).
       if (!counted || (k !== 'rules' && k !== 'try')) { counted = true; counts(); }
     }
@@ -2107,9 +2117,14 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
         quiet(sb.rpc(SAFETY_RPC.images, { p_status: 'flagged', p_limit: 500 })),
         quiet(sb.rpc('staff_reports_list', { p_status: 'open', p_limit: 500 })),
         quiet(sb.rpc('staff_appeals_list', { p_status: null, p_limit: 200 })),
+        quiet(sb.rpc('staff_reports_due')),
       ]);
       if (!root.isConnected) return;
+      var due = got[4].error ? [] : dueRows(got[4].data);
+      if (!got[4].error) refreshDueBadge(due);
+      var late = dueLate(due);
       var n = {
+        due: due.length,
         flags: got[0].error ? 0 : rowsOf(got[0].data).length,
         images: got[1].error ? 0 : rowsOf(got[1].data).length,
         reports: got[2].error ? 0 : rowsOf(got[2].data).length,
@@ -2117,10 +2132,137 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
       };
       SAFETY_PARTS.forEach(function (p) {
         if (n[p[0]] === undefined) return;
-        btns[p[0]].textContent = p[1] + (n[p[0]] ? ' (' + n[p[0]] + (n[p[0]] >= 500 ? '+' : '') + ')' : '');
+        var extra = p[0] === 'due' && late ? ' · ' + late + ' late' : '';
+        btns[p[0]].textContent = p[1] + (n[p[0]] ? ' (' + n[p[0]] + (n[p[0]] >= 500 ? '+' : '') + extra + ')' : '');
       });
     }
     open(safetyPart);
+  }
+
+  /* ── Safety: due within 24 hours (phase 16, 0122) ── */
+  /* Apple rejected 0.10.0 under guideline 1.2 until we act on every report of
+     objectionable content within 24 hours, removing the content and the
+     account that posted it. The Terms (m3xi.com/terms, 13.4) now promise
+     exactly that, so this part is the clock: every open report, oldest first,
+     with the time left. staff_reports_due() comes with migration 0122 (CallMe
+     repo). Its rows are read like staff_reports_list's (id, source, kind,
+     severe, created_at, reporter_*, reported_*, excerpt, context), and the
+     deadline is due_at when the server sends one, else created_at + 24 hours,
+     counted on this machine's clock. */
+  var DUE_MS = 24 * 3600 * 1000;
+  function dueRows(d) { return Array.isArray(d) ? d : (d && (d.reports || d.rows || d.items)) || []; }
+  function dueAt(r) {
+    var t = new Date(r.due_at || r.deadline || '').getTime();
+    if (!isNaN(t)) return t;
+    var c = new Date(r.created_at || r.reported_at || '').getTime();
+    return isNaN(c) ? Date.now() : c + DUE_MS;
+  }
+  function dueLate(rows) { var now = Date.now(); return rows.filter(function (r) { return dueAt(r) <= now; }).length; }
+  function dueLeft(ms) {
+    var m = Math.max(1, Math.round(Math.abs(ms) / 60000)), h = Math.floor(m / 60), s = (h ? h + ' h ' : '') + (m % 60) + ' min';
+    return ms <= 0 ? 'Late by ' + s : s + ' left';
+  }
+  /* The Safety tab's own button: how many are open and how many are late, on
+     every tab, so a late one is seen without opening Safety. Quiet when 0122
+     is not applied yet. */
+  async function refreshDueBadge(rows) {
+    var b = document.querySelector('nav.tabs button[data-tab="safety"]');
+    if (!b) return;
+    if (!rows) {
+      var r;
+      try { r = await sb.rpc('staff_reports_due'); } catch (e) { return; }
+      if (r.error || !role) { b.textContent = 'Safety'; b.classList.remove('late'); return; }
+      rows = dueRows(r.data);
+    }
+    var late = dueLate(rows);
+    b.textContent = 'Safety' + (rows.length ? ' (' + rows.length + (late ? ' · ' + late + ' late' : '') + ')' : '');
+    b.classList.toggle('late', late > 0);
+  }
+  var dueTimer = null;
+  function startDueWatch() {
+    refreshDueBadge();
+    if (!dueTimer) dueTimer = setInterval(function () { if (role && !document.hidden) refreshDueBadge(); }, 5 * 60000);
+  }
+
+  async function safetyDue(root, opts) {
+    var summary = el('p', { class: 'muted' });
+    var list = el('div');
+    var painted = [];
+    root.appendChild(el('div', { class: 'row spread' }, [
+      el('h3', { text: 'Due within 24 hours' }),
+      el('button', { class: 'btn', text: 'Refresh', onclick: function () { load(); } }),
+    ]));
+    root.appendChild(el('p', { class: 'muted', text: 'Every open report, oldest first. The Terms (13.4) and Apple’s guideline 1.2 promise that a person reviews each one within 24 hours of it being made, and that when it broke the rules we remove the content and remove the account that posted it: a suspension at the least, a ban for serious harm. Take the content down where it lives (the report card under Reports, Designs, Flagged pictures), apply the sanction from People, then close the report under Reports.' }));
+    root.appendChild(summary);
+    root.appendChild(list);
+
+    function paint(p) {
+      var ms = dueAt(p.r) - Date.now();
+      var gone = Math.min(1, Math.max(0, 1 - ms / DUE_MS));
+      var lvl = ms <= 0 ? 'l3' : gone >= 0.85 ? 'l2' : gone >= 0.7 ? 'l1' : '';
+      p.left.textContent = dueLeft(ms);
+      p.left.className = 'dueleft' + (lvl ? ' ' + lvl : '');
+      p.meter.className = 'meter' + (lvl ? ' ' + lvl : '');
+      p.fill.style.width = (gone * 100).toFixed(1) + '%';
+      p.card.className = 'card' + (ms <= 0 ? ' late' : p.r.severe ? ' urgent' : '');
+    }
+
+    function dueCard(r) {
+      var cx = r.context || {};
+      var due = dueAt(r);
+      var made = r.created_at ? new Date(r.created_at).getTime() : due - DUE_MS;
+      // verify-1-2: 0122 names each row by `ref` (report:…, chat:…, safety_flag:…), not `id`,
+      // and sends no names. A safety_flag: row is a severe words card: it lives under Flagged text.
+      var ref = r.id || r.ref || '';
+      var words = String(ref).indexOf('safety_flag:') === 0;
+      var DUE_SOURCE = { snapshot: 'Snapshot', words: 'Flagged words (severe)' };
+      var p = { r: r, left: el('span', { class: 'dueleft' }), fill: el('div', { class: 'fill' }) };
+      p.meter = el('div', { class: 'meter', role: 'img', 'aria-label': 'How much of the 24 hours has gone' }, [p.fill]);
+      p.card = el('div', { class: 'card' });
+      p.card.appendChild(el('div', { class: 'row spread' }, [
+        el('h3', { text: (SOURCE_LABEL[r.source] || DUE_SOURCE[r.source] || r.source || 'Report') + (r.kind ? ' · ' + (KIND_LABEL[r.kind] || r.kind) : '') }),
+        el('div', { class: 'row' }, [r.severe ? el('span', { class: 'pill sev', text: 'severe' }) : null, p.left]),
+      ]));
+      p.card.appendChild(p.meter);
+      p.card.appendChild(el('div', { class: 'muted', text: 'Reported ' + when(made) + ' · due by ' + when(due) + (ref ? ' · ' + ref : '') }));
+      if (r.reported_id || r.reported_name) p.card.appendChild(el('div', { text: 'About ' + who(r.reported_name, r.reported_id) }));
+      if (r.reporter_id || r.reporter_name) p.card.appendChild(el('div', { text: 'Reported by ' + who(r.reporter_name, r.reporter_id) }));
+      if (r.excerpt && r.source !== 'table') p.card.appendChild(el('div', { class: 'quote', text: r.excerpt }));
+      if (cx.reported_paused) p.card.appendChild(el('div', { class: 'muted', text: 'Their account is paused while this waits.' }));
+      var acts = el('div', { class: 'row', style: 'margin-top:8px' });
+      if (r.reported_id) acts.appendChild(el('button', { class: 'btn', text: 'Look up ' + (r.reported_name || 'them') + ' in People', onclick: function () { show('people', { query: r.reported_id }); } }));
+      if (opts && opts.open) acts.appendChild(el('button', { class: 'btn primary', text: words ? 'Open it in Flagged text' : 'Open it in Reports', onclick: function () { opts.open(words ? 'flags' : 'reports'); } }));
+      if (r.source === 'design') acts.appendChild(el('button', { class: 'btn', text: 'Open Designs', onclick: function () { show('designs'); } }));
+      p.card.appendChild(acts);
+      p.card.appendChild(el('details', {}, [el('summary', { class: 'muted', text: 'Everything we hold on it' }), el('pre', { text: JSON.stringify(r, null, 2) })]));
+      paint(p);
+      painted.push(p);
+      return p.card;
+    }
+
+    async function load() {
+      list.textContent = 'Loading…';
+      summary.textContent = '';
+      painted = [];
+      var res;
+      try { res = await sb.rpc('staff_reports_due'); } catch (e) { res = { error: e }; }
+      if (!root.isConnected) return;
+      list.textContent = '';
+      if (res.error) { list.appendChild(notInstalled(res.error, '0122', 'the 24-hour list (staff_reports_due)')); return; }
+      var rows = dueRows(res.data).slice().sort(function (a, b) { return dueAt(a) - dueAt(b); });
+      refreshDueBadge(rows);
+      var late = dueLate(rows);
+      summary.textContent = rows.length ? rows.length + ' open' + (late ? ', ' + late + ' past the 24 hours' : ', none late') + '. Oldest first.' : '';
+      if (!rows.length) { list.appendChild(el('p', { class: 'muted', text: 'Nothing waiting. Every report has had its person. 🌷' })); return; }
+      rows.forEach(function (r) { list.appendChild(dueCard(r)); });
+    }
+
+    // The clock moves while the page is open; the list itself reloads on Refresh.
+    var tick = setInterval(function () {
+      if (!root.isConnected) return clearInterval(tick);
+      painted.forEach(paint);
+    }, 30000);
+    await load();
   }
 
   /* ── Safety: flagged text (0117) ── */
@@ -2840,6 +2982,7 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
     $('who').textContent = s.user.email + ' · ' + role;
     $('app').hidden = false;
     startUsageWatch();
+    startDueWatch();
     show(wantedTab());
   }
   $('google').addEventListener('click', function () {
