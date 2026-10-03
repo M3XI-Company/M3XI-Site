@@ -464,10 +464,13 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
     ['note', 'Notes after calls'],
     ['poster', 'Posters'],
     ['design', 'Card designs'],
+    ['person', 'People, from their poster'],
+    ['idea', 'Ideas on the board'],
   ];
   var SOURCE_LABEL = {
     call: 'Person on a call', group_call: 'Group call — nobody named', table: 'Table',
     chat: 'Chat message', note: 'Note after a call', poster: 'Poster', design: 'Card design',
+    person: 'Person (reported from their poster)', idea: 'Idea on the board',
   };
   var KIND_LABEL = {
     underage: 'Sounds underage', sexual_exposure: 'Sexual content or exposure', threats: 'Threats or danger',
@@ -534,7 +537,10 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
         out.push('Table ' + (cx.room_status || '?') + (cx.private ? ' · private' : '') + ' · ' + (cx.scope === 'local' ? 'My country' : 'International')
           + ' · opened ' + when(cx.opened_at));
         if (cx.people && cx.people.length) out.push('At the table: ' + names(cx.people));
-        out.push('A table flag names the table, never a person. The reporter was muted from everyone seated.');
+        // 0127: a table can be reported from the Tables list without sitting at it.
+        out.push(cx.from_list
+          ? 'Reported from the Tables list (the reporter was not seated). It names the table, never a person; the reporter was muted from the host only, and list reports do not hide a table from everyone.'
+          : 'A table flag names the table, never a person. The reporter was muted from everyone seated.');
       } else if (r.source === 'chat') {
         out.push('In a ' + (cx.thread_kind === 'dm' ? 'direct chat' : 'group chat') + (cx.thread_title ? ' “' + cx.thread_title + '”' : '')
           + (cx.message_gone ? ' · the message has since been deleted (the quote is the copy taken when it was reported)' : ''));
@@ -570,7 +576,7 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
       box.appendChild(el('div', { text: aboutLine(r, cx) }));
       // A table's excerpt is its topic, already named in the line above.
       if (r.excerpt && r.source !== 'table') box.appendChild(el('div', { class: 'quote', text: r.excerpt }));
-      if (r.source === 'chat' && cx.reporter_note) box.appendChild(el('div', { class: 'muted', text: 'The reporter added: ' + cx.reporter_note }));
+      if ((r.source === 'chat' || r.source === 'table' || r.source === 'idea') && cx.reporter_note) box.appendChild(el('div', { class: 'muted', text: 'The reporter added: ' + cx.reporter_note }));
       contextLines(r, cx).forEach(function (l) { box.appendChild(el('div', { class: 'muted', text: l })); });
 
       var decisions = cx.decisions || [];
