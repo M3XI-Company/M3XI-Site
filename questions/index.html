@@ -14,6 +14,9 @@
 <meta property="og:url" content="https://www.m3xi.com/questions/" />
 <meta property="og:image" content="https://www.m3xi.com/img/callme/screen-04.webp" />
 <meta name="twitter:card" content="summary_large_image" />
+<!-- AdSense site verification. A meta tag loads nothing; the ads themselves
+     are off until /shared/site-ads.js says otherwise (docs/ADS_SWITCH_ON.md). -->
+<meta name="google-adsense-account" content="ca-pub-3432976752504337" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,700;1,800&family=Inter:wght@400;500;600;700&family=Caveat:wght@500;600&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
@@ -153,6 +156,52 @@ summary:hover{color:var(--rose-deep)}
 .getapp .cm-polaroid{--cm-polaroid-w:170px;--cm-tilt:3deg}
 .getapp .cm-heading{margin-bottom:22px}
 @media (max-width:560px){.getapp{grid-template-columns:1fr}.getapp .cm-polaroid{--cm-polaroid-w:170px}}
+
+/* Side-margin ads (Google AdSense), switched on and off in /shared/site-ads.js
+   and OFF until Google approves the site. Both rails are `hidden` in the markup
+   and stay that way unless that file fills them, so while ads are off nothing
+   here draws anything.
+
+   They live only in the empty margins beside the 1100px column (--maxw, which
+   includes the column's own 24px padding). One rail needs
+     --ad-gap (16px to the column) + its width + 24px clear of the window edge,
+   so both together need 1100 + 2 x (16 + 160 + 24) = 1500px of page for 160px
+   rails, and 1100 + 2 x (16 + 300 + 24) = 1780px for 300px ones. A media query
+   measures the window INCLUDING a desktop scrollbar (about 17px on Windows),
+   so the breakpoints carry 20px spare: 1520px and 1800px. Below 1520px, which
+   is every phone, every tablet and many laptops, there are no rails at all.
+
+   Each rail is a track as tall as the heading and the questions, and the ad
+   inside it is sticky, so it follows the reader down the page and stops above
+   the full-width "Still stuck?" band, well clear of the footer. On a window
+   too short to show a 600px ad below the header it scrolls with the page
+   instead, so the bottom of the ad is never cut off. Nothing here moves on its
+   own (the reduced-motion rule at the top covers the rest of the page).
+
+   The wrapper round the questions is .help-frame, and it must never get a name
+   starting "ad-": ad blockers hide any element called .ad-frame (EasyList's
+   generic rule ##.ad-frame), and that would hide the whole page, ads on or off.
+   The rails themselves may be hidden by a blocker; that is fine. */
+.help-frame{position:relative;--ad-w:160px;--ad-gap:16px}
+.ad-rail{display:none}
+@media (min-width:1520px){
+  /* Belt and braces against a sideways scrollbar. `clip`, unlike `hidden`,
+     leaves position:sticky (here and in the topic tabs) working. */
+  .help-frame{overflow-x:clip}
+  .ad-rail:not([hidden]){display:block;position:absolute;top:52px;bottom:24px;width:var(--ad-w)}
+  .ad-rail--left{right:calc(50% + var(--maxw) / 2 + var(--ad-gap))}
+  .ad-rail--right{left:calc(50% + var(--maxw) / 2 + var(--ad-gap))}
+}
+@media (min-width:1800px){.help-frame{--ad-w:300px}}
+@media (min-width:1520px) and (min-height:800px){.ad-rail-in{position:sticky;top:90px}}
+.ad-label{margin:0 0 10px;padding:0 0 8px;border-bottom:1px dashed var(--line2);color:var(--ink3)}
+.ad-label b{display:block;font:700 10.5px/1.3 'Inter',system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase}
+/* The label waits for Google to say the unit is filled; site-ads.js folds an
+   unfilled rail away, so the label never sits over an empty margin. */
+.ad-rail:not([data-ad-state="filled"]) .ad-label{visibility:hidden}
+.ad-slot{line-height:0}
+.ad-slot .adsbygoogle{width:var(--ad-w);height:600px}
+@media print{.ad-rail{display:none!important}}
 </style>
 <link rel="stylesheet" href="/shared/site-chrome.css">
 </head>
@@ -181,6 +230,22 @@ summary:hover{color:var(--rose-deep)}
 </div></header>
 
 <main>
+
+<!-- The frame: the heading and the questions, with an ad rail in each margin.
+     The rails are hidden and empty here; /shared/site-ads.js fills them only
+     once ads are switched on, and the CSS above shows them only on screens
+     wide enough to hold them beside the column. The frame ends before the
+     "Still stuck?" band, so the rails stop above that full-width band and the
+     footer instead of crossing them. Never rename this wrapper to anything
+     starting "ad-": ad blockers hide those, page and all. -->
+<div class="help-frame">
+
+<aside class="ad-rail ad-rail--left" data-ad-rail="left" aria-label="Advertisements" hidden>
+  <div class="ad-rail-in">
+    <p class="ad-label"><b>Advertisements</b></p>
+    <div class="ad-slot"></div>
+  </div>
+</aside>
 
 <section id="faq" class="page-head"><div class="wrap">
   <div class="head-grid">
@@ -344,6 +409,15 @@ summary:hover{color:var(--rose-deep)}
   </div>
 </div></section>
 
+<aside class="ad-rail ad-rail--right" data-ad-rail="right" aria-label="Advertisements" hidden>
+  <div class="ad-rail-in">
+    <p class="ad-label"><b>Advertisements</b></p>
+    <div class="ad-slot"></div>
+  </div>
+</aside>
+
+</div>
+
 <!-- Closing band: the same promise the home page makes, then the app. -->
 <section id="still-stuck" class="band"><div class="wrap stuck">
   <article class="cm-letter">
@@ -410,5 +484,8 @@ summary:hover{color:var(--rose-deep)}
 </div></footer>
 
 <script type="module" src="/shared/site-chrome.js"></script>
+<!-- The side-margin ads: OFF until Google approves the site. The switch is the
+     M3XI_ADS object at the top of that file; docs/ADS_SWITCH_ON.md is the checklist. -->
+<script type="module" src="/shared/site-ads.js"></script>
 </body>
 </html>
