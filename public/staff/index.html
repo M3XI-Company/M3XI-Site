@@ -123,6 +123,38 @@ a.btn{display:inline-block;color:var(--ink);text-decoration:none}
 .dueleft.l1{color:#8a6420}.dueleft.l2{color:var(--callme2)}.dueleft.l3{color:var(--deep)}
 .card.late{border-left:5px solid var(--deep);background:#FFF5F0}
 nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--deep)}
+/* Reports (0138): a card someone new to the team can read in five seconds.
+   The headline says who reported what and why; the parts under it follow the
+   job in order: what was reported, their history, decide. The deadline chip
+   turns amber under 6 hours, red under 2, and solid red once the 24 hours are
+   up. Pictures are small tiles that open full size; on reports about children
+   or sexual content they stay held back until someone asks to see one. A card
+   opened from an email link flashes an outline so the eye finds it. */
+.howto{border-left:5px solid var(--blue)}
+.howto ol{margin:6px 0 8px;padding-left:22px}
+.howto li{margin:3px 0}
+.rcard{scroll-margin-top:90px}
+@media (max-width:600px){.rcard{scroll-margin-top:130px}}   /* the sticky header wraps to two lines on a phone */
+.rcard h3.headline{font-size:20px;line-height:1.3;margin-bottom:8px}
+.rsec{border-top:1px dashed rgba(25,21,15,.22);margin-top:12px;padding-top:10px}
+.rlabel{font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);margin-bottom:4px}
+.pill.due{font-weight:600;color:var(--ink)}
+.pill.due.l1{background:#FBEFD5;border-color:var(--gold);color:#8a6420}
+.pill.due.l2{background:#FBE3DE;border-color:var(--deep);color:var(--deep)}
+.pill.due.l3{background:var(--deep);border-color:var(--deep);color:#fff}
+.history.warn{color:var(--deep);font-weight:600}
+.thumbs{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+.thumb{width:104px;flex:none}
+.thumb .ph{width:104px;height:138px;border:1px solid var(--line);border-radius:8px;background:#fff;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:6px;text-align:center;font-size:12px;color:var(--ink2)}
+.thumb .ph.held{background:repeating-linear-gradient(135deg,#FFFDF8 0 6px,rgba(43,66,87,.08) 6px 12px)}
+.thumb .ph.pic{padding:0}
+.thumb .ph img{width:104px;height:138px;object-fit:cover;display:block;cursor:zoom-in}
+.thumb .ph img.blurred{filter:blur(14px) grayscale(.5);cursor:pointer}
+.thumb .ph .btn{padding:5px 8px;font-size:12.5px}
+.thumb .cap{font-size:11.5px;color:var(--ink2);margin-top:3px;line-height:1.3;word-break:break-word}
+.veil img.bigpic{max-width:94vw;max-height:88vh;border-radius:10px;border:2px solid #2A2320;background:#fff;display:block}
+.card.flash{animation:flash 5s ease-out}
+@keyframes flash{0%,60%{outline:3px solid var(--callme);outline-offset:4px}100%{outline:3px solid transparent;outline-offset:4px}}
 @media print{
   @page{margin:16mm}
   body{background:#fff!important;background-image:none!important}
@@ -464,13 +496,16 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
     ['note', 'Notes after calls'],
     ['poster', 'Posters'],
     ['design', 'Card designs'],
+    ['instance', 'Snapshots'],
     ['person', 'People, from their poster'],
     ['idea', 'Ideas on the board'],
   ];
+  /* 'instance' is a snapshot on the friends map: _staff_reports_all calls it
+     that, while the Due list and the email call it 'snapshot'. */
   var SOURCE_LABEL = {
     call: 'Person on a call', group_call: 'Group call — nobody named', table: 'Table',
     chat: 'Chat message', note: 'Note after a call', poster: 'Poster', design: 'Card design',
-    person: 'Person (reported from their poster)', idea: 'Idea on the board',
+    person: 'Person (reported from their poster)', idea: 'Idea on the board', instance: 'Snapshot',
   };
   var KIND_LABEL = {
     underage: 'Sounds underage', sexual_exposure: 'Sexual content or exposure', threats: 'Threats or danger',
@@ -482,7 +517,238 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
     return (people || []).map(function (p) { return (p.name || '(no name)') + (p.status && p.status !== 'joined' ? ' (' + p.status + ')' : ''); }).join(', ');
   }
 
-  async function viewReports(root) {
+  /* ── Reports in plain English (0138) ── */
+  /* Michael's verdict on the old card and email: "a person (from their poster)
+     · hate" and a raw id told nobody what had happened. So every report now
+     leads with one sentence, and it is the same sentence the safety email
+     (report-alert) opens with, so the email and the card read alike. The two
+     sides keep these words in step by hand: change one, change the other. */
+  var REASON_WORDS = {
+    underage: 'being under 18', sexual_exposure: 'sexual content', threats: 'threats', harassment: 'harassment',
+    hate: 'hate speech', scam: 'a scam', spam: 'spam', impersonation: 'impersonation', other: 'something else',
+  };
+  function reportReason(kind) { return REASON_WORDS[kind || 'other'] || String(kind).replace(/_/g, ' '); }
+  function reportHeadline(r) {
+    var cx = r.context || {};
+    var by = r.reporter_name || 'Someone', them = r.reported_name || 'someone', why = ' for ' + reportReason(r.kind);
+    switch (r.source) {
+      case 'person': case 'poster': return by + ' reported ' + them + "'s poster" + why;
+      case 'call': return by + ' reported ' + them + ' on a call' + why;
+      case 'group_call': return by + ' flagged a side of a group call' + why;
+      case 'table': return by + ' reported the table “' + (cx.topic || r.excerpt || 'untitled') + '”' + why;
+      case 'chat': return by + ' reported a chat message from ' + them + why;
+      case 'instance': case 'snapshot': return by + ' reported ' + them + "'s snapshot" + why;
+      case 'design': return by + ' reported the card design “' + (cx.title || 'untitled') + '”' + why;
+      case 'note': return by + ' reported a call note about ' + (cx.about_name || 'someone') + why;
+      case 'idea': return by + ' reported an idea on the suggestions board' + why;
+      case 'words': return 'The words engine caught something (' + reportReason(r.kind) + ')';
+      // A door added after 0138: still a sentence, with its own name in brackets.
+      default: return by + ' reported ' + (r.reported_id ? them : 'something') + ' (' + String(r.source || '?').replace(/_/g, ' ') + ')' + why;
+    }
+  }
+  /* The reporter's own words. For rows in `reports` the server folds them
+     into the detail it writes: 0090 "poster rev 3, item -, hate: <note>",
+     0094 "design <id>, sexual: <note>", 0100 "instance <id>, hate: <note>",
+     0127 'Idea: "<idea>" Reporter: <note>', and 0125 the note, or just the
+     kind when they wrote none. They are read back out here. A detail in any
+     other shape is shown whole: a raw line beats a lost one. */
+  function reporterWords(r, cx) {
+    var x = r.excerpt == null ? '' : String(r.excerpt), m = null, i;
+    switch (r.source) {
+      case 'chat': case 'table': return cx.reporter_note || '';
+      case 'note': return cx.reason || '';
+      case 'group_call': return '';
+      case 'person': return x === r.kind ? '' : x;
+      case 'poster': m = /^poster rev [^,]*, item [^,]*, [a-z_]+(?:: ([\s\S]*))?$/.exec(x); break;
+      case 'design': m = /^design [0-9a-f-]+, [a-z_]+(?:: ([\s\S]*))?$/i.exec(x); break;
+      case 'instance': case 'snapshot': m = /^instance [0-9a-f-]+, [a-z_]+(?:: ([\s\S]*))?$/i.exec(x); break;
+      case 'idea':
+        if (x.indexOf('Idea: "') !== 0) return x;
+        i = x.lastIndexOf('" Reporter: ');
+        return i >= 0 ? x.slice(i + 12) : '';
+      default: return x;   // a call: the detail is their note as they typed it
+    }
+    return m ? (m[1] || '') : x;
+  }
+  /* What the reported member wrote, when the report is about words. */
+  function reportedWords(r, cx) {
+    var x = r.excerpt == null ? '' : String(r.excerpt), i;
+    if (r.source === 'chat') return { label: 'The message', text: x };
+    if (r.source === 'note') return { label: 'The note', text: x };
+    if (r.source === 'instance' || r.source === 'snapshot') return { label: 'Its caption', text: cx.caption || '' };
+    if (r.source === 'idea') {
+      var t = cx.idea || '';
+      if (!t && x.indexOf('Idea: "') === 0) {   // the board has cleared it: the copy taken at the report
+        i = x.lastIndexOf('" Reporter: ');
+        t = i >= 0 ? x.slice(7, i) : x.slice(7).replace(/"$/, '');
+      }
+      return { label: 'The idea', text: t };
+    }
+    return null;
+  }
+  /* The facts a decision needs, in plain words. Ids, sides and the rest of
+     what only an engineer reads stay in "Details for the record". */
+  function plainFacts(r, cx) {
+    var out = [];
+    if (r.source === 'call') {
+      out.push(cx.call_id ? (cx.group_call ? 'On a group call' : 'On a one-to-one call') + ' that started ' + when(cx.call_started_at) + '.'
+        : 'No call is recorded with this report.');
+    } else if (r.source === 'group_call') {
+      out.push((cx.side_flagged ? 'On the flagged side: ' : 'Flagged: everyone else on the call: ') + (names(cx.people) || 'nobody is left on it') + '.');
+    } else if (r.source === 'table') {
+      out.push('Hosted by ' + (cx.host_name || 'someone') + '.' + (cx.people && cx.people.length ? ' At the table: ' + names(cx.people) + '.' : ''));
+      if (cx.from_list) out.push('Reported from the Tables list: the reporter never sat at it.');
+    } else if (r.source === 'chat') {
+      out.push('In a ' + (cx.thread_kind === 'dm' ? 'direct chat' : 'group chat') + (cx.thread_title ? ' “' + cx.thread_title + '”' : '') + '.'
+        + (cx.message_gone ? ' The message has since been deleted; the words above are the copy taken when it was reported.' : ''));
+    } else if (r.source === 'note') {
+      out.push('Left after a call, about ' + (cx.about_name || 'someone') + (cx.rating ? ', with ' + cx.rating + '/5' : '') + '.'
+        + (cx.flags_on_note >= 3 ? ' Three people have flagged it, so it is hidden.' : '')
+        + (cx.hidden_by_subject ? ' The person it is about has hidden it.' : ''));
+    } else if (r.source === 'poster') {
+      if (cx.poster_kind && cx.poster_kind !== r.kind) out.push('The reason the reporter picked: ' + String(cx.poster_kind).replace(/_/g, ' ') + '.');
+    } else if (r.source === 'design') {
+      out.push((r.reported_id ? 'The design is ' : 'A house design (it has no creator). It is ') + (cx.state || 'in an unknown state') + '.');
+    } else if (r.source === 'instance') {
+      out.push('Posted ' + when(cx.posted_at) + '.' + (cx.instance_deleted_at ? ' They have deleted it since.' : '')
+        + (cx.instance_hidden ? ' Hidden: ' + cx.instance_hidden + '.' : '')
+        + (cx.reporters > 1 ? ' ' + cx.reporters + ' people have reported it.' : ''));
+    } else if (r.source === 'person') {
+      out.push('Reported from their poster, so there is no call or message to show.');
+    } else if (r.source === 'idea' && cx.idea_gone) {
+      out.push('The board has cleared it since; the words above are the copy taken when it was reported.');
+    }
+    return out;
+  }
+  /* One line per door: what to look for, and where to act. */
+  var DECIDE_HINT = {
+    call: 'Weigh what the reporter says happened on the call against their history. If they broke the rules, sanction them in People, then record what you did.',
+    person: 'Look at their pictures and what the reporter wrote. If they broke the rules, sanction them in People, then record what you did.',
+    poster: 'Look at the poster’s pictures and words. If it breaks the rules, write why in the note and take the poster down; sanction them in People too if it is serious or keeps happening. Then record what you did.',
+    group_call: 'Nobody is named: a group-call flag names a side and never counts against anyone. Act only if one person on that side clearly broke the rules, then record what you did.',
+    table: 'Judge the table’s topic and its host. A sexual, hateful or dangerous table breaks the rules: sanction the host in People, then record what you did.',
+    chat: 'Read the message. If it breaks the rules, sanction the sender in People, then record what you did.',
+    instance: 'Look at the snapshot and its caption. If it breaks the rules, sanction them in People (a picture the image check flagged can also be banned under Safety → Flagged pictures), then record what you did.',
+    design: 'Look at the art under Designs: the window where a face goes matters. If it breaks the rules, remove it there, then record what you did.',
+    note: 'Read the note. Three flags already hide one. If it is abusive, sanction the author in People, then record what you did.',
+    idea: 'Read the idea. If it is abusive, sexual or spam, sanction the author in People, then record what you did.',
+  };
+  /* "Decide within 21 h · by Sun 14:26": 24 hours from the report (Terms
+     13.4). Amber under 6 hours, red under 2, solid red once they are up. */
+  var DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  function clockText(t) {
+    var d = new Date(t);
+    return DAY_NAMES[d.getDay()] + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+  function spanText(ms) {   // whole hours from an hour up (rounded down), minutes under that
+    var m = Math.max(1, Math.floor(ms / 60000)), h = Math.floor(m / 60);
+    return m < 60 ? m + ' min' : h < 48 ? h + ' h' : Math.floor(h / 24) + ' days';
+  }
+  function agoText(ts) {
+    var ms = Date.now() - new Date(ts).getTime();
+    return isNaN(ms) ? 'at an unknown time' : ms < 60000 ? 'just now' : spanText(ms) + ' ago';
+  }
+  function paintDeadline(chip, r) {
+    var due = dueAt(r), ms = due - Date.now();
+    chip.textContent = ms > 0 ? 'Decide within ' + spanText(ms) + ' · by ' + clockText(due) : 'Overdue by ' + spanText(-ms);
+    chip.className = 'pill due' + (ms <= 0 ? ' l3' : ms < 2 * 3600000 ? ' l2' : ms < 6 * 3600000 ? ' l1' : '');
+    return ms;
+  }
+
+  /* ── Reports: the evidence pictures (0138) ── */
+  /* staff_report_media (migration 0138, CallMe repo) answers, for each report,
+     up to four pictures, the same ones the safety email shows, as {kind,
+     bucket, path, url, caption}, and how many OTHER reports named the same
+     member in the last 90 days. A bucket and path are signed here like every
+     other private picture on this page; a url is used as it comes (https
+     only). Until 0138 is applied the call fails and the cards simply show no
+     pictures, so it is asked once and then left alone until a reload. */
+  var MEDIA_LABEL = { photo: 'Profile photo', poster: 'Poster', snapshot: 'Snapshot', design: 'Card design', message: 'Picture in the message' };
+  /* Pictures on these kinds are never put in the email (sending them on could
+     itself be passing on illegal material), and here they start held back:
+     nobody should meet the worst of them by scrolling. */
+  var HELD_KINDS = { underage: true, sexual_exposure: true };
+  /* Review fix: only the kinds known to be safe to show start open. A kind
+     this page has never heard of (a new door, a typo) starts held back too:
+     one extra click is cheap, meeting the worst unawares is not. And 0138
+     marks a picture `held` when our own checks did not pass it (image_checks
+     flagged or blocked, a refused snapshot, poster piece or design, or the
+     evidence copy): such a picture starts held whatever the report's kind. */
+  var SHOWN_KINDS = { threats: true, harassment: true, hate: true, scam: true, spam: true, impersonation: true, other: true };
+  function kindHeld(kind) { return !!HELD_KINDS[kind] || !SHOWN_KINDS[kind]; }
+  var reportMediaMissing = false;
+  async function reportMedia(refs) {
+    if (reportMediaMissing || !refs.length) return null;
+    var res;
+    try { res = await sb.rpc('staff_report_media', { p_refs: refs.slice(0, 100) }); } catch (e) { return null; }
+    if (!res || res.error) { if (res && missingFn(res.error)) reportMediaMissing = true; return null; }
+    var by = {};
+    (Array.isArray(res.data) ? res.data : []).forEach(function (x) { if (x && x.ref) by[x.ref] = x; });
+    return by;
+  }
+  async function evidenceUrl(m, secs) {
+    if (m.bucket && m.path) return signedFrom(m.bucket, m.path, secs);
+    return typeof m.url === 'string' && /^https:\/\//i.test(m.url) ? m.url : null;
+  }
+  /* Full size over a veil; a click anywhere or Escape closes it. */
+  function bigPicture(u, alt) {
+    var veil = null;
+    function close() { document.removeEventListener('keydown', onKey, true); if (veil) veil.remove(); }
+    function onKey(e) { if (e.key === 'Escape') { e.preventDefault(); close(); } }
+    veil = el('div', { class: 'veil', role: 'dialog', 'aria-modal': 'true', 'aria-label': alt, title: 'Click to close', onclick: close }, [
+      el('img', { class: 'bigpic', src: u, alt: alt, referrerpolicy: 'no-referrer' }),
+    ]);
+    document.body.appendChild(veil);
+    document.addEventListener('keydown', onKey, true);
+  }
+  var CANT_OPEN = 'Could not open the picture. It may have been removed already, or staff cannot read that bucket yet.';
+  /* One picture as a small tile. io (an IntersectionObserver) signs a tile
+     only as it nears the screen, so a long list does not ask for hundreds of
+     links at once. A held tile asks for nothing until "Show picture", then
+     shows it blurred (a click unblurs it, the next opens it full size), with
+     a link that lasts a minute, as the Safety tab does. */
+  function mediaTile(m, held, io) {
+    var label = m.caption || MEDIA_LABEL[m.kind] || 'Picture';
+    var ph = el('div', { class: 'ph' + (held ? ' held' : '') });
+    var cap = el('div', { class: 'cap', text: label });
+    var tile = el('div', { class: 'thumb' }, [ph, cap]);
+    var secs = held ? 60 : 600;
+    function failed() { ph.className = 'ph'; ph.textContent = 'Could not open this picture'; }
+    function put(u, blurred) {
+      var img = el('img', { src: u, alt: label, referrerpolicy: 'no-referrer', title: blurred ? 'Click to see it clearly' : 'Click for full size' });
+      if (blurred) img.className = 'blurred';
+      img.addEventListener('error', failed);
+      img.addEventListener('click', async function () {
+        if (img.classList.contains('blurred')) {
+          img.classList.remove('blurred'); img.title = 'Click for full size'; cap.textContent = label + ' · click again for full size';
+          return;
+        }
+        var big = await evidenceUrl(m, secs);   // signed again: the tile's own link may have run out
+        if (big) bigPicture(big, label); else toast(CANT_OPEN);
+      });
+      ph.textContent = ''; ph.className = 'ph pic'; ph.appendChild(img);
+    }
+    if (held) {
+      var btn = el('button', { class: 'btn', type: 'button', text: 'Show picture' });
+      btn.addEventListener('click', async function () {
+        btn.disabled = true; btn.textContent = 'Opening…';
+        var u = await evidenceUrl(m, secs);
+        if (u) return put(u, true);
+        btn.disabled = false; btn.textContent = 'Show picture'; toast(CANT_OPEN);
+      });
+      ph.appendChild(el('span', { text: 'Picture held back' }));
+      ph.appendChild(btn);
+    } else {
+      ph.textContent = 'Loading…';
+      var go = async function () { var u = await evidenceUrl(m, secs); if (u) put(u, false); else failed(); };
+      if (io) { tile._sign = go; io.observe(tile); } else go();
+    }
+    return tile;
+  }
+
+  /* opts.ref: one report to find, from its own link (#reports/<ref>, the one
+     in the safety email) or from a card on the Due list. */
+  async function viewReports(root, opts) {
     var status = el('select', {}, [
       el('option', { value: 'open', text: 'Waiting for a person' }),
       el('option', { value: 'resolved', text: 'Resolved' }),
@@ -491,26 +757,85 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
     var source = el('select', {}, REPORT_SOURCES.map(function (s) { return el('option', { value: s[0], text: s[1] }); }));
     var summary = el('p', { class: 'muted' });
     var list = el('div');
+    var focusRef = opts && opts.ref ? String(opts.ref) : null;
+    // Notes being written, by report: taking a poster down reloads the list,
+    // and the note that says why should still be there to record.
+    var drafts = {};
+    var seq = 0, io = null, deadlines = [];
     root.appendChild(el('div', { class: 'row spread' }, [el('h2', { text: 'Reports' }), el('div', { class: 'row' }, [source, status])]));
-    root.appendChild(el('p', { class: 'muted', text: 'Everything members report or flag: people on calls, group calls, tables, chat messages, notes, posters and card designs. Severe ones come first. Dismiss when nothing was wrong — a dismissed report stops counting toward the automatic ladder. Mark it dealt with when it was right, and say what you did; it keeps counting. Neither changes the account: apply a sanction from People, take a design down from Designs.' }));
+    root.appendChild(el('div', { class: 'card howto' }, [
+      el('h3', { text: 'How to decide' }),
+      el('ol', {}, [
+        el('li', { text: 'Look at what was reported: the words, the pictures and what the reporter wrote. Their history helps.' }),
+        el('li', { text: 'If it breaks the rules, act: take a poster down from its card, remove a design under Designs, or sanction the person in People. Then press “Breaks the rules — record what I did” and say what you did. The report keeps counting toward the automatic ladder.' }),
+        el('li', { text: 'If nothing is wrong, press “Nothing wrong — dismiss”. A dismissed report stops counting toward the ladder. Closing a report never changes an account by itself.' }),
+      ]),
+      el('div', { class: 'muted', text: 'The 24-hour rule: a person decides every report within 24 hours of it being made (Terms 13.4, Apple guideline 1.2). Each open card shows the time left. Severe ones come first.' }),
+    ]));
     root.appendChild(summary);
     root.appendChild(list);
 
     async function load() {
+      var mine = ++seq;   // a newer load (a filter changed meanwhile) wins
       list.textContent = 'Loading…';
       summary.textContent = '';
+      if (io) io.disconnect();
+      deadlines = [];
       var rows = await rpc('staff_reports_list', { p_status: status.value, p_limit: 500 });
+      if (mine !== seq) return;
+      // A link names one report. Once it is no longer waiting, look among all of them.
+      if (focusRef && status.value !== 'all' && !rows.some(function (r) { return r.id === focusRef; })) {
+        status.value = 'all'; source.value = '';
+        return load();
+      }
       var counts = {};
       rows.forEach(function (r) { counts[r.source] = (counts[r.source] || 0) + 1; });
       var parts = REPORT_SOURCES.filter(function (s) { return s[0] && counts[s[0]]; })
         .map(function (s) { return s[1].toLowerCase() + ' ' + counts[s[0]]; });
       summary.textContent = rows.length + (status.value === 'open' ? ' waiting' : status.value === 'resolved' ? ' resolved' : ' in all')
         + (parts.length ? ' — ' + parts.join(', ') : '') + (rows.length >= 500 ? ' (showing the first 500)' : '');
+      // Loaded, though perhaps hidden by the kind filter picked meanwhile: that is not "not among the newest 500".
+      var focusLoaded = !!focusRef && rows.some(function (r) { return r.id === focusRef; });
       if (source.value) rows = rows.filter(function (r) { return r.source === source.value; });
       list.textContent = '';
       if (!rows.length) list.appendChild(el('p', { class: 'muted', text: status.value === 'open' ? 'Nothing waiting. 🌷' : 'Nothing here.' }));
-      rows.forEach(function (r) { list.appendChild(reportCard(r)); });
+      io = 'IntersectionObserver' in window ? new IntersectionObserver(function (seen) {
+        seen.forEach(function (e) { if (e.isIntersecting) { io.unobserve(e.target); if (e.target._sign) e.target._sign(); } });
+      }, { rootMargin: '800px 0px' }) : null;
+      var cards = {};
+      rows.forEach(function (r) { var c = reportCard(r); cards[r.id] = c; list.appendChild(c.box); });
+
+      // One call for the pictures and history of every card on screen: the
+      // server takes 100 at most, so the linked one goes first.
+      var refs = rows.map(function (r) { return r.id; });
+      if (focusRef && cards[focusRef]) refs = [focusRef].concat(refs.filter(function (x) { return x !== focusRef; }));
+      var media = await reportMedia(refs.slice(0, 100));
+      if (mine !== seq) return;
+      if (media) refs.slice(0, 100).forEach(function (ref) { if (media[ref]) cards[ref].fill(media[ref]); });
+
+      // Found last, after the pictures have taken their room, so the scroll lands true.
+      if (focusRef) {
+        var want = focusRef;
+        focusRef = null;
+        if (cards[want]) flashCard(cards[want].box);
+        else if (!focusLoaded) toast('That report is not among the newest 500, so it cannot be shown here (' + want + ').');
+      }
     }
+
+    function flashCard(box) {
+      if (!box.isConnected) return;
+      box.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      box.classList.remove('flash');
+      void box.offsetWidth;   // restart the outline's fade if it is already running
+      box.classList.add('flash');
+      setTimeout(function () { box.classList.remove('flash'); }, 5200);
+    }
+
+    // The deadlines move while the page is open; the list itself reloads on a filter change.
+    var tick = setInterval(function () {
+      if (!list.isConnected) return clearInterval(tick);
+      deadlines.forEach(function (paint) { paint(); });
+    }, 60000);
 
     function aboutLine(r, cx) {
       if (r.source === 'group_call') {
@@ -552,56 +877,112 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
           + (cx.live_rev != null ? ' · the live revision is ' + cx.live_rev : ''));
       } else if (r.source === 'design') {
         out.push('“' + (cx.title || '(untitled)') + '” · ' + (cx.state || '?') + ' · reason: ' + (cx.reason || '?') + ' · design ' + cx.design_id);
+      } else if (r.source === 'instance') {
+        out.push('Snapshot ' + (cx.instance_id || '?') + ' · ' + (cx.instance_status || '?') + (cx.instance_row_gone ? ' · the row is gone' : '')
+          + (cx.photo_gone ? ' · the photo is gone' : '') + (cx.removed_reason ? ' · removed: ' + cx.removed_reason : '')
+          + (cx.hold_until ? ' · evidence kept until ' + when(cx.hold_until) : ''));
+      } else if (r.source === 'idea') {
+        out.push('Idea ' + (cx.suggestion_id || '?') + (cx.idea_gone ? ' · cleared from the board' : ''));
       }
       return out;
     }
 
+    /* Everything an engineer or an appeal might need, under "Details for the record". */
+    function recordLines(r, cx) {
+      var out = ['Report ' + r.id + ' · made ' + when(r.created_at), 'Reported by ' + who(r.reporter_name, r.reporter_id), aboutLine(r, cx)];
+      out = out.concat(contextLines(r, cx));
+      if (r.excerpt) out.push('As the report stored it: ' + r.excerpt);
+      return out;
+    }
+
+    /* One report, in the order of the job: the headline and where it stands,
+       what was reported, their history, then the decision. The ids and the
+       raw record wait, folded, at the bottom. Answers { box, fill }: fill(x)
+       adds the pictures and the 90-day count once staff_report_media
+       answers (it may never, before 0138: the card is whole without it). */
     function reportCard(r) {
       var cx = r.context || {};
       var open = r.status === 'open';
-      var box = el('div', { class: 'card' + (open && r.severe ? ' urgent' : '') });
-      box.appendChild(el('div', { class: 'row spread' }, [
-        el('h3', { text: (SOURCE_LABEL[r.source] || r.source) + ' · ' + (KIND_LABEL[r.kind] || r.kind) }),
-        el('div', { class: 'row' }, [
-          r.severe ? el('span', { class: 'pill sev', text: 'severe' }) : null,
-          el('span', { class: 'pill' + (open ? '' : ' shadow'), text: STATUS_LABEL[r.status] || r.status }),
-          cx.reported_paused ? el('span', { class: 'pill ser', text: 'account paused' }) : null,
-          r.source === 'poster' && cx.poster_hidden ? el('span', { class: 'pill ser', text: 'poster hidden: ' + cx.poster_hidden }) : null,
-          r.source === 'design' && cx.paused_by ? el('span', { class: 'pill ser', text: 'design paused: ' + cx.paused_by }) : null,
-          r.source === 'note' && cx.flags_on_note >= 3 ? el('span', { class: 'pill ser', text: 'note hidden' }) : null,
-        ]),
+      var held = kindHeld(r.kind);
+      var box = el('div', { class: 'card rcard' + (open && r.severe ? ' urgent' : ''), 'data-ref': r.id });
+
+      // ── The headline, and where it stands.
+      box.appendChild(el('h3', { class: 'headline', text: reportHeadline(r) }));
+      var deadline = open ? el('span', { class: 'pill due' }) : null;
+      box.appendChild(el('div', { class: 'row' }, [
+        r.severe ? el('span', { class: 'pill sev', text: 'Severe' }) : null,
+        el('span', { class: 'pill' + (open ? '' : ' shadow'), text: open ? 'Open' : 'Resolved · ' + (STATUS_LABEL[r.status] || r.status) }),
+        deadline,
+        cx.reported_paused ? el('span', { class: 'pill ser', text: 'account paused' }) : null,
+        r.source === 'poster' && cx.poster_hidden ? el('span', { class: 'pill ser', text: 'poster hidden: ' + cx.poster_hidden }) : null,
+        r.source === 'design' && cx.paused_by ? el('span', { class: 'pill ser', text: 'design paused: ' + cx.paused_by }) : null,
+        r.source === 'note' && cx.flags_on_note >= 3 ? el('span', { class: 'pill ser', text: 'note hidden' }) : null,
+        el('span', { class: 'muted', title: when(r.created_at), text: 'Reported ' + agoText(r.created_at) + ' · ' + (SOURCE_LABEL[r.source] || r.source) }),
       ]));
-      box.appendChild(el('div', { class: 'muted', text: when(r.created_at) + ' · ' + r.id }));
-      box.appendChild(el('div', { text: 'Reported by ' + who(r.reporter_name, r.reporter_id) }));
-      box.appendChild(el('div', { text: aboutLine(r, cx) }));
-      // A table's excerpt is its topic, already named in the line above.
-      if (r.excerpt && r.source !== 'table') box.appendChild(el('div', { class: 'quote', text: r.excerpt }));
-      if ((r.source === 'chat' || r.source === 'table' || r.source === 'idea') && cx.reporter_note) box.appendChild(el('div', { class: 'muted', text: 'The reporter added: ' + cx.reporter_note }));
-      contextLines(r, cx).forEach(function (l) { box.appendChild(el('div', { class: 'muted', text: l })); });
-
-      var decisions = cx.decisions || [];
-      if (decisions.length) {
-        box.appendChild(el('div', { class: 'muted', style: 'margin-top:6px', text: 'Safety decisions that name this report:' }));
-        decisions.forEach(function (d) {
-          box.appendChild(el('div', { class: 'muted', text: '· ' + d.rule + ' — ' + d.action + ' · ' + d.priority + ' · ' + when(d.at)
-            + (d.reviewed ? ' · reviewed' + (d.outcome ? ': ' + d.outcome : '') : ' · not reviewed')
-            + (d.action !== 'none' && !d.reviewed ? ' (this one put something on the account; closing the report does not lift it)' : '') }));
-        });
+      if (deadline) {
+        // A late card turns red as a whole, as on the Due list.
+        var paint = function () {
+          var ms = paintDeadline(deadline, r);
+          box.classList.toggle('late', ms <= 0);
+          box.classList.toggle('urgent', ms > 0 && !!r.severe);
+        };
+        paint();
+        deadlines.push(paint);
       }
-      box.appendChild(el('details', {}, [el('summary', { class: 'muted', text: 'Everything we hold on it' }), el('pre', { text: JSON.stringify(r, null, 2) })]));
 
-      // Where to act on it.
-      var links = el('div', { class: 'row', style: 'margin-top:8px' });
-      if (r.reported_id) links.appendChild(el('button', { class: 'btn', text: 'Look up ' + (r.reported_name || 'them') + ' in People', onclick: function () { show('people', { query: r.reported_id }); } }));
-      if (r.source === 'table' && cx.host_id) links.appendChild(el('button', { class: 'btn', text: 'Look up the host in People', onclick: function () { show('people', { query: cx.host_id }); } }));
-      if (r.reporter_id) links.appendChild(el('button', { class: 'btn', text: 'Look up the reporter', onclick: function () { show('people', { query: r.reporter_id }); } }));
-      if (r.source === 'design') links.appendChild(el('button', { class: 'btn', text: 'Open Designs', onclick: function () { show('designs'); } }));
-      box.appendChild(links);
+      // ── What was reported: their words (marked), the reporter's, the facts, the pictures.
+      var what = el('div', { class: 'rsec' }, [el('div', { class: 'rlabel', text: 'What was reported' })]);
+      var said = reportedWords(r, cx);
+      if (said && said.text) {
+        what.appendChild(el('div', { class: 'muted', text: said.label + ':' }));
+        what.appendChild(el('div', { class: 'quote flagged', text: '“' + said.text + '”' }));
+      }
+      var theirOwn = reporterWords(r, cx);
+      if (theirOwn) {
+        what.appendChild(el('div', { class: 'muted', text: (r.reporter_name || 'The reporter') + ' wrote:' }));
+        what.appendChild(el('div', { class: 'quote', text: theirOwn }));
+      } else if (r.source !== 'group_call') {   // a group-call flag has no box for words
+        what.appendChild(el('div', { class: 'muted', text: (r.reporter_name || 'The reporter') + ' added nothing in their own words.' }));
+      }
+      plainFacts(r, cx).forEach(function (l) { what.appendChild(el('div', { class: 'muted', text: l })); });
+      var pics = el('div');
+      what.appendChild(pics);
+      box.appendChild(what);
 
-      var note = el('input', { type: 'text', maxlength: '1000', placeholder: open ? 'Your note for the record — say what you did if you dealt with it' : 'Why you are reopening it (optional)', style: 'flex:1;min-width:240px' });
+      // ── Their history.
+      var hist = el('div', { class: 'rsec' }, [el('div', { class: 'rlabel', text: 'Their history' })]);
+      var histLine = el('div', { class: 'history', hidden: true });
+      if (!r.reported_id) {
+        hist.appendChild(el('div', { class: 'muted', text: r.source === 'table' ? 'A table report names the table, not a person. The host was ' + (cx.host_name || 'someone') + '.'
+          : r.source === 'group_call' ? 'A group-call flag names nobody.'
+          : r.source === 'design' ? 'A house design: there is no creator to look up.'
+          : 'Nobody is named in this report.' }));
+      }
+      hist.appendChild(histLine);
+      var histBtns = el('div', { class: 'row', style: 'margin-top:6px' });
+      if (r.reported_id) histBtns.appendChild(el('button', { class: 'btn', text: 'Look up ' + (r.reported_name || 'them') + ' in People', onclick: function () { show('people', { query: r.reported_id }); } }));
+      if (r.reporter_id) histBtns.appendChild(el('button', { class: 'btn', text: 'Look up the reporter', onclick: function () { show('people', { query: r.reporter_id }); } }));
+      hist.appendChild(histBtns);
+      box.appendChild(hist);
 
+      // ── Decide: what to look for, where to act, then the record.
+      var dec = el('div', { class: 'rsec' }, [el('div', { class: 'rlabel', text: 'Decide' })]);
+      if (open) dec.appendChild(el('div', { text: DECIDE_HINT[r.source] || 'Look at what was reported. If it broke the rules, act on it where it lives and record what you did; if not, dismiss it.' }));
+      // An automatic decision that already did something stays visible: closing the report does not undo it.
+      var applied = (cx.decisions || []).filter(function (d) { return d.action !== 'none' && !d.reviewed; });
+      if (applied.length) {
+        dec.appendChild(el('div', { class: 'warnline', style: 'font-size:13px;margin-top:4px', text: 'An automatic safety decision has already put something on their account ('
+          + applied.map(function (d) { return d.action; }).join(', ') + '). Closing this report does not lift it. See Details for the record.' }));
+      }
+      var note = el('textarea', { maxlength: '1000', rows: '2', style: 'min-height:54px;margin-top:8px',
+        placeholder: open ? 'Your note for the record: what you looked at, and what you did'
+          : r.source === 'poster' ? 'Your note: why you are reopening it, or taking the poster down' : 'Why you are reopening it (optional)' });
+      note.value = drafts[r.id] || '';
+      note.addEventListener('input', function () { drafts[r.id] = note.value; });
+
+      var acts = el('div', { class: 'row', style: 'margin-top:8px' });
       if (r.source === 'poster' && cx.owner_id) {
-        var posterBtn = cx.poster_hidden
+        acts.appendChild(cx.poster_hidden
           ? el('button', { class: 'btn good', text: 'Put the poster back up', onclick: async function () {
               if (!confirm('Put ' + (r.reported_name || 'their') + '’s poster back up for everyone who could see it?')) return;
               await rpc('staff_poster_takedown', { p_user: cx.owner_id, p_reason: note.value.trim() || 'reports reviewed, nothing wrong', p_restore: true });
@@ -611,17 +992,20 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
               if (note.value.trim().length < 5) return toast('Write why in the note (5+ characters) before taking it down.');
               if (!confirm('Take ' + (r.reported_name || 'their') + '’s poster down? Everyone sees the plain poster until it is put back up.')) return;
               await rpc('staff_poster_takedown', { p_user: cx.owner_id, p_reason: note.value.trim(), p_restore: false });
-              toast('The poster is down.'); load();
-            } });
-        links.appendChild(posterBtn);
+              toast('The poster is down. Now record what you did.'); load();
+            } }));
       }
+      if (r.reported_id) acts.appendChild(el('button', { class: 'btn', text: 'Sanction ' + (r.reported_name || 'them') + ' in People', onclick: function () { show('people', { query: r.reported_id }); } }));
+      if (r.source === 'table' && cx.host_id) acts.appendChild(el('button', { class: 'btn', text: 'Look up the host in People', onclick: function () { show('people', { query: cx.host_id }); } }));
+      if (r.source === 'design') acts.appendChild(el('button', { class: 'btn', text: 'Open Designs', onclick: function () { show('designs'); } }));
+      if (acts.childNodes.length) dec.appendChild(acts);
 
       async function resolve(action) {
         var n = note.value.trim();
-        if (action === 'actioned' && n.length < 5) return toast('Say what was done (5+ characters) in the note.');
+        if (action === 'actioned' && n.length < 5) return toast('Write what you did (5+ characters) in the note first.');
         var ask = action === 'dismiss'
-          ? 'Dismiss this report as nothing wrong?' + (r.id.indexOf('report:') === 0 ? ' It stops counting toward the automatic ladder.' : '')
-          : action === 'actioned' ? 'Mark this report as dealt with?' : 'Reopen this report?';
+          ? 'Dismiss this report: nothing wrong?' + (r.id.indexOf('report:') === 0 ? ' It stops counting toward the automatic ladder.' : '')
+          : action === 'actioned' ? 'Record that this report broke the rules, with your note saying what you did?' : 'Reopen this report?';
         if (!confirm(ask)) return;
         var res = await rpc('staff_report_resolve', { p_id: r.id, p_action: action, p_note: n || null });
         if (res && res.ok === false) {
@@ -629,29 +1013,69 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
             : res.reason === 'not_resolved_here' ? 'That one was closed somewhere else, not in this queue, so there is nothing here to undo.'
             : 'Not changed: ' + (res.reason || ''));
         } else {
+          delete drafts[r.id];
           toast(action === 'reopen' ? 'Reopened.'
-            : (action === 'dismiss' ? 'Dismissed.' : 'Recorded as dealt with.')
+            : (action === 'dismiss' ? 'Dismissed.' : 'Recorded: it broke the rules.')
               + (res && res.closed_decisions ? ' The safety decision waiting on it is closed too.' : ''));
         }
         load();
       }
 
+      // A box only where a button reads it: open cards, reopenable ones, and a poster's takedown.
+      // ('reviewed' cards, closed in the app's own queues, have neither.)
+      var canReopen = r.status === 'dismissed' || r.status === 'actioned';
+      if (open || canReopen || (r.source === 'poster' && cx.owner_id)) dec.appendChild(note);
       if (open) {
-        box.appendChild(el('div', { class: 'row', style: 'margin-top:8px' }, [
-          note,
+        dec.appendChild(el('div', { class: 'row', style: 'margin-top:8px' }, [
+          el('button', { class: 'btn primary', text: 'Breaks the rules — record what I did', onclick: function () { resolve('actioned'); } }),
           el('button', { class: 'btn good', text: 'Nothing wrong — dismiss', onclick: function () { resolve('dismiss'); } }),
-          el('button', { class: 'btn primary', text: 'Dealt with — record it', onclick: function () { resolve('actioned'); } }),
         ]));
       } else {
-        box.appendChild(el('div', { class: 'muted', style: 'margin-top:6px', text: (STATUS_LABEL[r.status] || r.status).replace(/^./, function (c) { return c.toUpperCase(); })
+        dec.appendChild(el('div', { class: 'muted', style: 'margin-top:6px', text: (STATUS_LABEL[r.status] || r.status).replace(/^./, function (c) { return c.toUpperCase(); })
           + (r.resolved_by ? ' by ' + r.resolved_by : '') + (r.resolved_at ? ' · ' + when(r.resolved_at) : '') + (r.resolution_note ? ' — ' + r.resolution_note : '') }));
-        if (r.status === 'dismissed' || r.status === 'actioned') {
-          box.appendChild(el('div', { class: 'row', style: 'margin-top:6px' }, [
+        if (canReopen) {
+          dec.appendChild(el('div', { class: 'row', style: 'margin-top:6px' }, [
             el('button', { class: 'btn', text: 'Reopen', onclick: function () { resolve('reopen'); } }),
           ]));
         }
       }
-      return box;
+      box.appendChild(dec);
+
+      // ── Details for the record: ids, calls, sides, the decisions that name it, and the raw row.
+      var rec = el('details', { class: 'rsec' }, [el('summary', { class: 'muted', text: 'Details for the record' })]);
+      recordLines(r, cx).forEach(function (l) { rec.appendChild(el('div', { class: 'muted', text: l })); });
+      var decisions = cx.decisions || [];
+      if (decisions.length) {
+        rec.appendChild(el('div', { class: 'muted', style: 'margin-top:6px', text: 'Safety decisions that name this report:' }));
+        decisions.forEach(function (d) {
+          rec.appendChild(el('div', { class: 'muted', text: '· ' + d.rule + ' — ' + d.action + ' · ' + d.priority + ' · ' + when(d.at)
+            + (d.reviewed ? ' · reviewed' + (d.outcome ? ': ' + d.outcome : '') : ' · not reviewed')
+            + (d.action !== 'none' && !d.reviewed ? ' (this one put something on the account; closing the report does not lift it)' : '') }));
+        });
+      }
+      rec.appendChild(el('pre', { text: JSON.stringify(r, null, 2) }));
+      box.appendChild(rec);
+
+      function fill(x) {
+        var media = Array.isArray(x.media) ? x.media.filter(function (m) { return m && typeof m === 'object'; }).slice(0, 4) : [];
+        if (media.length) {
+          var flagged = media.some(function (m) { return m.held === true; });
+          if (held || flagged) pics.appendChild(el('div', { class: 'warnline', style: 'font-size:13px;margin-top:6px', text: (HELD_KINDS[r.kind]
+            ? 'Pictures are held back on reports about a child or sexual content.'
+            : held ? 'Pictures are held back: this report’s reason is not one this page knows.'
+            : 'A picture our own checks did not pass is held back.')
+            + ' Open one only if you need it to decide. Never download, copy or share one.' }));
+          pics.appendChild(el('div', { class: 'thumbs' }, media.map(function (m) { return mediaTile(m, held || m.held === true, io); })));
+        }
+        var n = x.prior_reports == null ? NaN : Number(x.prior_reports);
+        if (r.reported_id && isFinite(n)) {
+          // 0138 counts dismissed reports too: say so, so a run of false reports is not read as guilt.
+          histLine.textContent = n > 0 ? n + ' other report' + (n === 1 ? '' : 's') + ' about them in the last 90 days (dismissed ones included).' : 'No other reports about them in the last 90 days.';
+          histLine.classList.toggle('warn', n >= 2);
+          histLine.hidden = false;
+        }
+      }
+      return { box: box, fill: fill };
     }
 
     status.addEventListener('change', load);
@@ -2104,13 +2528,14 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
     });
     var RUN = { due: safetyDue, flags: safetyFlags, images: safetyImages, reports: viewReports, appeals: viewAppeals, rules: safetyRulesView, try: safetyTry };
     var counted = false;
-    function open(k) {
+    function open(k, more) {
       if (!RUN[k]) k = 'due';
       safetyPart = k;
       Object.keys(btns).forEach(function (b) { btns[b].setAttribute('aria-current', String(b === k)); });
       part.textContent = '';
-      // open goes along so a Due card can send staff on to Reports.
-      RUN[k](part, { open: open }).catch(function () {});
+      // open goes along so a Due card can send staff on to Reports; more
+      // carries the report to find there ({ ref }).
+      RUN[k](part, Object.assign({ open: open }, more || {})).catch(function () {});
       // The numbers when the tab opens, and again on each queue (not on Rules or Try).
       if (!counted || (k !== 'rules' && k !== 'try')) { counted = true; counts(); }
     }
@@ -2237,7 +2662,7 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
       if (cx.reported_paused) p.card.appendChild(el('div', { class: 'muted', text: 'Their account is paused while this waits.' }));
       var acts = el('div', { class: 'row', style: 'margin-top:8px' });
       if (r.reported_id) acts.appendChild(el('button', { class: 'btn', text: 'Look up ' + (r.reported_name || 'them') + ' in People', onclick: function () { show('people', { query: r.reported_id }); } }));
-      if (opts && opts.open) acts.appendChild(el('button', { class: 'btn primary', text: words ? 'Open it in Flagged text' : 'Open it in Reports', onclick: function () { opts.open(words ? 'flags' : 'reports'); } }));
+      if (opts && opts.open) acts.appendChild(el('button', { class: 'btn primary', text: words ? 'Open it in Flagged text' : 'Open it in Reports', onclick: function () { opts.open(words ? 'flags' : 'reports', words || !ref ? null : { ref: ref }); } }));
       if (r.source === 'design') acts.appendChild(el('button', { class: 'btn', text: 'Open Designs', onclick: function () { show('designs'); } }));
       p.card.appendChild(acts);
       p.card.appendChild(el('details', {}, [el('summary', { class: 'muted', text: 'Everything we hold on it' }), el('pre', { text: JSON.stringify(r, null, 2) })]));
@@ -2950,26 +3375,49 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
 
   var VIEWS = { appeals: viewAppeals, reports: viewReports, safety: viewSafety, actions: viewActions, people: viewPeople, announce: viewAnnounce, events: viewEvents, designs: viewDesigns, usage: viewUsage, settings: viewSettings, staff: viewStaff };
   function show(tab, opts) {
+    opts = opts || {};
     currentTab = tab; usageTabRefresh = null;
-    // Opened from a #tab link: keep the address in step, so a reload stays put.
-    if (isTab(location.hash.slice(1)) && location.hash.slice(1) !== tab) history.replaceState(null, '', location.pathname + location.search + '#' + tab);
+    // Opened from a #tab link (or one report's link): keep the address in step, so a reload stays put.
+    var h = location.hash.slice(1), want = hashFor(tab, opts);
+    if (h !== want && (route(h) || opts.ref)) history.replaceState(null, '', location.pathname + location.search + '#' + want);
     document.querySelectorAll('nav.tabs button').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === tab)); });
     var root = $('view'); root.textContent = '';
     window.scrollTo(0, 0);
-    VIEWS[tab](root, opts || {}).catch(function () {});
+    VIEWS[tab](root, opts).catch(function () {});
   }
-  /* m3xi.com/staff/#usage, the link in every usage alert, opens that tab.
+  /* m3xi.com/staff/#usage, the link in every usage alert, opens that tab, and
+     m3xi.com/staff/#reports/<ref>, the link in every report email (0138),
+     opens the Reports tab on that one report. The ref is the console's own
+     report id (report:<uuid>, chat:<uuid>, note:<uuid>:<uuid>…), URI-encoded.
      Google sign-in leaves the page and comes back with its own hash, so the
-     wanted tab rides through it in sessionStorage. */
+     wanted place rides through it in sessionStorage. */
   function isTab(t) { return typeof t === 'string' && Object.prototype.hasOwnProperty.call(VIEWS, t); }
-  function wantedTab() {
-    var h = (location.hash || '').slice(1);
-    if (isTab(h)) return h;
+  function route(h) {
+    h = String(h || '').replace(/^#/, '');
+    if (isTab(h)) return { tab: h, opts: {} };
+    var m = /^reports\/(.*)$/.exec(h), ref = '';
+    if (!m) return null;
+    try { ref = decodeURIComponent(m[1]); } catch (e) { ref = ''; }
+    if (/^[a-z_]+:[0-9a-f:-]{36,80}$/i.test(ref)) return { tab: 'reports', opts: { ref: ref } };
+    // A severe words card (safety_flag:<n>) lives on the Safety tab, not in Reports; any other
+    // link that cannot be read still lands on Reports rather than on Appeals.
+    return /^safety_flag:[0-9]{1,18}$/.test(ref) ? { tab: 'safety', opts: {} } : { tab: 'reports', opts: {} };
+  }
+  function hashFor(tab, opts) { return tab + (tab === 'reports' && opts && opts.ref ? '/' + encodeURIComponent(opts.ref) : ''); }
+  function wanted() {
+    var w = route(location.hash);
+    if (w) return w;
     var s = null;
     try { s = sessionStorage.getItem('staff-tab'); sessionStorage.removeItem('staff-tab'); } catch (e) {}
-    return isTab(s) ? s : 'appeals';
+    return route(s) || { tab: 'appeals', opts: {} };
   }
   document.querySelectorAll('nav.tabs button').forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.tab); }); });
+  // A report link pasted into a console that is already open, or Back and Forward between them.
+  window.addEventListener('hashchange', function () {
+    if (!role || $('app').hidden) return;
+    var w = route(location.hash);
+    if (w) show(w.tab, w.opts);
+  });
 
   var booting = null;
   function boot() {
@@ -2989,10 +3437,11 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
     $('app').hidden = false;
     startUsageWatch();
     startDueWatch();
-    show(wantedTab());
+    var w = wanted();
+    show(w.tab, w.opts);
   }
   $('google').addEventListener('click', function () {
-    try { var h = (location.hash || '').slice(1); if (isTab(h)) sessionStorage.setItem('staff-tab', h); } catch (e) {}
+    try { var h = (location.hash || '').slice(1); if (route(h)) sessionStorage.setItem('staff-tab', h); } catch (e) {}
     sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + '/staff/' } });
   });
   $('pwgo').addEventListener('click', async function () {
