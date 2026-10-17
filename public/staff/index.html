@@ -510,6 +510,7 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
   var KIND_LABEL = {
     underage: 'Sounds underage', sexual_exposure: 'Sexual content or exposure', threats: 'Threats or danger',
     harassment: 'Harassment or bullying', hate: 'Hate or abuse', scam: 'Scam or spam', other: 'Something else',
+    exploitation: 'Exploitation or trafficking',   // CallMe 0142: severe, held like underage
   };
   var STATUS_LABEL = { open: 'waiting', dismissed: 'dismissed', actioned: 'dealt with', reviewed: 'reviewed' };
   function who(name, id) { return (name || '(no name)') + (id ? ' · ' + id : ''); }
@@ -526,6 +527,7 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
   var REASON_WORDS = {
     underage: 'being under 18', sexual_exposure: 'sexual content', threats: 'threats', harassment: 'harassment',
     hate: 'hate speech', scam: 'a scam', spam: 'spam', impersonation: 'impersonation', other: 'something else',
+    exploitation: 'exploitation or trafficking',
   };
   function reportReason(kind) { return REASON_WORDS[kind || 'other'] || String(kind).replace(/_/g, ' '); }
   function reportHeadline(r) {
@@ -666,8 +668,10 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
   var MEDIA_LABEL = { photo: 'Profile photo', poster: 'Poster', snapshot: 'Snapshot', design: 'Card design', message: 'Picture in the message' };
   /* Pictures on these kinds are never put in the email (sending them on could
      itself be passing on illegal material), and here they start held back:
-     nobody should meet the worst of them by scrolling. */
-  var HELD_KINDS = { underage: true, sexual_exposure: true };
+     nobody should meet the worst of them by scrolling. 'exploitation'
+     (trafficking, selling people, escorting, paying for sex; CallMe 0142) is
+     held like underage. The same list as report-alert's HOLD_KINDS. */
+  var HELD_KINDS = { underage: true, sexual_exposure: true, exploitation: true };
   /* Review fix: only the kinds known to be safe to show start open. A kind
      this page has never heard of (a new door, a typo) starts held back too:
      one extra click is cheap, meeting the worst unawares is not. And 0138
@@ -1061,7 +1065,7 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
         if (media.length) {
           var flagged = media.some(function (m) { return m.held === true; });
           if (held || flagged) pics.appendChild(el('div', { class: 'warnline', style: 'font-size:13px;margin-top:6px', text: (HELD_KINDS[r.kind]
-            ? 'Pictures are held back on reports about a child or sexual content.'
+            ? 'Pictures are held back on reports about a child, sexual content or exploitation.'
             : held ? 'Pictures are held back: this report’s reason is not one this page knows.'
             : 'A picture our own checks did not pass is held back.')
             + ' Open one only if you need it to decide. Never download, copy or share one.' }));
