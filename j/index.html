@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Join a crew — CallMe by M3XI</title>
+<meta name="description" content="A friend saved you a seat in their crew on CallMe. Open the link on your phone to join them." />
+<!-- The crew's code is in this page's address. It must not travel on to the
+     stores or any other site, and the page is not for search engines. -->
+<meta name="referrer" content="no-referrer" />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" type="image/png" href="/M.png" />
+<!-- What a chat app shows under the link. The person who shares it is the
+     crew's host, so it speaks as them. Nothing here names anyone. -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="CallMe by M3XI" />
+<meta property="og:title" content="Join my crew on CallMe" />
+<meta property="og:description" content="I saved you a seat. Up to four of us: everyone taps Ready, and we go in together." />
+<meta property="og:image" content="https://www.m3xi.com/img/callme/dog/phone.webp" />
+<meta property="og:image:alt" content="The CallMe dog on the phone" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&family=Caveat:wght@500;600&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
+<!--
+  m3xi.com/j/?c=<code> — a crew link (CallMe 0.13, the crew room). The app's
+  party_link_create() makes the code and the address; party_link_join(p_code)
+  in the app uses it, and only for friends of the crew's host, never over four
+  seats (migration 0143_crew_room.sql in the app repo). A Vite entry
+  (vite.config.js), not a file in public/.
+
+  On a phone whose CallMe knows /j/, the link opens the app (Android App Links;
+  iOS universal links once a build carries ios.associatedDomains; both read
+  public/.well-known/) and this page never loads. It loads
+  when CallMe is missing, too old to know /j/, or the link was opened in a
+  browser. Then it offers "Open in CallMe" and the stores.
+
+  PRIVACY. The page never fetches anything: no host name, no crew, no seats.
+  It reads the code from ?c=, checks its shape, and puts it only into the
+  "Open in CallMe" link. The code is never written on the page or logged, and
+  the page sends no referrer, so the stores never see it. The heading stays
+  "Join your friend's crew" because the page does not know who the friend is.
+
+  THE BUTTON hands https://m3xi.com/j/?c=<code> to the app:
+    - Android: an intent:// link for the CallMe package, like m3xi.com/e/.
+      Chrome does not hand a link on the same site to an app, so a plain link
+      would only reload this page. Without CallMe, or with a CallMe too old to
+      know /j/, Chrome opens the Play listing instead (install, or update).
+    - iPhone: the app's own scheme, callme://j/?c=<code>, which the app's link
+      catcher reads (src/services/crewRoom.ts crewCodeFrom, navigation/index.tsx).
+      Not a universal link: those need ios.associatedDomains in a build, and
+      without it a tap on https://m3xi.com/j/ only brings Safari back to this
+      page (m3xi.com redirects to www). Once a build carries associatedDomains,
+      the shared link itself opens the app and this page does not load; the
+      scheme still serves anyone who opened the link in Safari. Without CallMe,
+      Safari says it cannot open the address, so the help line points below.
+    - A computer: no button, just "open it on your phone".
+
+  No inline script survives the build: Vite bundles the module below into a
+  hashed file, so the page can ship under `script-src 'self'`.
+-->
+<style>
+/* The CallMe paper kit (cm- classes) and the shared header and footer live in
+   /shared/site-chrome.css, which loads AFTER this block: a page rule that
+   wants to beat a kit rule needs the higher specificity, not the later place. */
+:root{
+  --paper:#FAF6EF; --white:#FFFDF8;
+  --ink:#231C18; --ink2:#5C534A; --ink3:#766C62;
+  --line2:rgba(35,28,24,.22); --edge:#2A2320;
+  /* Neon ink on paper (the app's theme.ts): neon pink for fills, strokes and
+     big type; its ink for small words (4.8:1 on the ticket wash). */
+  --neon:#FF2E88; --neon-ink:#D10F66; --ticket:#FFF0F6;
+  --maxw:720px;
+}
+*{box-sizing:border-box}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+body{margin:0;color:var(--ink);font:400 16px/1.65 'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;background-color:var(--paper)}
+a{color:inherit}
+img{max-width:100%;height:auto;display:block}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 16px}
+@media (min-width:600px){.wrap{padding:0 24px}}
+h1,h2,h3{font-family:'Playfair Display',Georgia,serif;letter-spacing:-.012em;margin:0;text-wrap:balance}
+:focus-visible{outline:3px solid rgba(209,15,102,.5);outline-offset:3px;border-radius:4px}
+[hidden]{display:none!important}
+
+main{padding:34px 0 48px}
+
+/* ── The ticket: a crew invite is a ticket (dashed neon on a pale pink wash,
+      dark pink small words), because it is for right now. ── */
+.ticket{position:relative;margin:8px 0 0;padding:30px 24px 22px;background:var(--ticket);color:var(--ink);
+  border:2px dashed var(--neon);border-radius:14px;box-shadow:0 5px 14px rgba(35,28,24,.08);transform:rotate(-.4deg)}
+@media (max-width:520px){.ticket{padding:26px 18px 18px}}
+.ticket .cm-kicker{color:var(--neon-ink);margin-bottom:10px}
+.ticket .cm-kicker::before{background:var(--neon)}
+.ticket .stamp{position:absolute;top:18px;right:18px;color:var(--neon-ink);--cm-tilt:6deg}
+.ticket h1{font:600 clamp(30px,5.4vw,44px)/1.1 'Playfair Display',Georgia,serif;margin:0 0 12px;padding-right:76px}
+.ticket h1 em{font-style:italic;color:var(--neon)}
+@media (max-width:420px){.ticket h1{padding-right:0;margin-top:22px}}
+.ticket .lede{margin:0 0 20px;font-size:17px;line-height:1.6;color:var(--ink2);max-width:36em}
+
+/* Four seats, the way the crew room lays them out. Pictures only: the page
+   does not know who is in the crew, so nobody is drawn. */
+.seats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;list-style:none;margin:0 0 22px;padding:0;max-width:460px}
+.seat{position:relative;margin:0;padding:6px 6px 0;background:#FFFEFA;border:1px solid rgba(35,28,24,.16);border-radius:3px;
+  box-shadow:0 1px 1px rgba(35,28,24,.08),0 12px 18px -14px rgba(35,28,24,.5);transform:rotate(var(--tilt,0deg))}
+.seat:nth-child(1){--tilt:-3deg}.seat:nth-child(2){--tilt:2deg}.seat:nth-child(3){--tilt:-1.5deg}.seat:nth-child(4){--tilt:2.5deg}
+.seat .photo{aspect-ratio:1/1.04;background:radial-gradient(120% 90% at 50% 30%,#F6EEE1 0%,#EADCC4 100%);display:flex;align-items:center;justify-content:center}
+.seat .cap{display:block;padding:5px 2px 7px;text-align:center;font:600 clamp(14px,3.6vw,18px)/1.1 'Caveat','Segoe Print',cursive;color:var(--ink)}
+.seat .cm-rubber{font-size:9px;padding:2px 5px 1px;letter-spacing:.12em;color:var(--neon-ink);--cm-tilt:-8deg}
+.seat.saved{border:2px dashed var(--neon)}
+.seat.saved .photo{background:#FFE3EF}
+.seat.saved .cm-ico{width:28px;height:28px;color:var(--neon)}
+.seat.free .photo{background:repeating-linear-gradient(135deg,#F1E8D9 0 6px,#EBE0CE 6px 12px)}
+.seat.free .cap{color:var(--ink3)}
+
+/* Open in CallMe: a neon card with an ink edge and ink words (4.8:1). */
+.ticket .cm-btn.go{--cm-btn-fill:var(--neon);--cm-btn-ink:var(--ink);min-height:58px;font-size:19px;margin:0 0 8px}
+.ticket .cm-btn.go:hover{--cm-btn-fill:#FF4A98}
+.ticket .small{font-size:14px;line-height:1.55;color:var(--ink2);margin:8px 0 0;max-width:40em}
+.ticket .small a{color:var(--neon-ink);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.ticket .cm-tear{margin:22px 0 14px}
+.ticket .stub h2{font:600 19px/1.3 'Playfair Display',Georgia,serif;margin:0 0 4px}
+.ticket .stub p{margin:0;font-size:15px;line-height:1.6;color:var(--ink2);max-width:40em}
+
+/* ── Where a crew can go ── */
+.where{margin:48px 0 0}
+.where h2{font:600 clamp(24px,3.4vw,30px)/1.2 'Playfair Display',Georgia,serif;margin:0 0 6px}
+.where > p{margin:0 0 16px;color:var(--ink2)}
+.places{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;list-style:none;margin:0;padding:0}
+@media (max-width:620px){.places{grid-template-columns:1fr}}
+.places li{display:flex;flex-direction:column;gap:4px;margin:0;padding:14px 16px;background:var(--white);border:1.5px solid var(--edge);
+  border-radius:10px;box-shadow:0 5px 14px rgba(35,28,24,.08)}
+.places b{display:flex;align-items:center;gap:8px;font:600 18px/1.3 'Playfair Display',Georgia,serif}
+.places b .cm-ico{width:20px;height:20px;color:var(--neon-ink)}
+.places span{font-size:15px;line-height:1.5;color:var(--ink2)}
+.where .note{margin:14px 0 0;font-size:14px;color:var(--ink3)}
+
+/* ── Get CallMe ── */
+.getapp{display:grid;grid-template-columns:150px minmax(0,1fr);gap:22px 30px;align-items:center;margin:56px 0 0}
+.getapp .cm-polaroid{--cm-polaroid-w:150px;--cm-tilt:-3deg}
+.getapp .cm-heading{margin-bottom:18px}
+.getapp .cm-kicker{color:var(--neon-ink)}
+.getapp .cm-kicker::before{background:var(--neon)}
+.getapp .cm-title em{color:var(--neon-ink)}
+.getapp .small{font-size:14px;color:var(--ink3);margin:12px 0 0}
+@media (max-width:520px){.getapp{grid-template-columns:1fr}.getapp .cm-polaroid{--cm-polaroid-w:140px}}
+</style>
+<link rel="stylesheet" href="/shared/site-chrome.css">
+</head>
+<body class="cm-ground">
+
+<header class="m3-head"><div class="m3-bar">
+  <a class="m3-brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="m3-jp" aria-hidden="true">三X一</span></a>
+  <nav class="m3-nav" aria-label="Main">
+    <ul class="m3-links">
+      <li><a href="/">CallMe</a></li>
+      <li><a href="/design/">Create</a></li>
+      <li><a href="/events/">Events</a></li>
+      <li class="m3-help">
+        <details class="m3-drop">
+          <summary>Help</summary>
+          <ul class="m3-menu">
+            <li><a href="/questions/"><b>Questions</b><small>The short answers about CallMe</small></a></li>
+            <li><a href="/safety/"><b>Safety</b><small>How we keep calls safe</small></a></li>
+            <li><a href="/contact/"><b>Contact</b><small>Write to a person at M3XI</small></a></li>
+          </ul>
+        </details>
+      </li>
+    </ul>
+  </nav>
+  <a class="m3-get" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get CallMe</a>
+</div></header>
+
+<main>
+  <div class="wrap">
+
+    <section class="ticket" aria-labelledby="ticket-h">
+      <p class="cm-kicker">A crew ticket</p>
+      <span class="cm-rubber stamp" aria-hidden="true">4 seats</span>
+      <h1 id="ticket-h">Join your friend&rsquo;s <em>crew</em> on CallMe</h1>
+      <p class="lede" id="ticket-lede">A friend saved you a seat. A crew is you and up to three friends: everyone&rsquo;s card loads in, everyone taps Ready, and you all go in together.</p>
+
+      <ol class="seats" aria-hidden="true">
+        <li class="seat"><div class="photo"><span class="cm-rubber">Ready</span></div><span class="cap">Your friend</span></li>
+        <li class="seat saved"><div class="photo"><i class="cm-ico cm-ico--tulip"></i></div><span class="cap">Saved for you</span></li>
+        <li class="seat free"><div class="photo"></div><span class="cap">Free seat</span></li>
+        <li class="seat free"><div class="photo"></div><span class="cap">Free seat</span></li>
+      </ol>
+
+      <!-- Shown by the script below, for a phone and a code of the right shape. -->
+      <a class="cm-btn cm-btn--block go" id="open" href="#" hidden><i class="cm-ico cm-ico--phone" aria-hidden="true"></i>Open in CallMe</a>
+      <p class="small" id="open-help" hidden></p>
+      <p class="small" id="on-computer" hidden>Crews hang out in the CallMe app. Open your friend&rsquo;s link on your phone to join them.</p>
+
+      <hr class="cm-tear" />
+      <div class="stub">
+        <h2>Crews are for friends</h2>
+        <p>Only friends of the crew&rsquo;s host can join with it, and it stops working when the crew closes. New to CallMe? Ask your friend for their invite link as well: join with it and you&rsquo;ll find each other in Friends. Then tap this link again.</p>
+      </div>
+    </section>
+
+    <section class="where" aria-labelledby="where-h">
+      <h2 id="where-h">Where a crew can go</h2>
+      <p>The crew&rsquo;s host picks one of three, and the crew goes once everyone&rsquo;s ready.</p>
+      <ul class="places">
+        <li><b><i class="cm-ico cm-ico--lock" aria-hidden="true"></i>Just us</b><span>Your crew&rsquo;s own private table, nobody else.</span></li>
+        <li><b><i class="cm-ico cm-ico--chat" aria-hidden="true"></i>Sit at a table</b><span>Pull up chairs at an open table, together.</span></li>
+        <li><b><i class="cm-ico cm-ico--users" aria-hidden="true"></i>Find another crew</b><span>Hang out with another crew who&rsquo;s looking too.</span></li>
+      </ul>
+      <p class="note">Nobody goes anywhere until they tap Ready themselves.</p>
+    </section>
+
+    <section class="getapp" aria-labelledby="getapp-h">
+      <figure class="cm-polaroid cm-polaroid--dog">
+        <span class="cm-tape cm-tape--tulip" aria-hidden="true"></span>
+        <div class="cm-polaroid-photo"><img src="/img/callme/dog/phone.webp" alt="The CallMe dog on the phone" width="317" height="360" loading="lazy"></div>
+        <figcaption>It&rsquo;s for you!</figcaption>
+      </figure>
+      <div>
+        <header class="cm-heading">
+          <p class="cm-kicker">Don&rsquo;t have CallMe yet?</p>
+          <h2 class="cm-title cm-title--sm" id="getapp-h">Get CallMe, then tap the link <em>again.</em></h2>
+          <p class="cm-lede">Sign up and pass the quick ID check (CallMe is for adults only), and your friend&rsquo;s link opens their crew. <span data-appstore="soon">Free on Android now, and coming soon to the App Store.</span><span data-appstore="live" hidden>Free on Android and iPhone.</span></p>
+        </header>
+        <div class="cm-stores">
+          <a class="cm-store cm-store--primary" id="store-play" data-store="play" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get it on Google Play</a>
+          <span class="cm-store cm-store--soon" id="store-apple" data-store="appstore">Coming soon to the App Store</span>
+        </div>
+        <p class="small" id="store-ios" hidden>CallMe for iPhone isn&rsquo;t on the App Store just yet. It&rsquo;s coming soon.</p>
+        <p class="small">Already have CallMe? Update it to the newest version first: older versions don&rsquo;t know crew links.</p>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="m3-foot"><div class="m3-footin">
+  <div>
+    <a class="m3-brand" href="/"><img src="/M.png" alt="" width="26" height="26"> M3XI</a>
+    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London</p>
+  </div>
+  <nav class="m3-footnav" aria-label="Footer">
+    <div><p class="m3-fh">CallMe</p><ul>
+      <li><a href="/">CallMe</a></li>
+      <li><a href="/design/">Create</a></li>
+      <li><a href="/events/">Events</a></li>
+    </ul></div>
+    <div><p class="m3-fh">Help</p><ul>
+      <li><a href="/questions/">Questions</a></li>
+      <li><a href="/safety/">Safety</a></li>
+      <li><a href="/contact/">Contact</a></li>
+      <li><a href="/delete-account/">Delete account</a></li>
+    </ul></div>
+    <div><p class="m3-fh">M3XI</p><ul>
+      <li><a href="/team/">Team</a></li>
+      <li><a href="/jobs/">Jobs</a></li>
+      <li><a href="/services/">Services</a></li>
+      <li><a href="/services/#spatial">M3XI Spatial</a></li>
+    </ul></div>
+    <div><p class="m3-fh">Legal</p><ul>
+      <li><a href="/privacy/">Policies</a></li>
+      <li><a href="/terms/">Terms</a></li>
+      <li><a href="/child-safety/">Child safety</a></li>
+    </ul></div>
+  </nav>
+</div></footer>
+
+<script type="module" src="/shared/site-chrome.js"></script>
+<script type="module">
+/*
+ * The crew link's one job: put the code from ?c= into an "Open in CallMe"
+ * link that suits this phone. It fetches nothing and writes no code on the
+ * page. Runs after /shared/site-chrome.js (module scripts keep their order),
+ * so the store cards it hides are already drawn.
+ */
+const PACKAGE = 'com.m3xi.callme';
+const PLAY = 'https://play.google.com/store/apps/details?id=' + PACKAGE;
+/* party_link_create() makes codes of 8 or more letters and digits (0143). The
+   shape is checked loosely here, letters, digits, - and _, 8 to 64 of them,
+   because the app and the server have the last word; anything else is not put
+   into a link at all. */
+const CODE = /^[A-Za-z0-9_-]{8,64}$/;
+
+const $ = (id) => document.getElementById(id);
+
+const raw = (new URLSearchParams(location.search).get('c') || '').trim();
+const code = CODE.test(raw) ? raw : null;
+
+const ua = navigator.userAgent || '';
+const isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && 'ontouchend' in document);
+const isAndroid = !isIOS && /Android/i.test(ua);
+
+/* The same address the app shares, https://m3xi.com/j/?c=<code>. The code
+   matched CODE above, so nothing in it needs escaping. */
+const path = '/j/?c=' + code;
+
+function androidHref() {
+  return 'intent://m3xi.com' + path
+    + '#Intent;scheme=https;package=' + PACKAGE
+    + ';S.browser_fallback_url=' + encodeURIComponent(PLAY) + ';end';
+}
+
+function iosHref() {
+  // The app's own scheme (see the note at the top): it works for any CallMe
+  // with the crew room, with or without universal links.
+  return 'callme:/' + path;
+}
+
+function setHelp(parts) {
+  const help = $('open-help');
+  help.textContent = '';
+  parts.forEach((p) => help.appendChild(typeof p === 'string' ? document.createTextNode(p) : p));
+  help.hidden = false;
+}
+
+const open = $('open');
+
+if (!code) {
+  // A link cut short, or opened without its code.
+  $('ticket-h').textContent = 'This crew link isn’t complete';
+  $('ticket-lede').textContent = 'Part of its address is missing. Ask your friend to send the link again, and tap it on your phone.';
+} else if (isAndroid) {
+  open.setAttribute('href', androidHref());
+  open.hidden = false;
+  setHelp(['If Google Play opens instead, install or update CallMe there, then tap your friend’s link again.']);
+} else if (isIOS) {
+  open.setAttribute('href', iosHref());
+  open.hidden = false;
+  // An older CallMe opens on its home screen and ignores the code (it has no
+  // crew room); without CallMe, Safari says it cannot open the address.
+  setHelp(['If CallMe opens without the crew, update it. If nothing opens, get CallMe below. Then tap your friend’s link again.']);
+} else {
+  $('on-computer').hidden = false;
+}
+
+/* One store per phone in this page's own cards: an iPhone is not shown Google
+   Play, and an Android phone is not shown the App Store. A computer sees both.
+   (The shared header's "Get CallMe" follows site-chrome.js: Google Play until
+   the App Store is live.) */
+const appLive = document.documentElement.getAttribute('data-appstore-state') === 'live';
+const play = $('store-play');
+const apple = $('store-apple');
+if (play) play.style.display = isIOS ? 'none' : '';
+if (apple) apple.style.display = isAndroid ? 'none' : '';
+$('store-ios').hidden = !(isIOS && !appLive);
+</script>
+</body>
+</html>

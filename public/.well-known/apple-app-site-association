@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["9RSV4M9V22.com.m3xi.callme"],
+        "components": [
+          { "/": "/invite/*", "comment": "One-time invite links, m3xi.com/invite/<code>" },
+          { "/": "/p/*", "comment": "The pairing QR from m3xi.com/design" },
+          { "/": "/e/*", "comment": "An event, and the venue's check-in QR: m3xi.com/e/?id=<id>&c=<code>" },
+          { "/": "/j/*", "comment": "A crew link: m3xi.com/j/?c=<code>" }
+        ]
+      }
+    ]
+  }
+}

@@ -139,7 +139,13 @@ export default defineConfig({
         // One event: m3xi.com/e/?id=<id>, and the page the venue's check-in QR
         // opens (/e/?id=<id>&c=<code>). It reads event_public() and hands the
         // code to the app; its script is bundled so /e keeps `script-src 'self'`.
-        e: resolve(__dirname, "e/index.html")
+        e: resolve(__dirname, "e/index.html"),
+        // A crew link: m3xi.com/j/?c=<code> (CallMe 0.13, the crew room). The
+        // app's party_link_create() makes the address; this page is what
+        // opens when CallMe is missing or too old to know /j/. It fetches
+        // nothing, and its one script is an inline module that Vite bundles,
+        // so /j can ship under `script-src 'self'` like /e.
+        j: resolve(__dirname, "j/index.html")
         // Every root page above links /shared/site-chrome.css and
         // /shared/site-chrome.js, the one header and footer the site shares.
         // Those are bundled from the pages, so they need no entry of their own.
