@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Michael Gbeleyi: UK model, actor and robotic puppeteer based in London.">
+<meta property="og:title" content="Michael Gbeleyi Performance CV">
+<meta property="og:image" content="https://www.m3xi.com/michael/portfolio/assets/suit_chin.jpg">
+<title>Michael Gbeleyi Performance CV</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* M3XI paper: notebook page + manga panels. Ink on paper, one red accent. */
+:root{
+  --paper:#f2ede3;
+  --paper-2:#e7e0d1;
+  --ink:#16130f;
+  --ink-2:#575046;
+  --rule:rgba(22,19,15,.16);
+  --red:#c0352b;
+  --display:'Playfair Display', Georgia, 'Times New Roman', serif;
+  --body:'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono:'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:repeating-linear-gradient(to bottom, transparent 0 31px, rgba(22,19,15,.045) 31px 32px);
+  color:var(--ink);
+  font:16px/1.6 var(--body);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:0 48px;
+  margin:0;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto}
+a{color:inherit}
+a:focus-visible,button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+img{max-width:100%}
+
+/* masthead */
+.topbar{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-block:14px 10px;font:500 11px/1.4 var(--mono);letter-spacing:.12em;text-transform:uppercase}
+.topbar nav{display:flex;gap:18px;flex-wrap:wrap}
+.topbar a{text-decoration:none}
+.topbar a:hover{color:var(--red)}
+.topbar a.pg{color:var(--red);border-left:1px solid var(--rule);padding-left:18px}
+.mark{display:inline-flex;align-items:center;gap:8px}
+.mark b{display:inline-grid;place-items:center;width:20px;height:20px;background:var(--ink);color:var(--paper);font:700 12px var(--display);letter-spacing:0}
+
+.nameplate{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:32px;align-items:end;padding-block:40px 28px;border-bottom:1px solid var(--rule)}
+.eyebrow{font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin:0 0 12px}
+h1{font:400 clamp(52px, 9vw, 120px)/.92 var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance}
+h1 em{font-style:italic;font-weight:400}
+.lede{font-size:17px;max-width:44ch;margin:0;color:var(--ink-2)}
+.lede strong{color:var(--ink);font-weight:600}
+
+/* section heads */
+.sec{padding-block:44px 8px}
+.sechead{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:2px solid var(--ink);padding-top:12px;margin-bottom:20px}
+.sechead h2{font:400 clamp(30px, 4.4vw, 46px)/1.05 var(--display);margin:0;text-wrap:balance}
+.sechead h2 em{font-style:italic}
+.sechead p{margin:0;font:500 11px/1.5 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);max-width:48ch}
+
+/* panels */
+.panel{position:relative;border:2px solid var(--ink);background:var(--paper);overflow:hidden;min-width:0}
+.panel > img{display:block;width:100%;height:100%;object-fit:cover}
+.tag{position:absolute;left:0;top:0;z-index:2;background:var(--ink);color:var(--paper);font:500 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:6px 8px}
+.tone::after{content:"";position:absolute;right:0;bottom:0;width:45%;height:45%;pointer-events:none;
+  background-image:radial-gradient(var(--ink) 1.1px, transparent 1.5px);background-size:6px 6px;opacity:.22;
+  -webkit-mask-image:linear-gradient(to top left,#000 10%,transparent 70%);mask-image:linear-gradient(to top left,#000 10%,transparent 70%)}
+button.shot{all:unset;display:block;cursor:zoom-in;width:100%;height:100%}
+button.shot img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+button.shot:hover img{transform:scale(1.025)}
+button.shot:focus-visible{outline:3px solid var(--red);outline-offset:-3px}
+
+/* video preview */
+.video{position:relative;display:block;aspect-ratio:16/9;max-width:100%;border:2px solid var(--ink);overflow:hidden;background:var(--ink);text-decoration:none;color:var(--paper)}
+.video img{display:block;width:100%;height:100%;object-fit:cover;opacity:.92;transition:opacity .3s ease, transform .6s ease}
+.video::before{content:"";position:absolute;inset:-20%;z-index:1;pointer-events:none;opacity:.18;
+  background:repeating-conic-gradient(from 0deg at 50% 50%, rgba(242,237,227,.9) 0deg .7deg, transparent .7deg 6deg);
+  -webkit-mask-image:radial-gradient(circle at 50% 50%, transparent 14%, #000 60%);mask-image:radial-gradient(circle at 50% 50%, transparent 14%, #000 60%)}
+.video .play{position:absolute;z-index:2;left:50%;top:50%;width:78px;height:78px;margin:-39px 0 0 -39px;border-radius:50%;background:var(--red);border:2px solid var(--paper);display:grid;place-items:center;transition:transform .25s ease}
+.video .play svg{width:28px;height:28px;margin-left:5px}
+.video .bar{position:absolute;z-index:2;left:0;right:0;bottom:0;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--ink);padding:9px 12px;font:500 11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.video .bar span:last-child{color:#e9a59f}
+.video:hover img{opacity:1;transform:scale(1.02)}
+.video:hover .play{transform:scale(1.08)}
+.video:focus-visible{outline:3px solid var(--red);outline-offset:3px}
+
+/* fact strip */
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:0;border:2px solid var(--ink);background:var(--paper)}
+.facts div{padding:12px 14px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);min-width:0}
+.facts dt{font:500 10.5px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);margin:0 0 4px}
+.facts dd{margin:0;font-weight:600;font-size:15px;line-height:1.35}
+
+.credits{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}
+.credits li{display:grid;grid-template-columns:minmax(0,11em) minmax(0,1fr);gap:12px;border-bottom:1px dashed var(--rule);padding-bottom:6px}
+.credits li span:first-child{font:500 11px/1.6 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.credits li.me span:last-child{color:var(--red);font-weight:600}
+
+/* contact */
+.contact{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:start}
+.contact h3{font:400 clamp(34px,5vw,56px)/1 var(--display);margin:0 0 12px}
+.contact h3 em{font-style:italic;color:var(--red)}
+.mailrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.mailrow code{font:500 15px var(--mono);background:var(--paper-2);border:1px solid var(--rule);padding:8px 10px;user-select:all;word-break:break-all}
+.btn{appearance:none;font:500 12px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;border:2px solid var(--ink);background:var(--ink);color:var(--paper);padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn:hover{background:var(--red);border-color:var(--red);color:var(--paper)}
+.links{display:grid;gap:10px}
+.links a{display:flex;justify-content:space-between;gap:12px;border:2px solid var(--ink);padding:14px 16px;text-decoration:none;background:var(--paper);font-weight:600}
+.links a span:last-child{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.links a:hover{background:var(--ink);color:var(--paper)}
+.links a:hover span:last-child{color:var(--paper)}
+footer{margin-top:48px;border-top:2px solid var(--ink);padding-top:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+
+/* lightbox */
+dialog.lb{border:2px solid var(--ink);padding:0;background:var(--paper);max-width:min(92vw,980px);width:auto;color:var(--ink)}
+dialog.lb::backdrop{background:rgba(22,19,15,.86)}
+dialog.lb img{display:block;max-width:100%;max-height:78vh;margin:0 auto;object-fit:contain}
+dialog.lb .lbbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border-top:2px solid var(--ink);font:500 11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+dialog.lb .lbbar div{display:flex;gap:6px}
+dialog.lb .lbbar button{appearance:none;border:2px solid var(--ink);background:var(--paper);color:var(--ink);font:600 12px var(--mono);padding:6px 10px;cursor:pointer}
+dialog.lb .lbbar button:hover{background:var(--ink);color:var(--paper)}
+
+@media (max-width:760px){
+  .nameplate{grid-template-columns:1fr;gap:18px;padding-block:28px 22px}
+  .contact{grid-template-columns:1fr}
+  .credits li{grid-template-columns:1fr;gap:0}
+  .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .video .bar span:first-child{display:none}
+  .video .bar{justify-content:flex-end;padding:7px 10px}
+  .video .play{width:60px;height:60px;margin:-30px 0 0 -30px}
+  .video .play svg{width:22px;height:22px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+
+/* page: performance CV, one sheet */
+.sheet{max-width:880px;margin:28px auto 0;border:2px solid var(--ink);background:var(--paper);padding-block:36px;padding-inline:clamp(18px,5vw,48px)}
+.cvhead{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:24px;align-items:end;border-bottom:2px solid var(--ink);padding-bottom:20px}
+.cvhead h1{font-size:clamp(46px,8vw,76px)}
+.cvhead .roles{margin:10px 0 0;font:500 12px/1.5 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+.cvhead .contact-line{margin:10px 0 0;font-size:14px;color:var(--ink-2)}
+.cvhead .contact-line a{color:var(--ink)}
+.headshot{border:2px solid var(--ink);aspect-ratio:4/5;overflow:hidden}
+.headshot img{display:block;width:100%;height:100%;object-fit:cover}
+.cvsec{display:grid;grid-template-columns:150px minmax(0,1fr);gap:24px;padding-block:20px;border-bottom:1px solid var(--rule)}
+.cvsec:last-of-type{border-bottom:0}
+.cvsec h2{margin:0;font:500 11px/1.5 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.cvsec p{margin:0 0 10px;font-size:15px;max-width:64ch}
+.cvsec p:last-child{margin-bottom:0}
+.tbl{overflow-x:auto}
+.tbl table{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font:500 10.5px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);border-bottom:2px solid var(--ink);padding:6px 10px 6px 0}
+.tbl td{border-bottom:1px dashed var(--rule);padding:9px 10px 9px 0;vertical-align:top}
+.tbl td:first-child{font:500 12px/1.6 var(--mono);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tbl .me{color:var(--red);font-weight:600}
+.skills{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:15px}
+.skills b{font-weight:600}
+.me-t{color:var(--red);font-weight:600}
+.toolbar{max-width:880px;margin:16px auto 0;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width:640px){
+  .cvhead{grid-template-columns:1fr}
+  .headshot{max-width:160px}
+  .cvsec{grid-template-columns:1fr;gap:8px}
+}
+@media print{
+  body{background:#fff;padding:0}
+  .topbar,.toolbar,footer{display:none}
+  .sheet{border:0;margin:0;padding:0;max-width:none}
+  @page{size:A4;margin:14mm}
+  .cvsec{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="topbar">
+    <span class="mark"><b>M</b> M3XI Paper &middot; Performance CV</span>
+    <nav aria-label="Pages"><a class="pg" href="index.html">Model book</a><a class="pg" href="engineering.html">Engineering</a></nav>
+  </header>
+
+  <div class="toolbar"><a class="btn" href="cv.pdf" download>Download PDF</a><a class="btn ghost" href="index.html">View model book</a></div>
+
+  <article class="sheet">
+    <header class="cvhead">
+      <div>
+        <h1>Michael <em>Gbeleyi</em></h1>
+        <p class="roles">Actor &middot; Model &middot; Robotic puppeteer</p>
+        <p class="contact-line">London, UK &middot; michaelgbeleyi@gmail.com &middot; Instagram <a href="https://www.instagram.com/michaelg7765/" target="_blank" rel="noopener">@michaelg7765</a></p>
+      </div>
+      <div class="headshot"><img src="assets/headshot.jpg" alt="Headshot of Michael Gbeleyi"></div>
+    </header>
+
+    <section class="cvsec">
+      <h2>About me</h2>
+      <div>
+        <p>I'm a model and performer from London, and I want to train properly in acting and stage direction.</p>
+        <p>I have done robotic puppetry twice. In July 2026 I controlled a robot dog on stage in a play called ARGOS, at Senate House in London. I performed next to a professional actor, in front of about 250 people.</p>
+        <p>I study robotics at university and I animate characters, so I pay close attention to how people move. I want to bring that into my acting.</p>
+      </div>
+    </section>
+
+    <section class="cvsec">
+      <h2>Stage work</h2>
+      <div>
+        <p><b>ARGOS</b> &middot; 2026</p>
+        <ul class="skills">
+          <li><b>My role:</b> <span class="me-t">I controlled the robot dog, Argos, live on stage.</span></li>
+          <li><b>Where:</b> Senate House, London. It was the closing show of an international robotics conference (ICSR + Art 2026).</li>
+          <li><b>Director:</b> Prof. George Rodosthenous. <b>Producer:</b> Dr Hooman Samani.</li>
+          <li><b>The story:</b> Odysseus comes home after 20 years and only his dog recognises him. The dog never speaks, so all of its feeling came from the way I moved it.</li>
+        </ul>
+        <p style="margin-top:10px"><a href="https://www.youtube.com/watch?v=EQl9ydgK5as&amp;t=14s" target="_blank" rel="noopener">Watch the trailer</a></p>
+      </div>
+    </section>
+
+    <section class="cvsec">
+      <h2>Modelling</h2>
+      <div>
+        <ul class="skills">
+          <li><b>2026:</b> black-and-white street portraits in London</li>
+          <li><b>2025:</b> studio test shots and casual colour shoots</li>
+          <li><b>2024:</b> black suit studio shoot</li>
+        </ul>
+        <p style="margin-top:10px">See all my photos on Instagram: <a href="https://www.instagram.com/michaelg7765/" target="_blank" rel="noopener">@michaelg7765</a></p>
+      </div>
+    </section>
+
+    <section class="cvsec">
+      <h2>Education</h2>
+      <div>
+        <ul class="skills">
+          <li><b>BSc Creative Robotics</b>, University of the Arts London, 2024 &ndash; 2028. I'm in my second year.</li>
+          <li><b>BTEC Level 3 in Game Design</b>, Havering Sixth Form College, 2024. Grade D*DD, the top grades.</li>
+        </ul>
+        <p style="margin-top:10px"><b>What I want next:</b> training in acting and stage direction.</p>
+      </div>
+    </section>
+
+    <section class="cvsec">
+      <h2>Skills</h2>
+      <ul class="skills">
+        <li><b>Robotic puppetry:</b> controlling a robot live on stage, in time with an actor.</li>
+        <li><b>Movement:</b> I study how small gestures change what an audience feels.</li>
+        <li><b>Character animation:</b> I bring 3D characters to life in Blender and Unity.</li>
+        <li><b>In front of the camera:</b> studio and street photo shoots.</li>
+        <li><b>Speaking to groups:</b> I taught coding classes.</li>
+        <li><b>Languages:</b> English (first language), Yoruba (fluent), Mandarin (learning).</li>
+      </ul>
+    </section>
+
+    <section class="cvsec">
+      <h2>Other work</h2>
+      <ul class="skills">
+        <li><b>2026 &ndash; now:</b> Founder of M3XI. Our slogan is &ldquo;We are connected by design.&rdquo; We make apps that connect people, and we build robot prototypes.</li>
+        <li><b>2025 &ndash; 2026:</b> Coding teacher at Beta Generations.</li>
+        <li><b>2022 &ndash; now:</b> Freelance web developer and 3D artist.</li>
+      </ul>
+    </section>
+  </article>
+
+  <footer><span>Michael Gbeleyi &middot; Performance CV &middot; October 2026</span><span>M3XI Paper &middot; London</span></footer>
+</div>
+
+</body>
+</html>

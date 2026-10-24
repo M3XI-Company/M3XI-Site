@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Michael Gbeleyi: UK model, actor and robotic puppeteer based in London.">
+<meta property="og:title" content="Michael Gbeleyi Model Book">
+<meta property="og:image" content="https://www.m3xi.com/michael/portfolio/assets/suit_chin.jpg">
+<title>Michael Gbeleyi Model Book</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* M3XI paper: notebook page + manga panels. Ink on paper, one red accent. */
+:root{
+  --paper:#f2ede3;
+  --paper-2:#e7e0d1;
+  --ink:#16130f;
+  --ink-2:#575046;
+  --rule:rgba(22,19,15,.16);
+  --red:#c0352b;
+  --display:'Playfair Display', Georgia, 'Times New Roman', serif;
+  --body:'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono:'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:repeating-linear-gradient(to bottom, transparent 0 31px, rgba(22,19,15,.045) 31px 32px);
+  color:var(--ink);
+  font:16px/1.6 var(--body);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:0 48px;
+  margin:0;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto}
+a{color:inherit}
+a:focus-visible,button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+img{max-width:100%}
+
+/* masthead */
+.topbar{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-block:14px 10px;font:500 11px/1.4 var(--mono);letter-spacing:.12em;text-transform:uppercase}
+.topbar nav{display:flex;gap:18px;flex-wrap:wrap}
+.topbar a{text-decoration:none}
+.topbar a:hover{color:var(--red)}
+.topbar a.pg{color:var(--red);border-left:1px solid var(--rule);padding-left:18px}
+.mark{display:inline-flex;align-items:center;gap:8px}
+.mark b{display:inline-grid;place-items:center;width:20px;height:20px;background:var(--ink);color:var(--paper);font:700 12px var(--display);letter-spacing:0}
+
+.nameplate{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:32px;align-items:end;padding-block:40px 28px;border-bottom:1px solid var(--rule)}
+.eyebrow{font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin:0 0 12px}
+h1{font:400 clamp(52px, 9vw, 120px)/.92 var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance}
+h1 em{font-style:italic;font-weight:400}
+.lede{font-size:17px;max-width:44ch;margin:0;color:var(--ink-2)}
+.lede strong{color:var(--ink);font-weight:600}
+
+/* section heads */
+.sec{padding-block:44px 8px}
+.sechead{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:2px solid var(--ink);padding-top:12px;margin-bottom:20px}
+.sechead h2{font:400 clamp(30px, 4.4vw, 46px)/1.05 var(--display);margin:0;text-wrap:balance}
+.sechead h2 em{font-style:italic}
+.sechead p{margin:0;font:500 11px/1.5 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);max-width:48ch}
+
+/* panels */
+.panel{position:relative;border:2px solid var(--ink);background:var(--paper);overflow:hidden;min-width:0}
+.panel > img{display:block;width:100%;height:100%;object-fit:cover}
+.tag{position:absolute;left:0;top:0;z-index:2;background:var(--ink);color:var(--paper);font:500 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:6px 8px}
+.tone::after{content:"";position:absolute;right:0;bottom:0;width:45%;height:45%;pointer-events:none;
+  background-image:radial-gradient(var(--ink) 1.1px, transparent 1.5px);background-size:6px 6px;opacity:.22;
+  -webkit-mask-image:linear-gradient(to top left,#000 10%,transparent 70%);mask-image:linear-gradient(to top left,#000 10%,transparent 70%)}
+button.shot{all:unset;display:block;cursor:zoom-in;width:100%;height:100%}
+button.shot img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+button.shot:hover img{transform:scale(1.025)}
+button.shot:focus-visible{outline:3px solid var(--red);outline-offset:-3px}
+
+/* video preview */
+.video{position:relative;display:block;aspect-ratio:16/9;max-width:100%;border:2px solid var(--ink);overflow:hidden;background:var(--ink);text-decoration:none;color:var(--paper)}
+.video img{display:block;width:100%;height:100%;object-fit:cover;opacity:.92;transition:opacity .3s ease, transform .6s ease}
+.video::before{content:"";position:absolute;inset:-20%;z-index:1;pointer-events:none;opacity:.18;
+  background:repeating-conic-gradient(from 0deg at 50% 50%, rgba(242,237,227,.9) 0deg .7deg, transparent .7deg 6deg);
+  -webkit-mask-image:radial-gradient(circle at 50% 50%, transparent 14%, #000 60%);mask-image:radial-gradient(circle at 50% 50%, transparent 14%, #000 60%)}
+.video .play{position:absolute;z-index:2;left:50%;top:50%;width:78px;height:78px;margin:-39px 0 0 -39px;border-radius:50%;background:var(--red);border:2px solid var(--paper);display:grid;place-items:center;transition:transform .25s ease}
+.video .play svg{width:28px;height:28px;margin-left:5px}
+.video .bar{position:absolute;z-index:2;left:0;right:0;bottom:0;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--ink);padding:9px 12px;font:500 11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.video .bar span:last-child{color:#e9a59f}
+.video:hover img{opacity:1;transform:scale(1.02)}
+.video:hover .play{transform:scale(1.08)}
+.video:focus-visible{outline:3px solid var(--red);outline-offset:3px}
+
+/* fact strip */
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:0;border:2px solid var(--ink);background:var(--paper)}
+.facts div{padding:12px 14px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);min-width:0}
+.facts dt{font:500 10.5px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);margin:0 0 4px}
+.facts dd{margin:0;font-weight:600;font-size:15px;line-height:1.35}
+
+.credits{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}
+.credits li{display:grid;grid-template-columns:minmax(0,11em) minmax(0,1fr);gap:12px;border-bottom:1px dashed var(--rule);padding-bottom:6px}
+.credits li span:first-child{font:500 11px/1.6 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.credits li.me span:last-child{color:var(--red);font-weight:600}
+
+/* contact */
+.contact{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:start}
+.contact h3{font:400 clamp(34px,5vw,56px)/1 var(--display);margin:0 0 12px}
+.contact h3 em{font-style:italic;color:var(--red)}
+.mailrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.mailrow code{font:500 15px var(--mono);background:var(--paper-2);border:1px solid var(--rule);padding:8px 10px;user-select:all;word-break:break-all}
+.btn{appearance:none;font:500 12px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;border:2px solid var(--ink);background:var(--ink);color:var(--paper);padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn:hover{background:var(--red);border-color:var(--red);color:var(--paper)}
+.links{display:grid;gap:10px}
+.links a{display:flex;justify-content:space-between;gap:12px;border:2px solid var(--ink);padding:14px 16px;text-decoration:none;background:var(--paper);font-weight:600}
+.links a span:last-child{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.links a:hover{background:var(--ink);color:var(--paper)}
+.links a:hover span:last-child{color:var(--paper)}
+footer{margin-top:48px;border-top:2px solid var(--ink);padding-top:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+
+/* lightbox */
+dialog.lb{border:2px solid var(--ink);padding:0;background:var(--paper);max-width:min(92vw,980px);width:auto;color:var(--ink)}
+dialog.lb::backdrop{background:rgba(22,19,15,.86)}
+dialog.lb img{display:block;max-width:100%;max-height:78vh;margin:0 auto;object-fit:contain}
+dialog.lb .lbbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border-top:2px solid var(--ink);font:500 11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+dialog.lb .lbbar div{display:flex;gap:6px}
+dialog.lb .lbbar button{appearance:none;border:2px solid var(--ink);background:var(--paper);color:var(--ink);font:600 12px var(--mono);padding:6px 10px;cursor:pointer}
+dialog.lb .lbbar button:hover{background:var(--ink);color:var(--paper)}
+
+@media (max-width:760px){
+  .nameplate{grid-template-columns:1fr;gap:18px;padding-block:28px 22px}
+  .contact{grid-template-columns:1fr}
+  .credits li{grid-template-columns:1fr;gap:0}
+  .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .video .bar span:first-child{display:none}
+  .video .bar{justify-content:flex-end;padding:7px 10px}
+  .video .play{width:60px;height:60px;margin:-30px 0 0 -30px}
+  .video .play svg{width:22px;height:22px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+
+/* page: model book */
+.hero{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-rows:clamp(120px,15vw,186px);gap:10px;padding-block:24px 0}
+.h-a{grid-column:span 6;grid-row:span 3}
+.h-b{grid-column:span 3;grid-row:span 2}
+.h-c{grid-column:span 3;grid-row:span 2}
+.h-d{grid-column:span 6;grid-row:span 1}
+.h-d img{object-position:50% 38%}
+.bubble{position:absolute;z-index:2;right:14px;bottom:14px;background:var(--paper);border:2px solid var(--ink);border-radius:999px;padding:8px 16px;font:italic 400 18px/1.1 var(--display)}
+.bubble::after{content:"";position:absolute;left:22px;bottom:-12px;width:14px;height:14px;background:var(--paper);border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:skewX(-30deg) rotate(45deg)}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-rows:clamp(240px,30vw,400px);gap:10px}
+.c3{grid-column:span 3}.c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}
+.note{display:flex;flex-direction:column;justify-content:space-between;padding:18px;gap:14px}
+.note h3{font:400 30px/1.05 var(--display);margin:0}
+.note h3 em{font-style:italic}
+.note p{margin:0;font-size:15px;color:var(--ink-2)}
+.note dl{margin:0;display:grid;gap:6px}
+.note dl div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed var(--rule);padding-bottom:4px;font-size:14px}
+.note dt{font:500 11px/1.6 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.note dd{margin:0;font-weight:600;text-align:right}
+.stage{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:14px;align-items:start}
+.stage .side{display:grid;gap:14px}
+.stage .ph{aspect-ratio:1/1}
+.stage p.cap{margin:10px 0 0;font-size:15px;color:var(--ink-2);max-width:60ch}
+@media (max-width:760px){
+  .hero{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:auto}
+  .h-a{grid-column:span 2;grid-row:auto;aspect-ratio:1/1}
+  .h-b,.h-c{grid-column:span 1;grid-row:auto;aspect-ratio:4/5}
+  .h-d{grid-column:span 2;grid-row:auto;aspect-ratio:2/1}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:auto}
+  .grid > *{grid-column:span 1;aspect-ratio:4/5}
+  .grid > .note,.grid > .wide{grid-column:span 2;aspect-ratio:auto}
+  .grid > .wide{aspect-ratio:1/1}
+  .stage{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="topbar">
+    <span class="mark"><b>M</b> M3XI Paper &middot; Model Book</span>
+    <nav aria-label="Sections">
+      <a href="#tailoring">Tailoring</a><a href="#digitals">Digitals</a><a href="#london">London</a><a href="#colour">Colour</a><a href="#stage">Stage</a><a href="#contact">Contact</a><a class="pg" href="cv.html">CV</a><a class="pg" href="engineering.html">Engineering</a>
+    </nav>
+  </header>
+
+  <section class="nameplate">
+    <div>
+      <p class="eyebrow">UK model &amp; actor &middot; London</p>
+      <h1>Michael <em>Gbeleyi</em></h1>
+    </div>
+    <p class="lede">Editorial, commercial and stage work. At ease in tailoring and on the street, and in 2026 on stage at Senate House as the <strong>robotic puppeteer</strong> behind the robot dog in ARGOS.</p>
+  </section>
+
+  <section class="hero" aria-label="Featured shots">
+    <figure class="panel h-a tone" style="margin:0"><span class="tag">Fig. 01 &middot; Tailoring</span><button class="shot" data-cap="Black tailoring, studio"><img src="assets/suit_chin.jpg" alt="Michael in a black suit, hand at his chin, against a white studio wall"></button></figure>
+    <figure class="panel h-b" style="margin:0"><span class="tag">Fig. 02 &middot; Digitals</span><button class="shot" data-cap="Studio digitals, full length"><img src="assets/tank_full.jpg" alt="Full-length studio digital in a blue tank top and grey joggers" style="object-position:50% 20%"></button></figure>
+    <figure class="panel h-c" style="margin:0"><span class="tag">Fig. 03 &middot; Street</span><button class="shot" data-cap="London street portrait, black and white"><img src="assets/bw_street1.jpg" alt="Black and white street portrait on a London road, wearing a track jacket"></button></figure>
+    <figure class="panel h-d" style="margin:0"><span class="tag">Fig. 04 &middot; Close</span><button class="shot" data-cap="Close-up, black and white"><img src="assets/bw_closeup.jpg" alt="Tight black and white close-up of Michael's face"></button><span class="bubble">London, 2026</span></figure>
+  </section>
+
+  <section class="sec" id="tailoring">
+    <div class="sechead"><h2>Black <em>tailoring</em></h2><p>Studio &middot; black suit, bow tie &middot; white backdrop</p></div>
+    <div class="grid">
+      <figure class="panel c5" style="margin:0"><button class="shot" data-cap="Black tailoring, hand raised"><img src="assets/suit_salute.jpg" alt="Black suit and bow tie, one hand raised to his hair"></button></figure>
+      <figure class="panel c4 tone" style="margin:0"><button class="shot" data-cap="Black tailoring, seated"><img src="assets/suit_chair.jpg" alt="Seated on a wooden chair in a black suit, black and white"></button></figure>
+      <figure class="panel c3" style="margin:0"><button class="shot" data-cap="Black tailoring, profile"><img src="assets/suit_profile.jpg" alt="Black and white profile looking back over the shoulder"></button></figure>
+    </div>
+  </section>
+
+  <section class="sec" id="digitals">
+    <div class="sechead"><h2>Studio <em>digitals</em></h2><p>Clean light &middot; tank and joggers &middot; white cyc</p></div>
+    <div class="grid">
+      <div class="panel note c4 tone">
+        <h3>The <em>basics</em></h3>
+        <p>Straightforward digitals for casting: natural pose, simple clothes, even light.</p>
+        <dl>
+          <div><dt>Based</dt><dd>London, UK</dd></div>
+          <div><dt>Work</dt><dd>Editorial, commercial, stage</dd></div>
+          <div><dt>Languages</dt><dd>English, Yoruba</dd></div>
+        </dl>
+      </div>
+      <figure class="panel c4" style="margin:0"><button class="shot" data-cap="Digitals, head and shoulders"><img src="assets/tank_portrait.jpg" alt="Head and shoulders digital in a blue tank top"></button></figure>
+      <figure class="panel c4" style="margin:0"><button class="shot" data-cap="Digitals, crouched"><img src="assets/tank_crouch.jpg" alt="Crouched pose in a blue tank top and grey joggers"></button></figure>
+    </div>
+  </section>
+
+  <section class="sec" id="london">
+    <div class="sechead"><h2>London, <em>black &amp; white</em></h2><p>Street and portrait series</p></div>
+    <div class="grid">
+      <figure class="panel c3" style="margin:0"><button class="shot" data-cap="Street portrait, track jacket"><img src="assets/bw_street2.jpg" alt="Black and white street portrait in a white track jacket"></button></figure>
+      <figure class="panel c3" style="margin:0"><button class="shot" data-cap="Street portrait"><img src="assets/bw_street3.jpg" alt="Black and white portrait in front of a painted shop sign"></button></figure>
+      <figure class="panel c3 tone" style="margin:0"><button class="shot" data-cap="Portrait, smiling"><img src="assets/bw_smile.jpg" alt="Black and white portrait, smiling with chin resting on hand"></button></figure>
+      <figure class="panel c3" style="margin:0"><button class="shot" data-cap="Plaid shirt portrait"><img src="assets/plaid.jpg" alt="Black and white portrait in a plaid shirt, looking up"></button></figure>
+    </div>
+  </section>
+
+  <section class="sec" id="colour">
+    <div class="sechead"><h2>In <em>colour</em></h2><p>Casual &middot; street</p></div>
+    <div class="grid">
+      <figure class="panel c4" style="margin:0"><button class="shot" data-cap="Casual, ochre backdrop"><img src="assets/casual_ochre.jpg" alt="Colour portrait in a zip polo against an ochre backdrop"></button></figure>
+      <figure class="panel c4" style="margin:0"><button class="shot" data-cap="Street, winter"><img src="assets/street_colour.jpg" alt="Colour street portrait in a dark padded jacket"></button></figure>
+      <div class="panel note c4 tone">
+        <h3>Range, <em>not one look</em></h3>
+        <p>From sharp black tailoring to casual streetwear and close, grainy portraiture.</p>
+        <p>More on Instagram, updated with each new shoot.</p>
+        <a class="btn ghost" href="https://www.instagram.com/michaelg7765/" target="_blank" rel="noopener">@michaelg7765 &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="stage">
+    <div class="sechead"><h2>On stage: <em>ARGOS</em></h2><p>Robotic puppetry &middot; ICSR + Art 2026 &middot; Senate House</p></div>
+    <div class="stage">
+      <div>
+        <a class="video" href="https://www.youtube.com/watch?v=EQl9ydgK5as&amp;t=14s" target="_blank" rel="noopener" aria-label="Play the ARGOS Robot Theatre trailer on YouTube">
+          <img src="assets/yt_thumb.jpg" alt="Still from the ARGOS trailer: a performer and the robot dog under blue stage light">
+          <span class="play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3l16 9-16 9z" fill="#f2ede3"/></svg></span>
+          <span class="bar"><span>ARGOS &middot; Robot Theatre &middot; Trailer</span><span>Play on YouTube</span></span>
+        </a>
+        <p class="cap">I operated the robot dog cast as Argos, Odysseus's loyal dog, live opposite actor Edmund Digby-Jones. It was the closing performance of the International Conference on Social Robotics, in front of about 250 delegates.</p>
+      </div>
+      <div class="side">
+        <figure class="panel ph tone" style="margin:0"><span class="tag">Backstage &middot; 3 Jul 2026</span><button class="shot" data-cap="ARGOS at ICSR + Art 2026, Senate House"><img src="assets/ig_icsr.jpg" alt="Michael crouched beside a blue stage light at Senate House"></button></figure>
+        <ul class="credits">
+          <li class="me"><span>Robot dog operator</span><span>Michael Gbeleyi</span></li>
+          <li><span>Performer</span><span>Edmund Digby-Jones</span></li>
+          <li><span>Director</span><span>Prof. George Rodosthenous</span></li>
+          <li><span>Producer</span><span>Dr Hooman Samani</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="contact">
+    <div class="sechead"><h2>Bookings &amp; <em>castings</em></h2><p>London based</p></div>
+    <div class="contact">
+      <div>
+        <h3>Get in <em>touch</em></h3>
+        <p class="lede">Email for shoots, castings and stage work.</p>
+        <div class="mailrow"><code id="email">michaelgbeleyi@gmail.com</code><button class="btn" id="copy" type="button">Copy email</button></div>
+      </div>
+      <div class="links">
+        <a href="https://www.instagram.com/michaelg7765/" target="_blank" rel="noopener"><span>Instagram</span><span>@michaelg7765</span></a>
+        <a href="cv.html"><span>Performance CV</span><span>Stage, screen, training</span></a>
+        <a href="engineering.html"><span>Engineering portfolio</span><span>Robotics &amp; software</span></a>
+        <a href="https://m3xi.com/michael" target="_blank" rel="noopener"><span>M3XI profile</span><span>m3xi.com/michael</span></a>
+      </div>
+    </div>
+  </section>
+
+  <footer><span>Michael Gbeleyi &middot; Model Book</span><span>M3XI Paper &middot; London &middot; 2026</span></footer>
+</div>
+
+<dialog class="lb" id="lb" aria-label="Photo viewer">
+  <img id="lbimg" alt="">
+  <div class="lbbar"><span id="lbcap"></span><div><button type="button" id="lbprev" aria-label="Previous photo">&larr;</button><button type="button" id="lbnext" aria-label="Next photo">&rarr;</button><button type="button" id="lbclose">Close</button></div></div>
+</dialog>
+
+<script>
+(function(){
+  var shots=[].slice.call(document.querySelectorAll('button.shot'));
+  var lb=document.getElementById('lb');
+  if(lb&&shots.length){
+    var img=document.getElementById('lbimg'),cap=document.getElementById('lbcap'),i=0;
+    function show(n){i=(n+shots.length)%shots.length;var s=shots[i].querySelector('img');img.src=s.src;img.alt=s.alt;cap.textContent=(shots[i].dataset.cap||'')+'  ·  '+(i+1)+' / '+shots.length;}
+    shots.forEach(function(b,n){b.addEventListener('click',function(){show(n);try{lb.showModal()}catch(e){lb.setAttribute('open','')}})});
+    document.getElementById('lbprev').onclick=function(){show(i-1)};
+    document.getElementById('lbnext').onclick=function(){show(i+1)};
+    document.getElementById('lbclose').onclick=function(){lb.close()};
+    lb.addEventListener('click',function(e){if(e.target===lb)lb.close()});
+    document.addEventListener('keydown',function(e){if(!lb.open)return;if(e.key==='ArrowLeft')show(i-1);if(e.key==='ArrowRight')show(i+1);});
+  }
+  var c=document.getElementById('copy'),em=document.getElementById('email');
+  if(c&&em){c.addEventListener('click',function(){
+    var t=em.textContent;
+    function sel(){var r=document.createRange();r.selectNodeContents(em);var s=getSelection();s.removeAllRanges();s.addRange(r);c.textContent='Selected, press copy';}
+    try{navigator.clipboard.writeText(t).then(function(){c.textContent='Copied';setTimeout(function(){c.textContent='Copy email'},1800)},sel)}catch(e){sel()}
+  })}
+})();
+
+</script>
+
+</body>
+</html>

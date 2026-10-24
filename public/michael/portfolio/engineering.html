@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Michael Gbeleyi: UK model, actor and robotic puppeteer based in London.">
+<meta property="og:title" content="Michael Gbeleyi Engineering">
+<meta property="og:image" content="https://www.m3xi.com/michael/portfolio/assets/suit_chin.jpg">
+<title>Michael Gbeleyi Engineering</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* M3XI paper: notebook page + manga panels. Ink on paper, one red accent. */
+:root{
+  --paper:#f2ede3;
+  --paper-2:#e7e0d1;
+  --ink:#16130f;
+  --ink-2:#575046;
+  --rule:rgba(22,19,15,.16);
+  --red:#c0352b;
+  --display:'Playfair Display', Georgia, 'Times New Roman', serif;
+  --body:'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono:'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:repeating-linear-gradient(to bottom, transparent 0 31px, rgba(22,19,15,.045) 31px 32px);
+  color:var(--ink);
+  font:16px/1.6 var(--body);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:0 48px;
+  margin:0;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto}
+a{color:inherit}
+a:focus-visible,button:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+img{max-width:100%}
+
+/* masthead */
+.topbar{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-block:14px 10px;font:500 11px/1.4 var(--mono);letter-spacing:.12em;text-transform:uppercase}
+.topbar nav{display:flex;gap:18px;flex-wrap:wrap}
+.topbar a{text-decoration:none}
+.topbar a:hover{color:var(--red)}
+.topbar a.pg{color:var(--red);border-left:1px solid var(--rule);padding-left:18px}
+.mark{display:inline-flex;align-items:center;gap:8px}
+.mark b{display:inline-grid;place-items:center;width:20px;height:20px;background:var(--ink);color:var(--paper);font:700 12px var(--display);letter-spacing:0}
+
+.nameplate{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:32px;align-items:end;padding-block:40px 28px;border-bottom:1px solid var(--rule)}
+.eyebrow{font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin:0 0 12px}
+h1{font:400 clamp(52px, 9vw, 120px)/.92 var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance}
+h1 em{font-style:italic;font-weight:400}
+.lede{font-size:17px;max-width:44ch;margin:0;color:var(--ink-2)}
+.lede strong{color:var(--ink);font-weight:600}
+
+/* section heads */
+.sec{padding-block:44px 8px}
+.sechead{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:2px solid var(--ink);padding-top:12px;margin-bottom:20px}
+.sechead h2{font:400 clamp(30px, 4.4vw, 46px)/1.05 var(--display);margin:0;text-wrap:balance}
+.sechead h2 em{font-style:italic}
+.sechead p{margin:0;font:500 11px/1.5 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);max-width:48ch}
+
+/* panels */
+.panel{position:relative;border:2px solid var(--ink);background:var(--paper);overflow:hidden;min-width:0}
+.panel > img{display:block;width:100%;height:100%;object-fit:cover}
+.tag{position:absolute;left:0;top:0;z-index:2;background:var(--ink);color:var(--paper);font:500 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:6px 8px}
+.tone::after{content:"";position:absolute;right:0;bottom:0;width:45%;height:45%;pointer-events:none;
+  background-image:radial-gradient(var(--ink) 1.1px, transparent 1.5px);background-size:6px 6px;opacity:.22;
+  -webkit-mask-image:linear-gradient(to top left,#000 10%,transparent 70%);mask-image:linear-gradient(to top left,#000 10%,transparent 70%)}
+button.shot{all:unset;display:block;cursor:zoom-in;width:100%;height:100%}
+button.shot img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+button.shot:hover img{transform:scale(1.025)}
+button.shot:focus-visible{outline:3px solid var(--red);outline-offset:-3px}
+
+/* video preview */
+.video{position:relative;display:block;aspect-ratio:16/9;max-width:100%;border:2px solid var(--ink);overflow:hidden;background:var(--ink);text-decoration:none;color:var(--paper)}
+.video img{display:block;width:100%;height:100%;object-fit:cover;opacity:.92;transition:opacity .3s ease, transform .6s ease}
+.video::before{content:"";position:absolute;inset:-20%;z-index:1;pointer-events:none;opacity:.18;
+  background:repeating-conic-gradient(from 0deg at 50% 50%, rgba(242,237,227,.9) 0deg .7deg, transparent .7deg 6deg);
+  -webkit-mask-image:radial-gradient(circle at 50% 50%, transparent 14%, #000 60%);mask-image:radial-gradient(circle at 50% 50%, transparent 14%, #000 60%)}
+.video .play{position:absolute;z-index:2;left:50%;top:50%;width:78px;height:78px;margin:-39px 0 0 -39px;border-radius:50%;background:var(--red);border:2px solid var(--paper);display:grid;place-items:center;transition:transform .25s ease}
+.video .play svg{width:28px;height:28px;margin-left:5px}
+.video .bar{position:absolute;z-index:2;left:0;right:0;bottom:0;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--ink);padding:9px 12px;font:500 11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.video .bar span:last-child{color:#e9a59f}
+.video:hover img{opacity:1;transform:scale(1.02)}
+.video:hover .play{transform:scale(1.08)}
+.video:focus-visible{outline:3px solid var(--red);outline-offset:3px}
+
+/* fact strip */
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:0;border:2px solid var(--ink);background:var(--paper)}
+.facts div{padding:12px 14px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);min-width:0}
+.facts dt{font:500 10.5px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);margin:0 0 4px}
+.facts dd{margin:0;font-weight:600;font-size:15px;line-height:1.35}
+
+.credits{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}
+.credits li{display:grid;grid-template-columns:minmax(0,11em) minmax(0,1fr);gap:12px;border-bottom:1px dashed var(--rule);padding-bottom:6px}
+.credits li span:first-child{font:500 11px/1.6 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.credits li.me span:last-child{color:var(--red);font-weight:600}
+
+/* contact */
+.contact{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:start}
+.contact h3{font:400 clamp(34px,5vw,56px)/1 var(--display);margin:0 0 12px}
+.contact h3 em{font-style:italic;color:var(--red)}
+.mailrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.mailrow code{font:500 15px var(--mono);background:var(--paper-2);border:1px solid var(--rule);padding:8px 10px;user-select:all;word-break:break-all}
+.btn{appearance:none;font:500 12px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;border:2px solid var(--ink);background:var(--ink);color:var(--paper);padding:10px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn:hover{background:var(--red);border-color:var(--red);color:var(--paper)}
+.links{display:grid;gap:10px}
+.links a{display:flex;justify-content:space-between;gap:12px;border:2px solid var(--ink);padding:14px 16px;text-decoration:none;background:var(--paper);font-weight:600}
+.links a span:last-child{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.links a:hover{background:var(--ink);color:var(--paper)}
+.links a:hover span:last-child{color:var(--paper)}
+footer{margin-top:48px;border-top:2px solid var(--ink);padding-top:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+
+/* lightbox */
+dialog.lb{border:2px solid var(--ink);padding:0;background:var(--paper);max-width:min(92vw,980px);width:auto;color:var(--ink)}
+dialog.lb::backdrop{background:rgba(22,19,15,.86)}
+dialog.lb img{display:block;max-width:100%;max-height:78vh;margin:0 auto;object-fit:contain}
+dialog.lb .lbbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border-top:2px solid var(--ink);font:500 11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+dialog.lb .lbbar div{display:flex;gap:6px}
+dialog.lb .lbbar button{appearance:none;border:2px solid var(--ink);background:var(--paper);color:var(--ink);font:600 12px var(--mono);padding:6px 10px;cursor:pointer}
+dialog.lb .lbbar button:hover{background:var(--ink);color:var(--paper)}
+
+@media (max-width:760px){
+  .nameplate{grid-template-columns:1fr;gap:18px;padding-block:28px 22px}
+  .contact{grid-template-columns:1fr}
+  .credits li{grid-template-columns:1fr;gap:0}
+  .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .video .bar span:first-child{display:none}
+  .video .bar{justify-content:flex-end;padding:7px 10px}
+  .video .play{width:60px;height:60px;margin:-30px 0 0 -30px}
+  .video .play svg{width:22px;height:22px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+
+/* page: engineering */
+.feature{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px;align-items:start}
+.feature .side{display:grid;gap:14px}
+.feature .ph{aspect-ratio:4/3}
+.feature .ph img{object-position:50% 30%}
+.prose{font-size:16px;max-width:62ch}
+.prose p{margin:0 0 12px}
+.callout{border:2px solid var(--ink);background:var(--ink);color:var(--paper);padding:14px 16px;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+.callout b{font:400 40px/1 var(--display);font-style:italic;color:#e9a59f}
+.callout span{font:500 12px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.projects{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px}
+.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}.c12{grid-column:span 12}
+.proj{display:flex;flex-direction:column;gap:12px;padding:44px 18px 18px}
+.proj h3{font:400 30px/1.05 var(--display);margin:0;text-wrap:balance}
+.proj h3 em{font-style:italic}
+.proj p{margin:0;color:var(--ink-2);font-size:15px;max-width:60ch}
+.chips{list-style:none;margin:auto 0 0;padding:0;display:flex;gap:6px;flex-wrap:wrap}
+.chips li{font:500 10.5px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--ink);padding:6px 7px;background:var(--paper)}
+.stamp{position:absolute;top:12px;right:12px;z-index:2;border:2px solid var(--red);color:var(--red);font:600 10.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;padding:6px 8px;transform:rotate(4deg);background:rgba(242,237,227,.85)}
+.field{position:relative;height:260px;border:1px solid var(--rule);background:var(--paper-2);margin-top:2px}
+.field canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.field small{position:absolute;left:8px;bottom:6px;font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.armfig{border:1px solid var(--rule);background:var(--paper-2);display:grid;place-items:center;padding:10px}
+.armfig svg{width:100%;max-width:340px;height:auto}
+.strip{display:flex;gap:18px;flex-wrap:wrap;align-items:baseline;padding:14px 18px}
+.strip b{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+.stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));border:2px solid var(--ink)}
+.stack div{padding:16px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);min-width:0}
+.stack h4{margin:0 0 8px;font:500 11px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+.stack p{margin:0;font-size:15px;font-weight:500}
+.path{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}
+.path h3{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;margin:0 0 10px;color:var(--ink-2)}
+.path ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--ink)}
+.path li{position:relative;padding:0 0 18px 18px}
+.path li::before{content:"";position:absolute;left:-7px;top:6px;width:12px;height:12px;background:var(--paper);border:2px solid var(--ink)}
+.path li.now::before{background:var(--red);border-color:var(--red)}
+.path time{display:block;font:500 11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.path strong{display:block;font-size:16px}
+.path span{color:var(--ink-2);font-size:14.5px}
+@media (max-width:760px){
+  .feature{grid-template-columns:1fr}
+  .projects > *{grid-column:span 12}
+  .path{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="topbar">
+    <span class="mark"><b>M</b> M3XI Paper &middot; Engineering</span>
+    <nav aria-label="Sections">
+      <a href="#puppetry">Puppetry</a><a href="#projects">Projects</a><a href="#stack">Stack</a><a href="#path">Path</a><a href="#contact">Contact</a><a class="pg" href="index.html">Model book</a><a class="pg" href="cv.html">CV</a>
+    </nav>
+  </header>
+
+  <section class="nameplate">
+    <div>
+      <p class="eyebrow">Creative roboticist &middot; Software engineer &middot; Founder, M3XI</p>
+      <h1>Michael <em>Gbeleyi</em></h1>
+    </div>
+    <p class="lede">BSc Creative Robotics at UAL. I build robots and software that connect people, and I have performed twice as a <strong>robotic puppeteer</strong>, most recently operating the robot dog in ARGOS at the International Conference on Social Robotics.</p>
+  </section>
+
+  <section class="sec" id="puppetry">
+    <div class="sechead"><h2>Robotic <em>puppetry</em></h2><p>Fig. 01 &middot; ARGOS &middot; closing performance, ICSR + Art 2026</p></div>
+    <div class="feature">
+      <div style="display:grid;gap:14px;min-width:0">
+        <a class="video" href="https://www.youtube.com/watch?v=EQl9ydgK5as&amp;t=14s" target="_blank" rel="noopener" aria-label="Play the ARGOS Robot Theatre trailer on YouTube">
+          <img src="assets/yt_thumb.jpg" alt="Still from the ARGOS trailer: a performer and the robot dog under blue stage light">
+          <span class="play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3l16 9-16 9z" fill="#f2ede3"/></svg></span>
+          <span class="bar"><span>ARGOS &middot; Robot Theatre &middot; Trailer &middot; Hooman Samani</span><span>Play on YouTube</span></span>
+        </a>
+        <dl class="facts">
+          <div><dt>Role</dt><dd>Robot dog operator</dd></div>
+          <div><dt>Event</dt><dd>18th ICSR + Art 2026</dd></div>
+          <div><dt>Venue</dt><dd>Senate House, London</dd></div>
+          <div><dt>Date</dt><dd>3 July 2026</dd></div>
+          <div><dt>Audience</dt><dd>~250 delegates</dd></div>
+          <div><dt>Running time</dt><dd>35 minutes</dd></div>
+        </dl>
+      </div>
+      <div class="side">
+        <div class="callout"><b>&times;2</b><span>Robotic puppetry performances</span></div>
+        <div class="prose">
+          <p>ARGOS retells the moment Odysseus comes home after twenty years and is recognised only by his dog. The dog is a real robot, and I drove it live on stage opposite actor Edmund Digby-Jones.</p>
+          <p>The piece is about trust, error and intimacy between people and machines, so every movement had to read as feeling to the audience, not as mechanics.</p>
+        </div>
+        <ul class="credits">
+          <li class="me"><span>Robot dog operator</span><span>Michael Gbeleyi</span></li>
+          <li><span>Director</span><span>Prof. George Rodosthenous, Leeds</span></li>
+          <li><span>Producer &amp; music</span><span>Dr Hooman Samani, UAL</span></li>
+          <li><span>Partners</span><span>Leeds, UAL, CUT, CYENS</span></li>
+        </ul>
+        <figure class="panel ph tone" style="margin:0"><span class="tag">Senate House &middot; 3 Jul 2026</span><button class="shot" data-cap="ARGOS at ICSR + Art 2026"><img src="assets/ig_icsr.jpg" alt="Michael crouched beside a blue stage light at Senate House"></button></figure>
+        <p style="margin:0;font-size:13px;color:var(--ink-2)">Full credits: <a href="https://ahc.leeds.ac.uk/pria/news/article/3142/professor-george-rodosthenous-directs-argos-as-closing-performance-at-major-international-robotics-conference-in-london" target="_blank" rel="noopener">University of Leeds</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="projects">
+    <div class="sechead"><h2>Selected <em>projects</em></h2><p>Robotics &middot; software &middot; real-time 3D</p></div>
+    <div class="projects">
+      <article class="panel proj c5 tone">
+        <span class="tag">Fig. 02 &middot; M3XI LTD</span>
+        <h3>M3XI: <em>connected by design</em></h3>
+        <p>A business-to-consumer SaaS company that builds tools that connect. M3XI also specialises in robotic interaction and robotic prototyping and development. I founded it and build its products end to end.</p>
+        <ul class="chips"><li>B2C SaaS</li><li>Robotic interaction</li><li>Prototyping</li><li>TypeScript</li><li>Supabase</li><li>Stripe</li></ul>
+      </article>
+      <article class="panel proj c7">
+        <span class="tag">Fig. 03 &middot; UAL</span>
+        <span class="stamp">In development</span>
+        <h3>Magnetophoretic <em>gesture</em></h3>
+        <p>An art piece testing how robotic gesture and mimicry change how people feel about machines, using magnetic particles that move through fluid under a field. Drag across the field to move the magnet.</p>
+        <div class="field"><canvas id="field" aria-label="Interactive simulation of particles drawn toward a moving magnet"></canvas><small>Simulation &middot; drag to move the magnet</small></div>
+      </article>
+      <article class="panel proj c6">
+        <span class="tag">Fig. 04 &middot; Motion</span>
+        <h3>Kinematics <em>&amp; rigging</em></h3>
+        <p>Inverse-kinematics systems in Unity, and character rigging and animation in Blender: the same problem of believable motion that robot puppetry asks for.</p>
+        <ul class="chips"><li>Unity</li><li>C#</li><li>Blender</li><li>ZBrush</li></ul>
+      </article>
+      <article class="panel proj c6 tone">
+        <span class="tag">Fig. 05 &middot; Research</span>
+        <h3>Human&ndash;robot <em>interaction</em></h3>
+        <p>A study of Disney Imagineering's robotic Olaf and the NVIDIA technology behind it, alongside essay research on how hidden mechanism and gesture shape whether people accept robots.</p>
+        <ul class="chips"><li>HRI</li><li>Robot ethics</li><li>Animacy</li></ul>
+      </article>
+      <div class="panel strip c12"><b>Also building</b><span>CallMe, a mobile app</span><span>PG01, a companion bot</span><span>Websites for restaurant and brand clients</span></div>
+    </div>
+  </section>
+
+  <section class="sec" id="stack">
+    <div class="sechead"><h2>Tools <em>I use</em></h2><p>Day-to-day stack</p></div>
+    <div class="stack">
+      <div><h4>Robotics</h4><p>C++, ROS 2, Python, robot teleoperation and puppetry, inverse kinematics</p></div>
+      <div><h4>Software</h4><p>TypeScript, JavaScript, React, Electron, Dart/Flutter, Expo/React Native, Lua</p></div>
+      <div><h4>Backend &amp; cloud</h4><p>Supabase, Stripe, Vercel, AWS</p></div>
+      <div><h4>3D &amp; real-time</h4><p>Three.js, Unity, Blender, ZBrush, Fusion 360, Gaussian splatting</p></div>
+      <div><h4>Languages</h4><p>English (native), Yoruba (fluent), Mandarin (learning)</p></div>
+    </div>
+  </section>
+
+  <section class="sec" id="path">
+    <div class="sechead"><h2>The <em>path</em></h2><p>Work and study, newest first</p></div>
+    <div class="path">
+      <div>
+        <h3>Work</h3>
+        <ol>
+          <li class="now"><time>2026 &ndash; now</time><strong>Founder &amp; Director, M3XI LTD</strong><span>B2C SaaS and robotic prototyping</span></li>
+          <li><time>Jul 2026</time><strong>Robot Dog Operator, ARGOS</strong><span>Creative Robotics Theatre, ICSR + Art 2026</span></li>
+          <li><time>2025 &ndash; 2026</time><strong>Contract Coding Teacher</strong><span>Beta Generations</span></li>
+          <li><time>2025 &ndash; now</time><strong>Freelance web developer</strong><span>Restaurant and brand sites</span></li>
+          <li><time>2022 &ndash; now</time><strong>Freelance developer &amp; 3D artist</strong><span>Independent clients</span></li>
+        </ol>
+      </div>
+      <div>
+        <h3>Study</h3>
+        <ol>
+          <li class="now"><time>2024 &ndash; 2028</time><strong>BSc (Hons) Creative Robotics</strong><span>University of the Arts London, Camberwell. Year 2</span></li>
+          <li><time>2024</time><strong>BTEC L3 Extended Diploma, D*DD</strong><span>Creative Media: Game Design &amp; Development, Havering Sixth Form College</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="contact">
+    <div class="sechead"><h2>Work <em>together</em></h2><p>Internships, collaborations, performances</p></div>
+    <div class="contact">
+      <div>
+        <h3>Say <em>hello</em></h3>
+        <p class="lede">Open to robotics and AI internships, creative-robotics collaborations and robot performance work.</p>
+        <div class="mailrow"><code id="email">michaelgbeleyi@gmail.com</code><button class="btn" id="copy" type="button">Copy email</button></div>
+      </div>
+      <div class="links">
+        <a href="https://m3xi.com/michael" target="_blank" rel="noopener"><span>M3XI profile</span><span>m3xi.com/michael</span></a>
+        <a href="index.html"><span>Model book</span><span>Modelling &amp; acting</span></a>
+        <a href="https://www.instagram.com/michaelg7765/" target="_blank" rel="noopener"><span>Instagram</span><span>@michaelg7765</span></a>
+      </div>
+    </div>
+  </section>
+
+  <footer><span>Michael Gbeleyi &middot; Engineering</span><span>M3XI Paper &middot; London &middot; 2026</span></footer>
+</div>
+
+<dialog class="lb" id="lb" aria-label="Photo viewer">
+  <img id="lbimg" alt="">
+  <div class="lbbar"><span id="lbcap"></span><div><button type="button" id="lbprev" aria-label="Previous photo">&larr;</button><button type="button" id="lbnext" aria-label="Next photo">&rarr;</button><button type="button" id="lbclose">Close</button></div></div>
+</dialog>
+
+<script>
+(function(){
+  var shots=[].slice.call(document.querySelectorAll('button.shot'));
+  var lb=document.getElementById('lb');
+  if(lb&&shots.length){
+    var img=document.getElementById('lbimg'),cap=document.getElementById('lbcap'),i=0;
+    function show(n){i=(n+shots.length)%shots.length;var s=shots[i].querySelector('img');img.src=s.src;img.alt=s.alt;cap.textContent=(shots[i].dataset.cap||'')+'  ·  '+(i+1)+' / '+shots.length;}
+    shots.forEach(function(b,n){b.addEventListener('click',function(){show(n);try{lb.showModal()}catch(e){lb.setAttribute('open','')}})});
+    document.getElementById('lbprev').onclick=function(){show(i-1)};
+    document.getElementById('lbnext').onclick=function(){show(i+1)};
+    document.getElementById('lbclose').onclick=function(){lb.close()};
+    lb.addEventListener('click',function(e){if(e.target===lb)lb.close()});
+    document.addEventListener('keydown',function(e){if(!lb.open)return;if(e.key==='ArrowLeft')show(i-1);if(e.key==='ArrowRight')show(i+1);});
+  }
+  var c=document.getElementById('copy'),em=document.getElementById('email');
+  if(c&&em){c.addEventListener('click',function(){
+    var t=em.textContent;
+    function sel(){var r=document.createRange();r.selectNodeContents(em);var s=getSelection();s.removeAllRanges();s.addRange(r);c.textContent='Selected, press copy';}
+    try{navigator.clipboard.writeText(t).then(function(){c.textContent='Copied';setTimeout(function(){c.textContent='Copy email'},1800)},sel)}catch(e){sel()}
+  })}
+})();
+
+(function(){
+  var cv=document.getElementById('field'); if(!cv) return;
+  var ctx=cv.getContext('2d'), W=0, H=0, dpr=Math.min(2,window.devicePixelRatio||1);
+  var N=560, P=[], t=0, user=null, still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function size(){var r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);}
+  size(); window.addEventListener('resize',size);
+  for(var i=0;i<N;i++)P.push({x:Math.random()*W,y:Math.random()*H,vx:0,vy:0});
+  function magnet(){ if(user) return user; return {x:W*(.5+.32*Math.sin(t*.0105)), y:H*(.5+.3*Math.sin(t*.021))}; }
+  function pos(e){var r=cv.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
+  cv.addEventListener('pointerdown',function(e){user=pos(e);cv.setPointerCapture(e.pointerId);if(still)step(60);});
+  cv.addEventListener('pointermove',function(e){if(user)user=pos(e);});
+  cv.addEventListener('pointerup',function(){user=null;});
+  cv.addEventListener('pointercancel',function(){user=null;});
+  function sim(){
+    var m=magnet();
+    for(var i=0;i<N;i++){var p=P[i],dx=m.x-p.x,dy=m.y-p.y,d2=dx*dx+dy*dy+60,d=Math.sqrt(d2);
+      var f=Math.min(2.2,900/d2);
+      if(d<22){f=-0.9;}
+      p.vx+=dx/d*f+(-dy/d)*0.06+(Math.random()-.5)*.08; p.vy+=dy/d*f+(dx/d)*0.06+(Math.random()-.5)*.08;
+      p.vx*=.9;p.vy*=.9;p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>W||p.y<0||p.y>H){p.x=Math.random()*W;p.y=Math.random()*H;p.vx=p.vy=0;}
+    }
+    t++;
+  }
+  function draw(){
+    var m=magnet(); ctx.clearRect(0,0,W,H); ctx.fillStyle='#16130f';
+    for(var i=0;i<N;i++){var p=P[i],s=Math.min(2.6,1+Math.hypot(p.vx,p.vy)*.5);ctx.fillRect(p.x,p.y,s,s);}
+    ctx.strokeStyle='#c0352b';ctx.lineWidth=2;ctx.beginPath();ctx.arc(m.x,m.y,10,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(m.x-15,m.y);ctx.lineTo(m.x+15,m.y);ctx.moveTo(m.x,m.y-15);ctx.lineTo(m.x,m.y+15);ctx.stroke();
+  }
+  function step(n){for(var k=0;k<n;k++)sim();draw();}
+  step(160);
+  if(still){return;}
+  var vis=true; if('IntersectionObserver' in window){new IntersectionObserver(function(es){vis=es[0].isIntersecting}).observe(cv);}
+  (function loop(){ if(vis){sim();draw();} requestAnimationFrame(loop); })();
+})();
+</script>
+
+</body>
+</html>
