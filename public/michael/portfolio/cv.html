@@ -164,6 +164,12 @@ dialog.lb .lbbar button:hover{background:var(--ink);color:var(--paper)}
 .skills{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:15px}
 .skills b{font-weight:600}
 .me-t{color:var(--red);font-weight:600}
+.shots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px;max-width:520px}
+.shots img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border:2px solid var(--ink)}
+.jobs{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.jobs p{margin:0;font-size:15px}
+.jobs .jt{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:2px}
+.jobs .jt span{font:500 12px/1.6 var(--mono);color:var(--ink-2);white-space:nowrap}
 .toolbar{max-width:880px;margin:16px auto 0;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 @media (max-width:640px){
   .cvhead{grid-template-columns:1fr}
@@ -175,7 +181,13 @@ dialog.lb .lbbar button:hover{background:var(--ink);color:var(--paper)}
   .topbar,.toolbar,footer{display:none}
   .sheet{border:0;margin:0;padding:0;max-width:none}
   @page{size:A4;margin:14mm}
-  .cvsec{break-inside:avoid}
+  .jobs li,.shots,.skills li,.cvsec h2{break-inside:avoid}
+  .cvsec{padding-block:12px;display:block}
+  .cvsec h2{margin-bottom:8px}
+  .cvhead{display:flex;justify-content:space-between}
+  .headshot{width:120px;flex:none}
+  .shots img{border-width:1px}
+  .shots{max-width:330px}
 }
 </style>
 </head>
@@ -224,6 +236,17 @@ dialog.lb .lbbar button:hover{background:var(--ink);color:var(--paper)}
     </section>
 
     <section class="cvsec">
+      <h2>Work experience</h2>
+      <ul class="jobs">
+        <li><p class="jt"><b>Founder &amp; Director, M3XI LTD</b><span>2026 &ndash; now</span></p><p>M3XI: <i>We are connected by design.</i> We make apps that connect people. Our dream is physical compute that connects us all together. Team Connect.</p></li>
+        <li><p class="jt"><b>Roblox Game Developer, BHStudio</b><span>2026 &ndash; now</span></p><p>I run my own Roblox studio, building games and taking map-building commissions.</p></li>
+        <li><p class="jt"><b>Coding Club Teacher (contract), Beta Generation Academy</b><span>2025 &ndash; 2026</span></p><p>Ran after-school coding clubs for children aged 5 to 12 in London schools. Taught block-based coding like Scratch, kept the group focused and having fun, and gave feedback after each session.</p></li>
+        <li><p class="jt"><b>Freelance Web Developer</b><span>2025 &ndash; now</span></p><p>Design and build websites for small businesses, including a nail brand (KD.ACRYLICS) and a fast-food business with two brands.</p></li>
+        <li><p class="jt"><b>Freelance Developer &amp; 3D Artist</b><span>2022 &ndash; now</span></p><p>Apps, websites and 3D models for independent clients.</p></li>
+      </ul>
+    </section>
+
+    <section class="cvsec">
       <h2>Modelling</h2>
       <div>
         <ul class="skills">
@@ -231,6 +254,14 @@ dialog.lb .lbbar button:hover{background:var(--ink);color:var(--paper)}
           <li><b>2025:</b> studio test shots and casual colour shoots</li>
           <li><b>2024:</b> black suit studio shoot</li>
         </ul>
+        <div class="shots">
+        <img src="assets/suit_chin.jpg" alt="Black suit, hand at chin">
+        <img src="assets/tank_full.jpg" alt="Studio digital, full length" style="object-position:50% 25%">
+        <img src="assets/bw_street1.jpg" alt="London street portrait, black and white">
+        <img src="assets/suit_salute.jpg" alt="Black suit and bow tie, hand raised">
+        <img src="assets/casual_ochre.jpg" alt="Colour portrait, ochre backdrop">
+        <img src="assets/plaid.jpg" alt="Plaid shirt portrait, black and white">
+      </div>
         <p style="margin-top:10px">See all my photos on Instagram: <a href="https://www.instagram.com/michaelg7765/" target="_blank" rel="noopener">@michaelg7765</a></p>
       </div>
     </section>
@@ -253,17 +284,8 @@ dialog.lb .lbbar button:hover{background:var(--ink);color:var(--paper)}
         <li><b>Movement:</b> I study how small gestures change what an audience feels.</li>
         <li><b>Character animation:</b> I bring 3D characters to life in Blender and Unity.</li>
         <li><b>In front of the camera:</b> studio and street photo shoots.</li>
-        <li><b>Speaking to groups:</b> I taught coding classes.</li>
+        <li><b>Speaking to groups:</b> I ran after-school coding clubs for children.</li>
         <li><b>Languages:</b> English (first language), Yoruba (fluent), Mandarin (learning).</li>
-      </ul>
-    </section>
-
-    <section class="cvsec">
-      <h2>Other work</h2>
-      <ul class="skills">
-        <li><b>2026 &ndash; now:</b> Founder of M3XI. Our slogan is &ldquo;We are connected by design.&rdquo; We make apps that connect people, and we build robot prototypes.</li>
-        <li><b>2025 &ndash; 2026:</b> Coding teacher at Beta Generations.</li>
-        <li><b>2022 &ndash; now:</b> Freelance web developer and 3D artist.</li>
       </ul>
     </section>
   </article>
