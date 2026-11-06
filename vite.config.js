@@ -145,7 +145,12 @@ export default defineConfig({
         // opens when CallMe is missing or too old to know /j/. It fetches
         // nothing, and its one script is an inline module that Vite bundles,
         // so /j can ship under `script-src 'self'` like /e.
-        j: resolve(__dirname, "j/index.html")
+        j: resolve(__dirname, "j/index.html"),
+        // Argos, the robot forge (m3xi.com/argos) and its pilot controller
+        // (m3xi.com/argos/pilot), an installable PWA. Both run fully in the
+        // browser; see docs/ARGOS.md.
+        argos: resolve(__dirname, "argos/index.html"),
+        argosPilot: resolve(__dirname, "argos/pilot/index.html")
         // Every root page above links /shared/site-chrome.css and
         // /shared/site-chrome.js, the one header and footer the site shares.
         // Those are bundled from the pages, so they need no entry of their own.
