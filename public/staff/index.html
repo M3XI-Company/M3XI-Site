@@ -203,6 +203,7 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
       <button data-tab="announce" aria-selected="false">Announcements</button>
       <button data-tab="events" aria-selected="false">Events</button>
       <button data-tab="designs" aria-selected="false">Designs</button>
+      <button data-tab="dance" aria-selected="false">Dance trends</button>
       <button data-tab="usage" aria-selected="false">Usage</button>
       <button data-tab="settings" aria-selected="false">Switches</button>
       <button data-tab="staff" aria-selected="false">Staff</button>
@@ -271,9 +272,12 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
     return r.data;
   }
   async function signed(fullPath) {
-    // Paths are stored as "bucket/rest" (frames) or bare inside appeal-evidence.
+    // Paths are stored as "bucket/rest" (moderation-frame's frames), bare "frames/<subject>/…" inside
+    // moderation-evidence (livekit-frames' frames and its context stills, 0153/0159), or bare inside
+    // appeal-evidence. A bare frames/ path used to be looked for in appeal-evidence and never opened.
     var bucket = 'appeal-evidence', path = fullPath;
     if (fullPath.indexOf('moderation-evidence/') === 0) { bucket = 'moderation-evidence'; path = fullPath.slice(20); }
+    else if (fullPath.indexOf('frames/') === 0) { bucket = 'moderation-evidence'; }
     else if (fullPath.indexOf('appeal-evidence/') === 0) { path = fullPath.slice(16); }
     var r = await sb.storage.from(bucket).createSignedUrl(path, 600);
     return r.data ? r.data.signedUrl : null;
@@ -291,6 +295,15 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
         var u = await signed(ev.frame_path); if (u) window.open(u, '_blank', 'noopener'); else toast('Could not open the frame.');
       } });
       box.appendChild(el('div', { class: 'row' }, [b]));
+    }
+    // The context stills (0159): up to 10 clean frames from just before, kept for the decision.
+    if (Array.isArray(ev.context_paths) && ev.context_paths.length) {
+      box.appendChild(el('div', { class: 'muted', text: 'Frames from just before (' + ev.context_paths.length + '):' }));
+      box.appendChild(el('div', { class: 'row' }, ev.context_paths.slice(0, 10).map(function (p, i) {
+        return el('button', { class: 'btn', text: 'Frame ' + (i + 1), onclick: async function () {
+          var u = await signed(p); if (u) window.open(u, '_blank', 'noopener'); else toast('Could not open the frame.');
+        } });
+      })));
     }
     box.appendChild(el('details', {}, [el('summary', { class: 'muted', text: 'Raw evidence' }), el('pre', { text: JSON.stringify(ev, null, 2) })]));
     return box;
@@ -3377,7 +3390,49 @@ nav.tabs button.late{border-color:var(--deep);box-shadow:inset 0 -3px 0 var(--de
       } })])]));
   }
 
-  var VIEWS = { appeals: viewAppeals, reports: viewReports, safety: viewSafety, actions: viewActions, people: viewPeople, announce: viewAnnounce, events: viewEvents, designs: viewDesigns, usage: viewUsage, settings: viewSettings, staff: viewStaff };
+  /* ── Dance trends ────────────────────────────────────── */
+  /* This week's Dance off trends (0158 dance_trends; 0179 staff_dance_trends_list and
+     staff_dance_trend_save). Members see the active ones in rank order; a trend is never deleted,
+     only hidden, so a round that named it still reads. Name 1-60, moves 1-120 (the app's
+     DANCE_TEXT_MAX), the TikTok video id digits only (never downloaded). */
+  async function viewDance(root) {
+    root.appendChild(el('h2', { text: 'Dance trends' }));
+    root.appendChild(el('p', { class: 'muted', text: 'The trends Dance off offers this week, lowest rank first. Hide one rather than delete it. Moves are what the dancers are told, in a few words.' }));
+    var rows;
+    try { rows = await rpc('staff_dance_trends_list'); }
+    catch (e) { root.appendChild(el('p', { class: 'muted', text: 'The trends tool is not on the server yet (0179).' })); return; }
+    var table = el('table');
+    root.appendChild(el('div', { class: 'card' }, [table]));
+    table.appendChild(el('tr', {}, [el('th', { text: 'Trend' }), el('th', { text: 'Moves' }), el('th', { text: 'TikTok id' }), el('th', { text: 'Rank' }), el('th', { text: 'Shown' }), el('th', { text: '' })]));
+    function row(t) {
+      var name = el('input', { type: 'text', value: t.name || '', maxlength: '60', style: 'width:100%' });
+      var moves = el('input', { type: 'text', value: t.moves || '', maxlength: '120', style: 'width:100%' });
+      var tt = el('input', { type: 'text', value: t.tiktok_id || '', inputmode: 'numeric', style: 'width:12em' });
+      var rank = el('input', { type: 'number', value: String(t.rank || 100), min: '1', max: '10000', style: 'width:6em' });
+      var shown = el('input', { type: 'checkbox' }); shown.checked = t.active !== false;
+      var id = t.id ? null : el('input', { type: 'text', placeholder: 'id, e.g. apt-shuffle', style: 'width:100%;margin-bottom:4px' });
+      var who = t.updated_at ? 'Changed ' + when(t.updated_at) + (t.updated_by_name ? ' by ' + t.updated_by_name : '') : (t.added_at ? 'Added ' + when(t.added_at) : '');
+      table.appendChild(el('tr', {}, [
+        el('td', {}, [id, name, el('div', { class: 'muted', text: (t.id ? t.id + ' · ' : '') + who })]),
+        el('td', { style: 'min-width:220px' }, [moves]),
+        el('td', {}, [tt]),
+        el('td', {}, [rank]),
+        el('td', {}, [shown]),
+        el('td', {}, [el('button', { class: 'btn', text: t.id ? 'Save' : 'Add', onclick: async function () {
+          var res = await rpc('staff_dance_trend_save', {
+            p_id: t.id || (id ? id.value : ''), p_name: name.value, p_moves: moves.value,
+            p_tiktok_id: tt.value.trim() || null, p_rank: parseInt(rank.value, 10) || 100, p_active: shown.checked,
+          });
+          if (res && res.ok) { toast(res.added ? 'Added' : 'Saved'); show('dance'); }
+          else toast('Not saved: ' + ((res && res.message) || 'check the id (a-z, 0-9, -), the lengths and the rank'));
+        } })]),
+      ]));
+    }
+    (rows || []).forEach(row);
+    row({ id: null, name: '', moves: '', tiktok_id: '', rank: 100, active: true });
+  }
+
+  var VIEWS = { appeals: viewAppeals, reports: viewReports, safety: viewSafety, actions: viewActions, people: viewPeople, announce: viewAnnounce, events: viewEvents, designs: viewDesigns, dance: viewDance, usage: viewUsage, settings: viewSettings, staff: viewStaff };
   function show(tab, opts) {
     opts = opts || {};
     currentTab = tab; usageTabRefresh = null;

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Policies — M3XI · CallMe &amp; M3XI Spatial</title>
-<meta name="description" content="M3XI policies in one place: the website privacy policy plus product policies for CallMe and M3XI Spatial — what we collect, why, and your rights. Includes what we still hold for the paused products, Cornelia and AutoUV." />
+<title>Policies — M3XI · Breeze &amp; CallMe</title>
+<meta name="description" content="M3XI policies in one place: the website privacy policy plus the product policy for CallMe and what we hold for the Breeze waitlist — what we collect, why, and your rights. Includes what we still hold for the paused products, Cornelia and AutoUV." />
 <link rel="icon" type="image/png" href="/M.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -78,15 +78,32 @@ section{padding:48px 0;position:relative}
 @media(max-width:720px){.policy,h3{scroll-margin-top:110px}}
 </style>
 <link rel="stylesheet" href="/shared/site-chrome.css">
+<link rel="stylesheet" href="/shared/company.css">
 </head>
-<body>
+<body class="m3-co">
 <header class="m3-head"><div class="m3-bar">
   <a class="m3-brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="m3-jp" aria-hidden="true">三X一</span></a>
   <nav class="m3-nav" aria-label="Main">
     <ul class="m3-links">
-      <li><a href="/">CallMe</a></li>
-      <li><a href="/design/">Create</a></li>
-      <li><a href="/events/">Events</a></li>
+      <li class="m3-prod">
+        <details class="m3-drop">
+          <summary>Products</summary>
+          <div class="m3-menu m3-menu--left">
+            <p class="m3-menu-h">Software products</p>
+            <ul>
+              <li><a href="/breeze/"><b>Breeze</b><small>Your AI fitness coach. Join the waitlist</small></a></li>
+              <li><a href="/callme/"><b>CallMe</b><small>Video call new people</small></a></li>
+            </ul>
+            <p class="m3-menu-h">More from CallMe</p>
+            <ul>
+              <li><a href="/design/"><b>Create</b><small>Design your own cards</small></a></li>
+              <li><a href="/events/"><b>Events</b><small>What&rsquo;s on</small></a></li>
+            </ul>
+          </div>
+        </details>
+      </li>
+      <li><a href="/team/">Team</a></li>
+      <li><a href="/jobs/">Careers</a></li>
       <li class="m3-help">
         <details class="m3-drop">
           <summary>Help</summary>
@@ -99,18 +116,17 @@ section{padding:48px 0;position:relative}
       </li>
     </ul>
   </nav>
-  <a class="m3-get" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get CallMe</a>
+  <a class="m3-get m3-get--breeze" href="/breeze/#waitlist">Join the waitlist</a>
 </div></header>
 
 <section id="top" style="padding-bottom:12px"><div class="wrap">
   <p class="eyebrow">Legal &amp; policies</p>
   <h1>M3XI <em>policies.</em></h1>
-  <p class="lede">Everything in one place: how the M3XI website handles your data, plus a policy for each of our products — CallMe and M3XI Spatial. Cornelia and AutoUV are on hold; what we still hold for them is covered near the end. Plain English wherever the law allows.</p>
-  <small class="upd">Effective: 28 April 2026 · Last updated: 29 October 2026 · Contact: <a href="mailto:support@m3xi.com" style="border-bottom:1px solid var(--line)">support@m3xi.com</a></small>
+  <p class="lede">Everything in one place: how the M3XI website handles your data, plus the policy for CallMe. Breeze is not released yet: its waitlist is covered under Website &amp; waitlists. Cornelia and AutoUV are on hold and M3XI Spatial has closed; what we still hold for them is covered near the end. Plain English wherever the law allows.</p>
+  <small class="upd">Effective: 28 April 2026 · Last updated: 19 November 2026 · Contact: <a href="mailto:support@m3xi.com" style="border-bottom:1px solid var(--line)">support@m3xi.com</a></small>
   <nav class="toc" aria-label="Policy sections">
     <a class="t-web" href="#website">Website &amp; waitlists</a>
     <a class="t-callme" href="#callme">CallMe</a>
-    <a class="t-spatial" href="#spatial">M3XI Spatial</a>
     <a class="t-paused" href="#paused">Paused products</a>
     <a href="#rights">Your rights</a>
   </nav>
@@ -127,6 +143,7 @@ section{padding:48px 0;position:relative}
     <h3>What the website collects</h3>
     <ul>
       <li><b>Waitlist signups.</b> If you join a waitlist on this website we store the email address you give us, an optional name, which list you joined, and the page you signed up from. This is stored securely in our database (Supabase, EU region).</li>
+      <li><b>The Breeze waitlist.</b> If you join the Breeze waitlist we store the email address you give us, when you joined, and the source tag of the link you followed, if it carried one (for example, which video it came from). Nothing else.</li>
       <li><b>Email you send us.</b> If you contact support@m3xi.com or m3xiteam@m3xi.com we receive whatever you include in your message.</li>
       <li><b>Operational data.</b> Our hosting provider (Vercel) processes standard server logs (IP address, user agent) to deliver the site over HTTPS. We do not run advertising trackers on this website.</li>
     </ul>
@@ -137,15 +154,20 @@ section{padding:48px 0;position:relative}
       <li>You can leave a waitlist at any time by emailing us or using the unsubscribe link in any email we send; we then delete your entry.</li>
     </ul>
     <h3>Cookies</h3>
-    <p>This site uses only strictly necessary operational storage, such as keeping you signed in to M3XI Spatial, or keeping a computer signed in to the CallMe creator studio for as long as its tab is open. If we ever add analytics, we will update this policy and add consent tooling first.</p>
+    <p>This site uses only strictly necessary operational storage, such as keeping a computer signed in to the CallMe creator studio for as long as its tab is open. If we ever add analytics, we will update this policy and add consent tooling first.</p>
     <p><a class="backtop" href="#top">↑ Back to all policies</a></p>
   </article>
 
   <!-- ================= CALLME ================= -->
+  <!-- CallMe 0.14 (the core journey), edited 20 Oct 2026, LOCAL ONLY: video at hello, the cover until
+       a new person's video is checked, Keep in touch, up to four socials, the keep selfie check,
+       group chats that ask, free calls in chats, city to friends only by choice. It describes 0.14
+       and migration 0153: push it only the day 0.14 is submitted (docs/RELEASE_0.14.0.md), and set
+       "Last updated" above to that day. -->
   <article class="policy callme" id="callme">
-    <p class="p-tag">Policy 02 · CallMe — a place to hang out on live calls</p>
+    <p class="p-tag">Policy 02 · CallMe — video calls, and keeping in touch with the people you click with</p>
     <h2>CallMe</h2>
-    <p>CallMe is a place for adults to hang out on live calls: at tables, with friends and crews, at events, and one-to-one with someone who is free to talk. A call opens on voice, and video turns on only when both people agree. Every user's age is verified before they can call anyone, and some of what CallMe uses is sensitive, so this policy is deliberately specific about what that involves.</p>
+    <p>CallMe is a place for adults to talk face to face on live video calls: one-to-one with someone who is free to talk, at tables with a few people, and with friends and crews. If two people get on, they can both choose to <b>keep in touch</b>, which lets them see each other&rsquo;s socials and message and call each other. Nothing about keeping in touch is shared unless both people choose it. A one-to-one call opens on video only when both people chose that before the call. Every user's age is verified before they can call anyone, and some of what CallMe uses is sensitive, so this policy is deliberately specific about what that involves.</p>
 
     <h3>Age and identity verification</h3>
     <p>CallMe is strictly 18+, and verification is <b>mandatory</b> — there is no way to skip it and reach the calling features. The check is carried out by <b>Didit</b>, our verification provider, and involves three steps:</p>
@@ -156,6 +178,7 @@ section{padding:48px 0;position:relative}
     </ul>
     <p>The face match is <b>biometric processing</b>. Under UK and EU GDPR, biometric data used to identify someone is special-category data, and we rely on your explicit consent together with the substantial public interest in keeping under-18s out of an adult service.</p>
     <p>Your document images and selfie go directly to Didit, and we receive only the outcome — pass or fail, your date of birth, and your derived age. For the photo check, your verification selfie passes through our server's memory to compare it with your card photo. <b>CallMe never stores your ID images or selfie.</b> The photo check happens only if you ask for it; see <a href="#photo-verified" class="inl">Photo verified</a>, below.</p>
+    <p id="keep-selfie"><b>One quick selfie before you first keep in touch.</b> Before you first keep in touch with someone, and again if your last check is more than 90 days old, CallMe asks for one quick selfie, to show it is still you holding the phone before your socials are shared. It works like the check you took at sign-up: Didit checks the selfie for liveness and compares it with your verification, and we receive only the outcome (pass or fail), Didit&rsquo;s reference for that check and when it happened. We keep that outcome for up to 400 days, or until you delete your account. CallMe never stores the selfie. This is biometric processing too, done only with your explicit consent, which you give each time you start the check after reading what it does. If you would rather not, everything else in CallMe still works; only keeping in touch waits for it.</p>
 
     <h3 id="photo-verified">Photo verified</h3>
     <p>If you tap <b>Verify my photo</b> in <b>Design your MeCards</b>, we ask Didit to compare the face in the first photo on your Card 1 with the selfie you took for your ID check. Our server fetches that selfie from Didit and sends it, with your card photo, back to Didit for the comparison. The selfie passes through our server&rsquo;s memory for that one request: it is never stored, logged, shown to anyone or sent to your phone, and we ask Didit not to keep the comparison. Your ID document&rsquo;s own images are never used. If Didit finds it is clearly you in both, your card shows a small <b>Photo verified</b> stamp to anyone who sees it.</p>
@@ -165,35 +188,41 @@ section{padding:48px 0;position:relative}
     <ul>
       <li><b>Account.</b> Sign-in with Google, Apple, or an email address and password; your display name; and an internal user ID.</li>
       <li><b>Verification outcome.</b> Pass or fail, date of birth and derived age — not the documents themselves.</li>
-      <li><b>Profile.</b> Age, city, bio and interests, and optionally gender, occupation, education, a social handle and your origin &mdash; one country flag you choose. Earlier versions of CallMe also asked for a relationship aim, sexual orientation and ethnicity. The app no longer asks for them and matching does not use them; an answer you gave then stays on your profile until you delete your account or ask us to remove it. Orientation and ethnicity are special-category data.</li>
+      <li><b>Profile.</b> Age, city, bio and interests, and optionally gender, occupation, education, up to four social handles (see <a href="#keep-in-touch" class="inl">Keep in touch, your socials and group chats</a>) and your origin &mdash; one country flag you choose. Earlier versions of CallMe also asked for a relationship aim, sexual orientation and ethnicity. The app no longer asks for them and matching does not use them; an answer you gave then stays on your profile until you delete your account or ask us to remove it. Orientation and ethnicity are special-category data.</li>
       <li><b>MeCards.</b> The cards you design — the photograph you add, a GIF, the words you write, a colour style, and any stickers you place on them.</li>
       <li><b>Card designs.</b> If you use the creator studio: your designs, their art, the copies you give and receive, and the computers you sign in on. See <a href="#creator-studio" class="inl">The creator studio</a> below.</li>
       <li><b>Preferences.</b> How far to look: people from your own country, or people from other countries. See "Origin and reach in matching" below. If you set an age range, a distance, genders or ethnicity groups in an older version of CallMe, those answers are still stored with your preferences, but matching no longer reads them.</li>
-      <li><b>City.</b> The city on your profile, which you type or let your phone find, and the coordinates that came with it. Your friends are shown your city, never your coordinates; since 11 October 2026 people you are not friends with are not shown it. What you type into the city field is sent to Open-Meteo's place search so it can suggest cities.</li>
+      <li><b>City.</b> The city on your profile, which you type or let your phone find, and the coordinates that came with it. Your city is shown to nobody but you unless you turn on <b>Show my city to friends</b>; then people you keep in touch with see your city, never your coordinates. People you are not in touch with have not been shown it since 11 October 2026. What you type into the city field is sent to Open-Meteo's place search so it can suggest cities.</li>
       <li><b>Friends map.</b> Location sharing is <b>off</b> until you turn it on, in <b>Settings &rarr; Location</b>. While it is on, your phone sends its place only while CallMe is open, never in the background, and only the friends you choose can see it: your town, rounded to about 5 km before it is stored, or your precise place if you pick that. Sharing switches itself off 24 hours after you turn it on, so it never stays on unless you choose it again. Friends see your last place for up to 12 hours after it was sent. We keep the places you send for up to 7 days to draw your own trail. Turning sharing off deletes them at once, and when sharing switches itself off they are deleted within minutes.</li>
       <li><b>Walks.</b> If you walk the dog in CallMe: when each walk started and ended, and your step count, from your phone's step counter, counted only while a walk you started is running. If you also let CallMe use your location for walks: the distance, the time spent moving, the average pace, whether it was a walk or a run, an estimate of the calories burned, and the name of the district or town where the walk started and where it ended. Location is used for a walk only while the walk is running and CallMe is open. The route itself stays on your phone and is never sent to us, and we do not keep the start or end coordinates; to name the district, your phone looks up a point rounded to about 100 metres with its own place service (Apple's or Google's). If you enter your weight for the calorie estimate, the weight stays on your phone, but the calorie estimates made with it are kept with your walks. Only you can see your walks and your personal bests; while a walk is running, friends you share your activity with see that you are out walking.</li>
-      <li><b>Photos.</b> Images you upload to a MeCard, shown during call intros. If you and the person you talked to both opt in to connect, the photo captured at that moment is saved to each of your connection walls.</li>
-      <li><b>Messages.</b> What you write in chats with friends, in groups and at tables, kept so the conversation is there when you come back.</li>
+      <li><b>Photos.</b> Images you upload to a MeCard, shown during call intros. Older versions of CallMe can also save a photo to each person's connection wall when both choose to connect after a call; CallMe 0.13 and later do not.</li>
+      <li><b>Messages.</b> What you write in chats with people you keep in touch with, in groups and at tables, kept so the conversation is there when you come back.</li>
+      <li><b>Keep in touch.</b> When you tap Keep in touch: whom you tapped, when, and where you met (the call or the table). When you both have tapped: that you are in touch, and when it started and ended. See <a href="#keep-in-touch" class="inl">Keep in touch, your socials and group chats</a> below.</li>
+      <li><b>Group chat invites.</b> Who invited whom to which group chat, when, and whether it was accepted, declined or left to lapse; and, if you tap Not now, that invites from that person are quiet for a while.</li>
+      <li><b>Your choices.</b> Whether calls start on video for you (kept on your phone), whether you show your city to friends, whether names are hidden in your notifications, who can invite you to group chats, which of your socials you have hidden from whom, and, if you ask to be told when someone is around, that request for 12 hours.</li>
       <li><b>Your poster and snapshots.</b> The photos, words, stickers and pieces you pin to your poster, and its short status line; friends see your poster, and people you have talked to too if you let them. A snapshot is a photo for your friends, with an optional caption and place name, shown for 24 hours once it has passed its check.</li>
       <li><b>Events.</b> If you check in at a CallMe event, that you checked in, when, and any answers you give to the event's questions.</li>
-      <li><b>Call metadata.</b> Who was matched with whom, call start and end times, whether video was mutually enabled, and connection quality — needed to run the service, prevent abuse and improve matching.</li>
+      <li><b>Call metadata.</b> Who was on each call with whom, call start and end times, whether each of you chose to start on video and whether video was on, how long each of you was on the call, and connection quality — needed to run the service, prevent abuse, decide when Keep in touch can be offered and improve pairing. If you end a call with someone new in its first minute, we note it, so the next one waits a couple of minutes.</li>
       <li><b>What your calls teach pairing.</b> For one-to-one calls, how long each call lasted and what it taught the server about who you get on with, and whether you have switched <b>Personalised pairing</b> off. See <a href="#pairing" class="inl">How one-to-one pairing is personalised</a> below.</li>
       <li><b>Crews.</b> The crews you start or join, the crew invites you send and answer and when, whether you have tapped Ready, where your crew chose to go, the ticket to catch up that you get if your crew went on without you, the call each of you used to sit at the crew's own table (and whether it was given back), and the crew links a crew's host makes. See <a href="#crews" class="inl">Crews, house tables and who's around</a> below.</li>
-      <li><b>Connections and friends.</b> Your friends can see the social handle you chose to share. Until 11 October 2026 it was also shown when you and another person both chose to connect after a call; that no longer reveals it. We also keep the friend requests you send and accept, and your friends list.</li>
+      <li><b>Door sign.</b> If you hang one for your friends (Up for a chat, Just listening or Not now), which sign and when. Only friends who already see what you&rsquo;re up to see it, and it comes down by itself after 12 hours.</li>
+      <li><b>Friends.</b> Your friends are the people you keep in touch with: anyone you both tapped Keep in touch with, and anyone you were already friends with. We keep your friends list and the friend requests you send and answer (older versions of CallMe still send them). Until 11 October 2026 a social handle was also shown when you and another person both chose to connect after a call; that no longer reveals it.</li>
       <li><b>Safety reports and flags.</b> If you report, block or mute someone, we store the report and enough context to act on it. If CallMe's word check holds or refuses something you wrote, we store the words, what the check found and what our team decided, together with any other safety flags raised against your content.</li>
       <li><b>Safety decisions and appeals.</b> Strikes, suspensions and bans on your account with the evidence behind them, a keyed identity fingerprint (see "Safety checks, strikes and bans"), and any appeal you send &mdash; your email address, what you wrote and the files you attach.</li>
       <li><b>Invites.</b> The one-time invite links you create, whether each was used and when, and how many friends joined; if you joined through an invite, which link and whether it qualified. When you install through an invite link, Google Play passes the code to the app.</li>
-      <li><b>Purchases.</b> Your Premium subscription status, the coin packs you buy, and how you spend coins in the app. Card details are handled entirely by Apple or Google and never reach us.</li>
+      <li><b>Purchases.</b> Your Premium subscription status, the call-credit packs you buy, and how you spend call credits in the app. Card details are handled entirely by Apple or Google and never reach us.</li>
       <li><b>Sticker searches.</b> What you type into the sticker and GIF picker is sent to GIPHY to return results.</li>
       <li><b>Advertising.</b> CallMe shows ads via Google AdMob, which uses your device's advertising ID. See "Advertising &amp; consent" below.</li>
     </ul>
     <h3>Your calls</h3>
     <ul>
       <li><b>Calls are never recorded or transcribed.</b> No recording of a call's sound or video is made or kept, what is said is never turned into text or analysed, and no software and nobody at CallMe listens in.</li>
-      <li><b>How a call travels.</b> A call or table runs either through <b>Agora</b> or through CallMe's own media server in Helsinki, Finland (run for us by <b>Hetzner</b>, EU). On our own server the sound and pictures pass through its memory only and are never written to disk. They are encrypted on the way to and from the server, but not end to end, so that video can be checked for safety as described below.</li>
+      <li><b>How a call travels.</b> Calls and tables run through CallMe's own media server in Helsinki, Finland (run for us by <b>Hetzner</b>, EU). The sound and pictures pass through its memory only and are never written to disk. They are encrypted on the way to and from the server, but not end to end, so that video can be checked for safety as described below. If that server is ever down, a call or table between people who are still on CallMe 0.11 can fall back to <b>Agora</b>, which carried some calls until 6 October 2026.</li>
       <li><b>Connection records.</b> For calls and tables on our own server we keep which one you joined and when you joined and left, for 62 days, to count usage and to make sure only people with a seat are connected. The media server's own logs, which include the call's identifier, your account identifier and technical connection details that can include your IP address, are kept for about a week.</li>
-      <li>When video is on, occasional still frames may be checked for nudity. How that works, and what is kept, is set out in "Safety checks, strikes and bans" below.</li>
-      <li>Every call opens on voice. Video turns on only when <b>both</b> people opt in during the call, and you can turn your camera off at any time.</li>
+      <li>When video is on, still frames are checked for nudity. A new person&rsquo;s video reaches you covered until our server has checked it. How that works, and what is kept, is set out in "Safety checks, strikes and bans" below.</li>
+      <li><b>Video on a one-to-one is always both people&rsquo;s choice.</b> Before the call you choose whether to start on video, and the call opens on video only when <b>both</b> of you chose it. Either of you can stay on voice, nobody can turn on anyone else&rsquo;s camera, and you can turn yours off at any time. At tables and on group calls your camera stays off until you turn it on; a table where cameras are on, such as Face to Face, says so before you join. Older versions of CallMe start every call on voice and ask during the call.</li>
+      <li><b>Your preview stays on your phone.</b> Before a call you see your own camera, so you know how you look. That preview is drawn on your phone only: it is never sent to us, never recorded and never checked.</li>
+      <li><b>Calls in chats.</b> A Call in a chat with someone you keep in touch with, or in a group chat, opens that chat&rsquo;s own call. We keep who started it and when, to limit how many a day anyone can start and how often an unanswered call can ring the same person.</li>
       <li>Your phone number and email are never shown to other users; calls connect through the app.</li>
     </ul>
 
@@ -204,10 +233,13 @@ section{padding:48px 0;position:relative}
       <li><b>Written words.</b> What you write for other people &mdash; messages in chats, groups and at tables, your name and profile, the words on your cards, poster and snapshots, call notes, gift notes, event answers, card designs and the suggestion board &mdash; is checked as it is saved against CallMe's own lists of words and patterns, on CallMe's own servers. Discussions and messages at tables are also scored by a small word model that runs on CallMe's own server in Helsinki (Hetzner, EU), which recognises sexual, abusive, hateful, threatening and spam wording however it is spelt. Your words are not sent to any other company to be checked, and no chatbot or general-purpose AI reads them. Depending on what the check finds, your words are saved as you wrote them, saved with part hidden (a phone number or strong swearing in a chat, for example), saved and shown to a person on our safety team, not sent at all, or taken down after they were posted; you are told when that happens and can appeal. Newer versions of the app run the same check on your phone first, so you can change your words before they go.</li>
       <li><b>Pictures.</b> Pictures for your poster, your snapshots and card-design art are checked by an image moderation service, <b>Sightengine</b>, before anyone else can see them, for nudity and sexual content, weapons, drugs, gore, violence and hateful symbols; a face that looks like a child's can be refused too. The camera details and location stored inside a picture are removed before it is checked. A picture refused as sexual or hateful is kept as evidence with that decision; other refused pictures are deleted. Profile and card photos, snapshots and poster pictures are also checked by <b>CallMe's own image check</b>, on CallMe's own server in Helsinki (Hetzner, EU): it compares each picture with pictures our safety team has banned and scores it for nudity with an image model that runs on that server. A picture that may break the rules is not shown to anyone but you until a person on our safety team has looked at it; this check never punishes anyone by itself. We keep a fingerprint (a hash) of each checked picture, so a banned picture cannot simply be uploaded again.</li>
       <li><b>Video on calls through CallMe's own server.</b> When video is on, our server takes an occasional still of each camera and shared screen exactly as it receives them, and checks it on the same server with CallMe's own image model; stills are not sent to any other company to be checked, and nobody's phone sends anything. If a still shows explicit nudity or sexual content, it pauses that person's camera and screen for everyone on the call straight away, usually for under a minute, with no penalty. If it happens twice, the person is removed from the call and their account is suspended for a few days until a person on our safety team reviews it; they are told why and can appeal. A machine never bans anyone for good. A still that looks explicit is kept in our private storage as evidence and may be looked at by a person on our safety team. Stills that show nothing wrong are kept for up to 24 hours on that same server, encrypted, so a reviewer can see what happened if someone reports a call, and are then deleted; they are not copied anywhere else unless the person is reported or flagged within that time, when up to 10 of them from the call in question are kept with the report or review as context. Stills behind a suspension are deleted if the suspension is lifted, and kept as evidence if it stands. The server takes stills of video only: it never records calls and never listens to a call's sound.</li>
-      <li><b>Video on calls through Agora.</b> When video is on, the apps of the <i>other</i> people on the call send occasional still frames of your video (including a shared screen) to <b>Sightengine</b> to check for nudity and sexual content. A frame that looks explicit hides that video from the person watching straight away, with no penalty, and asks your own app for a frame of your own camera. Only when your own frame is also unmistakably explicit are you removed from the call, with a provisional ban of a few days, and a person on our safety team reviews it before it can become permanent. Everything less certain goes to a person, with no penalty, and a frame that may show someone under 18 goes to the top of their queue. A frame is kept only when it looked explicit, in private storage, as evidence; clean frames are not stored anywhere.</li>
-      <li><b>If it happens on your call.</b> When someone on your call is removed, you get a short letter saying so &mdash; without their name or details &mdash; and the two of you are never matched again. You don't need to report what they were removed for.</li>
+      <li><b>Checked before you see it.</b> When someone you are not in touch with (or have been in touch with for less than a week) turns on a camera, their video reaches your phone covered, and the cover lifts only when our server has checked a first still of it, usually within two or three seconds. If it cannot be checked, it stays covered and you can keep talking. The cover comes back whenever they start a new camera or turn theirs back on. Our server takes stills more often in a camera&rsquo;s first minute, at tables where cameras are on, and for two minutes after someone reports that person, and less often after that.</li>
+      <li><b>When you report.</b> Opening the safety sheet or reporting someone covers their video on your phone at once, and after a report it stays covered for the rest of the call. A report of sexual content at a table, from a verified member in good standing who is at that table, also pauses that person&rsquo;s camera for everyone there for two minutes; they keep their voice.</li>
+      <li><b>Video on calls through Agora</b> (CallMe 0.11 only, and only if our own server is down). When video is on, the apps of the <i>other</i> people on the call send occasional still frames of your video (including a shared screen) to <b>Sightengine</b> to check for nudity and sexual content. A frame that looks explicit hides that video from the person watching straight away, with no penalty, and asks your own app for a frame of your own camera. Only when your own frame is also unmistakably explicit are you removed from the call, with a provisional ban of a few days, and a person on our safety team reviews it before it can become permanent. Everything less certain goes to a person, with no penalty, and a frame that may show someone under 18 goes to the top of their queue. A frame is kept only when it looked explicit, in private storage, as evidence; clean frames are not stored anywhere.</li>
+      <li><b>If it happens on your call.</b> When someone on your call is removed, you get a short letter saying so &mdash; without their name or details &mdash; and the two of you are never put on a call together again. You don't need to report what they were removed for.</li>
       <li><b>Nobody can be framed.</b> On calls through CallMe's own server the stills are taken by our server from what your camera sent, so nobody else's phone can supply one. On calls through Agora a phone can send any picture, so what someone else's app reports about you is never enough on its own to sanction you. A suspicious frame from another person's app only hides your video from them and asks your own app for a frame of your own camera; if the two do not agree, at most a person looks at it.</li>
-      <li><b>What can happen.</b> The automatic checks can hide or refuse words, give a strike for a clear slur, threat of violence, sexual request or sexual words about a child, and remove someone from a video call with a provisional ban. Strikes add up: repeated strikes lead to a warning, then a suspension. Only a person on our safety team can make a ban permanent, apart from a new account opened by someone who is already banned (see "Identity fingerprint"). Serious direct harm &mdash; unwanted sexual messages, nudity on camera, sexual threats, threats of violence, sharing private details, or anything sexual involving a minor &mdash; is a permanent ban. Abuse, slurs or harassment lead to a strike or a suspension of a few days to a few weeks. If you are suspended or banned you are taken out of any call, told the reason, how long it lasts and a reference, and the app locks until the ban ends or is lifted.</li>
+      <li><b>What can happen.</b> The automatic checks can hide or refuse words, give a strike for a clear slur, threat of violence, sexual request or sexual words about a child, briefly pause a camera or shared screen that looks explicit, and, on a call carried by Agora, remove someone from the call with a provisional ban. Strikes add up: repeated strikes lead to a warning, then a suspension. Only a person on our safety team can make a ban permanent, apart from a new account opened by someone who is already banned (see "Identity fingerprint"). Serious direct harm &mdash; unwanted sexual messages, nudity on camera, sexual threats, threats of violence, sharing private details, or anything sexual involving a minor &mdash; is a permanent ban. Abuse, slurs or harassment lead to a strike or a suspension of a few days to a few weeks. If you are suspended or banned you are taken out of any call, told the reason, how long it lasts and a reference, and the app locks until the ban ends or is lifted.</li>
+      <li><b>Social handles.</b> The handles you add to Your socials are checked as you save them, with the same word check as a name, and against patterns for adult-content, scam and link-page accounts; those cannot be added. When an account is banned for good, or for a while for sexual content or solicitation, exploitation, anything involving a minor or a scam, the handles it had added are kept on a list, with a note of which account they came from, so that nobody can add them again.</li>
       <li><b>If you might be at risk.</b> Words suggesting you may harm yourself are never punished. You get a letter with places to find support, and a person on our team may read what you wrote.</li>
       <li><b>Identity fingerprint.</b> To stop a banned person returning with a new account, we keep a one-way keyed fingerprint (an HMAC) derived from the document details your verification returns &mdash; never the document or its number in readable form. A new account whose fingerprint matches a banned one is banned too. A looser match, on name and date of birth only, is never acted on automatically; it is flagged for a person to review. The same fingerprint stops one person claiming a friend's invite reward more than once.</li>
       <li><b>Reports, appeals and human review.</b> Every report is read by a person on our safety team. You can appeal any decision at <a href="/appeal/" class="inl">m3xi.com/appeal</a> or by emailing <a href="mailto:safety@m3xi.com" class="inl">safety@m3xi.com</a>, with anything that shows what happened. A person on our safety team reads every appeal and decides it, and tells you why if they turn it down. No AI reads reports or appeals. This is how we meet your rights under UK GDPR to human intervention in, and to contest, a decision made automatically about you.</li>
@@ -235,11 +267,11 @@ section{padding:48px 0;position:relative}
     </ul>
 
     <h3>Origin and reach in matching</h3>
-    <p>Matching does not filter people by taste. Gender, age range, distance, sexual orientation and ethnicity play no part in who you are matched with. What always applies is safety: everyone must be a verified adult, and blocks, mutes, suspensions and bans are never set aside. Among the people who pass those checks, one-to-one calls lean towards people you are likely to get on with, as set out in <a href="#pairing" class="inl">How one-to-one pairing is personalised</a> below.</p>
+    <p>Matching does not filter people by taste. Gender, age range, distance, sexual orientation and ethnicity play no part in who you are put on a call with. What always applies is safety: everyone must be a verified adult, and blocks, mutes, suspensions and bans are never set aside. Among the people who pass those checks, one-to-one calls lean towards people you are likely to get on with, as set out in <a href="#pairing" class="inl">How one-to-one pairing is personalised</a> below.</p>
     <p>The one thing you choose is <b>reach</b>: people from your own country, or people from other countries. You can change it at any time in <b>Settings &rarr; Stay local or go global</b>.</p>
     <ul>
       <li>"Your country" means your <b>origin</b>: the flag you choose for yourself, which can differ from where you live. It is not worked out from your location.</li>
-      <li>Origin is optional. If you have not chosen one, reach never keeps you from being matched.</li>
+      <li>Origin is optional. If you have not chosen one, reach never keeps you from being paired.</li>
       <li>Your flag can be seen by other people in CallMe, for example on a table you host.</li>
     </ul>
 
@@ -263,21 +295,35 @@ section{padding:48px 0;position:relative}
 
     <h3 id="crews">Crews, house tables and who&rsquo;s around</h3>
     <ul>
-      <li><b>Crews.</b> A crew is you and up to three friends who go places together. Only a friend can ask you into a crew, and an invite always asks: nothing happens unless you say yes, and saying yes is not the same as being ready. A crew goes somewhere once everyone in it has tapped Ready, or when its host chooses to go with whoever is ready; anyone who is not ready stays behind and gets a ticket to join the others later. Nobody is ever moved anywhere without their own Ready (in an older CallMe, which has no Ready button, joining the crew counts as ready), and Ready clears after each outing. The people in your crew see your name, your profile photos, whether you are on the crew&rsquo;s page right now, whether you are ready and whether your CallMe is new enough for the crew room. The crew goes to its own private table (&ldquo;Just us&rdquo;, which uses one call from each person who goes, given back if nobody else is on the call with them within 3 minutes), sits at an open table together, or finds another crew who is also looking. The people at that table, or in that other crew, see what anyone on a call with you sees (below).</li>
+      <li><b>Crews.</b> A crew is you and up to three friends who go places together. Only a friend can ask you into a crew, and an invite always asks: nothing happens unless you say yes, and saying yes is not the same as being ready. A crew goes somewhere once everyone in it has tapped Ready, or when its host chooses to go with whoever is ready; anyone who is not ready stays behind and gets a ticket to join the others later. Nobody is ever moved anywhere without their own Ready (in an older CallMe, which has no Ready button, joining the crew counts as ready), and Ready clears after each outing. The people in your crew see your name, your profile photos, whether you are on the crew&rsquo;s page right now, whether you are ready and whether your CallMe is new enough for the crew room. The crew goes to its own private table (&ldquo;Just us&rdquo;, which is free), sits at an open table together, or finds another crew who is also looking. The people at that table, or in that other crew, see what anyone on a call with you sees (below).</li>
       <li><b>Crew links.</b> A crew&rsquo;s host can make a link (m3xi.com/j/&hellip;) to send to friends. It works only for the host&rsquo;s friends, never fills more than four seats, and stops working when the crew closes; it is deleted within minutes after that. The page it opens on this website loads nothing about the crew or the person who sent it; only the CallMe app reads the code in it, once you are signed in. We keep each link&rsquo;s code, which crew it opens, who made it and when.</li>
-      <li><b>House tables.</b> CallMe keeps four tables open all the time: Common Room, Late Night, Quiet Study and Game Night. Nobody hosts them and they cost nothing to join. Otherwise they work like any other table: the people sitting there see your name and card photo and what you write in the table&rsquo;s chat. What you write there is checked like any other message and deleted after 24 hours, as at any table.</li>
+      <li><b>House tables.</b> CallMe keeps five tables open all the time: The Common Room, Face to Face (where cameras are on, and you are asked before your camera turns on), Late Night, Quiet Study and Game Night. Nobody hosts them and they cost nothing to join. Otherwise they work like any other table: the people sitting there see your name and card photo and what you write in the table&rsquo;s chat. What you write there is checked like any other message and deleted after 24 hours, as at any table. To show when a house table is usually busiest, we count, without naming anyone, how many members sat there in each hour over the last 14 days, from the connection records above, and keep only those totals. A table shows that line only when enough different people have used it.</li>
       <li><b>Who&rsquo;s around.</b> Home shows roughly how many people are around right now: a number, never who they are, and below five it just says &ldquo;a few&rdquo;. Your name and photo appear there only to your friends, and only while you let friends see what you&rsquo;re up to (<b>Show friends what I&rsquo;m up to</b>, on your poster). Blocks and mutes are respected. People who are not your friends never see that you, by name, are around.</li>
+    </ul>
+
+    <h3 id="keep-in-touch">Keep in touch, your socials and group chats</h3>
+    <ul>
+      <li><b>Keep in touch is one tap, private, and mutual.</b> After you have talked with someone for a couple of minutes on a call, or sat with them at a table for five, either of you can tap <b>Keep in touch</b> on the call, on its summary, or in <b>People you talked to</b> for 48 hours. Nothing is sent when you tap. If they tap it too, you are in touch: you become friends, you see each other&rsquo;s socials, and you can message and call each other. If they never tap it, your tap lapses and is deleted, and a tap that isn&rsquo;t returned is never shown to anyone. You can also keep in touch with someone in a small group chat you have both joined.</li>
+      <li><b>When it can&rsquo;t happen.</b> Keeping in touch needs you both to have passed the ID check and the selfie check (above), to be in good standing and not blocked either way. It never completes for 30 days after either of you reports the other, or after a still of either of you was found explicit on a call or table you shared, and there are limits on how many people anyone can keep in touch with each day and week. When it can&rsquo;t complete because of the other person, your tap simply waits, as if they hadn&rsquo;t tapped yet, so nothing about them is revealed.</li>
+      <li><b>Your socials.</b> You can add up to four: Instagram, TikTok, Snapchat and X, one handle each. They are shown <b>only to people you keep in touch with</b>, in the app on your page, your poster, your chats and the call summary. In a group chat, a member sees your socials only if they keep in touch with you themselves. You can hide any of them, or all of them, from any one person; they aren&rsquo;t told. If you remove a social, it disappears for everyone at once.</li>
+      <li><b>What we can&rsquo;t undo.</b> Once someone has seen your handle they may follow you on that app, and CallMe can&rsquo;t take that back. What happens there is that app&rsquo;s business and its rules, but you can still report someone here for how they treat you there.</li>
+      <li><b>Stopping.</b> On someone&rsquo;s page you can <b>Stop keeping in touch</b>: you both stop seeing each other&rsquo;s socials at once, your direct messages with them close, and their requests and invites to you are quiet for 30 days. They aren&rsquo;t told. Blocking someone does all of that too, both ways.</li>
+      <li><b>After a report.</b> If you report someone you are in touch with, your socials are hidden from them straight away (you can show them again later), and any Keep in touch tap waiting between you is deleted. A report never depends on whether either of you has blocked the other.</li>
+      <li><b>Group chats ask.</b> From a table or a call you can start a group chat with the people who were there, for 48 hours afterwards. People you keep in touch with are added straight away; everyone else gets an invite in their Inbox, showing who invited them, where it came from and the first names of people already in it, with <b>Join</b> and <b>Not now</b>. Nobody else is put in a group without saying yes. <b>Not now</b> also keeps invites from that person quiet for 30 days, without telling them. You can choose who may invite you, in Settings. Invites lapse after 7 days, and an answered or lapsed invite is deleted 30 days later.</li>
+      <li><b>Why we do this.</b> Keeping in touch, your socials and group chats are part of the service you ask for when you use them. The limits, the waiting, the checks on handles and the record below are there to keep people safe, which is our legitimate interest and our duty under the Online Safety Act 2023. The selfie check is done only with your explicit consent.</li>
     </ul>
 
     <h3>What other people can see</h3>
     <ul>
-      <li>On a call, at a table or with another crew: your display name and the MeCard you were dealt &mdash; its photo, interests and words. Since 11 October 2026 your age and city are shown only to your friends, never to people you are not friends with.</li>
-      <li>People you have talked to in the last <b>48 hours</b>, including people you sat with at a table or at your crew&rsquo;s table, can see you (your name and the first photo on your card) in their Recent calls.</li>
-      <li>For <b>24 hours</b> after a call, the person you spoke to may see one of your MeCards on their home screen. It disappears on its own.</li>
-      <li>Your social handle, if you added one, is shown <b>only</b> to your friends.</li>
+      <li>On a call, at a table or with another crew: your display name and the MeCard you were dealt &mdash; its photo, interests and words, and your camera if you turn it on. Your age is shown only to people you keep in touch with, and your city only if you turn on <b>Show my city to friends</b>; people you are not in touch with have not been shown either since 11 October 2026.</li>
+      <li>People you have talked to in the last <b>48 hours</b>, including people you sat with at a table or at your crew&rsquo;s table, can see you (your name and the first photo on your card) in their <b>People you talked to</b> (called Recent calls in older versions). For those 48 hours they can also open your page, which shows your name, card, bio, interests, photos and flag (your age and socials only if you keep in touch, your city only if you choose), tap Keep in touch, and report you, as you can them. Someone you have had a one-to-one call with can open your page for as long as neither of you blocks the other.</li>
+      <li>For <b>24 hours</b> after a call, a person you spoke to who uses CallMe 0.12 or earlier may see one of your MeCards on their home screen. It disappears on its own. CallMe 0.13 and later do not show it.</li>
+      <li>Your socials, if you added any, are shown <b>only</b> to people you keep in touch with, and never to anyone you have hidden them from. Older versions of CallMe show your friends one of them.</li>
+      <li>Nobody is ever shown that you tapped Keep in touch with them, unless they tap it too.</li>
+      <li>In a group chat, the members see your name, your card photo and what you write there.</li>
       <li>Your crew sees your name, your profile photos, whether you are on the crew&rsquo;s page, whether you are ready and whether your CallMe is new enough for the crew room; friends see you under who&rsquo;s around only as set out in <a href="#crews" class="inl">Crews, house tables and who&rsquo;s around</a> above.</li>
       <li>Your place on the friends map is seen only by the friends you share it with, only while sharing is on, as set out under "Friends map" above.</li>
-      <li>People you block or mute cannot be matched with you unless you undo it, and apart from your lists in Settings they do not appear in your app.</li>
+      <li>People you block or mute cannot be put on a call with you unless you undo it, and apart from your lists in Settings they do not appear in your app.</li>
     </ul>
 
     <h3>How long we keep things</h3>
@@ -286,10 +332,17 @@ section{padding:48px 0;position:relative}
       <li><b>Card designs, their art and signed-in computers</b> — as set out in <a href="#creator-studio" class="inl">The creator studio</a> above.</li>
       <li><b>Walks</b> — until you delete the walk (in the app, under <b>Your walks</b>) or your account.</li>
       <li><b>Friends map</b> — the places you send, for up to 7 days, and never longer than sharing stays on: it switches itself off 24 hours after you turn it on, and the places go when it does.</li>
-      <li><b>Recent calls list in the app</b> — visible for 48 hours.</li>
+      <li><b>People you talked to</b> (Recent calls in older versions) — visible for 48 hours.</li>
+      <li><b>A Keep in touch tap</b> — until the other person taps it too, or until it lapses 48 hours after you met (in a group chat, 48 hours after you tapped); a lapsed tap is deleted within minutes.</li>
+      <li><b>That two people were in touch</b> — the two account identifiers and the dates, while you are in touch and for 180 days after it ends, even after a block or an account is deleted, so that either of you can still report the other. Nothing else about you is kept with it.</li>
+      <li><b>Your socials and who you have hidden them from</b> — until you remove them or delete your account.</li>
+      <li><b>The selfie check before keeping in touch</b> — the outcome, Didit&rsquo;s reference and the date, for up to 400 days or until you delete your account. Never the selfie.</li>
+      <li><b>Group chat invites</b> — 7 days if nobody answers, then deleted 30 days after they were answered or lapsed. A Not now quiet lasts 30 days.</li>
+      <li><b>Handles kept after a ban</b> — kept with the ban&rsquo;s safety record, like the ban itself, so they cannot be added again, unless our safety team removes them.</li>
       <li><b>What pairing has learned</b> — while your account exists, until you switch <b>Personalised pairing</b> off (it is deleted at once), or until you ask us to stop it. Older lessons fade with each new call and only the strongest are kept. The note of which call taught what is kept with that call&rsquo;s metadata, below.</li>
       <li><b>Crews and crew invites</b> — until you delete your account. <b>Crew links</b> stop working as soon as their crew closes and are deleted within minutes.</li>
-      <li><b>MeCard wall in the app</b> — visible for 24 hours.</li>
+      <li><b>MeCard wall (CallMe 0.12 and earlier)</b> — visible for 24 hours.</li>
+      <li><b>Door sign</b> — 12 hours, then deleted within the hour.</li>
       <li><b>Call metadata</b> — up to 12 months, so we can investigate reports.</li>
       <li><b>Verification outcome</b> — while your account exists; it is what keeps you verified.</li>
       <li><b>Photo verified</b> — which photo and when, until you change that photo or delete your account; the note of each try, for 35 days.</li>
@@ -304,79 +357,30 @@ section{padding:48px 0;position:relative}
     <h3>Ground rules</h3>
     <ul>
       <li><b>18+ only.</b> CallMe is strictly for adults. Accounts found to belong to minors are removed.</li>
-      <li>We never sell your matching preferences, your match history or what pairing has learned about you, and we never share them with advertisers. Ads in CallMe are not targeted using your profile, preferences or who you matched with.</li>
-      <li>Blocking someone prevents them from being matched with you again.</li>
-      <li>Delete your account from <b>Settings → Delete account &amp; data</b>, or, if you no longer have the app installed, by emailing us as explained at <a href="/delete-account/" class="inl">m3xi.com/delete-account</a>. We erase your profile, MeCards, photos, preferences, walks, friends-map places, crews, match history and what pairing has learned within 30 days, except the safety and purchase records described above and, without your name, any card design other people hold copies of.</li>
+      <li>We never sell your matching preferences, your match history or what pairing has learned about you, and we never share them with advertisers. Ads in CallMe are not targeted using your profile, preferences or who you talked to.</li>
+      <li>Blocking someone prevents them from being put on a call with you again.</li>
+      <li>Delete your account from <b>Settings → Delete account &amp; data</b>, or, if you no longer have the app installed, by emailing us as explained at <a href="/delete-account/" class="inl">m3xi.com/delete-account</a>. We erase your profile, MeCards, photos, socials, preferences, walks, friends-map places, crews, match history and what pairing has learned within 30 days, except the safety and purchase records described above (including, for 180 days, the bare record that you were in touch with someone) and, without your name, any card design other people hold copies of.</li>
       <li>You must not create an account for anyone else, use another person's identity document, or attempt to defeat the verification check.</li>
     </ul>
     <h3>Advertising &amp; consent</h3>
     <p>Ads are served by Google AdMob. In the UK and EEA you will see a consent form when the app first opens, provided by Google's User Messaging Platform, and can change your answer any time from <b>Settings → Ad privacy options</b>. On iOS you will also see Apple's tracking prompt; declining still leaves every feature available. You can also choose to watch a rewarded advert to earn an extra call. As above, your matching data is never used to target ads.</p>
     <h3>Subprocessors</h3>
-    <p>Supabase (auth, database, storage, and CallMe's own word check &mdash; EU region) · Didit (identity document, liveness and face-match verification, and the Photo verified comparison you can ask for &mdash; EU) · Agora (carries live voice and video on some calls &mdash; calls are not recorded, transcribed or stored) · Hetzner (hosts CallMe's own media server, image check and word check in Helsinki &mdash; EU; calls pass through memory only and are not recorded; stills that show nothing wrong are kept encrypted for up to 24 hours) · Sightengine (checks poster pictures, snapshots, card-design art and still frames from video calls carried by Agora &mdash; EU) · Resend (appeal emails &mdash; USA) · Google AdMob (advertising) · GIPHY (sticker and GIF search, and checking the rating of the GIFs on cards, by the GIF's own id only &mdash; USA) · OpenFreeMap (the map tiles for the friends map, from OpenStreetMap data, drawn in the app with MapLibre) · Open-Meteo (city search) · Google Play &amp; Apple (purchase verification) · Vercel (hosting).</p>
+    <p>Supabase (auth, database, storage, and CallMe's own word check &mdash; EU region) · Didit (identity document, liveness and face-match verification, the selfie check before you first keep in touch, and the Photo verified comparison you can ask for &mdash; EU) · Hetzner (hosts CallMe's own media server, image check and word check in Helsinki &mdash; EU; calls pass through memory only and are not recorded; stills that show nothing wrong are kept encrypted for up to 24 hours) · Agora (a fallback for calls on CallMe 0.11 only, if our own server is down &mdash; calls are not recorded, transcribed or stored) · Sightengine (checks poster pictures, snapshots, card-design art and, on calls carried by Agora, still frames from video &mdash; EU) · Resend (appeal emails &mdash; USA) · Google AdMob (advertising) · GIPHY (sticker and GIF search, and checking the rating of the GIFs on cards, by the GIF's own id only &mdash; USA) · OpenFreeMap (the map tiles for the friends map, from OpenStreetMap data, drawn in the app with MapLibre) · Open-Meteo (city search) · Google Play &amp; Apple (purchase verification) · Vercel (hosting).</p>
     <p>Earlier versions of this policy also listed Anthropic, whose AI (Claude) reviewed call transcripts, appeals and card designs, and ElevenLabs, for a synthesised host voice. CallMe no longer uses either, and nothing a member says or writes is sent to them.</p>
+    <p>Until 6 October 2026 some calls ran through <b>Agora</b>, and still frames from video on those calls were checked by Sightengine. Since then calls have run on our own server, and Agora is kept only as the fallback described under &ldquo;How a call travels&rdquo; above. The call records and any evidence frames from those calls are kept as set out in &ldquo;How long we keep things&rdquo; above.</p>
     <p>Where a provider processes data outside the UK or EEA, we rely on Standard Contractual Clauses or the UK International Data Transfer Addendum.</p>
     <p><a class="backtop" href="#top">↑ Back to all policies</a></p>
   </article>
 
-  <!-- ================= M3XI SPATIAL ================= -->
-  <article class="policy spatial" id="spatial">
-    <p class="p-tag">Policy 03 · M3XI Spatial — property walkthroughs for agencies</p>
-    <h2>M3XI Spatial</h2>
-    <p>M3XI Spatial is an online tool for estate and letting agencies. Agencies scan or photograph a property, or build a walkthrough from a floor plan, and publish it for buyers and tenants to walk through in a browser. This policy covers two groups of people: <b>agency users</b>, who have an account, and <b>visitors</b>, who open a walkthrough and may send an enquiry.</p>
-
-    <h3>If you have an account</h3>
-    <ul>
-      <li><b>Account.</b> Your email address, from Google Sign-In or a one-time sign-in link, and an internal user ID.</li>
-      <li><b>Profile.</b> Optionally a username, a symbol for your avatar, an Instagram handle and a website link, shown as the maker of walkthroughs you publish.</li>
-      <li><b>Your organisation and plan.</b> The agency you belong to, your business plan, your build-credit balance and how credits were used.</li>
-      <li><b>What you upload.</b> Property scans, 360&deg; photographs, room photographs, floor plans, the property's address and postcode, room names, notes you place in a walkthrough, and your agency's branding: name, colours, logo, email, phone and website. Photographs keep whatever information your camera stored in them, such as when and where they were taken.</li>
-      <li><b>What you write.</b> Descriptions and prompts you use to build a walkthrough.</li>
-      <li><b>What we measure.</b> When a scan is attached we calculate facts about it — which way is up, where the floor and walls are, how much can be walked, and how much the camera did not capture — and store them with the scan.</li>
-    </ul>
-
-    <h3>If you visit a walkthrough</h3>
-    <ul>
-      <li><b>Opening a walkthrough</b> needs no account. We keep anonymous counts of views, not who viewed.</li>
-      <li><b>Sending an enquiry.</b> If you use Enquire, we store your name, the email address or phone number you give, your message, and which room you were in when you sent it. We deliver it to the agency that published the walkthrough: always to their dashboard, and by email where email delivery is set up.</li>
-      <li>The agency decides what to do with your enquiry and is responsible for how it uses your details. We store and deliver enquiries on the agency's behalf and do not use them for anything else.</li>
-    </ul>
-
-    <h3>Who can see what</h3>
-    <div class="note">
-      <p style="margin:0"><b>Files for walkthroughs built in the Spatial Engine are kept in a public file store.</b> Anyone who has the exact address of a file can open it, including while the walkthrough is still a draft. The address is long and not published anywhere, but it is not private. Do not upload anything to the Spatial Engine that you would not be comfortable being seen.</p>
-    </div>
-    <ul>
-      <li><b>Property tours</b> made with <a href="/capture/" class="inl">/capture/</a> use private storage. Photographs and scans are only reachable through short-lived links, and a tour is not public until the agency presses Go live.</li>
-      <li>A <b>published</b> walkthrough or tour can be opened by anyone with its link and may be listed publicly.</li>
-      <li>A <b>draft</b> is shared only through a private preview link, which the agency can replace to shut off old links.</li>
-    </ul>
-
-    <h3>Building a walkthrough with AI</h3>
-    <p>When you build a walkthrough from photographs, a floor plan or a description, the material you give is sent to the services below to do that work, and the result is stored with us. Generated walkthroughs are labelled as AI-generated wherever they appear.</p>
-    <ul>
-      <li><b>World Labs</b> (USA) receives your photographs and description and generates the walkable space.</li>
-      <li><b>Groq</b> (USA) reads floor plans and room photographs to work out the rooms and how they connect, and rewrites your description if you switch on prompt sharpening.</li>
-      <li><b>OpenStreetMap Nominatim</b> looks up the postcode and house number you give, and <b>Google Street View</b> or <b>Mapillary</b> supplies a street-level photograph of the front of the property. We keep a copy of that photograph with the walkthrough.</li>
-    </ul>
-
-    <h3>How long we keep things</h3>
-    <ul>
-      <li><b>Walkthroughs, tours, scans and photographs</b> — until the agency deletes them, or closes its account.</li>
-      <li><b>Enquiries</b> — until the agency asks us to delete them or closes its account. Deleting a tour does not delete the enquiries it received, so an agency does not lose its leads by accident.</li>
-      <li><b>Account and plan records</b> — while the account exists, and afterwards where we need them for tax and accounting.</li>
-    </ul>
-    <h3>Payments</h3>
-    <p>Business plans are arranged directly with us. If you pay by card, the payment is processed by Stripe; we receive the payment's status, never your full card number.</p>
-    <h3>Subprocessors</h3>
-    <p>Supabase (auth, database, storage — EU region) · Vercel (hosting) · World Labs (walkthrough generation — USA) · Groq (floor-plan reading and prompt rewriting — USA) · OpenStreetMap Nominatim (address lookup) · Google Street View and Mapillary (street photographs) · Resend (enquiry emails — USA) · Stripe (card payments) · Google (sign-in).</p>
-    <p><a class="backtop" href="#top">↑ Back to all policies</a></p>
-  </article>
 
   <!-- ================= PAUSED ================= -->
   <article class="policy paused" id="paused">
-    <p class="p-tag">Policy 04 · Products on hold</p>
-    <h2>Cornelia and AutoUV</h2>
-    <p>We have put these two products on hold to focus on CallMe and M3XI Spatial. Neither is being sold, downloaded or signed up to. This section says what we still hold and how to have it removed.</p>
+    <p class="p-tag">Policy 03 · Products on hold or closed</p>
+    <h2>Cornelia, AutoUV and M3XI Spatial</h2>
+    <p>Cornelia and AutoUV are on hold, and M3XI Spatial has closed, so that we can focus on Breeze and CallMe. None of them is being sold, downloaded or signed up to. This section says what we still hold and how to have it removed.</p>
+
+    <h3 id="spatial">M3XI Spatial</h3>
+    <p>M3XI Spatial, our property walkthrough service for agencies, has closed and is no longer offered. If you had an account, or sent an enquiry through a walkthrough, email <a href="mailto:support@m3xi.com?subject=M3XI%20Spatial%20data" class="inl">support@m3xi.com</a> and we will delete what we still hold.</p>
 
     <h3 id="cornelia">Cornelia (NoteTaker)</h3>
     <p>Cornelia was a study note-taking app. It was never released publicly on an app store. If you joined the Cornelia waitlist, we hold your email address as described under <a href="#website" class="inl">Website &amp; waitlists</a>. If you used an early test version, anything it recorded or generated stayed on your phone unless you switched on sync; any account details held for testers stay in our paused database until you ask us to delete them. Email <a href="mailto:support@m3xi.com?subject=Cornelia%20data" class="inl">support@m3xi.com</a> and we will remove them.</p>
@@ -409,16 +413,18 @@ section{padding:48px 0;position:relative}
 
 </div></section>
 
-<footer class="m3-foot"><div class="m3-footin">
+<footer class="m3-foot" data-stores="off"><div class="m3-footin">
   <div>
     <a class="m3-brand" href="/"><img src="/M.png" alt="" width="26" height="26"> M3XI</a>
-    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London</p>
+    <p class="m3-tag">We are connected.</p>
+    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London, United Kingdom</p>
   </div>
   <nav class="m3-footnav" aria-label="Footer">
-    <div><p class="m3-fh">CallMe</p><ul>
-      <li><a href="/">CallMe</a></li>
-      <li><a href="/design/">Create</a></li>
-      <li><a href="/events/">Events</a></li>
+    <div><p class="m3-fh">Products</p><ul>
+      <li><a href="/breeze/">Breeze</a></li>
+      <li><a href="/callme/">CallMe</a></li>
+      <li><a href="/design/">CallMe Create</a></li>
+      <li><a href="/events/">CallMe Events</a></li>
     </ul></div>
     <div><p class="m3-fh">Help</p><ul>
       <li><a href="/questions/">Questions</a></li>
@@ -427,10 +433,9 @@ section{padding:48px 0;position:relative}
       <li><a href="/delete-account/">Delete account</a></li>
     </ul></div>
     <div><p class="m3-fh">M3XI</p><ul>
+      <li><a href="/">About M3XI</a></li>
       <li><a href="/team/">Team</a></li>
-      <li><a href="/jobs/">Jobs</a></li>
-      <li><a href="/services/">Services</a></li>
-      <li><a href="/services/#spatial">M3XI Spatial</a></li>
+      <li><a href="/jobs/">Careers</a></li>
     </ul></div>
     <div><p class="m3-fh">Legal</p><ul>
       <li><a href="/privacy/" aria-current="page">Policies</a></li>
@@ -440,6 +445,7 @@ section{padding:48px 0;position:relative}
   </nav>
 </div></footer>
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+<script type="module" src="/shared/brand-fx.js"></script>
 <script type="module" src="/shared/site-chrome.js"></script>
 </body>
 </html>

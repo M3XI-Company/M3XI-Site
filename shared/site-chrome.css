@@ -2,8 +2,10 @@
  * m3xi.com — the header and footer every public page shares, and the CallMe
  * paper kit every CallMe page builds with.
  *
- * One nav for the whole site: CallMe (home), Create (/design/), Events and
- * Help (Questions, Safety, Contact). Every root page links this file and the
+ * One nav for the whole site: Products (Software products: Breeze at /breeze/, CallMe
+ * at /callme/, then CallMe's Create and Events), Team, Careers and Help
+ * (Questions, Safety, Contact). The markup is stamped into every page by
+ * tools/site-chrome.mjs. Every root page links this file and the
  * matching script (site-chrome.js); Vite bundles both, so they ship under
  * `script-src 'self'` on /events/ and /design/ like everything else.
  *
@@ -146,15 +148,17 @@
 
 .m3-head,
 .m3-foot {
-  --m3-stock: #FFFDF8;
-  --m3-ink: #231C18;
-  --m3-ink2: #5C534A;
-  --m3-rose: #C94A62;
-  --m3-rose-deep: #A63A50;
-  --m3-gold: #B6892F;
-  --m3-stroke: #2A2320;
-  --m3-line: rgba(35, 28, 24, .14);
-  --m3-hover: rgba(35, 28, 24, .05);
+  /* The brand's own colours: white, black ink and one blue. (--m3-rose and
+     --m3-gold keep their old names; they are the accent now.) */
+  --m3-stock: #FFFFFF;
+  --m3-ink: #0B0D12;
+  --m3-ink2: #4B5563;
+  --m3-rose: #1D4ED8;
+  --m3-rose-deep: #1D4ED8;
+  --m3-gold: #1D4ED8;
+  --m3-stroke: #0B0D12;
+  --m3-line: rgba(11, 13, 18, .12);
+  --m3-hover: rgba(11, 13, 18, .05);
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -171,7 +175,7 @@
 
 .m3-head {
   position: sticky; top: 0; z-index: 50;
-  background: rgba(240, 232, 216, .92);
+  background: rgba(255, 255, 255, .94);
   -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--m3-line);
 }
@@ -209,7 +213,8 @@
 }
 
 /* Help: a <details>, so it opens with no script at all. */
-.m3-help { position: relative; }
+.m3-help,
+.m3-prod { position: relative; }
 .m3-head details.m3-drop { border: 0; margin: 0; padding: 0; }
 .m3-head details.m3-drop > summary { list-style: none; }
 .m3-head details.m3-drop > summary::-webkit-details-marker { display: none; }
@@ -224,15 +229,9 @@
 /* The menu is a small letter: cream stock, ink edge, a strip of washi tape. */
 .m3-head .m3-menu {
   position: absolute; right: 0; top: calc(100% + 10px); z-index: 60;
-  width: 264px; padding: 18px 8px 8px;
-  background: var(--m3-stock); border: 1.5px solid var(--m3-stroke); border-radius: 12px;
+  width: 264px; padding: 8px;
+  background: var(--m3-stock); border: 1px solid var(--m3-line); border-radius: 12px;
   box-shadow: var(--cm-shadow), var(--cm-shadow-lift);
-}
-.m3-head .m3-menu::before {
-  content: ''; position: absolute; top: -12px; left: 22px; width: 78px; height: 22px;
-  background: #F4EBDD url("/img/callme/paper/washi-tulip.jpg") 0 0 / 150px auto;
-  opacity: .94; mix-blend-mode: multiply; transform: rotate(-4deg);
-  -webkit-clip-path: var(--cm-tape-edge); clip-path: var(--cm-tape-edge);
 }
 .m3-head .m3-menu li + li a { border-top: 1px solid rgba(35, 28, 24, .08); }
 .m3-head .m3-menu a {
@@ -240,8 +239,15 @@
   text-decoration: none; color: var(--m3-ink);
 }
 .m3-head .m3-menu a:hover { background: var(--m3-hover); }
-.m3-head .m3-menu b { display: block; font: 600 16px/1.3 'Playfair Display', Georgia, serif; color: var(--m3-ink); }
+.m3-head .m3-menu b { display: block; font: 600 15.5px/1.3 'Inter', system-ui, sans-serif; letter-spacing: -.005em; color: var(--m3-ink); }
 .m3-head .m3-menu small { display: block; margin-top: 2px; font-size: 13px; line-height: 1.4; color: var(--m3-ink2); }
+/* Products opens from the left edge of its entry and carries group headings. */
+.m3-head .m3-menu--left { right: auto; left: 0; width: 288px; }
+.m3-head .m3-menu-h {
+  margin: 0; padding: 10px 12px 6px; font-size: 11px; line-height: 1.3; letter-spacing: .16em;
+  text-transform: uppercase; font-weight: 700; color: var(--m3-ink2);
+}
+.m3-head .m3-menu ul + .m3-menu-h { margin-top: 6px; border-top: 1px solid var(--m3-line); padding-top: 14px; }
 .m3-head .m3-menu a[aria-current="page"] b { text-decoration: underline; text-decoration-color: var(--m3-rose); text-decoration-thickness: 2px; text-underline-offset: 4px; }
 
 /* Get CallMe: the kit's primary paper card (.cm-btn--primary) at header size,
@@ -249,9 +255,9 @@
 .m3-head .m3-get {
   display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   min-height: 44px; padding: 0 15px 0 12px;
-  border-radius: 10px; border: 2px solid var(--m3-stroke); background: var(--m3-rose); color: #fff;
+  border-radius: 10px; border: 2px solid #2A2320; background: #C94A62; color: #fff;
   font: 600 16px/1 'Playfair Display', Georgia, serif; letter-spacing: .005em; text-decoration: none; white-space: nowrap;
-  box-shadow: 0 2px 0 var(--m3-stroke);
+  box-shadow: 0 2px 0 #2A2320;
   transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
   -webkit-tap-highlight-color: transparent;
 }
@@ -259,9 +265,15 @@
   content: ''; flex: none; width: 16px; height: 16px; background: currentColor;
   -webkit-mask: var(--cm-tulip-img) center / contain no-repeat; mask: var(--cm-tulip-img) center / contain no-repeat;
 }
-.m3-head .m3-get:hover { background: #BC4058; transform: translateY(-1px); box-shadow: 0 3px 0 var(--m3-stroke); }
-.m3-head .m3-get:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--m3-stroke); }
+.m3-head .m3-get:hover { background: #BC4058; transform: translateY(-1px); box-shadow: 0 3px 0 #2A2320; }
+.m3-head .m3-get:active { transform: translateY(1px); box-shadow: 0 1px 0 #2A2320; }
 .m3-head .m3-get:focus-visible { outline: 3px solid var(--cm-focus); outline-offset: 3px; border-radius: 10px; }
+
+/* Join the waitlist: the same card in ink, with no tulip. Used on Breeze's
+   page and the company pages; site-chrome.js never repoints it at a store. */
+.m3-head .m3-get--breeze { padding: 0 15px; background: var(--m3-ink); border-color: var(--m3-ink); box-shadow: none; border-radius: 8px; font-family: 'Inter', system-ui, sans-serif; font-size: 14.5px; letter-spacing: 0; }
+.m3-head .m3-get--breeze::before { content: none; }
+.m3-head .m3-get--breeze:hover { background: #1D4ED8; border-color: #1D4ED8; box-shadow: none; transform: none; }
 
 @media (max-width: 900px) {
   .m3-head .m3-links > li > a,
@@ -274,6 +286,7 @@
   .m3-bar { height: auto; flex-wrap: wrap; row-gap: 0; padding: 6px 16px 4px; }
   .m3-head .m3-brand { font-size: 19px; }
   .m3-head .m3-get { order: 2; padding: 0 12px 0 10px; font-size: 15px; }
+  .m3-head .m3-get--breeze { padding: 0 12px; font-size: 14px; }
   .m3-nav { order: 3; flex: 1 0 100%; }
   .m3-links { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; }
   .m3-head .m3-links > li > a,
@@ -284,7 +297,7 @@
 /* ── Footer ──────────────────────────────────────────────────────────────── */
 
 .m3-foot {
-  border-top: 1px solid var(--m3-line); background: rgba(246, 240, 227, .66);
+  border-top: 1px solid var(--m3-line); background: #F5F7FA;
   color: var(--m3-ink2); font-size: 14px; line-height: 1.5;
 }
 .m3-footin {
@@ -296,7 +309,8 @@
   font: 600 18px/1 'Playfair Display', Georgia, serif;
 }
 .m3-foot .m3-brand img { width: 26px; height: 26px; border-radius: 7px; display: block; max-width: none; }
-.m3-foot .m3-copy { margin: 12px 0 0; font-size: 13px; color: var(--m3-ink2); }
+.m3-foot .m3-tag { margin: 12px 0 0; font: 700 15px/1.3 'Inter', system-ui, sans-serif; letter-spacing: -.01em; color: var(--m3-ink); }
+.m3-foot .m3-copy { margin: 4px 0 0; font-size: 13px; color: var(--m3-ink2); }
 .m3-footnav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
 .m3-foot .m3-fh {
   margin: 0 0 8px; font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
@@ -777,3 +791,50 @@ a.cm-store--primary:hover { background: #BC4058; color: #fff; }
   .cm-btn:hover, .cm-btn:active, a.cm-store:hover, a.cm-store:active,
   .m3-head .m3-get:hover, .m3-head .m3-get:active { transform: none; }
 }
+
+/* The waitlist button as a chip with pins (the brand pages' buttons are the
+   same part: shared/company.css, "Hardware"). */
+.m3-head .m3-get--breeze {
+  position: relative; margin: 0 8px; padding: 0 18px; border-radius: 4px; border-width: 1.5px;
+  font: 600 12px/1 'Inter', system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase;
+}
+.m3-head .m3-get--breeze::before {
+  content: ''; position: absolute; top: 8px; bottom: 8px; left: -9px; right: -9px; width: auto; height: auto;
+  -webkit-mask: none; mask: none; pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, var(--m3-ink) 0 3px, transparent 3px 8px) left / 6px 100% no-repeat,
+    repeating-linear-gradient(to bottom, var(--m3-ink) 0 3px, transparent 3px 8px) right / 6px 100% no-repeat;
+}
+.m3-head .m3-get--breeze:hover::before {
+  background:
+    repeating-linear-gradient(to bottom, #1D4ED8 0 3px, transparent 3px 8px) left / 6px 100% no-repeat,
+    repeating-linear-gradient(to bottom, #1D4ED8 0 3px, transparent 3px 8px) right / 6px 100% no-repeat;
+}
+@media (max-width: 720px) { .m3-head .m3-get--breeze { padding: 0 14px; font-size: 11.5px; } }
+
+/* The top-level entries and the menus, as parts: leads appear at an entry's
+   sides when it is under the pointer or is where you are, and each menu row
+   has a pad that fills. */
+.m3-head .m3-links > li > a,
+.m3-head details.m3-drop > summary { position: relative; border-radius: 4px; }
+.m3-head .m3-links > li > a::before,
+.m3-head details.m3-drop > summary::before {
+  content: ''; position: absolute; top: 13px; bottom: 13px; left: 0; right: 0; pointer-events: none; opacity: 0; transition: opacity .15s ease;
+  background: repeating-linear-gradient(to bottom, var(--m3-rose) 0 3px, transparent 3px 7px) left / 4px 100% no-repeat,
+              repeating-linear-gradient(to bottom, var(--m3-rose) 0 3px, transparent 3px 7px) right / 4px 100% no-repeat;
+}
+.m3-head .m3-links > li > a:hover::before,
+.m3-head .m3-links > li > a[aria-current="page"]::before,
+.m3-head details.m3-drop > summary:hover::before,
+.m3-head details.m3-drop[open] > summary::before,
+.m3-head details.m3-drop.m3-here > summary::before { opacity: 1; }
+.m3-head .m3-menu { border-radius: 6px; border-color: var(--m3-ink); box-shadow: 0 18px 30px -20px rgba(11, 13, 18, .55); }
+.m3-head .m3-menu a { position: relative; padding-left: 30px; border-radius: 4px; }
+.m3-head .m3-menu a::before {
+  content: ''; position: absolute; left: 11px; top: 16px; width: 7px; height: 7px; border: 1.5px solid var(--m3-ink); border-radius: 1px;
+  transition: background-color .15s ease, border-color .15s ease;
+}
+.m3-head .m3-menu a:hover::before,
+.m3-head .m3-menu a[aria-current="page"]::before { background: var(--m3-rose); border-color: var(--m3-rose); }
+.m3-head .m3-menu-h { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .12em; }
+.m3-foot .m3-fh { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .14em; }

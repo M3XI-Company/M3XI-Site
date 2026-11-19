@@ -1,0 +1,574 @@
+/*
+ * m3xi.com — the M3XI brand kit (co-): the homepage, /team/, every team
+ * profile, and the tidy-up the older company pages (/jobs/) share.
+ *
+ * M3XI is the brand the products stem from, so its own pages are the plainest
+ * on the site: white, black ink and one blue. No cream paper, no gold, no
+ * gradients, nothing tilted or taped. One heavy sans for headings (the
+ * wordmark in the header is the only serif). The products keep their own
+ * looks on their own pages: CallMe's paper, Breeze's sky.
+ *
+ * Team pages are generated: edit team/people.json and run
+ * `node tools/build-team.mjs`. Do not edit their HTML by hand.
+ *
+ * Contrast on white: --co-ink 19:1, --co-ink2 7.5:1, --co-accent 6.7:1.
+ */
+
+.co {
+  --co-paper: #FFFFFF;
+  --co-card: #FFFFFF;
+  --co-panel: #EEF1F6;
+  --co-soft: #F5F7FA;
+  --co-ink: #0B0D12;
+  --co-ink2: #4B5563;
+  --co-accent: #1D4ED8;
+  --co-line: rgba(11, 13, 18, .12);
+  --co-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --cm-focus: rgba(29, 78, 216, .55);
+
+  margin: 0; background: var(--co-paper); color: var(--co-ink);
+  font: 400 16px/1.65 var(--co-sans); -webkit-font-smoothing: antialiased;
+}
+.co *, .co *::before, .co *::after { box-sizing: border-box; }
+.co main { display: block; }
+.co main:focus { outline: none; }
+.co img { display: block; max-width: 100%; height: auto; }
+.co a { color: inherit; }
+.co :focus-visible { outline: 3px solid var(--cm-focus); outline-offset: 3px; border-radius: 6px; }
+
+.co-skip {
+  position: absolute; left: 12px; top: -80px; z-index: 100; padding: 10px 14px; background: var(--co-card);
+  border: 1.5px solid var(--co-ink); border-radius: 8px; font: 600 15px/1.2 var(--co-sans); text-decoration: none;
+}
+.co-skip:focus { top: 12px; }
+
+.co-wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+@media (min-width: 760px) { .co-wrap { padding: 0 24px; } }
+
+.co h1, .co h2, .co h3 { margin: 0; font-family: var(--co-sans); color: var(--co-ink); text-wrap: balance; }
+.co h1 { font-size: clamp(36px, 6.4vw, 64px); line-height: 1.04; font-weight: 800; letter-spacing: -.035em; }
+.co h2 { font-size: clamp(24px, 3.4vw, 34px); line-height: 1.15; font-weight: 700; letter-spacing: -.025em; }
+.co h3 { font-size: 20px; line-height: 1.25; font-weight: 700; letter-spacing: -.015em; }
+.co p { margin: 0; }
+
+.co-eyebrow {
+  display: flex; align-items: center; gap: 10px; margin: 0 0 14px;
+  font-size: 12px; line-height: 1.3; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--co-accent);
+}
+.co-eyebrow::before { content: ''; width: 24px; height: 2px; background: var(--co-accent); }
+.co-lede { max-width: 58ch; margin-top: 18px; font-size: clamp(17px, 1.7vw, 19.5px); line-height: 1.55; color: var(--co-ink2); }
+
+.co-hero { padding: 48px 0 8px; }
+.co-sec { padding: 40px 0; }
+.co-sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 24px; padding-bottom: 14px; border-bottom: 1px solid var(--co-line); }
+.co-sec-head p { font-size: 14.5px; color: var(--co-ink2); }
+@media (min-width: 760px) { .co-hero { padding: 72px 0 16px; } .co-sec { padding: 56px 0; } }
+
+.co-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 22px;
+  border: 1.5px solid var(--co-ink); border-radius: 8px; background: var(--co-ink); color: #fff;
+  font: 600 15.5px/1.2 var(--co-sans); text-decoration: none; transition: background-color .12s ease, border-color .12s ease;
+}
+.co a.co-btn { color: #fff; }
+.co-btn:hover { background: var(--co-accent); border-color: var(--co-accent); }
+.co-btn--ghost, .co a.co-btn--ghost { background: transparent; color: var(--co-ink); border-color: rgba(11, 13, 18, .3); }
+.co-btn--ghost:hover { background: var(--co-soft); border-color: var(--co-ink); }
+.co-btn--blue { background: var(--co-accent); border-color: var(--co-accent); }
+.co-btn--blue:hover { background: #1A40B8; border-color: #1A40B8; }
+.co-btns { display: flex; flex-wrap: wrap; gap: 12px; }
+.co-more { font-size: 14.5px; font-weight: 600; color: var(--co-accent); }
+.co-more::after { content: ' \2192'; }
+
+/* ══ The network ═════════════════════════════════════════════════════════════
+   /shared/network.js draws it. The canvas sits behind its section's content. */
+
+.co-net { position: absolute; inset: 0; display: block; width: 100%; height: 100%; pointer-events: none; }
+/* On a white page: a quiet patch of it at the right of a page's heading. */
+.co-net--side {
+  left: auto; width: min(62%, 660px); max-height: 380px;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 55%); mask-image: linear-gradient(to right, transparent, #000 55%);
+}
+.co-hero { position: relative; overflow: hidden; }
+.co-hero > .co-wrap { position: relative; z-index: 1; }
+@media (max-width: 700px) { .co-net--side { width: 100%; opacity: .6; } }
+
+/* A black section: white type, the blue button, a white-edged ghost button. */
+.co-dark { position: relative; overflow: hidden; background: var(--co-ink); color: #fff; }
+.co-dark > .co-wrap { position: relative; z-index: 1; }
+.co .co-dark h1, .co .co-dark h2 { color: #fff; }
+.co-dark .co-eyebrow { color: #9DB8FF; }
+.co-dark .co-eyebrow::before { background: #9DB8FF; }
+.co .co-dark a.co-btn--ghost { color: #fff; border-color: rgba(255, 255, 255, .45); background: rgba(11, 13, 18, .5); }
+.co-dark .co-btn--ghost:hover { background: rgba(255, 255, 255, .12); border-color: #fff; }
+
+/* ══ Homepage ════════════════════════════════════════════════════════════════ */
+
+.hm-hero { padding: 48px 0 28px; }
+.hm-hero-grid { display: grid; gap: 12px; align-items: center; }
+.co .hm-hero h1 { font-size: clamp(44px, 9vw, 84px); line-height: 1; }
+.hm-hero .co-btns { margin-top: 30px; }
+@media (min-width: 900px) {
+  .hm-hero { padding: 96px 0; }
+  .hm-hero-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 40px; }
+}
+
+/* M3XI and its products, as points in the network. network.js ties them
+   together; these are only the pictures and their names. */
+.hm-web { position: relative; height: 320px; max-width: 460px; width: 100%; margin: 0 auto; }
+@media (min-width: 900px) { .hm-web { height: 400px; } }
+.hm-chip {
+  position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, -50%);
+  display: grid; justify-items: center; gap: 9px; color: #fff; text-decoration: none;
+}
+.hm-chip img { width: 64px; height: 64px; border-radius: 16px; background: #fff; box-shadow: 0 0 0 2px rgba(255, 255, 255, .9), 0 0 0 9px rgba(96, 144, 255, .16); transition: box-shadow .15s ease; }
+.hm-chip--hub img { width: 76px; height: 76px; border-radius: 19px; box-shadow: 0 0 0 2px #fff, 0 0 0 11px rgba(96, 144, 255, .22); }
+a.hm-chip:hover img { box-shadow: 0 0 0 2px #fff, 0 0 0 9px rgba(96, 144, 255, .45); }
+.hm-chip b { font-size: 14.5px; line-height: 1; font-weight: 600; letter-spacing: -.005em; color: #fff; }
+.co a.hm-chip { color: #fff; }
+
+/* Products */
+.hm-band { background: var(--co-soft); border-top: 1px solid var(--co-line); border-bottom: 1px solid var(--co-line); }
+.co-products { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 700px) { .co-products { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; } }
+.co-product {
+  display: flex; flex-direction: column; height: 100%; padding: 26px; background: #fff;
+  border: 1px solid var(--co-line); border-radius: 14px; text-decoration: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.co-product:hover { border-color: var(--co-ink); box-shadow: 0 18px 32px -26px rgba(11, 13, 18, .55); }
+.co-product-top { display: flex; align-items: center; gap: 16px; }
+.co-product-top img { width: 68px; height: 68px; border-radius: 16px; border: 1px solid var(--co-line); }
+.co .co-product h3 { font-size: 26px; letter-spacing: -.025em; }
+.co-status { display: inline-block; margin-top: 5px; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--co-accent); }
+.co-product > p { margin-top: 18px; font-size: 16.5px; line-height: 1.55; color: var(--co-ink2); }
+.co-product .co-more { margin-top: auto; padding-top: 22px; }
+
+/* What we build */
+.hm-three { display: grid; gap: 28px; margin: 0; padding: 0; list-style: none; counter-reset: hm; }
+@media (min-width: 760px) { .hm-three { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; } }
+.hm-three li { padding-top: 18px; border-top: 2px solid var(--co-ink); counter-increment: hm; }
+.hm-three li::before { content: '0' counter(hm); display: block; margin-bottom: 10px; font-size: 13px; font-weight: 700; letter-spacing: .1em; color: var(--co-accent); }
+.hm-three p { margin-top: 8px; font-size: 17px; color: var(--co-ink2); }
+
+/* The closing band: black, with the network behind it. */
+.hm-close-in { display: grid; gap: 24px; padding: 56px 0; }
+.co .hm-close h2 { font-size: clamp(28px, 4.4vw, 44px); font-weight: 800; letter-spacing: -.03em; }
+.hm-close p { margin-top: 12px; max-width: 52ch; font-size: 17px; color: #B6BECC; }
+@media (min-width: 820px) { .hm-close-in { grid-template-columns: minmax(0, 1fr) auto; align-items: center; padding: 80px 0; } }
+
+/* ── A portrait, or a monogram until there is one ────────────────────────── */
+
+.co-photo { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: var(--co-panel); border-radius: 8px; }
+.co-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
+.co-photo-mono {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font: 700 clamp(36px, 8vw, 56px)/1 var(--co-sans); letter-spacing: -.02em; color: rgba(11, 13, 18, .35);
+}
+
+/* ── Team directory ──────────────────────────────────────────────────────── */
+
+.co-people { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 760px) { .co-people { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; } }
+@media (max-width: 339px) { .co-people { grid-template-columns: 1fr; } }
+.co-person {
+  display: flex; flex-direction: column; height: 100%; padding: 10px 10px 16px; background: var(--co-card);
+  border: 1px solid var(--co-line); border-radius: 12px; text-decoration: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.co-person:hover { border-color: var(--co-ink); box-shadow: 0 14px 28px -22px rgba(11, 13, 18, .5); }
+.co-person-txt { display: flex; flex-direction: column; flex: 1; padding: 14px 6px 0; }
+.co .co-person h3 { font-size: clamp(17px, 2.3vw, 21px); }
+.co-role { margin-top: 5px; font-size: 13.5px; line-height: 1.4; font-weight: 600; color: var(--co-accent); }
+.co-reports { margin-top: 4px; font-size: 13px; line-height: 1.4; color: var(--co-ink2); }
+.co-person .co-more { margin-top: auto; padding-top: 14px; font-size: 13.5px; color: var(--co-ink); }
+
+.co-band { margin: 24px 0 72px; padding: 28px 22px; background: var(--co-soft); border: 1px solid var(--co-line); border-radius: 14px; display: grid; gap: 18px; }
+.co-band p { margin-top: 8px; max-width: 56ch; color: var(--co-ink2); }
+@media (min-width: 760px) { .co-band { grid-template-columns: minmax(0, 1fr) auto; align-items: center; padding: 36px 40px; } }
+
+/* ── Profile ─────────────────────────────────────────────────────────────── */
+
+.co-crumb { padding: 22px 0 0; font-size: 14px; color: var(--co-ink2); }
+.co-crumb a { text-decoration: none; font-weight: 500; }
+.co-crumb a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.co-crumb span { margin: 0 8px; opacity: .6; }
+
+.co-profile { display: grid; gap: 28px; padding: 22px 0 72px; }
+@media (min-width: 820px) { .co-profile { grid-template-columns: 300px minmax(0, 1fr); gap: 56px; align-items: start; padding-top: 30px; } .co-side { position: sticky; top: 90px; } }
+.co-side .co-photo { max-width: 300px; }
+.co-facts { margin: 18px 0 0; padding: 0; border-top: 1px solid var(--co-line); font-size: 14.5px; }
+.co-facts div { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--co-line); }
+.co-facts dt { color: var(--co-ink2); }
+.co-facts dd { margin: 0; font-weight: 600; text-align: right; }
+.co-facts a { color: var(--co-accent); text-decoration: underline; text-underline-offset: 3px; }
+
+.co .co-profile-head h1 { font-size: clamp(34px, 5.4vw, 52px); }
+.co-profile-head .co-role { margin-top: 10px; font-size: 16px; }
+.co-block { margin-top: 36px; }
+.co .co-block > h2 { margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--co-line); font-size: 21px; letter-spacing: -.015em; }
+.co-bio p { max-width: 64ch; color: #1F2937; }
+.co-bio p + p { margin-top: 12px; }
+.co-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.co-tags li { padding: 6px 12px; background: var(--co-soft); border: 1px solid var(--co-line); border-radius: 6px; font-size: 14px; font-weight: 500; }
+
+/* Selected work: the same card for everyone. */
+.co-work { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 620px) { .co-work { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.co-work-item { display: flex; flex-direction: column; height: 100%; background: var(--co-card); border: 1px solid var(--co-line); border-radius: 12px; overflow: hidden; text-decoration: none; }
+a.co-work-item:hover { border-color: var(--co-ink); }
+.co-work-img { aspect-ratio: 16 / 10; background: var(--co-panel); overflow: hidden; }
+.co-work-img img { width: 100%; height: 100%; object-fit: cover; }
+.co-work-txt { padding: 16px 18px 18px; }
+.co-work-icon { width: 44px; height: 44px; margin-bottom: 12px; border-radius: 11px; border: 1px solid var(--co-line); }
+.co-work-kind { font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--co-accent); }
+.co .co-work-item h3 { margin-top: 6px; font-size: 18px; }
+.co-work-txt p { margin-top: 6px; font-size: 14.5px; line-height: 1.55; color: var(--co-ink2); }
+.co-empty { padding: 22px; border: 1px dashed rgba(11, 13, 18, .3); border-radius: 12px; font-size: 14.5px; color: var(--co-ink2); }
+
+.co-links { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--co-line); }
+.co-links li { border-bottom: 1px solid var(--co-line); }
+.co-links a { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; min-height: 46px; text-decoration: none; font-size: 15px; }
+.co-links a:hover span:last-child { text-decoration: underline; text-underline-offset: 3px; }
+.co-links span:first-child { color: var(--co-ink2); }
+.co-links span:last-child { font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+
+/* ── Contact ─────────────────────────────────────────────────────────────── */
+
+.ct-grid { display: grid; gap: 20px; align-items: start; }
+@media (min-width: 820px) { .ct-grid { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 28px; } }
+.ct-card { padding: 26px 22px; background: #fff; border: 1px solid var(--co-line); border-radius: 14px; }
+@media (min-width: 760px) { .ct-card { padding: 32px; } }
+.co .ct-card h2 { font-size: 22px; margin-bottom: 14px; }
+.ct-card p { margin-top: 12px; color: var(--co-ink2); font-size: 15.5px; }
+.co a.ct-email { display: inline-block; font-size: clamp(20px, 3vw, 26px); line-height: 1.2; font-weight: 700; letter-spacing: -.02em; color: var(--co-accent); text-decoration: none; overflow-wrap: anywhere; }
+.co a.ct-email:hover { text-decoration: underline; text-underline-offset: 4px; }
+.co a.ct-email--sm { font-size: 19px; }
+.ct-list { margin: 20px 0 0; padding: 0; border-top: 1px solid var(--co-line); font-size: 14.5px; }
+.ct-list div { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--co-line); }
+.ct-list dt { color: var(--co-ink2); }
+.ct-list dd { margin: 0; font-weight: 600; text-align: right; }
+.ct-list a { color: var(--co-accent); text-decoration: none; }
+.ct-socials { display: flex; gap: 10px; margin-top: 20px; }
+.ct-socials a { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--co-line); border-radius: 8px; background: #fff; }
+.ct-socials a:hover { border-color: var(--co-ink); }
+.ct-socials svg { width: 18px; height: 18px; fill: var(--co-ink); }
+
+.ct-form label { display: block; margin: 0 0 6px; font-size: 13.5px; font-weight: 600; }
+.ct-form input, .ct-form select, .ct-form textarea {
+  width: 100%; min-height: 48px; margin-bottom: 16px; padding: 11px 14px; background: #fff; color: var(--co-ink);
+  border: 1.5px solid rgba(11, 13, 18, .3); border-radius: 8px; font: 400 16px/1.4 var(--co-sans);
+}
+.ct-form textarea { min-height: 120px; resize: vertical; }
+.ct-form input:focus, .ct-form select:focus, .ct-form textarea:focus { outline: 3px solid var(--cm-focus); outline-offset: 1px; border-color: var(--co-accent); }
+.ct-form .co-btn { width: 100%; cursor: pointer; }
+.ct-card p.ct-note { margin-top: 12px; font-size: 13.5px; }
+
+.ct-copied { max-width: 800px; scroll-margin-top: 110px; margin-bottom: 40px; }
+.ct-copied ul { margin: 0 0 16px; padding-left: 20px; color: var(--co-ink2); font-size: 15.5px; }
+.ct-copied li { margin: 5px 0; }
+.ct-card p.ct-aside { font-size: 14.5px; }
+
+/* ══ The older pages: /jobs/ and the legal pages ═════════════════════════════
+   (/privacy/, /terms/, /delete-account/, /child-safety/.) Each keeps its own
+   inline sheet; with class="m3-co" on <body> its colours are swapped for the
+   brand's: white for the cream and the blueprint grid, blue for the gold and
+   the rose, flat buttons for the gradients, sans headings. The product pages
+   (CallMe's and Breeze's) are NOT given this class: they keep their own look. */
+body.m3-co {
+  --paper: #FFFFFF; --paper2: #F5F7FA; --panel: #FFFFFF; --white: #FFFFFF;
+  --ink: #0B0D12; --ink2: #4B5563; --ink3: #5B6472;
+  --blue: #1D4ED8; --blue2: #1D4ED8; --gold: #1D4ED8; --gold2: #1D4ED8;
+  --rose: #1D4ED8; --rose-deep: #1D4ED8; --rose-soft: #EEF3FF; --callme: #1D4ED8; --paused: #5B6472;
+  --line: rgba(11, 13, 18, .12); --line2: rgba(11, 13, 18, .22); --edge: rgba(11, 13, 18, .22);
+  --cm-rose: #1D4ED8; --cm-rose-deep: #1D4ED8; --cm-rose-ink: #1D4ED8; --cm-rose-wash: #EEF3FF;
+  --cm-ink: #0B0D12; --cm-stroke: rgba(11, 13, 18, .3); --cm-focus: rgba(29, 78, 216, .55);
+  background: #FFFFFF; background-image: none; color: #0B0D12;
+}
+.m3-co h1, .m3-co h2, .m3-co h3, .m3-co h4 { font-family: 'Inter', system-ui, sans-serif; font-weight: 700; letter-spacing: -.025em; }
+.m3-co h1 { font-weight: 800; letter-spacing: -.035em; }
+.m3-co h1 em, .m3-co h2 em { font-style: normal; font-weight: inherit; color: #1D4ED8; }
+.m3-co .lede { color: #4B5563; }
+.m3-co .btn-primary, .m3-co .btn-gold { background: #0B0D12; border: 1px solid #0B0D12; color: #fff; }
+.m3-co .btn-primary:hover, .m3-co .btn-gold:hover { background: #1D4ED8; border-color: #1D4ED8; transform: none; }
+.m3-co .honest { border-style: solid; border-color: rgba(11, 13, 18, .12); background: #F5F7FA; }
+/* Legal pages: plain cards, no washi tape, no wax seals, no kicker tulip. */
+.m3-co .policy::before, .m3-co .policy::after, .m3-co .cm-kicker::before { display: none; }
+.m3-co .policy, .m3-co .toc a { box-shadow: none; }
+.m3-co .cm-kicker { color: #1D4ED8; }
+.m3-co :focus-visible { outline-color: rgba(29, 78, 216, .55); }
+
+/* ══ Hardware ════════════════════════════════════════════════════════════════
+   M3XI builds software and hardware, so the brand pages' controls are parts
+   on a board: buttons are chips with pins, the homepage's products are
+   packaged ICs wired to the M3XI processor, and the pointer is an old cog
+   (shared/brand-fx.js). Everything here is flat colour and transforms. */
+
+/* ── Buttons: a chip with pins down both sides and a pin-1 dot ── */
+.co-btn, .m3-co .btn-primary, .m3-co .btn-gold {
+  --pin: var(--co-ink, #0B0D12);
+  position: relative; min-height: 46px; padding: 0 26px; border-radius: 4px;
+  font: 600 12.5px/1 'Inter', system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase;
+  transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+.co-btn::before, .m3-co .btn-primary::before, .m3-co .btn-gold::before {
+  content: ''; position: absolute; top: 8px; bottom: 8px; left: -8px; right: -8px; pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, var(--pin) 0 3px, transparent 3px 8px) left / 6px 100% no-repeat,
+    repeating-linear-gradient(to bottom, var(--pin) 0 3px, transparent 3px 8px) right / 6px 100% no-repeat;
+  transition: left .15s ease, right .15s ease;
+}
+.co-btn::after, .m3-co .btn-primary::after, .m3-co .btn-gold::after {
+  content: ''; position: absolute; top: 6px; left: 7px; width: 4px; height: 4px; border-radius: 50%;
+  background: currentColor; opacity: .55;
+}
+.co-btn:hover, .m3-co .btn-primary:hover, .m3-co .btn-gold:hover { --pin: #1D4ED8; box-shadow: 0 0 0 4px rgba(29, 78, 216, .16); transform: translateY(-1px); }
+.co-btn:hover::before { left: -10px; right: -10px; }
+.co-btn:active { transform: translateY(0); }
+.co-btn--ghost { --pin: rgba(11, 13, 18, .45); }
+.co-btn--blue { --pin: #1D4ED8; }
+.co-dark .co-btn { --pin: #9DB8FF; }
+.co-dark .co-btn--ghost { --pin: rgba(255, 255, 255, .5); }
+.co-dark .co-btn:hover { --pin: #7DE1FF; box-shadow: 0 0 0 4px rgba(96, 144, 255, .22); }
+.co-btns { gap: 14px 28px; }
+.m3-co .btn-primary, .m3-co .btn-gold { display: inline-flex; align-items: center; margin: 0 8px; }
+.ct-form .co-btn { width: calc(100% - 16px); margin: 0 8px; }
+
+/* Switched on, once the hand has reached it. */
+.co-btn.is-live { box-shadow: 0 0 0 1px #9DB8FF, 0 0 26px rgba(96, 144, 255, .6); animation: co-live .9s ease-out 1; }
+@keyframes co-live { 0% { box-shadow: 0 0 0 1px #fff, 0 0 0 0 rgba(125, 225, 255, .9); } 100% { box-shadow: 0 0 0 1px #9DB8FF, 0 0 0 26px rgba(125, 225, 255, 0); } }
+
+/* ── Dark sections sit on a board: a faint grid under the network ── */
+.co-dark {
+  background-image: linear-gradient(rgba(96, 144, 255, .05) 1px, transparent 1px), linear-gradient(90deg, rgba(96, 144, 255, .05) 1px, transparent 1px);
+  background-size: 44px 44px; background-position: center;
+}
+
+/* ── Homepage hero: the M3XI processor and the two product chips ──
+   Each is built like the real part: .hm-ic is the footprint (its two
+   pseudo-elements are the rows of leads, light at the tips), .hm-pkg is the
+   moulded package (stacked shadows give it thickness; a triangle marks pin 1
+   and the part number is printed in a corner), and .hm-die is the bevelled
+   plate in the middle that carries the logo. */
+.hm-web { perspective: 900px; height: 360px; }
+@media (min-width: 900px) { .hm-web { height: 440px; } }
+.hm-chip { gap: 14px; transform: translate(-50%, -50%); }
+.hm-ic {
+  --lead: 9px; position: relative; display: block; padding: var(--lead);
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .18s ease-out;
+}
+.hm-ic::before, .hm-ic::after { content: ''; position: absolute; pointer-events: none; }
+/* leads: left and right */
+.hm-ic::before {
+  top: calc(var(--lead) + 8px); bottom: calc(var(--lead) + 8px); left: 0; right: 0;
+  background: linear-gradient(to right, #F2F6FF 0 3px, #8A9CCB 3px calc(100% - 3px), #F2F6FF calc(100% - 3px));
+  -webkit-mask: repeating-linear-gradient(to bottom, #000 0 2.5px, transparent 2.5px 6px); mask: repeating-linear-gradient(to bottom, #000 0 2.5px, transparent 2.5px 6px);
+}
+/* leads: top and bottom */
+.hm-ic::after {
+  left: calc(var(--lead) + 8px); right: calc(var(--lead) + 8px); top: 0; bottom: 0;
+  background: linear-gradient(to bottom, #F2F6FF 0 3px, #8A9CCB 3px calc(100% - 3px), #F2F6FF calc(100% - 3px));
+  -webkit-mask: repeating-linear-gradient(to right, #000 0 2.5px, transparent 2.5px 6px); mask: repeating-linear-gradient(to right, #000 0 2.5px, transparent 2.5px 6px);
+}
+.hm-pkg {
+  position: relative; z-index: 1; display: block; padding: 11px; background: #111727; border: 1px solid #33426B; border-radius: 5px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 1px 0 #1C2640, 0 2px 0 #182036, 0 3px 0 #131A2C, 0 4px 0 #0E1422, 0 5px 0 #0A0E18, 0 26px 30px -12px rgba(0, 0, 0, .95);
+  transition: border-color .15s ease;
+}
+/* pin 1 */
+.hm-pkg::before { content: ''; position: absolute; top: 4px; left: 4px; border: 4px solid transparent; border-top-color: #9DB8FF; border-left-color: #9DB8FF; border-radius: 1px; }
+/* the part number, printed on the package */
+.hm-pkg::after {
+  content: attr(data-mark); position: absolute; right: 6px; bottom: 2px;
+  font: 600 6.5px/1 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .12em; color: rgba(201, 214, 245, .6);
+}
+.hm-die {
+  display: block; padding: 6px; background: #1B2542; border: 1px solid #40548A; border-radius: 4px;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, .2), inset -1px -1px 0 rgba(0, 0, 0, .65), 0 1px 3px rgba(0, 0, 0, .6);
+}
+.hm-chip .hm-die img { display: block; width: 52px; height: 52px; border-radius: 6px; background: #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, .5); }
+a.hm-chip:hover .hm-pkg { border-color: #7DE1FF; }
+a.hm-chip:hover .hm-die img { box-shadow: 0 0 0 1px rgba(0, 0, 0, .5); }
+
+/* the processor: bigger, more leads, powered */
+.hm-chip--hub .hm-ic { --lead: 11px; }
+.hm-chip--hub .hm-pkg { padding: 17px; border-color: #5672C4; border-radius: 6px; }
+.hm-chip--hub .hm-pkg::after { right: 8px; bottom: 4px; font-size: 7.5px; color: rgba(201, 214, 245, .8); }
+.hm-chip--hub .hm-die { padding: 9px; border-color: #6C8AE0; }
+.hm-chip--hub .hm-die img { width: 84px; height: 84px; border-radius: 7px; }
+.hm-glow {
+  position: absolute; inset: 2px; border-radius: 10px; pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(125, 225, 255, .5), 0 0 46px 6px rgba(96, 144, 255, .55);
+  animation: hm-power 3.2s ease-in-out infinite;
+}
+@keyframes hm-power { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+@media (max-width: 420px) {
+  .hm-chip--hub .hm-die img { width: 68px; height: 68px; }
+  .hm-chip--hub .hm-pkg { padding: 13px; }
+  .hm-chip .hm-die img { width: 46px; height: 46px; }
+}
+.hm-chip b { font: 700 11px/1 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .18em; text-transform: uppercase; color: #C9D6F5; }
+.hm-chip--hub b { color: #fff; }
+
+/* ── The hand (shared/hand3d.js): a fixed canvas in front of the whole page ── */
+.hm-reach { position: relative; display: inline-flex; }
+.hm-hand3d { position: fixed; inset: 0; z-index: 2147482000; width: 100vw; height: 100vh; pointer-events: none; }
+/* the moment it is pressed */
+.co-btn.is-pressed, .co-btn.is-pressed:hover { transform: translateY(3px) scale(.94); filter: brightness(1.35); transition-duration: .08s; }
+
+/* ── 3D: cards lean towards the pointer (brand-fx.js sets --rx / --ry) ── */
+[data-tilt] { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .18s ease-out, border-color .15s ease, box-shadow .15s ease; will-change: transform; }
+
+/* Product cards: a part on the board, with corner marks. */
+.co-product { position: relative; border-radius: 8px; }
+.co-product::before {
+  content: ''; position: absolute; inset: 8px; pointer-events: none; border-radius: 3px;
+  background:
+    linear-gradient(var(--co-ink), var(--co-ink)) top left / 12px 1.5px no-repeat, linear-gradient(var(--co-ink), var(--co-ink)) top left / 1.5px 12px no-repeat,
+    linear-gradient(var(--co-ink), var(--co-ink)) top right / 12px 1.5px no-repeat, linear-gradient(var(--co-ink), var(--co-ink)) top right / 1.5px 12px no-repeat,
+    linear-gradient(var(--co-ink), var(--co-ink)) bottom left / 12px 1.5px no-repeat, linear-gradient(var(--co-ink), var(--co-ink)) bottom left / 1.5px 12px no-repeat,
+    linear-gradient(var(--co-ink), var(--co-ink)) bottom right / 12px 1.5px no-repeat, linear-gradient(var(--co-ink), var(--co-ink)) bottom right / 1.5px 12px no-repeat;
+  opacity: .28; transition: opacity .15s ease;
+}
+.co-product:hover::before { opacity: 1; }
+.co-product { padding: 32px; }
+.co-status { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .06em; }
+.co-eyebrow, .co-work-kind { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .14em; }
+.hm-three li::before { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+.co-sec-head p { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; }
+
+/* ── The cog (brand-fx.js adds it, and only where there is a mouse) ── */
+.m3-cog {
+  position: fixed; top: 0; left: 0; z-index: 2147483000; width: 36px; height: 36px; pointer-events: none;
+  opacity: 0; will-change: transform; transition: opacity .15s ease;
+  filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff) drop-shadow(0 2px 3px rgba(0, 0, 0, .4));
+}
+.m3-cog svg { display: block; width: 100%; height: 100%; transition: transform .15s ease; }
+.m3-cog .cog-metal { fill: #0B0D12; stroke: #0B0D12; transition: fill .15s ease, stroke .15s ease; }
+.m3-cog .cog-lines { stroke: #6F97FF; transition: stroke .15s ease; }
+.m3-cog.is-in { opacity: 1; }
+.m3-cog.is-on svg { transform: scale(1.25); }
+.m3-cog.is-on .cog-metal { fill: #1D4ED8; stroke: #1D4ED8; }
+.m3-cog.is-on .cog-lines { stroke: #fff; }
+.m3-cog.is-text { opacity: 0; }
+html.cog-on, html.cog-on * { cursor: none !important; }
+html.cog-on input:not([type="submit"]):not([type="button"]), html.cog-on textarea { cursor: text !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .co-btn.is-live { animation: none; }
+  [data-tilt], .hm-ic { transition: none; }
+  .hm-glow { animation: none; opacity: .8; }
+}
+
+/* ══ Hardware, continued: every other control on the brand pages ═════════════
+   Secondary buttons, the "view" labels on cards, tags, the legal pages'
+   section links, the social links, form fields and the jobs page's cards. */
+
+/* Secondary button on the older pages (jobs: "Say hello") */
+.m3-co .btn-ghost {
+  --pin: rgba(11, 13, 18, .5);
+  position: relative; display: inline-flex; align-items: center; min-height: 46px; margin: 0 8px; padding: 0 26px;
+  background: #fff; color: #0B0D12; border: 1.5px solid rgba(11, 13, 18, .35); border-radius: 4px;
+  font: 600 12.5px/1 'Inter', system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase;
+  transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+.m3-co .btn-ghost::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: -8px; right: -8px; pointer-events: none; background: repeating-linear-gradient(to bottom, var(--pin) 0 3px, transparent 3px 8px) left / 6px 100% no-repeat, repeating-linear-gradient(to bottom, var(--pin) 0 3px, transparent 3px 8px) right / 6px 100% no-repeat; }
+.m3-co .btn-ghost::after { content: ''; position: absolute; top: 6px; left: 7px; width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: .5; }
+.m3-co .btn-ghost:hover { --pin: #1D4ED8; border-color: #1D4ED8; box-shadow: 0 0 0 4px rgba(29, 78, 216, .16); transform: translateY(-1px); }
+
+/* The label at the foot of a card ("Join the waitlist", "View profile"): a small chip that powers on with its card */
+.co-more, .co-person .co-more, .co-product .co-more {
+  --pin: var(--co-ink);
+  position: relative; display: inline-flex; align-items: center; align-self: flex-start; min-height: 34px; margin: auto 0 0 8px; padding: 0 14px;
+  background: #fff; color: var(--co-ink); border: 1.5px solid var(--co-ink); border-radius: 4px;
+  font: 600 11.5px/1 'Inter', system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+.co-more::before { content: ''; position: absolute; top: 6px; bottom: 6px; left: -8px; right: -8px; pointer-events: none; background: repeating-linear-gradient(to bottom, var(--pin) 0 3px, transparent 3px 8px) left / 6px 100% no-repeat, repeating-linear-gradient(to bottom, var(--pin) 0 3px, transparent 3px 8px) right / 6px 100% no-repeat; }
+.co-product:hover .co-more, .co-person:hover .co-more { --pin: var(--co-accent); background: var(--co-accent); border-color: var(--co-accent); color: #fff; }
+.co-product > p { margin-bottom: 24px; }
+.co-person-txt > p:last-of-type { margin-bottom: 16px; }
+
+/* Tags: surface-mount parts, a terminal at each end */
+.co-tags { gap: 10px; }
+.co-tags li {
+  padding: 6px 12px; background: #fff; border: 1px solid var(--co-line); border-left: 5px solid var(--co-ink); border-right: 5px solid var(--co-ink); border-radius: 3px;
+  font: 500 12.5px/1.3 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .02em;
+}
+
+/* Team and profile cards, facts, links */
+.co-person, .ct-card, .co-work-item, .co-band, .co-empty { border-radius: 8px; }
+.co-photo { border-radius: 4px; }
+.co-facts dt, .co-links span:first-child, .ct-list dt { font: 500 12px/1.6 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .06em; text-transform: uppercase; }
+.co-role { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 12.5px; letter-spacing: .02em; }
+.co-crumb { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 12.5px; letter-spacing: .04em; text-transform: uppercase; }
+
+/* Contact: the social links are small chips with leads top and bottom; fields are square */
+.ct-socials { gap: 12px; margin-top: 26px; }
+.ct-socials a { position: relative; border: 1.5px solid var(--co-ink); border-radius: 4px; transition: background-color .15s ease, border-color .15s ease; }
+.ct-socials a::before {
+  content: ''; position: absolute; left: 8px; right: 8px; top: -8px; bottom: -8px; pointer-events: none;
+  background: repeating-linear-gradient(to right, var(--co-ink) 0 3px, transparent 3px 8px) top / 100% 6px no-repeat,
+              repeating-linear-gradient(to right, var(--co-ink) 0 3px, transparent 3px 8px) bottom / 100% 6px no-repeat;
+}
+.ct-socials a:hover { background: var(--co-accent); border-color: var(--co-accent); }
+.ct-socials a:hover svg { fill: #fff; }
+.ct-form label { font: 600 11.5px/1.4 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .1em; text-transform: uppercase; }
+.ct-form input, .ct-form select, .ct-form textarea { border-radius: 4px; }
+.co a.ct-email { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: -.01em; }
+
+/* Jobs: each role is a part on the board, with corner marks */
+.m3-co .role, .m3-co .honest, .m3-co .contact-strip { position: relative; border-radius: 8px; box-shadow: none; }
+.m3-co .role::before {
+  content: ''; position: absolute; inset: 8px; pointer-events: none; opacity: .25; transition: opacity .15s ease;
+  background:
+    linear-gradient(#0B0D12, #0B0D12) top left / 12px 1.5px no-repeat, linear-gradient(#0B0D12, #0B0D12) top left / 1.5px 12px no-repeat,
+    linear-gradient(#0B0D12, #0B0D12) top right / 12px 1.5px no-repeat, linear-gradient(#0B0D12, #0B0D12) top right / 1.5px 12px no-repeat,
+    linear-gradient(#0B0D12, #0B0D12) bottom left / 12px 1.5px no-repeat, linear-gradient(#0B0D12, #0B0D12) bottom left / 1.5px 12px no-repeat,
+    linear-gradient(#0B0D12, #0B0D12) bottom right / 12px 1.5px no-repeat, linear-gradient(#0B0D12, #0B0D12) bottom right / 1.5px 12px no-repeat;
+}
+.m3-co .role:hover::before { opacity: 1; }
+.m3-co .role:hover { border-color: #0B0D12; }
+.m3-co .role .k, .m3-co .eyebrow, .m3-co .dim, .m3-co .p-tag, .m3-co .terms, .m3-co .eff, .m3-co .upd, .m3-co .meta { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+.m3-co .role .k { letter-spacing: .12em; }
+.m3-co .contact-strip .email a { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; border-bottom-color: #1D4ED8; }
+
+/* Legal pages: the section links are chips, the policies square cards */
+.m3-co .toc { gap: 12px 26px; }
+.m3-co .toc a {
+  position: relative; display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; background: #fff; color: #0B0D12;
+  border: 1.5px solid #0B0D12; border-radius: 4px; font: 600 11.5px/1 'Inter', system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase;
+  transition: background-color .15s ease, color .15s ease;
+}
+.m3-co .toc a::before { content: ''; position: absolute; top: 7px; bottom: 7px; left: -8px; right: -8px; pointer-events: none; background: repeating-linear-gradient(to bottom, #0B0D12 0 3px, transparent 3px 8px) left / 6px 100% no-repeat, repeating-linear-gradient(to bottom, #0B0D12 0 3px, transparent 3px 8px) right / 6px 100% no-repeat; }
+.m3-co .toc a:hover { background: #1D4ED8; border-color: #1D4ED8; color: #fff; }
+.m3-co .policy { border-radius: 8px; }
+.m3-co .backtop { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+
+/* The chips keep their size wherever they sit. A chip is placed by its centre
+   (left: x%), and without this one near the right edge is squeezed into the
+   space that is left, which narrows its picture. */
+.hm-chip { width: max-content; }
+.co .hm-chip .hm-die img { max-width: none; flex: none; aspect-ratio: 1; object-fit: contain; }
+
+/* Under the pointer a chip does more than lean: it lifts off the board and
+   grows a little, its plate rises out of the package (so the logo slides
+   against the body as the chip turns), and the shadow under it deepens. */
+.hm-ic[data-tilt] {
+  transform: perspective(620px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(var(--sc, 1));
+  transform-style: preserve-3d; transition: transform .22s cubic-bezier(.2, .8, .2, 1);
+}
+.hm-pkg { transform-style: preserve-3d; transition: border-color .15s ease, box-shadow .22s ease; }
+.hm-die { transition: transform .22s cubic-bezier(.2, .8, .2, 1), box-shadow .22s ease; }
+.hm-chip:hover .hm-ic { --sc: 1.14; }
+.hm-chip:hover .hm-die { transform: translateZ(26px); box-shadow: inset 1px 1px 0 rgba(255, 255, 255, .25), inset -1px -1px 0 rgba(0, 0, 0, .65), 0 10px 18px rgba(0, 0, 0, .7); }
+.hm-chip:hover .hm-pkg {
+  border-color: #7DE1FF;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), 0 1px 0 #1C2640, 0 2px 0 #182036, 0 3px 0 #131A2C, 0 4px 0 #0E1422, 0 5px 0 #0A0E18, 0 0 26px rgba(96, 144, 255, .45), 0 40px 40px -14px rgba(0, 0, 0, .95);
+}
+.hm-chip b { transition: transform .22s ease, color .15s ease; }
+.hm-chip:hover b { transform: translateY(8px); color: #fff; }
+@media (prefers-reduced-motion: reduce) {
+  .hm-chip:hover .hm-ic { --sc: 1; }
+  .hm-chip:hover .hm-die { transform: none; }
+  .hm-chip:hover b { transform: none; }
+}

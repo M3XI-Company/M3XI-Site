@@ -4,13 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Safety on CallMe — M3XI</title>
-<meta name="description" content="How CallMe keeps live calls safe: everyone is 18+ and ID-verified, calls open on voice with video only when both people agree, you can report or block anyone from wherever you meet them, and a person acts on every report within 24 hours." />
+<meta name="description" content="How CallMe keeps video calls safe: everyone has passed an adult ID check, video starts only when both people choose it, a new person's video is checked before you see it, nothing is shared unless you both tap Keep in touch, you can report or block anyone from wherever you see them, and a person acts on every report within 24 hours." />
 <link rel="canonical" href="https://www.m3xi.com/safety/" />
 <link rel="icon" type="image/png" href="/M.png" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="M3XI" />
 <meta property="og:title" content="Safety on CallMe" />
-<meta property="og:description" content="Everyone is a verified adult, every call opens on voice, and reporting or blocking someone takes you straight out of the call." />
+<meta property="og:description" content="Everyone has passed an adult ID check, video starts only when you both choose it, and nothing is shared unless you both tap Keep in touch." />
 <meta property="og:url" content="https://www.m3xi.com/safety/" />
 <meta property="og:image" content="https://www.m3xi.com/img/callme/screen-04.webp" />
 <meta name="twitter:card" content="summary_large_image" />
@@ -133,9 +133,25 @@ section{padding:72px 0;scroll-margin-top:66px}
   <a class="m3-brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="m3-jp" aria-hidden="true">三X一</span></a>
   <nav class="m3-nav" aria-label="Main">
     <ul class="m3-links">
-      <li><a href="/">CallMe</a></li>
-      <li><a href="/design/">Create</a></li>
-      <li><a href="/events/">Events</a></li>
+      <li class="m3-prod">
+        <details class="m3-drop">
+          <summary>Products</summary>
+          <div class="m3-menu m3-menu--left">
+            <p class="m3-menu-h">Software products</p>
+            <ul>
+              <li><a href="/breeze/"><b>Breeze</b><small>Your AI fitness coach. Join the waitlist</small></a></li>
+              <li><a href="/callme/"><b>CallMe</b><small>Video call new people</small></a></li>
+            </ul>
+            <p class="m3-menu-h">More from CallMe</p>
+            <ul>
+              <li><a href="/design/"><b>Create</b><small>Design your own cards</small></a></li>
+              <li><a href="/events/"><b>Events</b><small>What&rsquo;s on</small></a></li>
+            </ul>
+          </div>
+        </details>
+      </li>
+      <li><a href="/team/">Team</a></li>
+      <li><a href="/jobs/">Careers</a></li>
       <li class="m3-help">
         <details class="m3-drop m3-here">
           <summary>Help</summary>
@@ -155,18 +171,29 @@ section{padding:72px 0;scroll-margin-top:66px}
 
 <!-- Every claim on this page was checked against the CallMe app and its policies.
      If the app changes how any of this works, change this page with it.
-     1 Oct 2026 (phase 16, after Apple's guideline 1.2 rejection): the 24-hour
-     promise, zero tolerance, and report/block/hide on chats, posters, snapshots
-     and profiles follow the Terms (13.3, 13.4) and the 0.10.2 app work. Block on
-     profiles, posters and snapshots, and hiding a post from your feed, are new
-     in 0.10.2: check they shipped before this page goes live. -->
+     18 Oct 2026 (CallMe 0.13): the hang-out wording; "put on a call with"
+     instead of "matched"; the "Exploitation or trafficking" report reason
+     (src/services/safety.ts, migration 0142); reporting from Recent calls for
+     48 hours (0149); crews, Ready and the door sign (0143, 0148); arriving at a
+     table muted (0144); Michael's approved Photo verified sentence (0146,
+     docs/RELEASE_0.13.0.md item 1); safety@m3xi.com for child safety
+     (docs/safety/CSEA_PROCEDURE.md). The app still says "Hidden from your
+     feed" on its undo slip, so "Hide it" below avoids the word rather than
+     contradicting it.
+     20 Oct 2026 (CallMe 0.14, the core journey; LOCAL ONLY, push the day 0.14
+     is submitted): video at hello by both people's choice, the cover until a
+     new person's video is checked (no "Show anyway"), Keep in touch and its
+     safeguards, socials, group chats that ask, the new report reasons, a block
+     never stopping a report (migration 0153; src/lib/keepWords.ts for the
+     app's own words, including the safety card before a first keep). -->
+
 
 <section class="hero"><div class="wrap hero-grid">
   <div>
     <header class="cm-heading">
       <p class="cm-kicker">Safety on CallMe</p>
       <h1 class="cm-title cm-title--display">Safety, <em>built in.</em></h1>
-      <p class="cm-lede">CallMe puts you on live calls with people you have not met, so safety is part of every call rather than a page of settings. Everyone is a verified adult, every call opens on voice, and reporting or blocking someone takes you straight out of the call. A person on our safety team acts on every report within 24 hours.</p>
+      <p class="cm-lede">CallMe is a place for ID-checked adults to talk face to face on video calls, one-to-one, at tables and with your crew, and to keep in touch with the people they click with. Safety is part of every call rather than a page of settings. Everyone has passed an adult ID check, video starts only when you both choose it, a new person's video is checked before you see it, nothing is shared unless you both tap Keep in touch, and reporting or blocking someone takes you straight out of the call. A person on our safety team acts on every report within 24 hours.</p>
     </header>
     <div class="cm-btns">
       <a class="cm-btn cm-btn--primary" href="#reporting"><i class="cm-ico cm-ico--shield" aria-hidden="true"></i>Reporting and blocking</a>
@@ -174,10 +201,11 @@ section{padding:72px 0;scroll-margin-top:66px}
     </div>
     <ul class="jump" aria-label="On this page">
       <li><a href="#verified"><i class="cm-ico cm-ico--check" aria-hidden="true"></i>18+ and verified</a></li>
-      <li><a href="#voice"><i class="cm-ico cm-ico--mic" aria-hidden="true"></i>Voice first</a></li>
+      <li><a href="#voice"><i class="cm-ico cm-ico--video" aria-hidden="true"></i>Video by choice</a></li>
+      <li><a href="#keep"><i class="cm-ico cm-ico--friend" aria-hidden="true"></i>Keeping in touch</a></li>
       <li><a href="#reporting"><i class="cm-ico cm-ico--flag" aria-hidden="true"></i>Reporting and blocking</a></li>
       <li><a href="#reports"><i class="cm-ico cm-ico--letter" aria-hidden="true"></i>After a report</a></li>
-      <li><a href="#friends"><i class="cm-ico cm-ico--map" aria-hidden="true"></i>The map, walks and snapshots</a></li>
+      <li><a href="#friends"><i class="cm-ico cm-ico--map" aria-hidden="true"></i>Crews, the map and walks</a></li>
       <li><a href="#rules"><i class="cm-ico cm-ico--block" aria-hidden="true"></i>The rules</a></li>
       <li><a href="#data"><i class="cm-ico cm-ico--lock" aria-hidden="true"></i>Data, children, deleting</a></li>
       <li><a href="#help"><i class="cm-ico cm-ico--chat" aria-hidden="true"></i>Getting help</a></li>
@@ -192,9 +220,9 @@ section{padding:72px 0;scroll-margin-top:66px}
 
 <section id="verified" class="band"><div class="wrap">
   <header class="cm-heading">
-    <p class="cm-kicker">Who you will meet</p>
+    <p class="cm-kicker">Who is here</p>
     <h2 class="cm-title">Everyone is <em>18+ and verified.</em></h2>
-    <p class="cm-lede">CallMe is for adults aged 18 and over, and the age check is not a box to tick. Nobody can match or call anyone until they have passed it.</p>
+    <p class="cm-lede">CallMe is for adults aged 18 and over, and the age check is not a box to tick. Nobody can call anyone, sit at a table or join a crew until they have passed it.</p>
   </header>
   <ul class="cards">
     <li class="cm-card">
@@ -205,12 +233,13 @@ section{padding:72px 0;scroll-margin-top:66px}
     <li class="cm-card">
       <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--lock"></i></span>
       <h3>No way round it</h3>
-      <p>There is no way to skip verification and reach the calling features, and anyone whose document shows they are under 18 cannot complete it. Matching never goes below 18, however long you wait.</p>
+      <p>There is no way to skip verification and reach the calling features, and anyone whose document shows they are under 18 cannot complete it. Nobody under 18 is ever put on a call, however long you wait.</p>
     </li>
     <li class="cm-card">
       <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--shield"></i></span>
-      <h3>Your documents are not sent to us</h3>
-      <p>Your document images and selfie go directly to Didit and are never stored on our servers. We receive the result: pass or fail, your date of birth and your age.</p>
+      <h3>We never keep your ID or selfie</h3>
+      <p>Your document images and selfie go to Didit. We receive the result: pass or fail, your date of birth and your age. For the photo check, your verification selfie passes through our server's memory to compare it with your card photo. CallMe never stores your ID images or selfie.</p>
+      <p>The photo check runs only when you tap <b>Verify my photo</b>, and if it is clearly you, your card shows a <b>Photo verified</b> stamp.</p>
     </li>
   </ul>
   <div class="note">
@@ -221,32 +250,83 @@ section{padding:72px 0;scroll-margin-top:66px}
 <section id="voice"><div class="wrap">
   <header class="cm-heading">
     <p class="cm-kicker">On a call</p>
-    <h2 class="cm-title">Voice first. Video <em>only when you both agree.</em></h2>
-    <p class="cm-lede">Nobody sees you just because a call has connected.</p>
+    <h2 class="cm-title">Video by choice. <em>Checked before you see it.</em></h2>
+    <p class="cm-lede">Calls on CallMe are face to face, but nobody sees you just because a call has connected.</p>
   </header>
   <ul class="cards">
     <li class="cm-card">
-      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--mic"></i></span>
-      <h3>One-to-one calls open on voice</h3>
-      <p>On a one-to-one call, video turns on only when both of you ask for it. Until then, it is a voice call. At a table, the host sets the camera rule: voice only, up to each person, or cameras on.</p>
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--video"></i></span>
+      <h3>Both of you choose video</h3>
+      <p>Before a one-to-one call you choose whether to start on video, and you see yourself first. The call opens on video only when both of you chose it, and either of you can stay on voice.</p>
+      <p>At a table, everyone arrives with their microphone off and their camera off. A table where cameras are on, such as Face to Face, says so and asks before you join.</p>
     </li>
     <li class="cm-card">
-      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--video"></i></span>
-      <h3>Nobody else can switch on your camera</h3>
-      <p>One person can never switch on the other person's camera. Our servers check that both of you asked, every time.</p>
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--shield"></i></span>
+      <h3>Checked before you see it</h3>
+      <p>A new person&rsquo;s video reaches you blurred, with &ldquo;Checking video&hellip;&rdquo;, until our server has checked it, usually in two or three seconds. If it can&rsquo;t be checked, it stays hidden and you can keep talking. The blur comes back whenever they start a new camera or turn theirs back on.</p>
+      <p>Opening the shield blurs everyone&rsquo;s video on your phone at once, and after you report someone, theirs stays hidden for the rest of the call.</p>
     </li>
     <li class="cm-card">
       <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--camera"></i></span>
       <h3>Your camera stays yours</h3>
-      <p>You can turn your camera off at any time without ending the call. Your phone number and email are never shown to anyone you talk to.</p>
+      <p>One person can never switch on the other person's camera, and our servers check that both of you chose video, every time. You can turn your camera off at any time without ending the call.</p>
+      <p>The preview of yourself before a call never leaves your phone. Your phone number and email are never shown to anyone you talk to.</p>
     </li>
   </ul>
   <div class="note">
-    <p>Pressuring someone to turn on video breaks the <a href="/terms/#callme-terms">CallMe terms</a>.</p>
+    <p>While video is on, our server checks still frames for nudity, and an explicit one pauses that camera for everyone on the call. Calls are never recorded. Pressuring someone to turn on video breaks the <a href="/terms/#callme-terms">CallMe terms</a>.</p>
   </div>
 </div></section>
 
-<section id="reporting" class="band"><div class="wrap">
+<!-- 20 Oct 2026 (CallMe 0.14, LOCAL ONLY): Keep in touch and its safeguards, checked against
+     migration 0153 (keep_in_touch and its completion rules, socials_set, _chat_add,
+     friend_remove, the report triggers) and the app's words in src/lib/keepWords.ts
+     (KEEP_SAFETY, FACE_CHECK, KEEP.stopBody). The bands below alternate again from here. -->
+<section id="keep" class="band"><div class="wrap">
+  <header class="cm-heading">
+    <p class="cm-kicker">After a call</p>
+    <h2 class="cm-title">Keep in touch, <em>only if you both choose it.</em></h2>
+    <p class="cm-lede">If you get on, you can both tap Keep in touch: then you see each other&rsquo;s socials and can message and call each other. Nothing is shared until you both tap.</p>
+  </header>
+  <ul class="cards">
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--friend"></i></span>
+      <h3>One tap each, and private</h3>
+      <p>After a couple of minutes on a call, or five at a table, either of you can tap <b>Keep in touch</b>. Nothing is sent when you tap. If they tap it too, you&rsquo;re in touch. If they don&rsquo;t, your tap lapses after 48 hours, and a tap that isn&rsquo;t returned is never shown to anyone.</p>
+      <p>There is no button to keep in touch with everyone at once: every tap is for one person.</p>
+    </li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--letter"></i></span>
+      <h3>Before you swap socials</h3>
+      <p>The first time, CallMe shows a short safety card and asks for one quick selfie, to show it&rsquo;s still you holding the phone. The card says what matters most: on other apps, people aren&rsquo;t ID-checked and we can&rsquo;t see what happens; never send intimate photos or money to someone you&rsquo;ve just met; and if someone threatens to share pictures of you, don&rsquo;t pay. Report them here, even if it happened on another app.</p>
+      <p><a href="https://stopncii.org/" rel="noopener">StopNCII.org</a> and the <a href="https://revengepornhelpline.org.uk/" rel="noopener">Revenge Porn Helpline</a> can help too.</p>
+    </li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--lock"></i></span>
+      <h3>When it can&rsquo;t happen</h3>
+      <p>Keeping in touch needs both of you to be ID-checked, in good standing and not blocked either way. It never happens for 30 days after either of you reports the other, or after a still of either of you was found explicit on a call or table you shared, and there are daily limits for everyone.</p>
+    </li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--card"></i></span>
+      <h3>Your socials, your choice</h3>
+      <p>You can add up to four socials. Only people you keep in touch with see them, and in a group chat only the members who keep in touch with you. You can hide any of them from any one person, and they aren&rsquo;t told.</p>
+      <p>Handles that lead to adult-content, scam or link pages can&rsquo;t be added, and nor can handles from accounts we have banned for that.</p>
+    </li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--chat"></i></span>
+      <h3>Group chats ask first</h3>
+      <p>From a table or a call you can start a group chat with the people who were there. Anyone you&rsquo;re not in touch with gets an invite that shows who is already in it, with <b>Join</b> or <b>Not now</b>, and Not now keeps invites from that person quiet for 30 days. You choose who can invite you, in <b>Settings</b>, under <b>Privacy</b>.</p>
+    </li>
+    <li class="cm-card">
+      <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--block"></i></span>
+      <h3>Stop at any time</h3>
+      <p>On their page, tap <b>Stop keeping in touch</b>: you both stop seeing each other&rsquo;s socials at once, and your messages with them close. They aren&rsquo;t told. Blocking someone does all of that, both ways.</p>
+      <p>Once someone has followed you on another app, CallMe can&rsquo;t undo that, so block them there too if you need to.</p>
+    </li>
+  </ul>
+</div></section>
+
+<section id="reporting"><div class="wrap">
   <header class="cm-heading">
     <p class="cm-kicker">Something wrong?</p>
     <h2 class="cm-title">Get out first. <em>We deal with the rest.</em></h2>
@@ -265,7 +345,7 @@ section{padding:72px 0;scroll-margin-top:66px}
       </li>
       <li>
         <b><i class="cm-ico cm-ico--flag" aria-hidden="true"></i>Report someone</b>
-        <span>Pick what happened: sexual content or exposure, threats or danger, harassment or bullying, hate or abuse, scam or spam, or something else. You leave the call, and you will not be matched with them again.</span>
+        <span>Pick what happened: sexual content or exposure, threats or danger, threatening to share pictures of you, harassment or bullying, exploitation or trafficking, hate or abuse, asking you for money, scam or spam, a social that isn&rsquo;t theirs or leads somewhere harmful, or something else. You leave the call, and you will not be put on a call with them again.</span>
       </li>
       <li>
         <b><i class="cm-ico cm-ico--users" aria-hidden="true"></i>Not sure who? Flag the call</b>
@@ -273,11 +353,11 @@ section{padding:72px 0;scroll-margin-top:66px}
       </li>
       <li>
         <b class="urgent"><i class="cm-ico cm-ico--block" aria-hidden="true"></i>Block someone</b>
-        <span>You leave the call, and neither of you can be matched with the other again or join a room or call the other is in. Any friendship between you ends. On a group call, the people who came with them are blocked too. You can unblock someone later in Settings.</span>
+        <span>You leave the call, and neither of you can be put on a call with the other again, or join a table or call the other is in. Any friendship between you ends. On a group call, the people who came with them are blocked too. You can unblock someone later in Settings.</span>
       </li>
       <li>
         <b><i class="cm-ico cm-ico--skip" aria-hidden="true"></i>Leave straight away</b>
-        <span>Press and hold the shield to leave the call at once, with nothing to choose and nothing to confirm.</span>
+        <span>Tap <b>Leave the call</b> in the shield, or press and hold the shield, to leave at once, with nothing to choose and nothing to confirm. Ending a call always works too.</span>
       </li>
     </ul>
   </article>
@@ -285,7 +365,8 @@ section{padding:72px 0;scroll-margin-top:66px}
     <li class="cm-card">
       <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--letter"></i></span>
       <h3>After a call</h3>
-      <p>The call summary has a link, <b>Something wasn’t right on this call</b>, that opens the same options. There you can also choose not to be matched with someone again, without reporting them, and change your mind later in Settings.</p>
+      <p>The call summary has a link, <b>Something wasn’t right on this call</b>, that opens the same options. There you can also choose not to be put on a call with someone again, without reporting them, and change your mind later in Settings.</p>
+      <p>For 48 hours after a call or a table, you can also report anyone you were with from <b>People you talked to</b>, even after you have both left. Blocking someone never stops you reporting them.</p>
     </li>
     <li class="cm-card">
       <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--users"></i></span>
@@ -304,22 +385,22 @@ section{padding:72px 0;scroll-margin-top:66px}
     </li>
     <li class="cm-card">
       <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--image"></i></span>
-      <h3>Hide it from your feed</h3>
-      <p>Hide a post and it leaves your feed straight away. You do not have to report it first, and you can still report it if it breaks the rules.</p>
+      <h3>Hide it</h3>
+      <p>Hide a poster, snapshot, table or message and it disappears for you straight away. You do not have to report it first, and you can still report it if it breaks the rules.</p>
     </li>
     <li class="cm-card">
       <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--check"></i></span>
       <h3>Your lists, in Settings</h3>
-      <p>Settings shows who you have blocked, who you have chosen not to be matched with, and your reports.</p>
+      <p>Settings shows who you have blocked, who you have chosen not to be put on a call with, what you have hidden, and your reports.</p>
     </li>
   </ul>
 </div></section>
 
-<section id="reports"><div class="wrap">
+<section id="reports" class="band"><div class="wrap">
   <header class="cm-heading">
     <p class="cm-kicker">What we do with reports</p>
     <h2 class="cm-title">What happens <em>after a report.</em></h2>
-    <p class="cm-lede">You will not be matched with the person again, and that part happens straight away. Within 24 hours, a person decides the rest.</p>
+    <p class="cm-lede">You will not be put on a call with the person again, and that part happens straight away. Within 24 hours, a person decides the rest.</p>
   </header>
   <ul class="cards">
     <li class="cm-card">
@@ -331,12 +412,13 @@ section{padding:72px 0;scroll-margin-top:66px}
     <li class="cm-card">
       <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--flame"></i></span>
       <h3>Serious reports come first</h3>
-      <p>A report that someone sounds underage, of sexual content, or of threats can pause the other account while we check. An account reported as underage can be kept out of calls until it passes a fresh ID check.</p>
+      <p>A report that someone sounds underage, of exploitation or trafficking, of sexual content, of threats, or of someone threatening to share pictures of you can pause the other account while we check. An account reported as underage can be kept out of calls until it passes a fresh ID check, and it can&rsquo;t keep in touch with anyone until it has been checked again.</p>
     </li>
     <li class="cm-card">
       <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--lock"></i></span>
       <h3>Nobody is told who reported them</h3>
       <p>A report never tells the other person who filed it. It does not tell you what happened to their account either.</p>
+      <p>If you were in touch with them, your socials are hidden from them at once, and you can stop keeping in touch or block them from the same place.</p>
     </li>
     <li class="cm-card">
       <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--clock"></i></span>
@@ -356,19 +438,33 @@ section{padding:72px 0;scroll-margin-top:66px}
   </ul>
 </div></section>
 
-<!-- New in 0.10. Checked against the app: LocationSharePrompt.tsx and
+<!-- Checked against the app: LocationSharePrompt.tsx and
      LocationSettingsScreen.tsx (friends only, town first, foreground only),
      InstanceReport.tsx (snapshots can be reported), and migration 0106 (a walk
      keeps district names, no coordinates). 30 Sep 2026 (phase 14): sharing is
-     off by default and switches itself off 24 hours after it is turned on. -->
-<section id="friends" class="band"><div class="wrap">
+     off by default and switches itself off 24 hours after it is turned on.
+     18 Oct 2026 (0.13): crews (0143: friends only, invites ask, each person's
+     own Ready, links for the host's friends only) and who's around with the
+     door sign (0144, 0148: friends who see your activity only, 12 hours;
+     components/tables/houseWords.ts). -->
+<section id="friends"><div class="wrap">
   <header class="cm-heading">
-    <p class="cm-kicker">Friends, snapshots and walks</p>
+    <p class="cm-kicker">Crews, friends and walks</p>
     <h2 class="cm-title">Only friends, <em>only if you say so.</em></h2>
-    <p class="cm-lede">The friends map, snapshots and dog walks are new in CallMe. Each one is off, or private to you, until you choose otherwise.</p>
+    <p class="cm-lede">Your crew is for friends only. The friends map, snapshots and dog walks each start off, or private to you, until you choose otherwise.</p>
   </header>
   <div class="near">
     <ul class="cards">
+      <li class="cm-card">
+        <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--users"></i></span>
+        <h3>Nobody moves without their own Ready</h3>
+        <p>Your crew is you and up to three friends. Only a friend can ask you into a crew, and an invite always asks. Each person taps <b>Ready</b> for themselves, and nobody is taken anywhere until they have. A crew link works only for the host's friends.</p>
+      </li>
+      <li class="cm-card">
+        <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--home"></i></span>
+        <h3>Who's around, and your door sign</h3>
+        <p>Home shows roughly how many people are around, but not who they are. Only your friends can see you there by name, and only if you have turned on <b>Show friends what I’m up to</b>. Only they see your door sign: Up for a chat, Just listening or Not now. It comes down by itself after 12 hours.</p>
+      </li>
       <li class="cm-card">
         <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--map"></i></span>
         <h3>The map is off until you choose</h3>
@@ -393,12 +489,12 @@ section{padding:72px 0;scroll-margin-top:66px}
     <figure class="cm-polaroid cm-polaroid--dog">
       <span class="cm-tape cm-tape--gingham" aria-hidden="true"></span>
       <div class="cm-polaroid-photo"><img src="/img/callme/dog/sniff.webp" alt="The CallMe dog, nose to the ground, sniffing" width="328" height="360" loading="lazy"></div>
-      <figcaption>Only friends can sniff you out.</figcaption>
+      <figcaption>Only friends can see where you are.</figcaption>
     </figure>
   </div>
 </div></section>
 
-<section id="rules"><div class="wrap">
+<section id="rules" class="band"><div class="wrap">
   <header class="cm-heading">
     <p class="cm-kicker">The rules</p>
     <h2 class="cm-title">What nobody may do <em>on CallMe.</em></h2>
@@ -411,6 +507,7 @@ section{padding:72px 0;scroll-margin-top:66px}
       <li>post hateful content or slurs, or attack anyone for who they are;</li>
       <li>threaten or encourage violence, or show violent content;</li>
       <li>bring anyone under 18 onto a call or into the app, or post anything that sexualises, exploits or endangers a child;</li>
+      <li>traffic, sell or exploit anyone, for sex, for work or for money, or offer, arrange or advertise anything of the kind;</li>
       <li>scam anyone, or ask for money, gifts, investments or personal financial details;</li>
       <li>record, screenshot or share a call or another person's images without their consent;</li>
       <li>misrepresent your age or identity, or use another person's identity document;</li>
@@ -422,7 +519,7 @@ section{padding:72px 0;scroll-margin-top:66px}
   <p class="more">The full wording is in the <a href="/terms/#callme-terms">CallMe terms</a>.</p>
 </div></section>
 
-<section id="data" class="band"><div class="wrap">
+<section id="data"><div class="wrap">
   <header class="cm-heading">
     <p class="cm-kicker">The small print</p>
     <h2 class="cm-title">Your data, children, <em>and leaving.</em></h2>
@@ -432,7 +529,7 @@ section{padding:72px 0;scroll-margin-top:66px}
       <span class="ic" aria-hidden="true"><i class="cm-ico cm-ico--lock"></i></span>
       <h3>Your data</h3>
       <p>CallMe does not record the audio or video of your calls, never turns what is said into text, and nothing listens in.</p>
-      <p>What you write for other people is checked against CallMe's own lists of words and patterns, and no AI reads it. When video is on, still frames are checked for nudity.</p>
+      <p>What you write for other people is checked against CallMe's own lists of words and patterns, and no AI reads it. When video is on, still frames are checked for nudity. The preview of yourself before a call never leaves your phone.</p>
       <p>What we do collect, why, and how long it is kept is set out in the <a href="/privacy/#callme">CallMe privacy policy</a>.</p>
     </li>
     <li class="cm-card">
@@ -450,7 +547,7 @@ section{padding:72px 0;scroll-margin-top:66px}
   </ul>
 </div></section>
 
-<section id="help" style="padding:64px 0"><div class="wrap">
+<section id="help" class="band" style="padding:64px 0"><div class="wrap">
   <header class="cm-heading" style="margin-bottom:26px">
     <p class="cm-kicker">Getting help</p>
     <h2 class="cm-title">Talk to <em>a person.</em></h2>
@@ -458,7 +555,7 @@ section{padding:72px 0;scroll-margin-top:66px}
   <div class="contact">
     <div class="cm-card"><b><i class="cm-ico cm-ico--flag" aria-hidden="true"></i>Report someone or something</b><a href="mailto:safety@m3xi.com">safety@m3xi.com</a></div>
     <div class="cm-card cm-tilt-r"><b><i class="cm-ico cm-ico--letter" aria-hidden="true"></i>Help with CallMe</b><a href="mailto:support@m3xi.com">support@m3xi.com</a></div>
-    <div class="cm-card"><b><i class="cm-ico cm-ico--shield" aria-hidden="true"></i>A child safety concern</b><a href="mailto:support@m3xi.com?subject=Child%20safety%20report">support@m3xi.com</a></div>
+    <div class="cm-card"><b><i class="cm-ico cm-ico--shield" aria-hidden="true"></i>A child safety concern</b><a href="mailto:safety@m3xi.com?subject=Child%20safety%20report">safety@m3xi.com</a></div>
   </div>
   <p class="contact-note">You do not need to use CallMe to report a concern to us. A person reads every email, and a report sent to safety@m3xi.com is reviewed within 24 hours, like a report made in the app. If anyone is in immediate danger, contact your local emergency services first.</p>
 </div></section>
@@ -468,13 +565,15 @@ section{padding:72px 0;scroll-margin-top:66px}
 <footer class="m3-foot"><div class="m3-footin">
   <div>
     <a class="m3-brand" href="/"><img src="/M.png" alt="" width="26" height="26"> M3XI</a>
-    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London</p>
+    <p class="m3-tag">We are connected.</p>
+    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London, United Kingdom</p>
   </div>
   <nav class="m3-footnav" aria-label="Footer">
-    <div><p class="m3-fh">CallMe</p><ul>
-      <li><a href="/">CallMe</a></li>
-      <li><a href="/design/">Create</a></li>
-      <li><a href="/events/">Events</a></li>
+    <div><p class="m3-fh">Products</p><ul>
+      <li><a href="/breeze/">Breeze</a></li>
+      <li><a href="/callme/">CallMe</a></li>
+      <li><a href="/design/">CallMe Create</a></li>
+      <li><a href="/events/">CallMe Events</a></li>
     </ul></div>
     <div><p class="m3-fh">Help</p><ul>
       <li><a href="/questions/">Questions</a></li>
@@ -483,10 +582,9 @@ section{padding:72px 0;scroll-margin-top:66px}
       <li><a href="/delete-account/">Delete account</a></li>
     </ul></div>
     <div><p class="m3-fh">M3XI</p><ul>
+      <li><a href="/">About M3XI</a></li>
       <li><a href="/team/">Team</a></li>
-      <li><a href="/jobs/">Jobs</a></li>
-      <li><a href="/services/">Services</a></li>
-      <li><a href="/services/#spatial">M3XI Spatial</a></li>
+      <li><a href="/jobs/">Careers</a></li>
     </ul></div>
     <div><p class="m3-fh">Legal</p><ul>
       <li><a href="/privacy/">Policies</a></li>

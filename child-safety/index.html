@@ -73,15 +73,32 @@ section.wrap{padding:48px 24px 64px} /* this page's section is also the .wrap, w
 .contact b{display:block;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--rose-deep);margin-bottom:6px}
 </style>
 <link rel="stylesheet" href="/shared/site-chrome.css">
+<link rel="stylesheet" href="/shared/company.css">
 </head>
-<body class="cm-ground">
+<body class="m3-co">
 <header class="m3-head"><div class="m3-bar">
   <a class="m3-brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="m3-jp" aria-hidden="true">三X一</span></a>
   <nav class="m3-nav" aria-label="Main">
     <ul class="m3-links">
-      <li><a href="/">CallMe</a></li>
-      <li><a href="/design/">Create</a></li>
-      <li><a href="/events/">Events</a></li>
+      <li class="m3-prod">
+        <details class="m3-drop">
+          <summary>Products</summary>
+          <div class="m3-menu m3-menu--left">
+            <p class="m3-menu-h">Software products</p>
+            <ul>
+              <li><a href="/breeze/"><b>Breeze</b><small>Your AI fitness coach. Join the waitlist</small></a></li>
+              <li><a href="/callme/"><b>CallMe</b><small>Video call new people</small></a></li>
+            </ul>
+            <p class="m3-menu-h">More from CallMe</p>
+            <ul>
+              <li><a href="/design/"><b>Create</b><small>Design your own cards</small></a></li>
+              <li><a href="/events/"><b>Events</b><small>What&rsquo;s on</small></a></li>
+            </ul>
+          </div>
+        </details>
+      </li>
+      <li><a href="/team/">Team</a></li>
+      <li><a href="/jobs/">Careers</a></li>
       <li class="m3-help">
         <details class="m3-drop">
           <summary>Help</summary>
@@ -94,7 +111,7 @@ section.wrap{padding:48px 24px 64px} /* this page's section is also the .wrap, w
       </li>
     </ul>
   </nav>
-  <a class="m3-get" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get CallMe</a>
+  <a class="m3-get m3-get--breeze" href="/breeze/#waitlist">Join the waitlist</a>
 </div></header>
 
 <section class="wrap" id="top">
@@ -102,9 +119,9 @@ section.wrap{padding:48px 24px 64px} /* this page's section is also the .wrap, w
   <header class="cm-heading">
     <p class="cm-kicker">Safety</p>
     <h1 class="cm-title">Child safety <em>standards.</em></h1>
-    <p class="cm-lede">CallMe is a voice-first app for meeting new people. It is strictly for adults, and we treat any risk to children as the most serious thing that could happen on it. These are the standards we hold ourselves to, published so that anyone can check them.</p>
+    <p class="cm-lede">CallMe is a place for ID-checked adults to hang out by voice. It is strictly for adults, and we treat any risk to children as the most serious thing that could happen on it. These are the standards we hold ourselves to, published so that anyone can check them.</p>
   </header>
-  <p class="meta">Last updated: 2 September 2026 · Operated by M3XI LTD (company no. 17425819), 128 City Road, London EC1V 2NX</p>
+  <p class="meta">Last updated: 18 October 2026 · Operated by M3XI LTD (company no. 17425819), 128 City Road, London EC1V 2NX</p>
 </div>
 
 <article class="policy callme" id="standards">
@@ -115,15 +132,16 @@ section.wrap{padding:48px 24px 64px} /* this page's section is also the .wrap, w
 
   <h3>1. CallMe is 18+, and we check</h3>
   <ul>
-    <li>Every account must pass identity verification before it can match or call anyone. This is a government-issued photo ID plus a live selfie, with liveness detection and face-matching, carried out by our verification provider Didit. It is not a self-declared date of birth.</li>
+    <li>Every account must pass identity verification before it can call anyone, sit at a table or join a crew. This is a government-issued photo ID plus a live selfie, with liveness detection and face-matching, carried out by our verification provider Didit. It is not a self-declared date of birth.</li>
     <li>Anyone whose document shows they are under 18 cannot complete sign-up. If we later learn that an account belongs to someone under 18, we close it and delete its data.</li>
-    <li>Document images and selfies are processed by the verification provider and are not stored on M3XI servers; we retain only the outcome.</li>
+    <li>Document images and selfies are processed by the verification provider. For the photo check, your verification selfie passes through our server's memory to compare it with your card photo. CallMe never stores your ID images or selfie, and we retain only the outcome.</li>
   </ul>
 
   <h3>2. Reporting, inside the app and outside it</h3>
   <ul>
-    <li>Every call and every profile can be reported from inside CallMe, during the call and afterwards, without leaving the app. Reports about possible child safety concerns are prioritised above all other reports.</li>
-    <li>Anyone — whether or not they use CallMe — can report a concern to us at <a href="mailto:support@m3xi.com?subject=Child%20safety%20report">support@m3xi.com</a>. Reports are read by a person.</li>
+    <li>Every call, table, message and profile can be reported from inside CallMe, during the call and afterwards, without leaving the app. For 48 hours after a call or a table, anyone you were with can still be reported from Recent calls, even after you have both left. Reports about possible child safety concerns are prioritised above all other reports.</li>
+    <li>Inside the app, <b>Someone sounds underage</b> and <b>Exploitation or trafficking</b> are report reasons of their own. Both go to the front of our review queue and can pause the reported account at once while we check.</li>
+    <li>Anyone — whether or not they use CallMe — can report a concern to us at <a href="mailto:safety@m3xi.com?subject=Child%20safety%20report">safety@m3xi.com</a>. Reports are read by a person.</li>
     <li>Users can block anyone at any time, and a block takes effect immediately. Reports made about an account are kept even if that person deletes it and signs up again.</li>
   </ul>
 
@@ -131,6 +149,7 @@ section.wrap{padding:48px 24px 64px} /* this page's section is also the .wrap, w
   <ul>
     <li>Accounts involved in CSAE are removed immediately and permanently. We keep the minimum record needed to stop the same person returning under a new account, in line with our privacy policy.</li>
     <li>Confirmed CSAM is reported to the relevant authorities, including the UK's National Crime Agency and, where applicable, the National Center for Missing &amp; Exploited Children (NCMEC), in accordance with the law. We preserve associated evidence for law enforcement as required.</li>
+    <li>Trafficking or forced work is reported to the police, and the Modern Slavery and Exploitation Helpline can advise. Links to child abuse material elsewhere on the web are reported to the Internet Watch Foundation.</li>
     <li>We cooperate with lawful requests from law enforcement and child protection agencies.</li>
   </ul>
 
@@ -141,7 +160,7 @@ section.wrap{padding:48px 24px 64px} /* this page's section is also the .wrap, w
   <div class="contact">
     <b>Child safety point of contact</b>
     M3XI LTD Safety team<br>
-    <a href="mailto:support@m3xi.com">support@m3xi.com</a><br>
+    <a href="mailto:safety@m3xi.com">safety@m3xi.com</a><br>
     128 City Road, London EC1V 2NX, United Kingdom
   </div>
   <p style="margin-top:14px">Use this contact for any child safety concern about CallMe, or to notify us of a legal request. If a child is in immediate danger, contact your local emergency services first.</p>
@@ -157,16 +176,18 @@ section.wrap{padding:48px 24px 64px} /* this page's section is also the .wrap, w
 </article>
 </section>
 
-<footer class="m3-foot"><div class="m3-footin">
+<footer class="m3-foot" data-stores="off"><div class="m3-footin">
   <div>
     <a class="m3-brand" href="/"><img src="/M.png" alt="" width="26" height="26"> M3XI</a>
-    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London</p>
+    <p class="m3-tag">We are connected.</p>
+    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London, United Kingdom</p>
   </div>
   <nav class="m3-footnav" aria-label="Footer">
-    <div><p class="m3-fh">CallMe</p><ul>
-      <li><a href="/">CallMe</a></li>
-      <li><a href="/design/">Create</a></li>
-      <li><a href="/events/">Events</a></li>
+    <div><p class="m3-fh">Products</p><ul>
+      <li><a href="/breeze/">Breeze</a></li>
+      <li><a href="/callme/">CallMe</a></li>
+      <li><a href="/design/">CallMe Create</a></li>
+      <li><a href="/events/">CallMe Events</a></li>
     </ul></div>
     <div><p class="m3-fh">Help</p><ul>
       <li><a href="/questions/">Questions</a></li>
@@ -175,10 +196,9 @@ section.wrap{padding:48px 24px 64px} /* this page's section is also the .wrap, w
       <li><a href="/delete-account/">Delete account</a></li>
     </ul></div>
     <div><p class="m3-fh">M3XI</p><ul>
+      <li><a href="/">About M3XI</a></li>
       <li><a href="/team/">Team</a></li>
-      <li><a href="/jobs/">Jobs</a></li>
-      <li><a href="/services/">Services</a></li>
-      <li><a href="/services/#spatial">M3XI Spatial</a></li>
+      <li><a href="/jobs/">Careers</a></li>
     </ul></div>
     <div><p class="m3-fh">Legal</p><ul>
       <li><a href="/privacy/">Policies</a></li>
@@ -187,6 +207,7 @@ section.wrap{padding:48px 24px 64px} /* this page's section is also the .wrap, w
     </ul></div>
   </nav>
 </div></footer>
+<script type="module" src="/shared/brand-fx.js"></script>
 <script type="module" src="/shared/site-chrome.js"></script>
 </body>
 </html>

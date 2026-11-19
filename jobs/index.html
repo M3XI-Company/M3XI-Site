@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Jobs — join the M3XI group</title>
-<meta name="description" content="Open roles at M3XI, the small London company behind CallMe and M3XI Spatial — looking for curious builders who want to grow with us." />
+<meta name="description" content="Open roles at M3XI, the London company behind Breeze and CallMe — looking for curious builders who want to grow with us." />
 <link rel="icon" type="image/png" href="/M.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -91,15 +91,32 @@ section{padding:56px 0;position:relative}
 .m3-foot{margin-top:40px}
 </style>
 <link rel="stylesheet" href="/shared/site-chrome.css">
+<link rel="stylesheet" href="/shared/company.css">
 </head>
-<body>
+<body class="m3-co">
 <header class="m3-head"><div class="m3-bar">
   <a class="m3-brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="m3-jp" aria-hidden="true">三X一</span></a>
   <nav class="m3-nav" aria-label="Main">
     <ul class="m3-links">
-      <li><a href="/">CallMe</a></li>
-      <li><a href="/design/">Create</a></li>
-      <li><a href="/events/">Events</a></li>
+      <li class="m3-prod">
+        <details class="m3-drop">
+          <summary>Products</summary>
+          <div class="m3-menu m3-menu--left">
+            <p class="m3-menu-h">Software products</p>
+            <ul>
+              <li><a href="/breeze/"><b>Breeze</b><small>Your AI fitness coach. Join the waitlist</small></a></li>
+              <li><a href="/callme/"><b>CallMe</b><small>Video call new people</small></a></li>
+            </ul>
+            <p class="m3-menu-h">More from CallMe</p>
+            <ul>
+              <li><a href="/design/"><b>Create</b><small>Design your own cards</small></a></li>
+              <li><a href="/events/"><b>Events</b><small>What&rsquo;s on</small></a></li>
+            </ul>
+          </div>
+        </details>
+      </li>
+      <li><a href="/team/">Team</a></li>
+      <li><a href="/jobs/" aria-current="page">Careers</a></li>
       <li class="m3-help">
         <details class="m3-drop">
           <summary>Help</summary>
@@ -112,13 +129,13 @@ section{padding:56px 0;position:relative}
       </li>
     </ul>
   </nav>
-  <a class="m3-get" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get CallMe</a>
+  <a class="m3-get m3-get--breeze" href="/breeze/#waitlist">Join the waitlist</a>
 </div></header>
 
-<section style="padding-bottom:24px"><div class="wrap">
+<section style="padding-bottom:24px;overflow:hidden"><canvas class="co-net co-net--side co-net--jobs" data-network="light" aria-hidden="true"></canvas><div class="wrap" style="position:relative;z-index:1">
   <p class="eyebrow">Jobs at M3XI</p>
   <h1>Help us build <em>M3XI.</em></h1>
-  <p class="lede">We&rsquo;re a small group building CallMe and M3XI Spatial &mdash; and aiming at robotics beyond that. We&rsquo;d love more curious hands. Read the honest bit first, then pick a role.</p>
+  <p class="lede">We&rsquo;re a small group building Breeze and CallMe: products that connect people, in software and, in time, hardware. We&rsquo;d love more curious hands. Read the honest bit first, then pick a role.</p>
 
   <div class="honest reveal">
     <h3>The honest bit — read before applying</h3>
@@ -140,7 +157,7 @@ section{padding:56px 0;position:relative}
     <article class="role reveal">
       <p class="k">Engineering · CallMe</p>
       <h3>App Developer</h3>
-      <p>Build features in CallMe &mdash; live calls, matching, tables and the games people play mid-call.</p>
+      <p>Build features in Breeze and CallMe &mdash; live calls, matching, tables and the games people play mid-call.</p>
       <ul>
         <li>React Native / Expo (or keen to learn it fast)</li>
         <li>Supabase, TypeScript, mobile UX instincts</li>
@@ -153,24 +170,9 @@ section{padding:56px 0;position:relative}
     </article>
 
     <article class="role reveal">
-      <p class="k">Engineering · M3XI Spatial</p>
-      <h3>3D / Web Graphics Developer</h3>
-      <p>Work on M3XI Spatial &mdash; the walkthrough viewer that runs in the browser, and the pipeline that measures property scans.</p>
-      <ul>
-        <li>JavaScript, and three.js or WebGL</li>
-        <li>Gaussian splats, point clouds or 3D reconstruction a big plus</li>
-        <li>Enjoys geometry problems and tools agents can actually use</li>
-      </ul>
-      <div class="apply">
-        <a class="btn btn-gold" href="mailto:support@m3xi.com?subject=Application%3A%203D%20%2F%20Web%20Graphics%20Developer%20at%20M3XI">Apply — 3D / Web Graphics</a>
-        <span class="terms">Remote · volunteer</span>
-      </div>
-    </article>
-
-    <article class="role reveal">
       <p class="k">Design</p>
       <h3>Product / Brand Designer</h3>
-      <p>Give CallMe and M3XI Spatial their own personality — screens, icons, store listings and the M3XI identity itself.</p>
+      <p>Give Breeze and CallMe their own personality — screens, icons, store listings and the M3XI identity itself.</p>
       <ul>
         <li>Figma (or your tool of choice) and a good eye</li>
         <li>Mobile-first product thinking</li>
@@ -197,21 +199,6 @@ section{padding:56px 0;position:relative}
       </div>
     </article>
 
-    <article class="role reveal">
-      <p class="k">The long game</p>
-      <h3>Robotics Tinkerer</h3>
-      <p>Robotics is where M3XI is headed. If you prototype, print, solder or simulate — we want to learn and build with you.</p>
-      <ul>
-        <li>Any background: mechanical, electrical, firmware, simulation</li>
-        <li>Hobbyists and students absolutely welcome</li>
-        <li>Help shape our first robotics experiments from day one</li>
-      </ul>
-      <div class="apply">
-        <a class="btn btn-gold" href="mailto:support@m3xi.com?subject=Application%3A%20Robotics%20at%20M3XI">Apply — Robotics</a>
-        <span class="terms">Remote · volunteer</span>
-      </div>
-    </article>
-
     <article class="role reveal" style="border-style:dashed;background:transparent">
       <p class="k">Something else?</p>
       <h3>Surprise us</h3>
@@ -233,16 +220,18 @@ section{padding:56px 0;position:relative}
   </div>
 </div></section>
 
-<footer class="m3-foot"><div class="m3-footin">
+<footer class="m3-foot" data-stores="off"><div class="m3-footin">
   <div>
     <a class="m3-brand" href="/"><img src="/M.png" alt="" width="26" height="26"> M3XI</a>
-    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London</p>
+    <p class="m3-tag">We are connected.</p>
+    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London, United Kingdom</p>
   </div>
   <nav class="m3-footnav" aria-label="Footer">
-    <div><p class="m3-fh">CallMe</p><ul>
-      <li><a href="/">CallMe</a></li>
-      <li><a href="/design/">Create</a></li>
-      <li><a href="/events/">Events</a></li>
+    <div><p class="m3-fh">Products</p><ul>
+      <li><a href="/breeze/">Breeze</a></li>
+      <li><a href="/callme/">CallMe</a></li>
+      <li><a href="/design/">CallMe Create</a></li>
+      <li><a href="/events/">CallMe Events</a></li>
     </ul></div>
     <div><p class="m3-fh">Help</p><ul>
       <li><a href="/questions/">Questions</a></li>
@@ -251,10 +240,9 @@ section{padding:56px 0;position:relative}
       <li><a href="/delete-account/">Delete account</a></li>
     </ul></div>
     <div><p class="m3-fh">M3XI</p><ul>
+      <li><a href="/">About M3XI</a></li>
       <li><a href="/team/">Team</a></li>
-      <li><a href="/jobs/" aria-current="page">Jobs</a></li>
-      <li><a href="/services/">Services</a></li>
-      <li><a href="/services/#spatial">M3XI Spatial</a></li>
+      <li><a href="/jobs/" aria-current="page">Careers</a></li>
     </ul></div>
     <div><p class="m3-fh">Legal</p><ul>
       <li><a href="/privacy/">Policies</a></li>
@@ -271,6 +259,8 @@ section{padding:56px 0;position:relative}
   }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 </script>
+<script type="module" src="/shared/network.js"></script>
+<script type="module" src="/shared/brand-fx.js"></script>
 <script type="module" src="/shared/site-chrome.js"></script>
 </body>
 </html>

@@ -1,0 +1,101 @@
+{
+  "_readme": [
+    "The team, in the order shown. Edit this file, then run: node tools/build-team.mjs",
+    "It writes /team/, one profile per person at /team/<slug>/ (or `out` if set), all from one template.",
+    "photo: a path under public/, e.g. /team-photos/fifi-ling.jpg (4:5 portrait, at least 800x1000). If it is left out, /team-photos/<slug>.jpg is used when that file exists; otherwise the card shows the person's initials.",
+    "work: the portfolio. Each item: { kind, title, text, href (optional), image (optional, a path under public/, 16:10), icon (optional, a product logo) }.",
+    "links: { label, text, href }. bio: paragraphs. focus: short tags."
+  ],
+  "groups": [
+    { "id": "leadership", "title": "Leadership" },
+    { "id": "marketing", "title": "Marketing" }
+  ],
+  "people": [
+    {
+      "slug": "michael",
+      "out": "michael/index.html",
+      "url": "/michael/",
+      "name": "Michael",
+      "role": "Founder & Chief Executive Officer",
+      "group": "leadership",
+      "photo": "/michael/portfolio/assets/headshot.jpg",
+      "location": "London",
+      "bio": [
+        "Michael founded M3XI and leads the company and the products that stem from it: Breeze and CallMe.",
+        "He is an engineer and a professional model, and studies Creative Robotics at University of the Arts London. Before M3XI he taught programming in primary schools, which is where the company's aim of making capable technology easy to pick up began."
+      ],
+      "focus": ["Company and product direction", "Software engineering", "Robotics and AI", "Creative direction"],
+      "work": [
+        { "icon": "/img/breeze/breeze-icon-192.png", "kind": "Product · Waitlist open", "title": "Breeze", "text": "A fitness app with an AI coach that builds meal plans and daily workouts.", "href": "/breeze/" },
+        { "icon": "/callme-icon.png", "kind": "Product · On Google Play · iPhone pre-order", "title": "CallMe", "text": "Video calls with ID-checked adults, and a way to keep in touch with the people you click with.", "href": "/callme/" },
+        { "kind": "Portfolio", "title": "Model book", "text": "Modelling and performance: tailoring, digitals, London, and ARGOS on stage.", "href": "/michael/portfolio/", "image": "/michael/portfolio/assets/suit_profile.jpg" },
+        { "kind": "CV", "title": "Work CV and Performance CV", "text": "Both CVs, as a page and as PDFs.", "href": "/michael/portfolio/cv.html" },
+        { "kind": "Portfolio", "title": "Engineering", "text": "Robotic puppetry, M3XI products and robotics work, as a booklet.", "href": "/michael/portfolio/engineering.html" }
+      ],
+      "links": [
+        { "label": "Email", "text": "M3xiTeam@m3xi.com", "href": "mailto:M3xiTeam@m3xi.com" },
+        { "label": "Phone", "text": "+44 7418 025706", "href": "tel:+447418025706" },
+        { "label": "Instagram", "text": "@michaelg7765", "href": "https://www.instagram.com/michaelg7765" },
+        { "label": "LinkedIn", "text": "M3XI", "href": "https://www.linkedin.com/company/111653431/" }
+      ]
+    },
+    {
+      "slug": "leo-chi",
+      "name": "Leo Chi",
+      "role": "Co-Founder & Chief Technology Officer",
+      "group": "leadership",
+      "location": "London",
+      "bio": ["Leo is a co-founder of M3XI and its Chief Technology Officer, responsible for the technology behind the company's products."],
+      "focus": ["Technology", "Engineering"],
+      "work": [],
+      "links": []
+    },
+    {
+      "slug": "fifi-ling",
+      "name": "Fifi Ling",
+      "role": "Chief Marketing Officer",
+      "group": "leadership",
+      "location": "London",
+      "bio": ["Fifi is M3XI's Chief Marketing Officer (CMO) and leads the marketing team."],
+      "focus": ["Marketing", "Brand"],
+      "work": [],
+      "links": []
+    },
+    {
+      "slug": "erica",
+      "name": "Erica",
+      "role": "Marketing",
+      "group": "marketing",
+      "reportsTo": "fifi-ling",
+      "location": "London",
+      "bio": ["Erica works in M3XI's marketing team, reporting to Fifi Ling."],
+      "focus": ["Marketing"],
+      "work": [],
+      "links": []
+    },
+    {
+      "slug": "oshea-oneill",
+      "name": "O'Shea O'Neill",
+      "role": "Marketing",
+      "group": "marketing",
+      "reportsTo": "fifi-ling",
+      "location": "London",
+      "bio": ["O'Shea works in M3XI's marketing team, reporting to Fifi Ling."],
+      "focus": ["Marketing"],
+      "work": [],
+      "links": []
+    },
+    {
+      "slug": "noor",
+      "name": "Noor",
+      "role": "Marketing",
+      "group": "marketing",
+      "reportsTo": "leo-chi",
+      "location": "London",
+      "bio": ["Noor works in marketing at M3XI, reporting to Leo Chi."],
+      "focus": ["Marketing"],
+      "work": [],
+      "links": []
+    }
+  ]
+}

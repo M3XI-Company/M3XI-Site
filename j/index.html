@@ -153,9 +153,25 @@ main{padding:34px 0 48px}
   <a class="m3-brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="m3-jp" aria-hidden="true">三X一</span></a>
   <nav class="m3-nav" aria-label="Main">
     <ul class="m3-links">
-      <li><a href="/">CallMe</a></li>
-      <li><a href="/design/">Create</a></li>
-      <li><a href="/events/">Events</a></li>
+      <li class="m3-prod">
+        <details class="m3-drop m3-here">
+          <summary>Products</summary>
+          <div class="m3-menu m3-menu--left">
+            <p class="m3-menu-h">Software products</p>
+            <ul>
+              <li><a href="/breeze/"><b>Breeze</b><small>Your AI fitness coach. Join the waitlist</small></a></li>
+              <li><a href="/callme/"><b>CallMe</b><small>Video call new people</small></a></li>
+            </ul>
+            <p class="m3-menu-h">More from CallMe</p>
+            <ul>
+              <li><a href="/design/"><b>Create</b><small>Design your own cards</small></a></li>
+              <li><a href="/events/"><b>Events</b><small>What&rsquo;s on</small></a></li>
+            </ul>
+          </div>
+        </details>
+      </li>
+      <li><a href="/team/">Team</a></li>
+      <li><a href="/jobs/">Careers</a></li>
       <li class="m3-help">
         <details class="m3-drop">
           <summary>Help</summary>
@@ -220,13 +236,13 @@ main{padding:34px 0 48px}
         <header class="cm-heading">
           <p class="cm-kicker">Don&rsquo;t have CallMe yet?</p>
           <h2 class="cm-title cm-title--sm" id="getapp-h">Get CallMe, then tap the link <em>again.</em></h2>
-          <p class="cm-lede">Sign up and pass the quick ID check (CallMe is for adults only), and your friend&rsquo;s link opens their crew. <span data-appstore="soon">Free on Android now, and coming soon to the App Store.</span><span data-appstore="live" hidden>Free on Android and iPhone.</span></p>
+          <p class="cm-lede">Sign up and pass the quick ID check (CallMe is for adults only), and your friend&rsquo;s link opens their crew. <span data-appstore="soon">Free on Android now, with iPhone pre-order coming to the App Store.</span><span data-appstore="live" hidden>Free on Android and iPhone.</span></p>
         </header>
         <div class="cm-stores">
           <a class="cm-store cm-store--primary" id="store-play" data-store="play" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get it on Google Play</a>
-          <span class="cm-store cm-store--soon" id="store-apple" data-store="appstore">Coming soon to the App Store</span>
+          <span class="cm-store cm-store--soon" id="store-apple" data-store="appstore">Pre-order on the App Store</span>
         </div>
-        <p class="small" id="store-ios" hidden>CallMe for iPhone isn&rsquo;t on the App Store just yet. It&rsquo;s coming soon.</p>
+        <p class="small" id="store-ios" hidden>CallMe for iPhone isn&rsquo;t on the App Store just yet. Pre-order is coming soon.</p>
         <p class="small">Already have CallMe? Update it to the newest version first: older versions don&rsquo;t know crew links.</p>
       </div>
     </section>
@@ -237,13 +253,15 @@ main{padding:34px 0 48px}
 <footer class="m3-foot"><div class="m3-footin">
   <div>
     <a class="m3-brand" href="/"><img src="/M.png" alt="" width="26" height="26"> M3XI</a>
-    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London</p>
+    <p class="m3-tag">We are connected.</p>
+    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London, United Kingdom</p>
   </div>
   <nav class="m3-footnav" aria-label="Footer">
-    <div><p class="m3-fh">CallMe</p><ul>
-      <li><a href="/">CallMe</a></li>
-      <li><a href="/design/">Create</a></li>
-      <li><a href="/events/">Events</a></li>
+    <div><p class="m3-fh">Products</p><ul>
+      <li><a href="/breeze/">Breeze</a></li>
+      <li><a href="/callme/">CallMe</a></li>
+      <li><a href="/design/">CallMe Create</a></li>
+      <li><a href="/events/">CallMe Events</a></li>
     </ul></div>
     <div><p class="m3-fh">Help</p><ul>
       <li><a href="/questions/">Questions</a></li>
@@ -252,10 +270,9 @@ main{padding:34px 0 48px}
       <li><a href="/delete-account/">Delete account</a></li>
     </ul></div>
     <div><p class="m3-fh">M3XI</p><ul>
+      <li><a href="/">About M3XI</a></li>
       <li><a href="/team/">Team</a></li>
-      <li><a href="/jobs/">Jobs</a></li>
-      <li><a href="/services/">Services</a></li>
-      <li><a href="/services/#spatial">M3XI Spatial</a></li>
+      <li><a href="/jobs/">Careers</a></li>
     </ul></div>
     <div><p class="m3-fh">Legal</p><ul>
       <li><a href="/privacy/">Policies</a></li>

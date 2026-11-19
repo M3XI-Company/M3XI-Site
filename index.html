@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CallMe by M3XI — Ditch the card games</title>
-<meta name="description" content="CallMe is a place to hang out by voice: pull up a chair at a table, get your crew together, see what's on, or talk to someone who is free. Cameras come on only if you both ask. 18+ and ID-checked. Now with a dog to take for walks. Free to download." />
-<meta name="theme-color" content="#FAF6EF" />
+<title>M3XI — We are connected</title>
+<meta name="description" content="M3XI is the London brand behind Breeze and CallMe. We build software and hardware products around one idea: connecting people." />
+<meta name="theme-color" content="#0B0D12" />
+<!-- Site-level verification tags: they belong to the front page. -->
 <meta name="msvalidate.01" content="194ECDA09D7B5CBE4E3E13235EFACE76" />
 <meta name="google-site-verification" content="9v3aYIwxrSEWOek880TLcnJFXPImABmA29SwVJunnz4" />
 <meta name="google-adsense-account" content="ca-pub-3432976752504337" />
@@ -13,32 +14,43 @@
 <link rel="icon" type="image/png" href="/M.png" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="M3XI" />
-<meta property="og:title" content="CallMe — Ditch the card games" />
-<meta property="og:description" content="Hang out by voice: tables, your crew, events and friends. Voice first, cameras only if you both ask. Now with the dog, walks, snapshots and a friends map." />
+<meta property="og:title" content="M3XI — We are connected" />
+<meta property="og:description" content="M3XI is the brand behind Breeze and CallMe. We build products that connect people." />
 <meta property="og:url" content="https://www.m3xi.com/" />
-<meta property="og:image" content="https://www.m3xi.com/img/callme/og-callme.jpg" />
-<meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="Ditch the card games: the CallMe dog in a polaroid on cream paper" />
-<meta name="twitter:card" content="summary_large_image" />
+<meta property="og:image" content="https://www.m3xi.com/M.png" />
+<meta name="twitter:card" content="summary" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600;1,700;1,800&family=Inter:wght@400;500;600;700&family=Caveat:wght@500;600&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
-<!-- The paper kit and the shared header/footer first, then this page's layout. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared/site-chrome.css">
-<link rel="stylesheet" href="/src/style.css">
+<link rel="stylesheet" href="/shared/company.css">
 </head>
-<body class="cm-ground">
-
-<a class="skip" href="#main">Skip to the page</a>
+<body class="co">
+<a class="co-skip" href="#main">Skip to the page</a>
 
 <header class="m3-head"><div class="m3-bar">
   <a class="m3-brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="m3-jp" aria-hidden="true">三X一</span></a>
   <nav class="m3-nav" aria-label="Main">
     <ul class="m3-links">
-      <li><a href="/" aria-current="page">CallMe</a></li>
-      <li><a href="/design/">Create</a></li>
-      <li><a href="/events/">Events</a></li>
+      <li class="m3-prod">
+        <details class="m3-drop">
+          <summary>Products</summary>
+          <div class="m3-menu m3-menu--left">
+            <p class="m3-menu-h">Software products</p>
+            <ul>
+              <li><a href="/breeze/"><b>Breeze</b><small>Your AI fitness coach. Join the waitlist</small></a></li>
+              <li><a href="/callme/"><b>CallMe</b><small>Video call new people</small></a></li>
+            </ul>
+            <p class="m3-menu-h">More from CallMe</p>
+            <ul>
+              <li><a href="/design/"><b>Create</b><small>Design your own cards</small></a></li>
+              <li><a href="/events/"><b>Events</b><small>What&rsquo;s on</small></a></li>
+            </ul>
+          </div>
+        </details>
+      </li>
+      <li><a href="/team/">Team</a></li>
+      <li><a href="/jobs/">Careers</a></li>
       <li class="m3-help">
         <details class="m3-drop">
           <summary>Help</summary>
@@ -51,422 +63,124 @@
       </li>
     </ul>
   </nav>
-  <a class="m3-get" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get CallMe</a>
+  <a class="m3-get m3-get--breeze" href="/breeze/#waitlist">Join the waitlist</a>
 </div></header>
 
 <main id="main" tabindex="-1">
 
-<!-- ══ Hero ══════════════════════════════════════════════════════════════════
-     Voice first: CallMe is not "a video call app". The headline stays. -->
-<section class="hero" aria-labelledby="hero-title"><div class="wrap hero-grid">
-  <div class="hero-copy">
-    <a class="hero-new" href="#dog">
-      <span class="cm-rubber" aria-hidden="true">New</span>
-      <span><span class="cm-sr">New: </span>Meet the dog, and take it for a walk</span>
-      <i class="cm-ico cm-ico--arrow" aria-hidden="true"></i>
-    </a>
-    <p class="cm-kicker">CallMe by M3XI</p>
-    <h1 id="hero-title" class="cm-title cm-title--display">Ditch the <em>card games.</em></h1>
-    <p class="cm-lede hero-lede">CallMe is a place to hang out by voice. Pull up a chair at a table, get your crew together, or press the letter three times to talk to someone who’s free. No feed to scroll, no chat that dies after two messages, and cameras only if you both ask.</p>
-
-    <div class="cm-stores hero-stores">
-      <a class="cm-store cm-store--primary" data-store="play" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get it on Google Play</a>
-      <span class="cm-store cm-store--soon" data-store="appstore">Coming soon to the App Store</span>
-    </div>
-    <p class="hero-note" data-appstore="soon">On Android now. The iPhone app is with Apple for review.</p>
-    <p class="hero-note" data-appstore="live" hidden>On Android and iPhone, and free to download.</p>
-
-    <ul class="cm-tags cm-tags--row hero-tags" aria-label="At a glance">
-      <li class="cm-tag cm-tag--sm"><i class="cm-ico cm-ico--mic" aria-hidden="true"></i>Voice first</li>
-      <li class="cm-tag cm-tag--sm"><i class="cm-ico cm-ico--shield" aria-hidden="true"></i>18+ and ID-checked</li>
-      <li class="cm-tag cm-tag--sm"><i class="cm-ico cm-ico--phone" aria-hidden="true"></i>Five free calls a day</li>
-      <li class="cm-tag cm-tag--sm"><i class="cm-ico cm-ico--globe" aria-hidden="true"></i>My country or International</li>
-    </ul>
-  </div>
-
-  <div class="scene">
-    <span class="cm-stamp cm-stamp--tulip scene-stamp" aria-hidden="true"><span class="cm-stamp-label">CallMe</span></span>
-    <div class="cm-phone scene-phone">
-      <img src="/img/callme/app/lobby-dog.png" srcset="/img/callme/app/lobby-dog-720.webp 720w, /img/callme/app/lobby-dog.png 721w" sizes="(max-width: 900px) 50vw, 260px" width="1080" height="2400" decoding="async"
-           alt="The CallMe Lobby, with the cartoon dog beside the letter you press to start a call">
-    </div>
-    <figure class="cm-polaroid cm-polaroid--dog scene-polaroid">
-      <span class="cm-tape cm-tape--sage" aria-hidden="true"></span>
-      <div class="cm-polaroid-photo"><img src="/img/callme/dog/phone.webp" width="317" height="360" decoding="async"
-           alt="The CallMe dog, a small ginger puppy, holding an old telephone receiver to its ear"></div>
-      <figcaption>It’s for you</figcaption>
-    </figure>
-  </div>
-</div></section>
-
-<!-- ══ How it works ══════════════════════════════════════════════════════════ -->
-<section id="how" class="sec how" aria-labelledby="how-title"><div class="wrap">
-  <header class="cm-heading">
-    <p class="cm-kicker">How it works</p>
-    <h2 id="how-title" class="cm-title">Three steps to a <em>real conversation.</em></h2>
-    <p class="cm-lede">No profile to write, no opening line to agonise over. Set yourself up once, then pull up a chair.</p>
-  </header>
-
-  <div class="how-grid">
-    <article class="cm-letter how-letter">
-      <h3 class="cm-letter-title">Your first call</h3>
-      <ol class="cm-steps">
-        <li><b>Check your age, once.</b><span>Everyone on CallMe is 18 or over and has passed an ID check. You do it one time, in the app, and it is done.</span></li>
-        <li><b>Pick where to go.</b><span>Sit down at a table, get your crew together, or press the letter three times to talk to someone who’s free. For one-to-one calls, the only setting is how far to look: My country or International.</span></li>
-        <li><b>Talk.</b><span>Everyone’s card is dealt first, so you can see who you are talking to. Calls start as voice, and cameras come on only if you both ask.</span></li>
-      </ol>
-      <p class="cm-hand how-sign">Go on, say hello.</p>
-    </article>
-
-    <div class="how-side">
-      <div class="how-dog">
-        <img class="cm-dog" src="/img/callme/dog/think.webp" width="302" height="360" alt="" loading="lazy" decoding="async">
-        <p class="cm-bubble cm-bubble--left">Pulling up a chair…</p>
-      </div>
-      <h3 class="how-side-title">On every call</h3>
-      <ul class="cm-tags how-tags">
-        <li class="cm-tag"><i class="cm-ico cm-ico--home" aria-hidden="true"></i><span><b>Head home</b> whenever you like after the first minute. Nobody has to explain themselves.</span></li>
-        <li class="cm-tag"><i class="cm-ico cm-ico--friend" aria-hidden="true"></i><span><b>Ask to be friends</b> if it went well, and chat whenever you like.</span></li>
-        <li class="cm-tag"><i class="cm-ico cm-ico--users" aria-hidden="true"></i><span><b>Sit at a table</b> with a few people around a topic, on your own or with your crew.</span></li>
-        <li class="cm-tag"><i class="cm-ico cm-ico--flag" aria-hidden="true"></i><span><b>Report or block</b> from any call. A report never says who made it.</span></li>
-      </ul>
-    </div>
-  </div>
-</div></section>
-
-<!-- ══ The dog (new in 0.10) ═════════════════════════════════════════════════
-     Michael's own dog, drawn. It has no name on the site: do not give it one. -->
-<section id="dog" class="sec dog" aria-labelledby="dog-title"><div class="wrap">
-  <div class="dog-head">
-    <span class="cm-stamp dog-stamp" aria-hidden="true">
-      <img class="cm-stamp-art" src="/img/callme/dog/tulip.webp" width="298" height="360" alt="" loading="lazy" decoding="async">
-      <span class="cm-stamp-label">Hello</span>
-    </span>
-    <header class="cm-heading">
-      <p class="cm-kicker">New in CallMe 0.10</p>
-      <h2 id="dog-title" class="cm-title">Meet <em>the dog.</em></h2>
-      <p class="cm-lede">A small cartoon dog now lives in CallMe, drawn from our founder’s own. It shows you round on your first day, keeps you up to date with your friends, and it is always ready for a walk.</p>
-    </header>
-  </div>
-
-  <ul class="dog-board" role="list">
-    <li class="dog-move">
-      <figure class="cm-polaroid cm-polaroid--dog">
-        <span class="cm-pin" aria-hidden="true"></span>
-        <div class="cm-polaroid-photo"><img src="/img/callme/dog/wave.webp" width="351" height="360" loading="lazy" decoding="async"
-             alt="The dog sitting up, smiling and waving a paw"></div>
-        <figcaption>I’ll show you round</figcaption>
-      </figure>
-      <div class="cm-card dog-note">
-        <p class="dog-how"><i class="cm-ico cm-ico--home" aria-hidden="true"></i>Your first day</p>
-        <h3>A guided tour</h3>
-        <p>It walks you through calling, your card and poster, friends, the map and walks. Take the tour again any time from Settings.</p>
-      </div>
-    </li>
-    <li class="dog-move">
-      <figure class="cm-polaroid cm-polaroid--dog">
-        <span class="cm-pin" aria-hidden="true"></span>
-        <div class="cm-polaroid-photo"><img src="/img/callme/dog/sniff.webp" width="328" height="360" loading="lazy" decoding="async"
-             alt="The dog with its nose to the ground, sniffing"></div>
-        <figcaption>Any news?</figcaption>
-      </figure>
-      <div class="cm-card dog-note">
-        <p class="dog-how"><i class="cm-ico cm-ico--paw" aria-hidden="true"></i>Tap it</p>
-        <h3>News from friends</h3>
-        <p>Hear who is at a table, who has posted a snapshot and who is off to an event. Only friends, and only those who choose to share.</p>
-      </div>
-    </li>
-    <li class="dog-move">
-      <figure class="cm-polaroid cm-polaroid--dog">
-        <span class="cm-pin" aria-hidden="true"></span>
-        <div class="cm-polaroid-photo"><img src="/img/callme/dog/point.webp" width="303" height="360" loading="lazy" decoding="async"
-             alt="The dog standing on its back legs, pointing up and to the side"></div>
-        <figcaption>Tap twice for the map</figcaption>
-      </figure>
-      <div class="cm-card dog-note">
-        <p class="dog-how"><i class="cm-ico cm-ico--map" aria-hidden="true"></i>Tap it twice</p>
-        <h3>The friends map</h3>
-        <p>Tap the dog twice, quickly, and the map of your friends opens.</p>
-      </div>
-    </li>
-    <li class="dog-move">
-      <figure class="cm-polaroid cm-polaroid--dog">
-        <span class="cm-pin" aria-hidden="true"></span>
-        <div class="cm-polaroid-photo"><img src="/img/callme/dog/walk.webp" width="360" height="288" loading="lazy" decoding="async"
-             alt="The dog trotting along on a red lead"></div>
-        <figcaption>Time for a walk</figcaption>
-      </figure>
-      <div class="cm-card dog-note">
-        <p class="dog-how"><i class="cm-ico cm-ico--shake" aria-hidden="true"></i>Hold, then let go</p>
-        <h3>A walk</h3>
-        <p>Hold the dog still until it starts to run, then let go to set off. Or keep a finger on it and give your phone a shake.</p>
-      </div>
-    </li>
-  </ul>
-  <p class="dog-foot">Rather not have a dog about? You can hide it in Settings, under Your dog.</p>
-</div></section>
-
-<!-- ══ New in CallMe ═════════════════════════════════════════════════════════ -->
-<section id="new" class="sec new" aria-labelledby="new-title"><div class="wrap">
-  <header class="cm-heading">
-    <p class="cm-kicker">Also new</p>
-    <h2 id="new-title" class="cm-title">Walks, snapshots and <em>a map of friends.</em></h2>
-    <p class="cm-lede">What arrived with the dog, and a few things that got easier.</p>
-  </header>
-
-  <ul class="new-grid" role="list">
-    <li class="cm-card new-card new-card--walk">
-      <span class="cm-tape cm-tape--tl cm-tape--tulip" aria-hidden="true"></span>
-      <img class="new-dog" src="/img/callme/dog/run.webp" width="360" height="282" alt="" loading="lazy" decoding="async">
-      <span class="new-ico" aria-hidden="true"><i class="cm-ico cm-ico--paw"></i></span>
-      <h3>Walks</h3>
-      <p>Press and hold the dog, then let go, to set off. You see the distance, your pace, the time and about how many calories, with personal bests to beat.</p>
-      <p class="new-small"><i class="cm-ico cm-ico--lock" aria-hidden="true"></i><span>Your location is used only while CallMe is open.</span></p>
-    </li>
-    <li class="cm-card new-card">
-      <span class="cm-tape cm-tape--tl cm-tape--sage" aria-hidden="true"></span>
-      <span class="new-ico" aria-hidden="true"><i class="cm-ico cm-ico--camera"></i></span>
-      <h3>Snapshots</h3>
-      <p>A photo for your friends, with a few words on it, that lasts 24 hours.</p>
-      <p class="new-small"><i class="cm-ico cm-ico--check" aria-hidden="true"></i><span>Every snapshot is checked before your friends see it.</span></p>
-    </li>
-    <li class="cm-card new-card">
-      <span class="cm-tape cm-tape--tl cm-tape--gingham" aria-hidden="true"></span>
-      <span class="new-ico" aria-hidden="true"><i class="cm-ico cm-ico--map"></i></span>
-      <h3>The friends map</h3>
-      <p>Off until you turn it on. Then only the friends you tick can see you, by town or precisely, and it switches itself off after 24 hours.</p>
-      <p class="new-small"><i class="cm-ico cm-ico--lock" aria-hidden="true"></i><span>It updates only while CallMe is open.</span></p>
-    </li>
-    <li class="cm-card new-card">
-      <span class="cm-tape cm-tape--tl cm-tape--masking" aria-hidden="true"></span>
-      <span class="new-ico" aria-hidden="true"><i class="cm-ico cm-ico--calendar"></i></span>
-      <h3>Events</h3>
-      <p>What’s on, in the app and here on the site. When you arrive, scan the QR code at the venue to check in.</p>
-      <p class="new-small"><a class="new-link" href="/events/">See what’s on<i class="cm-ico cm-ico--arrow" aria-hidden="true"></i></a></p>
-    </li>
-    <li class="cm-card new-card">
-      <span class="cm-tape cm-tape--tl cm-tape--tulip" aria-hidden="true"></span>
-      <span class="new-ico" aria-hidden="true"><i class="cm-ico cm-ico--sticker"></i></span>
-      <h3>Posters you can handle</h3>
-      <p>Drag, pinch to size and twist to turn. Pins, clips and tape hold things up, and if you pull a pin out, the piece falls. New stickers and modules too.</p>
-    </li>
-    <li class="cm-card new-card">
-      <span class="cm-tape cm-tape--tl cm-tape--sage" aria-hidden="true"></span>
-      <span class="new-ico" aria-hidden="true"><i class="cm-ico cm-ico--scissors"></i></span>
-      <h3>Photos, cropped your way</h3>
-      <p>Take a photo or choose one, then crop it: pinch, drag and rotate, and pick Original, Square or 4:5.</p>
-    </li>
-  </ul>
-</div></section>
-
-<!-- ══ Screenshots ═══════════════════════════════════════════════════════════
-     Fresh 0.10.1 screens, 1080x2400 PNG, in public/img/callme/app/ under
-     exactly these names. After dropping new ones in, run
-     `python tools/callme-shots.py`: it checks all eight are there at 1080x2400
-     and makes the 720px WebP copies each srcset offers first. The old
-     screen-0*.webp shots are no longer used here. -->
-<section id="screens" class="sec screens" aria-labelledby="screens-title"><div class="wrap">
-  <header class="cm-heading cm-heading--center">
-    <p class="cm-kicker">Inside the app</p>
-    <h2 id="screens-title" class="cm-title">What it looks like <em>today.</em></h2>
-    <p class="cm-lede">Straight from the latest CallMe, just as it looks on the phone.</p>
-  </header>
-
-  <div class="cm-shots shots">
-    <figure class="cm-shot">
-      <span class="cm-tape cm-tape--masking" aria-hidden="true"></span>
-      <div class="cm-phone"><img src="/img/callme/app/lobby-dog.png" srcset="/img/callme/app/lobby-dog-720.webp 720w, /img/callme/app/lobby-dog.png 721w" sizes="(max-width: 759px) 45vw, 250px" width="720" height="1600" loading="lazy" decoding="async"
-           alt="The CallMe Lobby: the letter you press three times to talk to someone, with the dog beside it"></div>
-      <figcaption class="cm-shot-caption"><b>The Lobby</b>Press the letter three times to talk to someone who’s free. The dog keeps you company.</figcaption>
-    </figure>
-    <figure class="cm-shot">
-      <span class="cm-tape cm-tape--sage" aria-hidden="true"></span>
-      <div class="cm-phone"><img src="/img/callme/app/walk.png" srcset="/img/callme/app/walk-720.webp 720w, /img/callme/app/walk.png 721w" sizes="(max-width: 759px) 45vw, 250px" width="720" height="1600" loading="lazy" decoding="async"
-           alt="A dog walk in CallMe, showing 0.32 miles, the pace, the time and about how many calories"></div>
-      <figcaption class="cm-shot-caption"><b>A walk</b>Distance, pace, time and about how many calories, as you go.</figcaption>
-    </figure>
-    <figure class="cm-shot">
-      <div class="cm-phone"><img src="/img/callme/app/walk-summary.png" srcset="/img/callme/app/walk-summary-720.webp 720w, /img/callme/app/walk-summary.png 721w" sizes="(max-width: 759px) 45vw, 250px" width="720" height="1600" loading="lazy" decoding="async"
-           alt="The letter at the end of a walk: a new best, the route, the time, distance, pace and calories"></div>
-      <figcaption class="cm-shot-caption"><b>A new best</b>At the end, a letter with your route and your bests to beat.</figcaption>
-    </figure>
-    <figure class="cm-shot">
-      <span class="cm-tape cm-tape--gingham" aria-hidden="true"></span>
-      <div class="cm-phone"><img src="/img/callme/app/walk-consent.png" srcset="/img/callme/app/walk-consent-720.webp 720w, /img/callme/app/walk-consent.png 721w" sizes="(max-width: 759px) 45vw, 250px" width="720" height="1600" loading="lazy" decoding="async"
-           alt="CallMe asking before it uses location for a walk, with a choice of steps and time only"></div>
-      <figcaption class="cm-shot-caption"><b>Asked, not assumed</b>Location only while a walk runs and CallMe is open, and only if you say yes.</figcaption>
-    </figure>
-    <figure class="cm-shot">
-      <span class="cm-tape cm-tape--tulip" aria-hidden="true"></span>
-      <div class="cm-phone"><img src="/img/callme/app/collection.png" srcset="/img/callme/app/collection-720.webp 720w, /img/callme/app/collection.png 721w" sizes="(max-width: 759px) 45vw, 250px" width="720" height="1600" loading="lazy" decoding="async"
-           alt="Your collection: twenty illustrated cards, some opened and some still sealed"></div>
-      <figcaption class="cm-shot-caption"><b>The collection</b>Twenty illustrated cards, each opened by doing something on CallMe.</figcaption>
-    </figure>
-  </div>
-</div></section>
-
-<!-- ══ Get CallMe: the tear-off ══════════════════════════════════════════════
-     No prices here or anywhere on the site. -->
-<section id="get" class="get" aria-labelledby="get-title"><div class="wrap">
-  <hr class="cm-tear" aria-hidden="true">
-  <div class="cm-card cm-card--lift get-card">
-    <img class="cm-dog get-dog" src="/img/callme/dog/idle.webp" width="325" height="360" alt="" loading="lazy" decoding="async">
-    <div class="get-copy">
-      <h2 id="get-title" class="cm-title cm-title--sm">Free to download. <em>Say hello.</em></h2>
-      <p>Five free calls every day. Calling, friends, tables and the dog all work without paying, and CallMe Premium is there in the app if you want more.</p>
-      <div class="cm-stores">
-        <a class="cm-store cm-store--primary" data-store="play" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get it on Google Play</a>
-        <span class="cm-store cm-store--soon" data-store="appstore">Coming soon to the App Store</span>
+<!-- ══ Hero: the network ═════════════════════════════════════════════════════
+     The slogan is drawn, not explained. /shared/network.js animates the canvas;
+     the three pictures marked data-node are fixed points in it, and the one
+     marked "hub" (the M3XI processor) is wired to the others. On load,
+     /shared/hand3d.js sends a 3D hand in from in front of the screen to press
+     "See our products" (the button inside .hm-reach); it then breaks apart. -->
+<section class="hm-hero co-dark" aria-labelledby="hero-title">
+  <canvas class="co-net" data-network="dark" aria-hidden="true"></canvas>
+  <div class="co-wrap hm-hero-grid">
+    <div class="hm-hero-copy">
+      <p class="co-eyebrow">M3XI</p>
+      <h1 id="hero-title">We are connected.</h1>
+      <div class="co-btns">
+        <span class="hm-reach">
+          <a class="co-btn co-btn--blue" data-node="port" href="#products">See our products</a>
+        </span>
+        <a class="co-btn co-btn--ghost" href="/team/">Meet the team</a>
       </div>
     </div>
-    <div class="cm-scan get-scan">
-      <span class="cm-scan-code"><img src="/img/callme/qr-google-play.svg" width="114" height="114" alt="QR code for CallMe on Google Play" loading="lazy"></span>
-      <p>On a computer? Scan this with an Android phone to open CallMe on Google Play.</p>
-    </div>
-  </div>
-</div></section>
 
-<!-- ══ Make your own ═════════════════════════════════════════════════════════
-     Cards AND posters. Wording follows the studio's own page
-     (design/src/landing.ts). No prices, no balances and no buy links: "comes
-     with CallMe Premium, in the app" is the whole of it. -->
-<section id="create" class="sec create" aria-labelledby="create-title"><div class="wrap">
-  <header class="cm-heading">
-    <p class="cm-kicker">Make your own</p>
-    <h2 id="create-title" class="cm-title">Your own cards, <em>your own wall.</em></h2>
-    <p class="cm-lede">A MeCard is how people on a call or at a table know who’s talking. A poster is what friends see when they open you, and people you’ve met too if you let them. Both are yours to make, and a card you design can be given to the people you talk to.</p>
-  </header>
-  <ul class="makes" role="list">
-    <li class="cm-card make">
-      <span class="cm-tape cm-tape--tl cm-tape--masking" aria-hidden="true"></span>
-      <p class="make-where">In the app</p>
-      <h3>Put up a poster</h3>
-      <p>Go to Settings, then My poster. Choose a paper, then pin, tape and twist your photos and words into place. It is drawn on your phone, so you see it exactly as your visitors will.</p>
-    </li>
-    <li class="cm-card make">
-      <span class="cm-tape cm-tape--tl cm-tape--tulip" aria-hidden="true"></span>
-      <p class="make-where">In the app</p>
-      <h3>Make your cards</h3>
-      <p>From your poster, choose Edit my cards. Pick a paper, add a photo, stickers and your words, and the cards people see when you talk are yours.</p>
-    </li>
-    <li class="cm-card make">
-      <span class="cm-tape cm-tape--tl cm-tape--sage" aria-hidden="true"></span>
-      <p class="make-where">On a computer</p>
-      <h3>Design card art of your own</h3>
-      <p>Bring a picture you made yourself, or build one from the papers and stickers, and sign in with your phone. A person reads every design. Then it lands in your collection, and you can give up to twenty copies to people you have met on a call.</p>
-    </li>
-  </ul>
-  <div class="make-foot">
-    <a class="cm-btn cm-btn--secondary" href="/design/">See how making a card works</a>
-    <p class="cm-tag cm-tag--kraft make-note"><i class="cm-ico cm-ico--star" aria-hidden="true"></i>The creator studio comes with CallMe Premium, in the app.</p>
-  </div>
-</div></section>
-
-<!-- ══ Questions ═════════════════════════════════════════════════════════════
-     A few answers here; the full set lives on /questions/. -->
-<section id="questions" class="sec questions" aria-labelledby="questions-title"><div class="wrap qa">
-  <div class="qa-side">
-    <header class="cm-heading">
-      <p class="cm-kicker">Questions</p>
-      <h2 id="questions-title" class="cm-title">The short <em>answers.</em></h2>
-      <p class="cm-lede">A few to start with. The rest are on the questions page, and if yours is not there, email <a href="mailto:support@m3xi.com">support@m3xi.com</a> and a person will answer.</p>
-    </header>
-    <div class="cm-btns">
-      <a class="cm-btn cm-btn--secondary" href="/questions/">All questions</a>
-      <a class="cm-btn cm-btn--quiet" href="/safety/"><i class="cm-ico cm-ico--shield" aria-hidden="true"></i>How we keep calls safe</a>
-    </div>
-  </div>
-
-  <div class="cm-letter faq">
-    <details open>
-      <summary>What is CallMe?</summary>
-      <div class="answer">
-        <p>CallMe is a place to hang out by voice. Pull up a chair at a table around a topic, get your crew together, see what’s on at an event, or press the letter three times and talk to someone who’s free right now.</p>
-        <p>Everyone is 18 or over and ID-checked. Nobody on CallMe is a profile to be sorted through, and nothing in it is built for dating.</p>
+    <div class="hm-web" role="group" aria-label="M3XI and the products connected through it">
+      <div class="hm-chip hm-chip--hub" style="--x:50%;--y:27%">
+        <span class="hm-ic" data-tilt="16"><span class="hm-glow"></span><span class="hm-pkg" data-mark="M3XI · U1"><span class="hm-die"><img data-node="hub" src="/M.png" width="84" height="84" alt=""></span></span></span>
+        <b>M3XI</b>
       </div>
-    </details>
-    <details>
-      <summary>Does my camera come on straight away?</summary>
-      <div class="answer"><p>No. Every one-to-one call starts as voice. Cameras come on only when <b>both</b> of you have asked. One person can never switch on the other person’s camera, and you can turn yours off at any time without ending the call. Tables have their own camera rule, set by the host.</p></div>
-    </details>
-    <details>
-      <summary>Who can use CallMe?</summary>
-      <div class="answer"><p>Adults aged 18 and over. Everyone verifies their age before they can call anyone, with an identity document, a live selfie and a face match. The check is carried out by our verification provider, and we receive the result rather than your documents.</p></div>
-    </details>
-    <details>
-      <summary>Who will I talk to one-to-one?</summary>
-      <div class="answer"><p>There is one setting: <b>My country</b> or <b>International</b>. It goes by the flag you pick on your profile, not by where your phone is. Within that, CallMe leans towards people you are likely to get on with, from what people are into and which calls go on for a while, and there is nothing to fill in. Beyond being 18 or over, nobody is filtered by age, gender or distance, and anyone you block is never put with you again while the block stands.</p></div>
-    </details>
-    <details>
-      <summary>Does CallMe know where I am?</summary>
-      <div class="answer"><p>Only while CallMe is open, and only for things you start. A walk uses your location to measure the distance. Sharing your place on the friends map is off until you turn it on; then only the friends you tick can see you, by town or precisely, and it switches itself off 24 hours later. CallMe never asks for your location in the background.</p></div>
-    </details>
-    <details>
-      <summary>How much does CallMe cost?</summary>
-      <div class="answer"><p>CallMe is free to use, with five calls a day. You can earn more by watching an advert or by completing weekly achievements, and video calls are free for everyone. CallMe Premium is for hosts: tables for up to twenty people, opening any table at no cost, camera looks and the creator studio, with a big allowance of calls on top. Premium and call credits are optional, and you’ll find them, with the price where you live, inside the app.</p></div>
-    </details>
+      <a class="hm-chip" href="/breeze/" style="--x:17%;--y:80%">
+        <span class="hm-ic" data-tilt="22"><span class="hm-pkg" data-mark="U2"><span class="hm-die"><img data-node src="/img/breeze/breeze-icon-192.png" width="52" height="52" alt=""></span></span></span>
+        <b>Breeze</b>
+      </a>
+      <a class="hm-chip" href="/callme/" style="--x:83%;--y:76%">
+        <span class="hm-ic" data-tilt="22"><span class="hm-pkg" data-mark="U3"><span class="hm-die"><img data-node src="/callme-icon.png" width="52" height="52" alt=""></span></span></span>
+        <b>CallMe</b>
+      </a>
+    </div>
   </div>
-</div></section>
+</section>
 
-<!-- ══ Team ══════════════════════════════════════════════════════════════════ -->
-<section id="team" class="sec team" aria-labelledby="team-title"><div class="wrap">
-  <header class="cm-heading">
-    <p class="cm-kicker">The team</p>
-    <h2 id="team-title" class="cm-title">Who is behind <em>CallMe.</em></h2>
-  </header>
-  <ul class="people" role="list">
+<!-- ══ Products ══════════════════════════════════════════════════════════════ -->
+<section id="products" class="co-sec hm-band" aria-labelledby="products-title"><div class="co-wrap">
+  <div class="co-sec-head"><h2 id="products-title">Our products</h2><p>Software products</p></div>
+  <ul class="co-products" role="list">
     <li>
-      <a class="cm-card person" href="/michael/">
-        <span class="person-photo"><img src="/michael-photos/model-01.jpg" data-fallback="/M.png" alt="" width="64" height="64" loading="lazy" decoding="async"></span>
-        <div class="person-txt"><span class="person-role">Founder &amp; CEO</span><h3>Michael</h3><span class="person-more">Meet Michael <i class="cm-ico cm-ico--arrow" aria-hidden="true"></i></span></div>
+      <a class="co-product" data-tilt="4" href="/breeze/">
+        <div class="co-product-top">
+          <img src="/img/breeze/breeze-icon-192.png" width="68" height="68" alt="">
+          <div><h3>Breeze</h3><span class="co-status">Waitlist open</span></div>
+        </div>
+        <p>A fitness app with an AI coach that builds your meal plan and daily workout, tracks your progress and matches you with gym buddies nearby.</p>
+        <span class="co-more">Join the waitlist</span>
       </a>
     </li>
     <li>
-      <div class="cm-card person">
-        <span class="person-photo" aria-hidden="true"><span class="person-initials">LC</span></span>
-        <div class="person-txt"><span class="person-role">Co-Founder</span><h3>Leo Chi</h3></div>
-      </div>
-    </li>
-    <li>
-      <a class="cm-card person person--open" href="/jobs/">
-        <span class="person-photo" aria-hidden="true"><span class="person-initials"><i class="cm-ico cm-ico--tulip"></i></span></span>
-        <div class="person-txt"><span class="person-role">Open roles</span><h3>Build it with us</h3><span class="person-more">See the jobs <i class="cm-ico cm-ico--arrow" aria-hidden="true"></i></span></div>
+      <a class="co-product" data-tilt="4" href="/callme/">
+        <div class="co-product-top">
+          <img src="/callme-icon.png" width="68" height="68" alt="">
+          <div><h3>CallMe</h3><span class="co-status">On Google Play &middot; iPhone pre-order</span></div>
+        </div>
+        <p>Video calls with ID-checked adults, one-to-one or at a table, and a way to keep in touch with the people you click with.</p>
+        <span class="co-more">See CallMe</span>
       </a>
     </li>
   </ul>
 </div></section>
 
-<!-- ══ Contact: a postcard ═══════════════════════════════════════════════════ -->
-<section id="contact" class="sec contact" aria-labelledby="contact-title"><div class="wrap">
-  <div class="cm-card cm-card--lift postcard">
-    <div class="postcard-msg">
-      <h2 id="contact-title" class="cm-title cm-title--sm">Write to <em>us.</em></h2>
-      <p>A question about CallMe, a problem with a call, or just what you think of it: a person reads every email.</p>
-      <p class="cm-hand postcard-sign">The CallMe team, London</p>
-      <img class="cm-dog postcard-dog" src="/img/callme/dog/wait.webp" width="360" height="257" alt="" loading="lazy" decoding="async">
+<!-- ══ What we build ═════════════════════════════════════════════════════════ -->
+<section class="co-sec" aria-labelledby="build-title"><div class="co-wrap">
+  <div class="co-sec-head"><h2 id="build-title">What we build</h2></div>
+  <ol class="hm-three" role="list">
+    <li>
+      <h3>People, connected</h3>
+      <p>To a coach. To a training partner. To someone new.</p>
+    </li>
+    <li>
+      <h3>One brand, many products</h3>
+      <p>Each with its own name and look. All from M3XI.</p>
+    </li>
+    <li>
+      <h3>Software and hardware</h3>
+      <p>Apps today. A mixture of both over time.</p>
+    </li>
+  </ol>
+</div></section>
+
+<!-- ══ Close ═════════════════════════════════════════════════════════════════ -->
+<section class="hm-close co-dark" aria-labelledby="close-title">
+  <canvas class="co-net" data-network="dark" aria-hidden="true"></canvas>
+  <div class="co-wrap hm-close-in">
+    <div>
+      <h2 id="close-title">Built in London, by a small team.</h2>
+      <p>Meet the people behind M3XI, see the roles we have open, or write to us.</p>
     </div>
-    <div class="postcard-addr">
-      <span class="cm-stamp cm-stamp--tulip postcard-stamp" aria-hidden="true"><span class="cm-stamp-label">M3XI</span></span>
-      <dl>
-        <div><dt>Help with CallMe</dt><dd><a href="mailto:support@m3xi.com">support@m3xi.com</a></dd></div>
-        <div><dt>Everything else</dt><dd><a href="mailto:m3xiteam@m3xi.com">m3xiteam@m3xi.com</a></dd></div>
-      </dl>
+    <div class="co-btns">
+      <a class="co-btn co-btn--blue" href="/team/">The team</a>
+      <a class="co-btn co-btn--ghost" href="/jobs/">Open roles</a>
+      <a class="co-btn co-btn--ghost" href="/contact/">Contact</a>
     </div>
   </div>
-</div></section>
+</section>
 
 </main>
 
-<footer class="m3-foot"><div class="m3-footin">
+<footer class="m3-foot" data-stores="off"><div class="m3-footin">
   <div>
     <a class="m3-brand" href="/"><img src="/M.png" alt="" width="26" height="26"> M3XI</a>
-    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London</p>
+    <p class="m3-tag">We are connected.</p>
+    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London, United Kingdom</p>
   </div>
   <nav class="m3-footnav" aria-label="Footer">
-    <div><p class="m3-fh">CallMe</p><ul>
-      <li><a href="/" aria-current="page">CallMe</a></li>
-      <li><a href="/design/">Create</a></li>
-      <li><a href="/events/">Events</a></li>
+    <div><p class="m3-fh">Products</p><ul>
+      <li><a href="/breeze/">Breeze</a></li>
+      <li><a href="/callme/">CallMe</a></li>
+      <li><a href="/design/">CallMe Create</a></li>
+      <li><a href="/events/">CallMe Events</a></li>
     </ul></div>
     <div><p class="m3-fh">Help</p><ul>
       <li><a href="/questions/">Questions</a></li>
@@ -475,10 +189,9 @@
       <li><a href="/delete-account/">Delete account</a></li>
     </ul></div>
     <div><p class="m3-fh">M3XI</p><ul>
+      <li><a href="/" aria-current="page">About M3XI</a></li>
       <li><a href="/team/">Team</a></li>
-      <li><a href="/jobs/">Jobs</a></li>
-      <li><a href="/services/">Services</a></li>
-      <li><a href="/services/#spatial">M3XI Spatial</a></li>
+      <li><a href="/jobs/">Careers</a></li>
     </ul></div>
     <div><p class="m3-fh">Legal</p><ul>
       <li><a href="/privacy/">Policies</a></li>
@@ -488,7 +201,10 @@
   </nav>
 </div></footer>
 
-<script type="module" src="/src/main.js"></script>
+<script type="module" src="/src/home.js"></script>
+<script type="module" src="/shared/network.js"></script>
+<script type="module" src="/shared/hand3d.js"></script>
+<script type="module" src="/shared/brand-fx.js"></script>
 <script type="module" src="/shared/site-chrome.js"></script>
 </body>
 </html>

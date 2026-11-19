@@ -1,5 +1,5 @@
 /*
- * m3xi.com/ — the CallMe front page's own script. The header, the footer and
+ * m3xi.com/callme/ — the CallMe page's own script. The header, the footer and
  * the store badges (and the App Store flag) are /shared/site-chrome.js.
  * The page reads fine without this: it only tidies up after old links and
  * missing pictures.

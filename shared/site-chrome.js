@@ -1,17 +1,20 @@
 /*
  * m3xi.com — the shared header and footer's behaviour, and the store badges.
  *
- * The Help menu is a <details>, so it opens and closes with no script. This
+ * The Products and Help menus are <details>, so they open and close with no script. This
  * only adds what people expect of a menu on top: Escape closes it and hands
  * focus back to Help, and a click or tab outside it closes it. It also sets
  * the footer's year. Bundled by Vite from every root page (no inline script),
  * so it runs under `script-src 'self'`.
  *
- * STORE BADGES. CallMe is on Google Play; the App Store listing is in review.
- * Every App Store badge on the site follows the ONE flag below:
+ * STORE BADGES. CallMe is on Google Play; on the App Store it is a PRE-ORDER.
+ * Every App Store badge on the site follows the ONE object below:
  *
- *   live: false  every [data-store="appstore"] is a plain card (a <span>, not
- *                a link) that says "Coming soon to the App Store".
+ *   live: false  every [data-store="appstore"] says "Pre-order on the App
+ *                Store". With preorderUrl empty it is a plain card (a <span>,
+ *                not a link) stamped "Soon"; paste the App Store pre-order
+ *                address into preorderUrl and every one becomes a real link,
+ *                and "Get CallMe" opens it on an iPhone or iPad.
  *   live: true   every one becomes a real link to `url`, the header's
  *                "Get CallMe" opens the App Store on an iPhone or iPad, and
  *                copy marked data-appstore="soon" hides while copy marked
@@ -35,7 +38,7 @@
  * here (see the end of this file): a missing -720.webp falls back to the PNG,
  * and a missing PNG shows "Screenshot on its way" instead of a broken image.
  */
-window.M3XI_APPSTORE = { live: false, url: 'https://apps.apple.com/app/id6811338775' };
+window.M3XI_APPSTORE = { live: false, preorderUrl: '', url: 'https://apps.apple.com/app/id6811338775' };
 
 var PLAY_URL = 'https://play.google.com/store/apps/details?id=com.m3xi.callme';
 
@@ -80,6 +83,9 @@ var PLAY_URL = 'https://play.google.com/store/apps/details?id=com.m3xi.callme';
 
   var app = window.M3XI_APPSTORE || {};
   var appLive = !!(app.live && typeof app.url === 'string' && /^https:\/\/apps\.apple\.com\//.test(app.url));
+  var appStoreRe = /^https:\/\/apps\.apple\.com\//;
+  // The pre-order listing, once there is a public address for it.
+  var preUrl = !appLive && typeof app.preorderUrl === 'string' && appStoreRe.test(app.preorderUrl) ? app.preorderUrl : '';
   var isApple = /iPhone|iPad|iPod/.test(navigator.userAgent)
     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
@@ -135,7 +141,9 @@ var PLAY_URL = 'https://play.google.com/store/apps/details?id=com.m3xi.callme';
   // Every page gets the two cards under the footer's logo, so "coming soon to
   // the App Store" reads the same everywhere, unless the page has its own.
   var footBrand = document.querySelector('.m3-foot .m3-footin > div:first-child');
-  if (footBrand && !document.querySelector('.m3-foot [data-store]')) {
+  // A footer marked data-stores="off" (Breeze's page and the company pages) gets none.
+  var footOff = document.querySelector('.m3-foot[data-stores="off"]');
+  if (footBrand && !footOff && !document.querySelector('.m3-foot [data-store]')) {
     var row = el('div', 'cm-stores');
     var play = el('a', 'cm-store cm-store--sm');
     play.setAttribute('data-store', 'play');
@@ -153,14 +161,14 @@ var PLAY_URL = 'https://play.google.com/store/apps/details?id=com.m3xi.callme';
   all('[data-store="appstore"]').forEach(function (n) {
     renderStore(n, appLive
       ? { href: app.url, icon: 'handset', small: 'Download on the', name: 'App Store' }
-      : { href: '', icon: 'handset', small: 'Coming soon to the', name: 'App Store' });
+      : { href: preUrl, icon: 'handset', small: 'Pre-order on the', name: 'App Store' });
   });
 
   // "Get CallMe" links (the header's, and any marked data-store="auto") go to
   // Google Play, and to the App Store on Apple devices once it is live.
-  if (appLive && isApple) {
-    all('.m3-get, [data-store="auto"]').forEach(function (a) {
-      if (a.tagName.toLowerCase() === 'a') a.setAttribute('href', app.url);
+  if ((appLive || preUrl) && isApple) {
+    all('.m3-get:not(.m3-get--breeze), [data-store="auto"]').forEach(function (a) {
+      if (a.tagName.toLowerCase() === 'a') a.setAttribute('href', appLive ? app.url : preUrl);
     });
   }
 

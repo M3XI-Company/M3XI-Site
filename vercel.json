@@ -93,17 +93,7 @@
     },
     {
       "source": "/callme.html",
-      "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "/callme",
-      "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "/callme/",
-      "destination": "/",
+      "destination": "/callme/",
       "permanent": true
     },
     {
@@ -118,17 +108,17 @@
     },
     {
       "source": "/studio",
-      "destination": "/services/#spatial",
+      "destination": "/",
       "permanent": false
     },
     {
       "source": "/studio/",
-      "destination": "/services/#spatial",
+      "destination": "/",
       "permanent": false
     },
     {
       "source": "/studio/:path*",
-      "destination": "/services/#spatial",
+      "destination": "/",
       "permanent": false
     },
     {
@@ -152,23 +142,43 @@
       "permanent": false
     },
     {
+      "source": "/about",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/about/",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/services",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/services/",
+      "destination": "/",
+      "permanent": false
+    },
+    {
       "source": "/projects",
-      "destination": "/services/",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/projects/",
-      "destination": "/services/",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/projects/:path*",
-      "destination": "/services/",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/walk",
-      "destination": "/services/#spatial",
+      "destination": "/",
       "permanent": false
     }
   ],

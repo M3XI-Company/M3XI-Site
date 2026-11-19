@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import { resolve } from "node:path";
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 
 // The ops panel is gitignored (see .gitignore) because this repo is public, so
 // it exists locally but NOT on the build server. Listing it unconditionally
@@ -89,6 +89,16 @@ const captureAliases = existsSync(capturePage)
     }
   : {};
 
+// Team profiles: team/<slug>/index.html, written by tools/build-team.mjs from
+// team/people.json. Found by looking, so adding a person never needs an entry
+// here (a page missing from the input list is a silent 404 in production).
+const teamDir = resolve(__dirname, "team");
+const teamPages = Object.fromEntries(
+  readdirSync(teamDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && existsSync(resolve(teamDir, d.name, "index.html")))
+    .map((d) => ["team_" + d.name.replace(/[^a-z0-9]/gi, "_"), resolve(teamDir, d.name, "index.html")]),
+);
+
 export default defineConfig({
   resolve: { alias: { ...captureAliases, ...spatialAliases } },
   // The capture app analyses frames on a worker thread so a 50-90 ms blur
@@ -101,10 +111,13 @@ export default defineConfig({
       input: {
         ...privatePages,
         ...spatialPages,
-        // The front page is CallMe. Cornelia, AutoUV and the old CallMe
+        // The front page is M3XI itself, the brand (19 Nov 2026). The Breeze
+        // waitlist is /breeze/ and CallMe, once the front page, is /callme/. Cornelia, AutoUV and the old CallMe
         // waitlist page moved to _on_hold/ on 13 Sep 2026; vercel.json
         // redirects their old URLs.
         index: resolve(__dirname, "index.html"),
+        breeze: resolve(__dirname, "breeze/index.html"),
+        callme: resolve(__dirname, "callme/index.html"),
         // CallMe questions and safety have their own pages; the front page
         // forwards the old #faq / #safety links to them.
         questions: resolve(__dirname, "questions/index.html"),
@@ -118,10 +131,18 @@ export default defineConfig({
         // a published CSAE standards page; the Play declaration links here.
         childSafety: resolve(__dirname, "child-safety/index.html"),
         contact: resolve(__dirname, "contact/index.html"),
-        services: resolve(__dirname, "services/index.html"),
+        // /services/ is gone (client services and M3XI Spatial are no longer
+        // offered): the old page is _on_hold/services.html, and vercel.json
+        // sends its URLs to the front page.
         jobs: resolve(__dirname, "jobs/index.html"),
         michael: resolve(__dirname, "michael/index.html"),
+        // Michael's booklets and CV: written by tools/build-portfolio.mjs. Their
+        // photographs and the two CV PDFs stay in public/michael/portfolio/.
+        michaelBook: resolve(__dirname, "michael/portfolio/index.html"),
+        michaelEngineering: resolve(__dirname, "michael/portfolio/engineering.html"),
+        michaelCv: resolve(__dirname, "michael/portfolio/cv.html"),
         team: resolve(__dirname, "team/index.html"),
+        ...teamPages,
         // The creator studio: m3xi.com/design. It is a ROOT entry rather than
         // a file in public/ because it is a real app -- TypeScript modules,
         // bundled and hashed -- and because /design/ ships under

@@ -291,9 +291,25 @@ input[disabled],select[disabled],textarea[disabled]{opacity:.55;cursor:default}
   <a class="m3-brand" href="/"><img src="/M.png" alt="" width="30" height="30"> M3XI <span class="m3-jp" aria-hidden="true">三X一</span></a>
   <nav class="m3-nav" aria-label="Main">
     <ul class="m3-links">
-      <li><a href="/">CallMe</a></li>
-      <li><a href="/design/" aria-current="page">Create</a></li>
-      <li><a href="/events/">Events</a></li>
+      <li class="m3-prod">
+        <details class="m3-drop m3-here">
+          <summary>Products</summary>
+          <div class="m3-menu m3-menu--left">
+            <p class="m3-menu-h">Software products</p>
+            <ul>
+              <li><a href="/breeze/"><b>Breeze</b><small>Your AI fitness coach. Join the waitlist</small></a></li>
+              <li><a href="/callme/"><b>CallMe</b><small>Video call new people</small></a></li>
+            </ul>
+            <p class="m3-menu-h">More from CallMe</p>
+            <ul>
+              <li><a href="/design/" aria-current="page"><b>Create</b><small>Design your own cards</small></a></li>
+              <li><a href="/events/"><b>Events</b><small>What&rsquo;s on</small></a></li>
+            </ul>
+          </div>
+        </details>
+      </li>
+      <li><a href="/team/">Team</a></li>
+      <li><a href="/jobs/">Careers</a></li>
       <li class="m3-help">
         <details class="m3-drop">
           <summary>Help</summary>
@@ -334,11 +350,11 @@ input[disabled],select[disabled],textarea[disabled]{opacity:.55;cursor:default}
       <header class="cm-heading">
         <p class="cm-kicker">Not got the app yet?</p>
         <h2 id="getapp-h" class="cm-title cm-title--sm">Cards start in <em>CallMe.</em></h2>
-        <p class="cm-lede">Free on Android now. <span data-appstore="soon">The iPhone version is with Apple for review, and coming soon to the App Store.</span><span data-appstore="live" hidden>And on iPhone, from the App Store.</span></p>
+        <p class="cm-lede">Free on Android now. <span data-appstore="soon">The iPhone version is coming to the App Store for pre-order.</span><span data-appstore="live" hidden>And on iPhone, from the App Store.</span></p>
       </header>
       <div class="cm-stores">
         <a class="cm-store cm-store--primary" data-store="play" href="https://play.google.com/store/apps/details?id=com.m3xi.callme" rel="noopener">Get it on Google Play</a>
-        <span class="cm-store cm-store--soon" data-store="appstore">Coming soon to the App Store</span>
+        <span class="cm-store cm-store--soon" data-store="appstore">Pre-order on the App Store</span>
       </div>
     </div>
   </section>
@@ -347,13 +363,15 @@ input[disabled],select[disabled],textarea[disabled]{opacity:.55;cursor:default}
 <footer class="m3-foot"><div class="m3-footin">
   <div>
     <a class="m3-brand" href="/"><img src="/M.png" alt="" width="26" height="26"> M3XI</a>
-    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London</p>
+    <p class="m3-tag">We are connected.</p>
+    <p class="m3-copy">&copy; <span id="year">2026</span> M3XI LTD &middot; London, United Kingdom</p>
   </div>
   <nav class="m3-footnav" aria-label="Footer">
-    <div><p class="m3-fh">CallMe</p><ul>
-      <li><a href="/">CallMe</a></li>
-      <li><a href="/design/" aria-current="page">Create</a></li>
-      <li><a href="/events/">Events</a></li>
+    <div><p class="m3-fh">Products</p><ul>
+      <li><a href="/breeze/">Breeze</a></li>
+      <li><a href="/callme/">CallMe</a></li>
+      <li><a href="/design/" aria-current="page">CallMe Create</a></li>
+      <li><a href="/events/">CallMe Events</a></li>
     </ul></div>
     <div><p class="m3-fh">Help</p><ul>
       <li><a href="/questions/">Questions</a></li>
@@ -362,10 +380,9 @@ input[disabled],select[disabled],textarea[disabled]{opacity:.55;cursor:default}
       <li><a href="/delete-account/">Delete account</a></li>
     </ul></div>
     <div><p class="m3-fh">M3XI</p><ul>
+      <li><a href="/">About M3XI</a></li>
       <li><a href="/team/">Team</a></li>
-      <li><a href="/jobs/">Jobs</a></li>
-      <li><a href="/services/">Services</a></li>
-      <li><a href="/services/#spatial">M3XI Spatial</a></li>
+      <li><a href="/jobs/">Careers</a></li>
     </ul></div>
     <div><p class="m3-fh">Legal</p><ul>
       <li><a href="/privacy/">Policies</a></li>
